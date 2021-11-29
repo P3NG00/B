@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Data;
 using System.Collections.Generic;
 using System.Collections;
@@ -11,7 +12,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.11.25    ||
+||     2021.11.29    ||
 ||                   ||
 \* ================= */
 
@@ -98,8 +99,6 @@ public sealed class NumberGuesser : Option
     private Stage stage = Stage.MainMenu;
     private int numMax = 100;
     private int number;
-    private int guessNum;
-    private string guess;
 
     public sealed override void Loop()
     {
@@ -121,37 +120,36 @@ public sealed class NumberGuesser : Option
             case Stage.GameSetup:
                 {
                     this.number = Util.Random.Next(this.numMax + 1);
-                    this.guessNum = 0;
-                    this.guess = "";
+                    InputOptionBuilder.ResetNumbersRequestGuess();
                     this.stage = Stage.Game;
                 }
                 break;
 
             case Stage.Game:
                 {
+                    string guessMessage = "Between 0 - " + this.numMax;
+                    string guess = InputOptionBuilder.GetGuess();
+                    int guessNum = InputOptionBuilder.GetGuessNum();
+
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     Util.Print();
-                    Util.Print(this.guess, 2);
+                    Util.Print(guess, 2);
                     Util.Print();
 
-                    string guessMessage = "Between 0 - " + this.numMax;
-
-                    if (this.guess.Length > 0)
+                    if (guess.Length > 0)
                     {
-                        this.guessNum = int.Parse(this.guess);
-
-                        if (this.guessNum < this.number)
+                        if (guessNum < this.number)
                         {
                             guessMessage = "too low...";
                         }
-                        else if (this.guessNum > this.number)
+                        else if (guessNum > this.number)
                         {
                             guessMessage = "TOO HIGH!!!";
                         }
                     }
 
-                    bool won = this.guessNum == this.number;
+                    bool won = guessNum == this.number;
 
                     if (won)
                     {
@@ -167,25 +165,7 @@ public sealed class NumberGuesser : Option
                     }
                     else
                     {
-                        // TODO turn into static function in InputOptionBuilder
-                        // ATTEMPTED: could not figure out lambdas and static and ref usage, try again later
-                        InputOptionBuilder iob = InputOptionBuilder.Create("Enter a Number!", false)
-                            .AddAction(default(char), () => this.guess = this.guess.Substring(0, Math.Max(0, this.guess.Length - 1)), key: ConsoleKey.Backspace);
-
-                        for (int i = 0; i < 10; i++)
-                        {
-                            char c = (char)('0' + i);
-
-                            iob.AddAction(c, () =>
-                            {
-                                if (int.TryParse(this.guess + c, out this.guessNum))
-                                {
-                                    this.guess = this.guessNum.ToString();
-                                }
-                            });
-                        }
-
-                        iob.Request();
+                        InputOptionBuilder.CreateNumbersRequest("Enter a Number!").Request();
                     }
                 }
                 break;
@@ -193,20 +173,25 @@ public sealed class NumberGuesser : Option
             case Stage.Settings:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(20, 10);
-
-                    Util.Print();
-                    Util.Print("Max - {0}", 1, this.numMax);
-
+                    Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Settings")
-                        .AddAction('1', () =>
-                        {
-                            // TODO read line of int and put into numMax
-                            // WANT TO DO: use some static method in InputOptionBuilder for universal number control    
-                        }, "Max Number")
+                        .AddAction('1', () => this.stage = Stage.Settings_MaxNumber, "Max Number")
                         .AddSpacer()
                         .AddAction('0', () => this.stage = Stage.MainMenu, "Back")
                         .Request();
+                }
+                break;
+
+            case Stage.Settings_MaxNumber:
+                {
+                    Console.Clear();
+                    Util.SetConsoleSize(20, 5);
+                    Util.Print();
+                    Util.Print("Max - {0}", 1, this.numMax);
+                    InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
+                        .AddAction(default(char), () => this.stage = Stage.Settings, key: ConsoleKey.Escape)
+                        .Request();
+                    this.numMax = InputOptionBuilder.GetGuessNum();
                 }
                 break;
         }
@@ -218,6 +203,7 @@ public sealed class NumberGuesser : Option
         GameSetup,
         Game,
         Settings,
+        Settings_MaxNumber,
     }
 }
 
@@ -259,12 +245,19 @@ public sealed class InputOptionBuilder
     private string message;
     private bool displayOptions;
 
+    private static string guess = "";
+    private static int guessNum = 0;
+
+    public static string GetGuess() { return InputOptionBuilder.guess; }
+    public static int GetGuessNum() { return InputOptionBuilder.guessNum; }
+
     private InputOptionBuilder(string message, bool displayOptions)
     {
         this.message = message;
         this.displayOptions = displayOptions;
     }
 
+    // TODO see about removing the 'displayOptions' parameter
     public static InputOptionBuilder Create(string message, bool displayOptions = true) { return new InputOptionBuilder(message, displayOptions); }
 
     public InputOptionBuilder AddAction(char keyChar, Action action, string description = null, ConsoleKey key = default(ConsoleKey))
@@ -281,9 +274,6 @@ public sealed class InputOptionBuilder
 
     public void Request()
     {
-        // Add Escape key to end of list. This is overridden if the escape key finds a different bind before this one.
-        this.AddAction(default(char), () => Environment.Exit(0), key: ConsoleKey.Escape);
-
         // Display Message
         Util.Print();
         Util.Print("  " + message);
@@ -308,6 +298,8 @@ public sealed class InputOptionBuilder
                     Util.Print();
                 }
             }
+
+            int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
         }
 
         // Get User Key Info once, otherwise, it will call different keys each loop
@@ -321,6 +313,41 @@ public sealed class InputOptionBuilder
                 break;
             }
         }
+    }
+
+    public static InputOptionBuilder CreateNumbersRequest(string message)
+    {
+        InputOptionBuilder iob = InputOptionBuilder.Create(message, false)
+            .AddAction(default(char), () =>
+            {
+                InputOptionBuilder.guess = InputOptionBuilder.guess.Substring(0, Math.Max(0, InputOptionBuilder.guess.Length - 1));
+
+                if (!int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum))
+                {
+                    InputOptionBuilder.guessNum = 0;
+                }
+            }, key: ConsoleKey.Backspace);
+
+        for (int i = 0; i < 10; i++)
+        {
+            char c = (char)('0' + i);
+
+            iob.AddAction(c, () =>
+            {
+                if (int.TryParse(InputOptionBuilder.guess + c, out InputOptionBuilder.guessNum))
+                {
+                    InputOptionBuilder.guess = InputOptionBuilder.guessNum.ToString();
+                }
+            });
+        }
+
+        return iob;
+    }
+
+    public static void ResetNumbersRequestGuess()
+    {
+        InputOptionBuilder.guess = "";
+        InputOptionBuilder.guessNum = 0;
     }
 }
 
@@ -396,4 +423,6 @@ public static class Util
 
     // TODO if only referenced once, inline function
     public static void ToggleBool(ref bool b) { b = !b; }
+
+    public static void Quit() { Environment.Exit(0); }
 }
