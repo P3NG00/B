@@ -130,6 +130,7 @@ public sealed class NumberGuesser : Option
                     string guessMessage = "Between 0 - " + this.numMax;
                     string guess = InputOptionBuilder.GetGuess();
                     int guessNum = InputOptionBuilder.GetGuessNum();
+                    bool won = guessNum == this.number;
 
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
@@ -148,8 +149,6 @@ public sealed class NumberGuesser : Option
                             guessMessage = "TOO HIGH!!!";
                         }
                     }
-
-                    bool won = guessNum == this.number;
 
                     if (won)
                     {
@@ -243,7 +242,6 @@ public sealed class InputOptionBuilder
 {
     private readonly List<Tuple<ConsoleKey, char, string, Action>> actions = new List<Tuple<ConsoleKey, char, string, Action>>();
     private string message;
-    private bool displayOptions;
 
     private static string guess = "";
     private static int guessNum = 0;
@@ -251,14 +249,9 @@ public sealed class InputOptionBuilder
     public static string GetGuess() { return InputOptionBuilder.guess; }
     public static int GetGuessNum() { return InputOptionBuilder.guessNum; }
 
-    private InputOptionBuilder(string message, bool displayOptions)
-    {
-        this.message = message;
-        this.displayOptions = displayOptions;
-    }
+    private InputOptionBuilder(string message) { this.message = message; }
 
-    // TODO see about removing the 'displayOptions' parameter
-    public static InputOptionBuilder Create(string message, bool displayOptions = true) { return new InputOptionBuilder(message, displayOptions); }
+    public static InputOptionBuilder Create(string message) { return new InputOptionBuilder(message); }
 
     public InputOptionBuilder AddAction(char keyChar, Action action, string description = null, ConsoleKey key = default(ConsoleKey))
     {
@@ -277,30 +270,32 @@ public sealed class InputOptionBuilder
         // Display Message
         Util.Print();
         Util.Print("  " + message);
+        bool printLine = true;
 
-        if (this.displayOptions)
+        foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
         {
-            Util.Print();
-
-            foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
+            // If action is null, add space in display
+            // If action's char or string is null, don't display option
+            if (action != null)
             {
-                // If action is null, add space in display
-                // If action's char or string is null, don't display option
-                if (action != null)
+                if (action.Item2 != default(char) && action.Item3 != null)
                 {
-                    if (action.Item2 != default(char) && action.Item3 != null)
+                    if (printLine)
                     {
-                        Util.Print("{0}) {1}", 1, action.Item2, action.Item3);
+                        printLine = false;
+                        Util.Print();
                     }
-                }
-                else
-                {
-                    Util.Print();
+
+                    Util.Print("{0}) {1}", 1, action.Item2, action.Item3);
                 }
             }
-
-            int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
+            else if (!printLine)
+            {
+                printLine = true;
+            }
         }
+
+        int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
 
         // Get User Key Info once, otherwise, it will call different keys each loop
         ConsoleKeyInfo inputKeyInfo = Util.GetUserKeyInfo();
@@ -317,7 +312,7 @@ public sealed class InputOptionBuilder
 
     public static InputOptionBuilder CreateNumbersRequest(string message)
     {
-        InputOptionBuilder iob = InputOptionBuilder.Create(message, false)
+        InputOptionBuilder iob = InputOptionBuilder.Create(message)
             .AddAction(default(char), () =>
             {
                 InputOptionBuilder.guess = InputOptionBuilder.guess.Substring(0, Math.Max(0, InputOptionBuilder.guess.Length - 1));
