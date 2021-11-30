@@ -346,6 +346,22 @@ public sealed class InputOptionBuilder
     }
 }
 
+public sealed class Deck
+{
+    // TODO implement into Solitaire
+
+    private readonly List<Card> cards = new List<Card>();
+
+    public void DealTo(Deck deck)
+    {
+        if (this.cards.Count > 0)
+        {
+            deck.cards.Add(this.cards[0]);
+            this.cards.RemoveAt(0);
+        }
+    }
+}
+
 public sealed class Card
 {
     private readonly string suit;
