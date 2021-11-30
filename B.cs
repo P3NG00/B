@@ -1,7 +1,4 @@
-using System.Globalization;
-using System.Data;
 using System.Collections.Generic;
-using System.Collections;
 using System;
 
 /* ================= *\
@@ -208,33 +205,34 @@ public sealed class NumberGuesser : Option
 
 public sealed class Solitaire : Option
 {
-    Card[] deck = new Card[Util.DECKSIZE];
-
-    // TODO turn into game initialization function in setup stage
-    private void Start()
-    {
-        // Create copy of deck for shuffling
-        List<Card> deckTemp = new List<Card>(Util.DeckOriginal);
-        int r;
-
-        // Take all cards out of 'deckTemp' at random order
-        for (int i = 0; i < Util.DECKSIZE; i++)
-        {
-            r = Util.Random.Next(deckTemp.Count);
-            deck[i] = deckTemp[r];
-            deckTemp.RemoveAt(r);
-        }
-
-
-
-        // TODO shuffle cards
-        // TODO deal into piles
-    }
+    private Stage stage = Stage.MainMenu;
 
     public sealed override void Loop()
     {
-        // TODO actually do something
-        Console.ReadKey();
+        switch (this.stage)
+        {
+            case Stage.MainMenu:
+                {
+                }
+                break;
+
+            case Stage.GameSetup:
+                {
+                }
+                break;
+
+            case Stage.Game:
+                {
+                }
+                break;
+        }
+    }
+
+    enum Stage
+    {
+        MainMenu,
+        GameSetup,
+        Game,
     }
 }
 
@@ -348,7 +346,8 @@ public sealed class InputOptionBuilder
 
 public sealed class Deck
 {
-    // TODO implement into Solitaire
+    public const int DECKSIZE = 52;
+    public const int SUITSIZE = 13;
 
     private readonly List<Card> cards = new List<Card>();
 
@@ -359,6 +358,28 @@ public sealed class Deck
             deck.cards.Add(this.cards[0]);
             this.cards.RemoveAt(0);
         }
+    }
+
+    public static Deck CreateShuffledDeck()
+    {
+        string[] suits = new String[] { "Clubs", "Diamonds", "Hearts", "Spades" };
+        Deck deckTemp = new Deck();
+        Deck deck = new Deck();
+
+        for (int i = 0; i < DECKSIZE; i++)
+        {
+            deckTemp.cards.Add(new Card(suits[i / SUITSIZE], (i % SUITSIZE) + 1));
+        }
+
+        // Take all cards out of 'deckTemp' at random order
+        for (int i = 0; i < DECKSIZE; i++)
+        {
+            int r = Util.Random.Next(deckTemp.cards.Count);
+            deck.cards.Add(deckTemp.cards[r]);
+            deckTemp.cards.RemoveAt(r);
+        }
+
+        return deck;
     }
 }
 
@@ -389,13 +410,7 @@ public sealed class Card
 
 public static class Util
 {
-    public const int DECKSIZE = 52;
-    public const int SUITSIZE = 13;
-
     public static readonly Random Random = new Random();
-    public static readonly Card[] DeckOriginal = new Card[DECKSIZE];
-
-    static Util() { for (int i = 0; i < DECKSIZE; i++) DeckOriginal[i] = new Card(new string[] { "Clubs", "Diamonds", "Hearts", "Spades" }[i / SUITSIZE], (i % SUITSIZE) + 1); }
 
     // TODO if only referenced once, inline function
     public static ConsoleKeyInfo GetUserKeyInfo() { return Console.ReadKey(true); }
