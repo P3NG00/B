@@ -25,8 +25,6 @@ Adventure (walking around grid)
 
 public class Program
 {
-    public const bool DEBUG = true;
-
     public static void Main() { new Program().Start(); }
 
     // The currently selected option
