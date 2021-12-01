@@ -191,7 +191,7 @@ public sealed class NumberGuesser : Option
         }
     }
 
-    enum Stage
+    private enum Stage
     {
         MainMenu,
         GameSetup,
