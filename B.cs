@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.11.29    ||
+||     2021.12.01    ||
 ||                   ||
 \* ================= */
 
@@ -19,6 +19,7 @@ TODO options
 Solitaire
 Minesweeper
 Blackjack
+Adventure (walking around grid)
 
 */
 
@@ -44,12 +45,11 @@ public class Program
                 Console.Title = "B";
                 Console.BackgroundColor = ConsoleColor.White;
                 Console.ForegroundColor = ConsoleColor.Black;
-                Util.SetConsoleSize(20, 8);
+                Util.SetConsoleSize(20, 7);
                 Console.Clear();
 
                 InputOptionBuilder.Create("B's")
                     .AddAction('1', () => this.option = new NumberGuesser(), "Number Guesser")
-                    .AddAction('2', () => this.option = new Solitaire(), "Solitaire")
                     .AddSpacer()
                     .AddAction('0', () => this.running = false, "Quit")
                     .Request();
@@ -69,7 +69,7 @@ public class Program
             catch (Exception e)
             {
                 Util.SetConsoleSize(140, 30);
-                Util.Print(e.StackTrace);
+                Util.Print(e);
                 Util.WaitForInput();
             }
         }
@@ -203,39 +203,6 @@ public sealed class NumberGuesser : Option
     }
 }
 
-public sealed class Solitaire : Option
-{
-    private Stage stage = Stage.MainMenu;
-
-    public sealed override void Loop()
-    {
-        switch (this.stage)
-        {
-            case Stage.MainMenu:
-                {
-                }
-                break;
-
-            case Stage.GameSetup:
-                {
-                }
-                break;
-
-            case Stage.Game:
-                {
-                }
-                break;
-        }
-    }
-
-    enum Stage
-    {
-        MainMenu,
-        GameSetup,
-        Game,
-    }
-}
-
 public sealed class InputOptionBuilder
 {
     private readonly List<Tuple<ConsoleKey, char, string, Action>> actions = new List<Tuple<ConsoleKey, char, string, Action>>();
@@ -342,70 +309,6 @@ public sealed class InputOptionBuilder
         InputOptionBuilder.guess = "";
         InputOptionBuilder.guessNum = 0;
     }
-}
-
-public sealed class Deck
-{
-    public const int DECKSIZE = 52;
-    public const int SUITSIZE = 13;
-
-    private readonly List<Card> cards = new List<Card>();
-
-    public void DealTo(Deck deck)
-    {
-        if (this.cards.Count > 0)
-        {
-            deck.cards.Add(this.cards[0]);
-            this.cards.RemoveAt(0);
-        }
-    }
-
-    public static Deck CreateShuffledDeck()
-    {
-        string[] suits = new String[] { "Clubs", "Diamonds", "Hearts", "Spades" };
-        Deck deckTemp = new Deck();
-        Deck deck = new Deck();
-
-        for (int i = 0; i < DECKSIZE; i++)
-        {
-            deckTemp.cards.Add(new Card(suits[i / SUITSIZE], (i % SUITSIZE) + 1));
-        }
-
-        // Take all cards out of 'deckTemp' at random order
-        for (int i = 0; i < DECKSIZE; i++)
-        {
-            int r = Util.Random.Next(deckTemp.cards.Count);
-            deck.cards.Add(deckTemp.cards[r]);
-            deckTemp.cards.RemoveAt(r);
-        }
-
-        return deck;
-    }
-}
-
-public sealed class Card
-{
-    private readonly string suit;
-    private readonly int value;
-
-    public Card(string suit, int value)
-    {
-        this.suit = suit;
-        this.value = value;
-    }
-
-    private string GetValueIcon()
-    {
-        switch (this.value)
-        {
-            case 11: return " J";
-            case 12: return " Q";
-            case 13: return " K";
-            default: return string.Format("{0,2}", value);
-        }
-    }
-
-    public override string ToString() { return " " + this.GetValueIcon() + " of " + this.suit; }
 }
 
 public static class Util
