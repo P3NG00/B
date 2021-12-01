@@ -43,11 +43,12 @@ public class Program
                 Console.Title = "B";
                 Console.BackgroundColor = ConsoleColor.White;
                 Console.ForegroundColor = ConsoleColor.Black;
-                Util.SetConsoleSize(20, 7);
+                Util.SetConsoleSize(20, 8);
                 Console.Clear();
 
                 InputOptionBuilder.Create("B's")
                     .AddAction('1', () => this.option = new NumberGuesser(), "Number Guesser")
+                    .AddAction('2', () => this.option = new Adventure(), "Adventure")
                     .AddSpacer()
                     .AddAction('0', () => this.running = false, "Quit")
                     .Request();
@@ -198,6 +199,39 @@ public sealed class NumberGuesser : Option
         Game,
         Settings,
         Settings_MaxNumber,
+    }
+}
+
+public sealed class Adventure : Option
+{
+    private Stage stage = Stage.MainMenu;
+
+    public sealed override void Loop()
+    {
+        switch (this.stage)
+        {
+            case Stage.MainMenu:
+                {
+                }
+                break;
+
+            case Stage.GameSetup:
+                {
+                }
+                break;
+
+            case Stage.Game:
+                {
+                }
+                break;
+        }
+    }
+
+    private enum Stage
+    {
+        MainMenu,
+        GameSetup,
+        Game,
     }
 }
 
