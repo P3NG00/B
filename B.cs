@@ -1,3 +1,5 @@
+using System.Net;
+using System.Resources;
 using System.Collections.Generic;
 using System;
 
@@ -204,7 +206,22 @@ public sealed class NumberGuesser : Option
 
 public sealed class Adventure : Option
 {
+    // Chars
+    private const string CHARPLAYER = "()";
+    private const string CHARENEMY = "[]";
+    private const string CHAREMPTY = "  ";
+
+    private const string CHARCORNER0 = "//";
+    private const string CHARCORNER1 = "\\\\";
+
+    // The 'square' size of the grid
+    // TODO create maps of different sizes and keep this info in that class
+    private int displayWidth = 11;
+    private int displayHeight = 11;
+
     private Stage stage = Stage.MainMenu;
+
+    private Vector2 posPlayer;
 
     public sealed override void Loop()
     {
@@ -212,16 +229,67 @@ public sealed class Adventure : Option
         {
             case Stage.MainMenu:
                 {
+                    Console.Clear();
+                    Util.SetConsoleSize(20, 7); // TODO adjust size appropriately
+                    InputOptionBuilder.Create("Adventure")
+                        .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
+                        .AddSpacer()
+                        .AddAction('0', () => this.Running = false, "Back")
+                        .Request();
                 }
                 break;
 
+            // TODO remove this if the only line is switching the stage to game
             case Stage.GameSetup:
                 {
+                    this.posPlayer = new Vector2(this.displayWidth / 2, this.displayHeight / 2);
+                    this.stage = Stage.Game;
                 }
                 break;
 
             case Stage.Game:
                 {
+                    Console.Clear();
+                    Util.SetConsoleSize((this.displayWidth * 2) + 8, this.displayHeight + 8); // TODO figure out if num additions are necessary
+                    Util.Print();
+                    string borderHorizontal = Util.StringOf("=", this.displayWidth * 2);
+                    Util.Print("{0}{1}{2}", 2, CHARCORNER0, borderHorizontal, CHARCORNER1);
+                    string s;
+
+                    for (int y = displayHeight - 1; y >= 0; y--)
+                    {
+                        s = "||";
+
+                        for (int x = 0; x < this.displayWidth; x++)
+                        {
+                            Vector2 pos = new Vector2(x, y);
+
+                            if (pos == this.posPlayer)
+                            {
+                                s += CHARPLAYER;
+                            }
+                            else
+                            {
+                                s += CHAREMPTY;
+                            }
+                        }
+
+                        Util.Print(s + "||", 2);
+                    }
+
+                    Util.Print("{0}{1}{2}", 2, CHARCORNER1, borderHorizontal, CHARCORNER0);
+                    Util.Print();
+                    Util.Print("Move) WASD", 1);
+
+                    // TODO DONT LET PLAYER MOVE OUTSIDE OF AREA
+                    InputOptionBuilder.Create()
+                        .AddAction('w', () => this.posPlayer.y++)
+                        .AddAction('a', () => this.posPlayer.x--)
+                        .AddAction('s', () => this.posPlayer.y--)
+                        .AddAction('d', () => this.posPlayer.x++)
+                        .AddSpacer()
+                        .AddAction(default(char), () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
+                        .Request();
                 }
                 break;
         }
@@ -248,7 +316,7 @@ public sealed class InputOptionBuilder
 
     private InputOptionBuilder(string message) { this.message = message; }
 
-    public static InputOptionBuilder Create(string message) { return new InputOptionBuilder(message); }
+    public static InputOptionBuilder Create(string message = null) { return new InputOptionBuilder(message); }
 
     public InputOptionBuilder AddAction(char keyChar, Action action, string description = null, ConsoleKey key = default(ConsoleKey))
     {
@@ -264,9 +332,12 @@ public sealed class InputOptionBuilder
 
     public void Request()
     {
-        // Display Message
-        Util.Print();
-        Util.Print("  " + message);
+        if (this.message != null)
+        {
+            Util.Print();
+            Util.Print("  " + this.message);
+        }
+
         bool printLine = true;
 
         foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
@@ -275,15 +346,27 @@ public sealed class InputOptionBuilder
             // If action's char or string is null, don't display option
             if (action != null)
             {
-                if (action.Item2 != default(char) && action.Item3 != null)
+                // TODO print key if Description exists but Char does not, use ConsoleKey as char
+                if (action.Item3 != null)
                 {
+                    string s;
+
+                    if (action.Item2 == default(char))
+                    {
+                        s = action.Item1.ToString();
+                    }
+                    else
+                    {
+                        s = action.Item2.ToString();
+                    }
+
                     if (printLine)
                     {
                         printLine = false;
                         Util.Print();
                     }
 
-                    Util.Print("{0}) {1}", 1, action.Item2, action.Item3);
+                    Util.Print("{0}) {1}", 1, s, action.Item3);
                 }
             }
             else if (!printLine)
@@ -292,6 +375,7 @@ public sealed class InputOptionBuilder
             }
         }
 
+        // TODO figure out if this needs to be here?
         int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
 
         // Get User Key Info once, otherwise, it will call different keys each loop
@@ -343,8 +427,32 @@ public sealed class InputOptionBuilder
     }
 }
 
+public class Vector2
+{
+    public int x = 0;
+    public int y = 0;
+
+    public Vector2() { }
+
+    public Vector2(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public override int GetHashCode() { return (this.x * this.y).GetHashCode(); }
+
+    public override bool Equals(object obj) { return obj is Vector2 && this == (Vector2)obj; }
+
+    public static bool operator ==(Vector2 vec0, Vector2 vec1) { return vec0.x == vec1.x && vec0.y == vec1.y; }
+
+    public static bool operator !=(Vector2 vec0, Vector2 vec1) { return !(vec0 == vec1); }
+}
+
 public static class Util
 {
+    public const char DOT = '·';
+
     public static readonly Random Random = new Random();
 
     // TODO if only referenced once, inline function
@@ -352,6 +460,18 @@ public static class Util
 
     // TODO if only referenced once, inline function
     public static void WaitForInput() { Console.ReadKey(true); }
+
+    public static string StringOf(string str, int repeat)
+    {
+        string s = "";
+
+        for (int i = 0; i < repeat; i++)
+        {
+            s += str;
+        }
+
+        return s;
+    }
 
     // TODO if only referenced once, inline function
     public static void Print(object message = null, int offsetLeft = 0, params object[] args)
@@ -375,6 +495,10 @@ public static class Util
     }
 
     // TODO if only referenced once, inline function
+    //
+    // in every place this functions is called, Console.Clear() is also called, if this is true later, add that to this function and cleanup places it is used
+    // or
+    // create a thread that keeps the console size and constantly updates it
     public static void SetConsoleSize(int width, int height)
     {
         Console.SetWindowSize(width, height);
@@ -385,5 +509,6 @@ public static class Util
     // TODO if only referenced once, inline function
     public static void ToggleBool(ref bool b) { b = !b; }
 
+    // TODO if not referenced, remove function
     public static void Quit() { Environment.Exit(0); }
 }
