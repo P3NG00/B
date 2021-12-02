@@ -1,5 +1,3 @@
-using System.Net;
-using System.Resources;
 using System.Collections.Generic;
 using System;
 
@@ -52,7 +50,7 @@ public class Program
                     .AddAction('1', () => this.option = new NumberGuesser(), "Number Guesser")
                     .AddAction('2', () => this.option = new Adventure(), "Adventure")
                     .AddSpacer()
-                    .AddAction('0', () => this.running = false, "Quit")
+                    .AddAction(Util.NULLCHAR, () => this.running = false, "Quit", ConsoleKey.Escape)
                     .Request();
 
                 if (option != null)
@@ -93,6 +91,7 @@ public sealed class NumberGuesser : Option
     // TODO below
     // make able to specify custom range of number/
     // make able to use decimal places
+    // make able to use negative numbers
 
     private Stage stage = Stage.MainMenu;
     private int numMax = 100;
@@ -110,7 +109,7 @@ public sealed class NumberGuesser : Option
                         .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
                         .AddSpacer()
                         .AddAction('9', () => this.stage = Stage.Settings, "Settings")
-                        .AddAction('0', () => this.Running = false, "Back")
+                        .AddAction(Util.NULLCHAR, () => this.Running = false, "Back", ConsoleKey.Escape)
                         .Request();
                 }
                 break;
@@ -174,7 +173,7 @@ public sealed class NumberGuesser : Option
                     InputOptionBuilder.Create("Settings")
                         .AddAction('1', () => this.stage = Stage.Settings_MaxNumber, "Max Number")
                         .AddSpacer()
-                        .AddAction('0', () => this.stage = Stage.MainMenu, "Back")
+                        .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Back", ConsoleKey.Escape)
                         .Request();
                 }
                 break;
@@ -186,7 +185,7 @@ public sealed class NumberGuesser : Option
                     Util.Print();
                     Util.Print("Max - {0}", 1, this.numMax);
                     InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
-                        .AddAction(default(char), () => this.stage = Stage.Settings, key: ConsoleKey.Escape)
+                        .AddAction(Util.NULLCHAR, () => this.stage = Stage.Settings, "Back", ConsoleKey.Escape)
                         .Request();
                     this.numMax = InputOptionBuilder.GetGuessNum();
                 }
@@ -210,9 +209,8 @@ public sealed class Adventure : Option
     private const string CHARPLAYER = "()";
     private const string CHARENEMY = "[]";
     private const string CHAREMPTY = "  ";
-
-    private const string CHARCORNER0 = "//";
-    private const string CHARCORNER1 = "\\\\";
+    private const string CHARCORNERA = "//";
+    private const string CHARCORNERB = "\\\\";
 
     // The 'square' size of the grid
     // TODO create maps of different sizes and keep this info in that class
@@ -234,7 +232,7 @@ public sealed class Adventure : Option
                     InputOptionBuilder.Create("Adventure")
                         .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
                         .AddSpacer()
-                        .AddAction('0', () => this.Running = false, "Back")
+                        .AddAction(Util.NULLCHAR, () => this.Running = false, "Back", ConsoleKey.Escape)
                         .Request();
                 }
                 break;
@@ -253,7 +251,7 @@ public sealed class Adventure : Option
                     Util.SetConsoleSize((this.displayWidth * 2) + 8, this.displayHeight + 8); // TODO figure out if num additions are necessary
                     Util.Print();
                     string borderHorizontal = Util.StringOf("=", this.displayWidth * 2);
-                    Util.Print("{0}{1}{2}", 2, CHARCORNER0, borderHorizontal, CHARCORNER1);
+                    Util.Print("{0}{1}{2}", 2, CHARCORNERA, borderHorizontal, CHARCORNERB);
                     string s;
 
                     for (int y = displayHeight - 1; y >= 0; y--)
@@ -277,21 +275,30 @@ public sealed class Adventure : Option
                         Util.Print(s + "||", 2);
                     }
 
-                    Util.Print("{0}{1}{2}", 2, CHARCORNER1, borderHorizontal, CHARCORNER0);
+                    Util.Print("{0}{1}{2}", 2, CHARCORNERB, borderHorizontal, CHARCORNERA);
                     Util.Print();
-                    Util.Print("Move) WASD", 1);
-
-                    // TODO DONT LET PLAYER MOVE OUTSIDE OF AREA
+                    Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
-                        .AddAction('w', () => this.posPlayer.y++)
-                        .AddAction('a', () => this.posPlayer.x--)
-                        .AddAction('s', () => this.posPlayer.y--)
-                        .AddAction('d', () => this.posPlayer.x++)
+                        .AddAction('w', () => this.MovePlayer(Direction.Up))
+                        .AddAction('a', () => this.MovePlayer(Direction.Left))
+                        .AddAction('s', () => this.MovePlayer(Direction.Down))
+                        .AddAction('d', () => this.MovePlayer(Direction.Right))
                         .AddSpacer()
-                        .AddAction(default(char), () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
+                        .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
                         .Request();
                 }
                 break;
+        }
+    }
+
+    private void MovePlayer(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.Up: if (this.posPlayer.y < this.displayHeight - 1) { this.posPlayer.y++; } break;
+            case Direction.Left: if (this.posPlayer.x > 0) { this.posPlayer.x--; } break;
+            case Direction.Down: if (this.posPlayer.y > 0) { this.posPlayer.y--; } break;
+            case Direction.Right: if (this.posPlayer.x < this.displayWidth - 1) { this.posPlayer.x++; } break;
         }
     }
 
@@ -300,6 +307,14 @@ public sealed class Adventure : Option
         MainMenu,
         GameSetup,
         Game,
+    }
+
+    private enum Direction
+    {
+        Up,
+        Left,
+        Down,
+        Right,
     }
 }
 
@@ -351,7 +366,7 @@ public sealed class InputOptionBuilder
                 {
                     string s;
 
-                    if (action.Item2 == default(char))
+                    if (action.Item2 == Util.NULLCHAR)
                     {
                         s = action.Item1.ToString();
                     }
@@ -394,7 +409,7 @@ public sealed class InputOptionBuilder
     public static InputOptionBuilder CreateNumbersRequest(string message)
     {
         InputOptionBuilder iob = InputOptionBuilder.Create(message)
-            .AddAction(default(char), () =>
+            .AddAction(Util.NULLCHAR, () =>
             {
                 InputOptionBuilder.guess = InputOptionBuilder.guess.Substring(0, Math.Max(0, InputOptionBuilder.guess.Length - 1));
 
@@ -429,10 +444,17 @@ public sealed class InputOptionBuilder
 
 public class Vector2
 {
+    public static readonly Vector2 Up = new Vector2(0, 1);
+    public static readonly Vector2 Left = new Vector2(-1, 0);
+    public static readonly Vector2 Right = new Vector2(1, 0);
+    public static readonly Vector2 Down = new Vector2(0, -1);
+
     public int x = 0;
     public int y = 0;
 
     public Vector2() { }
+
+    public Vector2(int size) : this(size, size) { }
 
     public Vector2(int x, int y)
     {
@@ -444,14 +466,23 @@ public class Vector2
 
     public override bool Equals(object obj) { return obj is Vector2 && this == (Vector2)obj; }
 
-    public static bool operator ==(Vector2 vec0, Vector2 vec1) { return vec0.x == vec1.x && vec0.y == vec1.y; }
+    public static Vector2 operator +(Vector2 vecA, Vector2 vecB) { return new Vector2(vecA.x + vecB.x, vecA.y + vecB.y); }
 
-    public static bool operator !=(Vector2 vec0, Vector2 vec1) { return !(vec0 == vec1); }
+    public static Vector2 operator -(Vector2 vecA, Vector2 vecB) { return new Vector2(vecA.x - vecB.x, vecA.y - vecB.y); }
+
+    public static Vector2 operator *(Vector2 vec, int i) { return new Vector2(vec.x * i, vec.y * i); }
+
+    public static Vector2 operator /(Vector2 vec, int i) { return new Vector2(vec.x / i, vec.y / i); }
+
+    public static bool operator ==(Vector2 vecA, Vector2 vecB) { return vecA.x == vecB.x && vecA.y == vecB.y; }
+
+    public static bool operator !=(Vector2 vecA, Vector2 vecB) { return !(vecA == vecB); }
 }
 
 public static class Util
 {
     public const char DOT = '·';
+    public const char NULLCHAR = default(char);
 
     public static readonly Random Random = new Random();
 
