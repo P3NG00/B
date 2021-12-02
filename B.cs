@@ -19,7 +19,6 @@ TODO options
 Solitaire
 Minesweeper
 Blackjack
-Adventure (walking around grid)
 
 */
 
@@ -73,7 +72,7 @@ public class Program
             }
         }
 
-        // TODO exit code, save data
+        // Place exit code like data saving here
     }
 }
 
@@ -205,6 +204,8 @@ public sealed class NumberGuesser : Option
 
 public sealed class Adventure : Option
 {
+    // TODO create stuff to do in adventure
+
     // Chars
     private const string CHARPLAYER = "()";
     private const string CHARENEMY = "[]";
@@ -212,7 +213,6 @@ public sealed class Adventure : Option
     private const string CHARCORNERA = "//";
     private const string CHARCORNERB = "\\\\";
 
-    // The 'square' size of the grid
     // TODO create maps of different sizes and keep this info in that class
     private int displayWidth = 11;
     private int displayHeight = 11;
@@ -228,7 +228,7 @@ public sealed class Adventure : Option
             case Stage.MainMenu:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(20, 7); // TODO adjust size appropriately
+                    Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Adventure")
                         .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
                         .AddSpacer()
@@ -237,7 +237,6 @@ public sealed class Adventure : Option
                 }
                 break;
 
-            // TODO remove this if the only line is switching the stage to game
             case Stage.GameSetup:
                 {
                     this.posPlayer = new Vector2(this.displayWidth / 2, this.displayHeight / 2);
@@ -248,7 +247,7 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize((this.displayWidth * 2) + 8, this.displayHeight + 8); // TODO figure out if num additions are necessary
+                    Util.SetConsoleSize((this.displayWidth * 2) + 8, this.displayHeight + 8);
                     Util.Print();
                     string borderHorizontal = Util.StringOf("=", this.displayWidth * 2);
                     Util.Print("{0}{1}{2}", 2, CHARCORNERA, borderHorizontal, CHARCORNERB);
@@ -361,7 +360,6 @@ public sealed class InputOptionBuilder
             // If action's char or string is null, don't display option
             if (action != null)
             {
-                // TODO print key if Description exists but Char does not, use ConsoleKey as char
                 if (action.Item3 != null)
                 {
                     string s;
@@ -394,7 +392,7 @@ public sealed class InputOptionBuilder
         int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
 
         // Get User Key Info once, otherwise, it will call different keys each loop
-        ConsoleKeyInfo inputKeyInfo = Util.GetUserKeyInfo();
+        ConsoleKeyInfo inputKeyInfo = Console.ReadKey(true);
 
         foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
         {
@@ -486,10 +484,6 @@ public static class Util
 
     public static readonly Random Random = new Random();
 
-    // TODO if only referenced once, inline function
-    public static ConsoleKeyInfo GetUserKeyInfo() { return Console.ReadKey(true); }
-
-    // TODO if only referenced once, inline function
     public static void WaitForInput() { Console.ReadKey(true); }
 
     public static string StringOf(string str, int repeat)
@@ -504,7 +498,6 @@ public static class Util
         return s;
     }
 
-    // TODO if only referenced once, inline function
     public static void Print(object message = null, int offsetLeft = 0, params object[] args)
     {
         // If no message, cannot print
@@ -525,21 +518,10 @@ public static class Util
         }
     }
 
-    // TODO if only referenced once, inline function
-    //
-    // in every place this functions is called, Console.Clear() is also called, if this is true later, add that to this function and cleanup places it is used
-    // or
-    // create a thread that keeps the console size and constantly updates it
     public static void SetConsoleSize(int width, int height)
     {
         Console.SetWindowSize(width, height);
         Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
         Console.SetWindowSize(width, height);
     }
-
-    // TODO if only referenced once, inline function
-    public static void ToggleBool(ref bool b) { b = !b; }
-
-    // TODO if not referenced, remove function
-    public static void Quit() { Environment.Exit(0); }
 }
