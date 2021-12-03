@@ -287,10 +287,10 @@ public sealed class Adventure : Option
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
-                        .AddAction('w', () => this.MovePlayer(Direction.Up))
-                        .AddAction('a', () => this.MovePlayer(Direction.Left))
-                        .AddAction('s', () => this.MovePlayer(Direction.Down))
-                        .AddAction('d', () => this.MovePlayer(Direction.Right))
+                        .AddAction('w', () => this.MovePlayer(Direction.Up), key: ConsoleKey.NumPad8)
+                        .AddAction('a', () => this.MovePlayer(Direction.Left), key: ConsoleKey.NumPad4)
+                        .AddAction('s', () => this.MovePlayer(Direction.Down), key: ConsoleKey.NumPad2)
+                        .AddAction('d', () => this.MovePlayer(Direction.Right), key: ConsoleKey.NumPad6)
                         .AddSpacer()
                         .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
                         .Request();
