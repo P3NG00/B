@@ -332,6 +332,18 @@ public sealed class Adventure : Option
             this.Chars = chars;
             this.IsWall = isWall;
         }
+
+        public static explicit operator Tile(char c)
+        {
+            try
+            {
+                return Tile.TileMap[c];
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new ArgumentException(string.Format("Invalid tile character \"{0}\"", c));
+            }
+        }
     }
 
     private sealed class Grid
@@ -383,16 +395,7 @@ public sealed class Adventure : Option
 
                         for (int x = 0; x < width; x++)
                         {
-                            char c = ca[x];
-
-                            try
-                            {
-                                this.tileGrid[y][x] = Tile.TileMap[c];
-                            }
-                            catch (KeyNotFoundException)
-                            {
-                                throw new ArgumentException("Invalid tile character \"" + c + "\"");
-                            }
+                            this.tileGrid[y][x] = (Tile)ca[x];
                         }
                     }
                     else
