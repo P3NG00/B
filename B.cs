@@ -79,7 +79,11 @@ public class Program
 public abstract class Option
 {
     // Whether the Option should continue to run
-    public bool Running = true;
+    private bool running = true;
+
+    public bool Running { get { return this.running; } }
+
+    public void Quit() { this.running = false; }
 
     // The method that is called while Option is Running
     public abstract void Loop();
@@ -108,14 +112,14 @@ public sealed class NumberGuesser : Option
                         .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
                         .AddSpacer()
                         .AddAction('9', () => this.stage = Stage.Settings, "Settings")
-                        .AddAction(Util.NULLCHAR, () => this.Running = false, "Back", ConsoleKey.Escape)
+                        .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
                         .Request();
                 }
                 break;
 
             case Stage.GameSetup:
                 {
-                    this.number = Util.Random.Next(this.numMax + 1);
+                    this.number = Util.Random.Next(this.numMax) + 1;
                     InputOptionBuilder.ResetNumbersRequestGuess();
                     this.stage = Stage.Game;
                 }
@@ -148,12 +152,14 @@ public sealed class NumberGuesser : Option
 
                     if (won)
                     {
-                        guessMessage = new string[]
+                        string[] winMsgs = new string[]
                         {
                             "Right on!",
                             "Perfect!",
                             "Correct!",
-                        }[Util.Random.Next(this.winMessages.Length)];
+                        };
+
+                        guessMessage = winMsgs[Util.Random.Next(winMsgs.Length)];
                     }
 
                     Util.Print(guessMessage, 2);
@@ -165,7 +171,9 @@ public sealed class NumberGuesser : Option
                     }
                     else
                     {
-                        InputOptionBuilder.CreateNumbersRequest("Enter a Number!").Request();
+                        InputOptionBuilder.CreateNumbersRequest("Enter a Number!")
+                            .AddAction(Util.NULLCHAR, () => this.Quit(), key: ConsoleKey.Escape)
+                            .Request();
                     }
                 }
                 break;
@@ -240,7 +248,7 @@ public sealed class Adventure : Option
                     InputOptionBuilder.Create("Adventure")
                         .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
                         .AddSpacer()
-                        .AddAction(Util.NULLCHAR, () => this.Running = false, "Back", ConsoleKey.Escape)
+                        .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
                         .Request();
                 }
                 break;
