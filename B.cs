@@ -217,17 +217,12 @@ public sealed class NumberGuesser : Option
 
 public sealed class Adventure : Option
 {
-    // TODO create stuff to do in adventure
-    // TODO try new position for player and if it is a wall, don't move
-    // TODO create maps that consist of walls
     // TODO create things to interact with,
     //  interact by standing next to the object and moving into it
 
     // Chars
     private const string CHAR_PLAYER = "()";
     private const string CHAR_ENEMY = "[]";
-    private const string CHAR_EMPTY = "  ";
-    private const string CHAR_WALL = "▓▓";
     private const string CHAR_BORDER_HORIZONTAL = "==";
     private const string CHAR_BORDER_VERTICAL = "||";
     private const string CHAR_CORNER_A = "//";
@@ -255,7 +250,7 @@ public sealed class Adventure : Option
 
             case Stage.GameSetup:
                 {
-                    this.grid = Grids.GridFirst;
+                    this.grid = Grid.GridFirst;
                     this.posPlayer = new Vector2(this.grid.Width / 2, this.grid.Height / 2);
                     this.stage = Stage.Game;
                 }
@@ -277,19 +272,15 @@ public sealed class Adventure : Option
                         for (int x = 0; x < this.grid.Width; x++)
                         {
                             Vector2 pos = new Vector2(x, y);
-                            char c = this.grid.GetChar(x, y);
+                            Tile tile = this.grid.GetTile(x, y);
 
                             if (pos == this.posPlayer)
                             {
                                 s += CHAR_PLAYER;
                             }
-                            else if (c == 'w')
-                            {
-                                s += CHAR_WALL;
-                            }
                             else
                             {
-                                s += CHAR_EMPTY;
+                                s += tile.Chars;
                             }
                         }
 
@@ -316,31 +307,33 @@ public sealed class Adventure : Option
     {
         Vector2 newPos = this.posPlayer + direction.ToVector2();
 
-        if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height && this.grid.GetChar(newPos) != 'w')
+        if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height && !this.grid.GetTile(newPos).IsWall)
         {
             this.posPlayer = newPos;
         }
     }
 
-    private static class Grids
+    private sealed class Tile
     {
-        public static readonly Grid GridFirst;
+        public static readonly Tile TileEmpty = new Tile("  ", false);
+        public static readonly Tile TileWall = new Tile("▓▓", true);
 
-        static Grids()
+        public readonly string Chars;
+        public readonly bool IsWall;
+
+        public Tile(string chars, bool isWall)
         {
-            // Grid First
-            string[] sa = new string[15];
-            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
-            sa[1] = " wwwwwwwwwwwww ";
-            sa[7] = "   w   w   w   ";
-            sa[13] = " wwwwwwwwwwwww ";
-            Grids.GridFirst = new Grid(sa);
+            if (chars.Length != 2) { throw new ArgumentException("chars.Length != 2"); }
+            this.Chars = chars;
+            this.IsWall = isWall;
         }
     }
 
-    private class Grid
+    private sealed class Grid
     {
-        private readonly string[] map;
+        public static readonly Grid GridFirst;
+
+        private readonly Tile[][] tileGrid;
         private readonly int width;
         private readonly int height;
 
@@ -348,31 +341,65 @@ public sealed class Adventure : Option
         public int Width { get { return this.width; } }
         public int Height { get { return this.height; } }
 
-        public char GetChar(Vector2 pos) { return this.GetChar(pos.x, pos.y); }
+        public Tile GetTile(Vector2 pos) { return this.GetTile(pos.x, pos.y); }
 
-        public char GetChar(int x, int y) { return this.map[this.Height - y - 1].ToCharArray()[x]; }
+        public Tile GetTile(int x, int y) { return this.tileGrid[y][x]; }
 
-        public Grid(string[] map)
+        static Grid()
         {
-            if (map.Length > 0)
-            {
-                int length = map[0].Length;
+            // Grid First
+            string[] sa = new string[15];
+            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
+            sa[1] = " wwwwwwwwwwwww ";
+            sa[7] = "   w   w   w   ";
+            sa[13] = " wwwwwwwwwwwww ";
+            Grid.GridFirst = new Grid(sa);
+        }
 
-                for (int i = 1; i < map.Length; i++)
+        public Grid(string[] raw)
+        {
+            if (raw.Length > 0)
+            {
+                this.width = raw[0].Length;
+                this.height = raw.Length;
+                this.tileGrid = new Tile[this.height][];
+
+                for (int y = 0; y < height; y++)
                 {
-                    if (map[i].Length != length)
+                    string str = raw[y];
+
+                    if (str.Length == this.width)
                     {
-                        throw new ArgumentException("All rows must be the same length");
+                        this.tileGrid[y] = new Tile[this.width];
+                        char[] ca = str.ToCharArray();
+
+                        for (int x = 0; x < width; x++)
+                        {
+                            char c = ca[x];
+
+                            if (c == ' ')
+                            {
+                                this.tileGrid[y][x] = Tile.TileEmpty;
+                            }
+                            else if (c == 'w')
+                            {
+                                this.tileGrid[y][x] = Tile.TileWall;
+                            }
+                            else
+                            {
+                                throw new ArgumentException("Invalid character in grid");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException("All rows must be same length");
                     }
                 }
-
-                this.map = map;
-                this.width = map[0].Length;
-                this.height = map.Length;
             }
             else
             {
-                throw new ArgumentException("Map must have at least one row");
+                throw new ArgumentException("Grid must have at least one row");
             }
         }
     }
@@ -480,7 +507,7 @@ public sealed class InputOptionBuilder
             }
         }
 
-        // TODO figure out if this needs to be here?
+        // This needs to be here for parsing InputOptionBuilder Numbers
         int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
 
         // Get User Key Info once, otherwise, it will call different keys each loop
