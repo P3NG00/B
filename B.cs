@@ -301,12 +301,11 @@ public sealed class Adventure : Option
 
     private void MovePlayer(Direction direction)
     {
-        switch (direction)
+        Vector2 newPos = this.posPlayer + direction.ToVector2();
+
+        if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height && this.grid.GetChar(newPos) != 'w')
         {
-            case Direction.Up: if (this.posPlayer.y < this.grid.Height - 1) { this.posPlayer.y++; } break;
-            case Direction.Left: if (this.posPlayer.x > 0) { this.posPlayer.x--; } break;
-            case Direction.Down: if (this.posPlayer.y > 0) { this.posPlayer.y--; } break;
-            case Direction.Right: if (this.posPlayer.x < this.grid.Width - 1) { this.posPlayer.x++; } break;
+            this.posPlayer = newPos;
         }
     }
 
@@ -335,6 +334,8 @@ public sealed class Adventure : Option
         public int RealWidth { get { return this.width * 2; } }
         public int Width { get { return this.width; } }
         public int Height { get { return this.height; } }
+
+        public char GetChar(Vector2 pos) { return this.GetChar(pos.x, pos.y); }
 
         public char GetChar(int x, int y) { return this.map[this.Height - y - 1].ToCharArray()[x]; }
 
@@ -369,13 +370,29 @@ public sealed class Adventure : Option
         GameSetup,
         Game,
     }
+}
 
-    private enum Direction
+public enum Direction
+{
+    Up,
+    Left,
+    Down,
+    Right,
+}
+
+public static class DirectionFunc
+{
+    public static Vector2 ToVector2(this Direction direction)
     {
-        Up,
-        Left,
-        Down,
-        Right,
+        switch (direction)
+        {
+            case Direction.Up: return Vector2.Up;
+            case Direction.Left: return Vector2.Left;
+            case Direction.Down: return Vector2.Down;
+            case Direction.Right: return Vector2.Right;
+        }
+
+        return Vector2.Zero;
     }
 }
 
@@ -508,6 +525,7 @@ public class Vector2
     public static readonly Vector2 Left = new Vector2(-1, 0);
     public static readonly Vector2 Right = new Vector2(1, 0);
     public static readonly Vector2 Down = new Vector2(0, -1);
+    public static readonly Vector2 Zero = new Vector2(0);
 
     public int x = 0;
     public int y = 0;
