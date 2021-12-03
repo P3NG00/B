@@ -205,46 +205,24 @@ public sealed class NumberGuesser : Option
 public sealed class Adventure : Option
 {
     // TODO create stuff to do in adventure
-    // TODO create walls that cannot be walked through
-    //  try new position for player and if it is a wall, don't move
+    // TODO try new position for player and if it is a wall, don't move
     // TODO create maps that consist of walls
     // TODO create things to interact with,
     //  interact by standing next to the object and moving into it
 
     // Chars
-    private const string CHARPLAYER = "()";
-    private const string CHARENEMY = "[]";
-    private const string CHAREMPTY = "  ";
-    private const string CHARWALLA = "▓▓"; // TODO choose which wall to use
-    private const string CHARWALLB = "██";
-    private const string CHARCORNERA = "//";
-    private const string CHARCORNERB = "\\\\";
-
-    private static readonly Grid GRID;
-
-    static Adventure()
-    {
-        string s = Util.StringOf(" ", 11);
-
-        Adventure.GRID = new Grid(new string[]
-        {
-            s,
-            " www       ",
-            s,
-            s,
-            s,
-            s,
-            s,
-            s,
-            s,
-            s,
-            s,
-        });
-    }
+    private const string CHAR_PLAYER = "()";
+    private const string CHAR_ENEMY = "[]";
+    private const string CHAR_EMPTY = "  ";
+    private const string CHAR_WALL = "▓▓";
+    private const string CHAR_BORDER_HORIZONTAL = "==";
+    private const string CHAR_BORDER_VERTICAL = "||";
+    private const string CHAR_CORNER_A = "//";
+    private const string CHAR_CORNER_B = @"\\";
 
     private Stage stage = Stage.MainMenu;
-
     private Vector2 posPlayer;
+    private Grid grid;
 
     public sealed override void Loop()
     {
@@ -264,7 +242,8 @@ public sealed class Adventure : Option
 
             case Stage.GameSetup:
                 {
-                    this.posPlayer = new Vector2(Adventure.GRID.Width / 2, Adventure.GRID.Height / 2);
+                    this.grid = Grids.GridFirst;
+                    this.posPlayer = new Vector2(this.grid.Width / 2, this.grid.Height / 2);
                     this.stage = Stage.Game;
                 }
                 break;
@@ -272,39 +251,39 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize((Adventure.GRID.Width * 2) + 8, Adventure.GRID.Height + 8);
+                    Util.SetConsoleSize(this.grid.RealWidth + 8, this.grid.Height + 8);
                     Util.Print();
-                    string borderHorizontal = Util.StringOf("=", Adventure.GRID.Width * 2);
-                    Util.Print("{0}{1}{2}", 2, CHARCORNERA, borderHorizontal, CHARCORNERB);
+                    string borderHorizontal = Util.StringOf(CHAR_BORDER_HORIZONTAL, this.grid.Width);
+                    Util.Print("{0}{1}{2}", 2, CHAR_CORNER_A, borderHorizontal, CHAR_CORNER_B);
                     string s;
 
-                    for (int y = Adventure.GRID.Height - 1; y >= 0; y--)
+                    for (int y = this.grid.Height - 1; y >= 0; y--)
                     {
-                        s = "||";
+                        s = CHAR_BORDER_VERTICAL;
 
-                        for (int x = 0; x < Adventure.GRID.Width; x++)
+                        for (int x = 0; x < this.grid.Width; x++)
                         {
                             Vector2 pos = new Vector2(x, y);
-                            char c = Adventure.GRID.GetChar(x, y);
+                            char c = this.grid.GetChar(x, y);
 
                             if (pos == this.posPlayer)
                             {
-                                s += CHARPLAYER;
+                                s += CHAR_PLAYER;
                             }
                             else if (c == 'w')
                             {
-                                s += CHARWALLA; // TODO try CHARWALLB
+                                s += CHAR_WALL;
                             }
                             else
                             {
-                                s += CHAREMPTY;
+                                s += CHAR_EMPTY;
                             }
                         }
 
-                        Util.Print(s + "||", 2);
+                        Util.Print(s + CHAR_BORDER_VERTICAL, 2);
                     }
 
-                    Util.Print("{0}{1}{2}", 2, CHARCORNERB, borderHorizontal, CHARCORNERA);
+                    Util.Print("{0}{1}{2}", 2, CHAR_CORNER_B, borderHorizontal, CHAR_CORNER_A);
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
@@ -324,10 +303,26 @@ public sealed class Adventure : Option
     {
         switch (direction)
         {
-            case Direction.Up: if (this.posPlayer.y < Adventure.GRID.Height - 1) { this.posPlayer.y++; } break;
+            case Direction.Up: if (this.posPlayer.y < this.grid.Height - 1) { this.posPlayer.y++; } break;
             case Direction.Left: if (this.posPlayer.x > 0) { this.posPlayer.x--; } break;
             case Direction.Down: if (this.posPlayer.y > 0) { this.posPlayer.y--; } break;
-            case Direction.Right: if (this.posPlayer.x < Adventure.GRID.Width - 1) { this.posPlayer.x++; } break;
+            case Direction.Right: if (this.posPlayer.x < this.grid.Width - 1) { this.posPlayer.x++; } break;
+        }
+    }
+
+    private static class Grids
+    {
+        public static readonly Grid GridFirst;
+
+        static Grids()
+        {
+            // Grid First
+            string[] sa = new string[15];
+            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
+            sa[1] = " wwwwwwwwwwwww ";
+            sa[7] = "   w   w   w   ";
+            sa[13] = " wwwwwwwwwwwww ";
+            Grids.GridFirst = new Grid(sa);
         }
     }
 
@@ -337,6 +332,7 @@ public sealed class Adventure : Option
         private readonly int width;
         private readonly int height;
 
+        public int RealWidth { get { return this.width * 2; } }
         public int Width { get { return this.width; } }
         public int Height { get { return this.height; } }
 
@@ -462,7 +458,7 @@ public sealed class InputOptionBuilder
 
         foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
         {
-            if (action != null && (action.Item1 == inputKeyInfo.Key || action.Item2 == inputKeyInfo.KeyChar))
+            if (action != null && (action.Item1 == inputKeyInfo.Key || (action.Item2 != default(char) && action.Item2 == inputKeyInfo.KeyChar)))
             {
                 action.Item4.Invoke();
                 break;
