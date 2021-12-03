@@ -155,7 +155,12 @@ public sealed class NumberGuesser : Option
 
                     if (won)
                     {
-                        guessMessage = this.winMessages[Util.Random.Next(this.winMessages.Length)];
+                        guessMessage = new string[]
+                        {
+                            "Right on!",
+                            "Perfect!",
+                            "Correct!",
+                        }[Util.Random.Next(this.winMessages.Length)];
                     }
 
                     Util.Print(guessMessage, 2);
