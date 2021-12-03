@@ -92,6 +92,13 @@ public sealed class NumberGuesser : Option
     // make able to use decimal places
     // make able to use negative numbers
 
+    private readonly string[] winMessages = new string[]
+    {
+        "Right on!",
+        "Perfect!",
+        "Correct!",
+    };
+
     private Stage stage = Stage.MainMenu;
     private int numMax = 100;
     private int number;
@@ -148,7 +155,7 @@ public sealed class NumberGuesser : Option
 
                     if (won)
                     {
-                        guessMessage = "Right On!"; // TODO create random list this pulls from ("Perfect!", "Correct!")
+                        guessMessage = this.winMessages[Util.Random.Next(this.winMessages.Length)];
                     }
 
                     Util.Print(guessMessage, 2);
@@ -180,7 +187,7 @@ public sealed class NumberGuesser : Option
             case Stage.Settings_MaxNumber:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(20, 5);
+                    Util.SetConsoleSize(20, 7);
                     Util.Print();
                     Util.Print("Max - {0}", 1, this.numMax);
                     InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
