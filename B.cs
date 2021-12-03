@@ -124,8 +124,8 @@ public sealed class NumberGuesser : Option
             case Stage.Game:
                 {
                     string guessMessage = "Between 0 - " + this.numMax;
-                    string guess = InputOptionBuilder.GetGuess();
-                    int guessNum = InputOptionBuilder.GetGuessNum();
+                    string guess = InputOptionBuilder.Guess;
+                    int guessNum = InputOptionBuilder.GuessNum;
                     bool won = guessNum == this.number;
 
                     Console.Clear();
@@ -186,7 +186,7 @@ public sealed class NumberGuesser : Option
                     InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
                         .AddAction(Util.NULLCHAR, () => this.stage = Stage.Settings, "Back", ConsoleKey.Escape)
                         .Request();
-                    this.numMax = InputOptionBuilder.GetGuessNum();
+                    this.numMax = InputOptionBuilder.GuessNum;
                 }
                 break;
         }
@@ -205,17 +205,42 @@ public sealed class NumberGuesser : Option
 public sealed class Adventure : Option
 {
     // TODO create stuff to do in adventure
+    // TODO create walls that cannot be walked through
+    //  try new position for player and if it is a wall, don't move
+    // TODO create maps that consist of walls
+    // TODO create things to interact with,
+    //  interact by standing next to the object and moving into it
 
     // Chars
     private const string CHARPLAYER = "()";
     private const string CHARENEMY = "[]";
     private const string CHAREMPTY = "  ";
+    private const string CHARWALLA = "▓▓"; // TODO choose which wall to use
+    private const string CHARWALLB = "██";
     private const string CHARCORNERA = "//";
     private const string CHARCORNERB = "\\\\";
 
-    // TODO create maps of different sizes and keep this info in that class
-    private int displayWidth = 11;
-    private int displayHeight = 11;
+    private static readonly Grid GRID;
+
+    static Adventure()
+    {
+        string s = Util.StringOf(" ", 11);
+
+        Adventure.GRID = new Grid(new string[]
+        {
+            s,
+            " www       ",
+            s,
+            s,
+            s,
+            s,
+            s,
+            s,
+            s,
+            s,
+            s,
+        });
+    }
 
     private Stage stage = Stage.MainMenu;
 
@@ -239,7 +264,7 @@ public sealed class Adventure : Option
 
             case Stage.GameSetup:
                 {
-                    this.posPlayer = new Vector2(this.displayWidth / 2, this.displayHeight / 2);
+                    this.posPlayer = new Vector2(Adventure.GRID.Width / 2, Adventure.GRID.Height / 2);
                     this.stage = Stage.Game;
                 }
                 break;
@@ -247,23 +272,28 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize((this.displayWidth * 2) + 8, this.displayHeight + 8);
+                    Util.SetConsoleSize((Adventure.GRID.Width * 2) + 8, Adventure.GRID.Height + 8);
                     Util.Print();
-                    string borderHorizontal = Util.StringOf("=", this.displayWidth * 2);
+                    string borderHorizontal = Util.StringOf("=", Adventure.GRID.Width * 2);
                     Util.Print("{0}{1}{2}", 2, CHARCORNERA, borderHorizontal, CHARCORNERB);
                     string s;
 
-                    for (int y = displayHeight - 1; y >= 0; y--)
+                    for (int y = Adventure.GRID.Height - 1; y >= 0; y--)
                     {
                         s = "||";
 
-                        for (int x = 0; x < this.displayWidth; x++)
+                        for (int x = 0; x < Adventure.GRID.Width; x++)
                         {
                             Vector2 pos = new Vector2(x, y);
+                            char c = Adventure.GRID.GetChar(x, y);
 
                             if (pos == this.posPlayer)
                             {
                                 s += CHARPLAYER;
+                            }
+                            else if (c == 'w')
+                            {
+                                s += CHARWALLA; // TODO try CHARWALLB
                             }
                             else
                             {
@@ -294,10 +324,46 @@ public sealed class Adventure : Option
     {
         switch (direction)
         {
-            case Direction.Up: if (this.posPlayer.y < this.displayHeight - 1) { this.posPlayer.y++; } break;
+            case Direction.Up: if (this.posPlayer.y < Adventure.GRID.Height - 1) { this.posPlayer.y++; } break;
             case Direction.Left: if (this.posPlayer.x > 0) { this.posPlayer.x--; } break;
             case Direction.Down: if (this.posPlayer.y > 0) { this.posPlayer.y--; } break;
-            case Direction.Right: if (this.posPlayer.x < this.displayWidth - 1) { this.posPlayer.x++; } break;
+            case Direction.Right: if (this.posPlayer.x < Adventure.GRID.Width - 1) { this.posPlayer.x++; } break;
+        }
+    }
+
+    private class Grid
+    {
+        private readonly string[] map;
+        private readonly int width;
+        private readonly int height;
+
+        public int Width { get { return this.width; } }
+        public int Height { get { return this.height; } }
+
+        public char GetChar(int x, int y) { return this.map[this.Height - y - 1].ToCharArray()[x]; }
+
+        public Grid(string[] map)
+        {
+            if (map.Length > 0)
+            {
+                int length = map[0].Length;
+
+                for (int i = 1; i < map.Length; i++)
+                {
+                    if (map[i].Length != length)
+                    {
+                        throw new ArgumentException("All rows must be the same length");
+                    }
+                }
+
+                this.map = map;
+                this.width = map[0].Length;
+                this.height = map.Length;
+            }
+            else
+            {
+                throw new ArgumentException("Map must have at least one row");
+            }
         }
     }
 
@@ -325,8 +391,8 @@ public sealed class InputOptionBuilder
     private static string guess = "";
     private static int guessNum = 0;
 
-    public static string GetGuess() { return InputOptionBuilder.guess; }
-    public static int GetGuessNum() { return InputOptionBuilder.guessNum; }
+    public static string Guess { get { return InputOptionBuilder.guess; } }
+    public static int GuessNum { get { return InputOptionBuilder.guessNum; } }
 
     private InputOptionBuilder(string message) { this.message = message; }
 
