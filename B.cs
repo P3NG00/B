@@ -92,13 +92,6 @@ public sealed class NumberGuesser : Option
     // make able to use decimal places
     // make able to use negative numbers
 
-    private readonly string[] winMessages = new string[]
-    {
-        "Right on!",
-        "Perfect!",
-        "Correct!",
-    };
-
     private Stage stage = Stage.MainMenu;
     private int numMax = 100;
     private int number;
