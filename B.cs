@@ -315,8 +315,13 @@ public sealed class Adventure : Option
 
     private sealed class Tile
     {
-        public static readonly Tile TileEmpty = new Tile("  ", false);
-        public static readonly Tile TileWall = new Tile("▓▓", true);
+        public static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
+
+        static Tile()
+        {
+            Tile.TileMap.Add(' ', new Tile("  ", false));
+            Tile.TileMap.Add('w', new Tile("▓▓", true));
+        }
 
         public readonly string Chars;
         public readonly bool IsWall;
@@ -351,7 +356,9 @@ public sealed class Adventure : Option
             string[] sa = new string[15];
             for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
             sa[1] = " wwwwwwwwwwwww ";
+            sa[2] = "  w         w  ";
             sa[7] = "   w   w   w   ";
+            sa[11] = "   w       w   ";
             sa[13] = " wwwwwwwwwwwww ";
             Grid.GridFirst = new Grid(sa);
         }
@@ -364,12 +371,13 @@ public sealed class Adventure : Option
                 this.height = raw.Length;
                 this.tileGrid = new Tile[this.height][];
 
-                for (int y = 0; y < height; y++)
+                for (int i = 0; i < height; i++)
                 {
-                    string str = raw[y];
+                    string str = raw[i];
 
                     if (str.Length == this.width)
                     {
+                        int y = this.height - i - 1;
                         this.tileGrid[y] = new Tile[this.width];
                         char[] ca = str.ToCharArray();
 
@@ -377,17 +385,13 @@ public sealed class Adventure : Option
                         {
                             char c = ca[x];
 
-                            if (c == ' ')
+                            try
                             {
-                                this.tileGrid[y][x] = Tile.TileEmpty;
+                                this.tileGrid[y][x] = Tile.TileMap[c];
                             }
-                            else if (c == 'w')
+                            catch (KeyNotFoundException)
                             {
-                                this.tileGrid[y][x] = Tile.TileWall;
-                            }
-                            else
-                            {
-                                throw new ArgumentException("Invalid character in grid");
+                                throw new ArgumentException("Invalid tile character \"" + c + "\"");
                             }
                         }
                     }
