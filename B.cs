@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Collections.Generic;
 using System;
 
@@ -229,6 +230,7 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
 
     private Stage stage = Stage.MainMenu;
+    private int coins = 0;
     private Vector2 posPlayer;
     private Grid grid;
 
@@ -259,7 +261,7 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(this.grid.RealWidth + 8, this.grid.Height + 8);
+                    Util.SetConsoleSize(this.grid.RealWidth + 8, this.grid.Height + 10);
                     Util.Print();
                     string borderHorizontal = Util.StringOf(CHAR_BORDER_HORIZONTAL, this.grid.Width);
                     Util.Print("{0}{1}{2}", 2, CHAR_CORNER_A, borderHorizontal, CHAR_CORNER_B);
@@ -272,7 +274,7 @@ public sealed class Adventure : Option
                         for (int x = 0; x < this.grid.Width; x++)
                         {
                             Vector2 pos = new Vector2(x, y);
-                            Tile tile = this.grid.GetTile(x, y);
+                            Tile tile = this.grid.GetTile(pos);
 
                             if (pos == this.posPlayer)
                             {
@@ -288,6 +290,8 @@ public sealed class Adventure : Option
                     }
 
                     Util.Print("{0}{1}{2}", 2, CHAR_CORNER_B, borderHorizontal, CHAR_CORNER_A);
+                    Util.Print();
+                    Util.Print("Coins: {0}", 4, this.coins);
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
@@ -307,9 +311,19 @@ public sealed class Adventure : Option
     {
         Vector2 newPos = this.posPlayer + direction.ToVector2();
 
-        if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height && !this.grid.GetTile(newPos).IsWall)
+        if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height)
         {
-            this.posPlayer = newPos;
+            Tile tile = this.grid.GetTile(newPos);
+
+            if (tile.IsInteractable)
+            {
+                this.grid.Interact(newPos);
+            }
+
+            if (!tile.StopMovement)
+            {
+                this.posPlayer = newPos;
+            }
         }
     }
 
@@ -321,17 +335,22 @@ public sealed class Adventure : Option
         {
             Tile.TileMap.Add(' ', new Tile("  ", false));
             Tile.TileMap.Add('w', new Tile("▓▓", true));
+            Tile.TileMap.Add('i', new Tile("░░", true, true));
         }
 
         public readonly string Chars;
-        public readonly bool IsWall;
+        public readonly bool StopMovement;
+        public readonly bool IsInteractable;
 
-        public Tile(string chars, bool isWall)
+        public Tile(string chars, bool stopMovement, bool interactable = false)
         {
             if (chars.Length != 2) { throw new ArgumentException("chars.Length != 2"); }
             this.Chars = chars;
-            this.IsWall = isWall;
+            this.StopMovement = stopMovement;
+            this.IsInteractable = interactable;
         }
+
+        public sealed override string ToString() { return string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.StopMovement, this.IsInteractable); }
 
         public static explicit operator Tile(char c)
         {
@@ -350,6 +369,29 @@ public sealed class Adventure : Option
     {
         public static readonly Grid GridFirst;
 
+        static Grid()
+        {
+            // Grid First
+            string[] sa = new string[15];
+            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
+            sa[1] = " wwwwwwwwwwwww ";
+            sa[2] = "  w         w  ";
+            sa[3] = "       i       ";
+            sa[7] = "   w   w   w   ";
+            sa[11] = "   w       w   ";
+            sa[13] = " wwwwwwwwwwwww ";
+            Grid.GridFirst = new Grid(sa);
+            Grid.GridFirst.AddInteraction(new Vector2(7, 11), () =>
+            {
+                // TODO create area below display for printing alert messages
+                Console.Clear();
+                Util.Print();
+                Util.Print("TOUCHED!", 2);
+                Util.WaitForInput();
+            });
+        }
+
+        private readonly Dictionary<Vector2, Action> interactions = new Dictionary<Vector2, Action>();
         private readonly Tile[][] tileGrid;
         private readonly int width;
         private readonly int height;
@@ -361,19 +403,6 @@ public sealed class Adventure : Option
         public Tile GetTile(Vector2 pos) { return this.GetTile(pos.x, pos.y); }
 
         public Tile GetTile(int x, int y) { return this.tileGrid[y][x]; }
-
-        static Grid()
-        {
-            // Grid First
-            string[] sa = new string[15];
-            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
-            sa[1] = " wwwwwwwwwwwww ";
-            sa[2] = "  w         w  ";
-            sa[7] = "   w   w   w   ";
-            sa[11] = "   w       w   ";
-            sa[13] = " wwwwwwwwwwwww ";
-            Grid.GridFirst = new Grid(sa);
-        }
 
         public Grid(string[] raw)
         {
@@ -407,6 +436,30 @@ public sealed class Adventure : Option
             else
             {
                 throw new ArgumentException("Grid must have at least one row");
+            }
+        }
+
+        public void AddInteraction(Vector2 pos, Action action)
+        {
+            if (this.GetTile(pos).IsInteractable)
+            {
+                this.interactions.Add(pos, action);
+            }
+            else
+            {
+                throw new ArgumentException("Tile is not interactable");
+            }
+        }
+
+        public void Interact(Vector2 pos)
+        {
+            if (this.interactions.ContainsKey(pos))
+            {
+                this.interactions[pos]();
+            }
+            else
+            {
+                throw new ArgumentException(string.Format("No interaction at position {0}", pos));
             }
         }
     }
@@ -602,6 +655,8 @@ public class Vector2
     public static bool operator ==(Vector2 vecA, Vector2 vecB) { return vecA.x == vecB.x && vecA.y == vecB.y; }
 
     public static bool operator !=(Vector2 vecA, Vector2 vecB) { return !(vecA == vecB); }
+
+    public sealed override string ToString() { return string.Format("({0}, {1})", this.x, this.y); }
 }
 
 public static class Util
