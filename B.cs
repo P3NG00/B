@@ -376,7 +376,7 @@ public sealed class Adventure : Option
             sa[1] = " wwwwwwwwwwwww ";
             sa[2] = "  w         w  ";
             sa[3] = "       i       ";
-            sa[7] = "   w   w   w   ";
+            sa[7] = "   w       w   ";
             sa[11] = "   w       w   ";
             sa[13] = " wwwwwwwwwwwww ";
             Grid.GridFirst = new Grid(sa);
