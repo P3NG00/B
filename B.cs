@@ -24,6 +24,9 @@ Blackjack
 
 public class Program
 {
+    // TODO switch to false when done implementing
+    public static bool DebugMode = true; // TODO implement way of enable during runtime
+
     public static void Main() { new Program().Start(); }
 
     // The currently selected option
@@ -260,7 +263,16 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(this.grid.RealWidth + 8, this.grid.Height + 10);
+                    int consoleHeight = this.grid.Height + 10;
+
+                    if (Program.DebugMode)
+                    {
+                        Util.Print();
+                        Util.Print("Pos: {0}", 1, this.posPlayer);
+                        consoleHeight += 2;
+                    }
+
+                    Util.SetConsoleSize(this.grid.RealWidth + 8, consoleHeight);
                     Util.Print();
                     string borderHorizontal = Util.StringOf(CHAR_BORDER_HORIZONTAL, this.grid.Width);
                     Util.Print("{0}{1}{2}", 2, CHAR_CORNER_A, borderHorizontal, CHAR_CORNER_B);
