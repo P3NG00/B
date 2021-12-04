@@ -25,7 +25,7 @@ Blackjack
 public class Program
 {
     // TODO switch to false when done implementing
-    public static bool DebugMode = true; // TODO implement way of enable during runtime
+    public static bool DebugMode = false; // TODO implement way of enable during runtime
 
     public static void Main() { new Program().Start(); }
 
@@ -232,9 +232,9 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
 
     private Stage stage = Stage.MainMenu;
-    private int coins = 0;
     private Vector2 posPlayer;
     private Grid grid;
+    private int coins = 0;
 
     public sealed override void Loop()
     {
@@ -262,13 +262,14 @@ public sealed class Adventure : Option
 
             case Stage.Game:
                 {
-                    Console.Clear();
+                    Console.SetCursorPosition(0, 0);
                     int consoleHeight = this.grid.Height + 10;
 
                     if (Program.DebugMode)
                     {
                         Util.Print();
-                        Util.Print("Pos: {0}", 1, this.posPlayer);
+                        // Extra spaces are added to the end to clear leftover text
+                        Util.Print("Pos: {0}  ", 1, this.posPlayer);
                         consoleHeight += 2;
                     }
 
