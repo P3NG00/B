@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.03    ||
+||     2021.12.05    ||
 ||                   ||
 \* ================= */
 
@@ -220,23 +220,28 @@ public sealed class NumberGuesser : Option
 
 public sealed class Adventure : Option
 {
-    // TODO create things to interact with,
-    //  interact by standing next to the object and moving into it
-
     // Chars
     private const string CHAR_PLAYER = "()";
     private const string CHAR_ENEMY = "[]";
+    private const string CHAR_COIN = "<>";
     private const string CHAR_BORDER_HORIZONTAL = "==";
     private const string CHAR_BORDER_VERTICAL = "||";
     private const string CHAR_CORNER_A = "//";
     private const string CHAR_CORNER_B = @"\\";
 
+    // Public Variables
     public static string Message = string.Empty;
+    public static int Coins
+    {
+        get { return Adventure.coins; }
+        set { Adventure.coins = Math.Max(0, value); }
+    }
 
+    // Private Variables
+    private static int coins = 0;
     private Stage stage = Stage.MainMenu;
     private Vector2 posPlayer;
     private Grid grid;
-    private int coins = 0;
 
     public sealed override void Loop()
     {
@@ -277,8 +282,8 @@ public sealed class Adventure : Option
 
                     Util.SetConsoleSize(this.grid.RealWidth + 8, consoleHeight);
                     Util.Print();
-                    string borderHorizontal = Util.StringOf(CHAR_BORDER_HORIZONTAL, this.grid.Width);
-                    Util.Print("{0}{1}{2}", 2, CHAR_CORNER_A, borderHorizontal, CHAR_CORNER_B);
+                    string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, this.grid.Width);
+                    Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B);
                     string s;
 
                     for (int y = this.grid.Height - 1; y >= 0; y--)
@@ -292,7 +297,11 @@ public sealed class Adventure : Option
 
                             if (pos == this.posPlayer)
                             {
-                                s += CHAR_PLAYER;
+                                s += Adventure.CHAR_PLAYER;
+                            }
+                            else if (this.grid.HasCoinAt(pos))
+                            {
+                                s += Adventure.CHAR_COIN;
                             }
                             else
                             {
@@ -300,15 +309,15 @@ public sealed class Adventure : Option
                             }
                         }
 
-                        Util.Print(s + CHAR_BORDER_VERTICAL, 2);
+                        Util.Print(s + Adventure.CHAR_BORDER_VERTICAL, 2);
                     }
 
-                    Util.Print("{0}{1}{2}", 2, CHAR_CORNER_B, borderHorizontal, CHAR_CORNER_A);
+                    Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_B, borderHorizontal, Adventure.CHAR_CORNER_A);
                     Util.Print();
                     Util.Print("> {0}", 3, Adventure.Message);
                     Adventure.Message = "..." + Util.StringOf(" ", this.grid.RealWidth - 3);
                     Util.Print();
-                    Util.Print("Coins: {0}", 4, this.coins);
+                    Util.Print("Coins: {0}", 4, Adventure.Coins);
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
@@ -331,12 +340,15 @@ public sealed class Adventure : Option
         if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height)
         {
             Tile tile = this.grid.GetTile(newPos);
+            this.grid.CheckCoins(newPos);
 
+            // Interact if possible
             if (tile.IsInteractable)
             {
                 this.grid.Interact(newPos);
             }
 
+            // Move into space if possible
             if (!tile.StopMovement)
             {
                 this.posPlayer = newPos;
@@ -348,18 +360,23 @@ public sealed class Adventure : Option
     {
         public static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
 
+        private static Tile TILE_EMPTY = new Tile("  ");
+        private static Tile TILE_WALL = new Tile("▓▓", true);
+        private static Tile TILE_INTERACTABLE = new Tile("░░", true, true);
+
         static Tile()
         {
-            Tile.TileMap.Add(' ', new Tile("  ", false));
-            Tile.TileMap.Add('w', new Tile("▓▓", true));
-            Tile.TileMap.Add('i', new Tile("░░", true, true));
+            Tile.TileMap.Add(' ', Tile.TILE_EMPTY);
+            Tile.TileMap.Add('c', Tile.TILE_EMPTY);
+            Tile.TileMap.Add('w', Tile.TILE_WALL);
+            Tile.TileMap.Add('i', Tile.TILE_INTERACTABLE);
         }
 
         public readonly string Chars;
         public readonly bool StopMovement;
         public readonly bool IsInteractable;
 
-        public Tile(string chars, bool stopMovement, bool interactable = false)
+        public Tile(string chars, bool stopMovement = false, bool interactable = false)
         {
             if (chars.Length != 2) { throw new ArgumentException("chars.Length != 2"); }
             this.Chars = chars;
@@ -384,6 +401,8 @@ public sealed class Adventure : Option
 
     private sealed class Grid
     {
+        // TODO when done initializing grids, check all for any interactables that don't have added info
+
         public static readonly Grid GridFirst;
 
         static Grid()
@@ -395,24 +414,21 @@ public sealed class Adventure : Option
             sa[2] = "  w         w  ";
             sa[3] = "       i       ";
             sa[7] = "   w       w   ";
-            sa[11] = "   w       w   ";
+            sa[11] = "   w   c   w   ";
             sa[13] = " wwwwwwwwwwwww ";
             Grid.GridFirst = new Grid(sa);
             Grid.GridFirst.AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
         }
 
-        private readonly Dictionary<Vector2, Action> interactions = new Dictionary<Vector2, Action>();
-        private readonly Tile[][] tileGrid;
-        private readonly int width;
-        private readonly int height;
-
         public int RealWidth { get { return this.width * 2; } }
         public int Width { get { return this.width; } }
         public int Height { get { return this.height; } }
 
-        public Tile GetTile(Vector2 pos) { return this.GetTile(pos.x, pos.y); }
-
-        public Tile GetTile(int x, int y) { return this.tileGrid[y][x]; }
+        private readonly Dictionary<Vector2, Action> interactions = new Dictionary<Vector2, Action>();
+        private readonly List<Vector2> coinList = new List<Vector2>();
+        private readonly Tile[][] tileGrid;
+        private readonly int width;
+        private readonly int height;
 
         public Grid(string[] raw)
         {
@@ -434,7 +450,14 @@ public sealed class Adventure : Option
 
                         for (int x = 0; x < width; x++)
                         {
-                            this.tileGrid[y][x] = (Tile)ca[x];
+                            char c = ca[x];
+
+                            if (c == 'c')
+                            {
+                                this.coinList.Add(new Vector2(x, y));
+                            }
+
+                            this.tileGrid[y][x] = (Tile)c;
                         }
                     }
                     else
@@ -449,6 +472,12 @@ public sealed class Adventure : Option
             }
         }
 
+        public Tile GetTile(Vector2 pos) { return this.GetTile(pos.x, pos.y); }
+
+        public Tile GetTile(int x, int y) { return this.tileGrid[y][x]; }
+
+        public bool HasCoinAt(Vector2 pos) { return this.coinList.Contains(pos); }
+
         public void AddInteraction(Vector2 pos, Action action)
         {
             if (this.GetTile(pos).IsInteractable)
@@ -458,6 +487,16 @@ public sealed class Adventure : Option
             else
             {
                 throw new ArgumentException("Tile is not interactable");
+            }
+        }
+
+        public void CheckCoins(Vector2 pos)
+        {
+            if (this.coinList.Contains(pos))
+            {
+                this.coinList.Remove(pos);
+                Adventure.Coins++;
+                Adventure.Message = "You picked up a coin!";
             }
         }
 
