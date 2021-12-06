@@ -363,19 +363,19 @@ public sealed class Adventure : Option
     {
         public static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
 
-        private static Tile TILE_EMPTY = new Tile(Adventure.CHAR_EMPTY);
-        private static Tile TILE_COIN = new Tile(Adventure.CHAR_EMPTY, coin: true);
-        private static Tile TILE_WALL = new Tile(Adventure.CHAR_WALL, stopMovement: true);
-        private static Tile TILE_WALL_COIN = new Tile(Adventure.CHAR_WALL, stopMovement: true, coin: true);
-        private static Tile TILE_INTERACTABLE = new Tile(Adventure.CHAR_INTERACTABLE, stopMovement: true, interactable: true);
+        private static Tile EMPTY = new Tile(Adventure.CHAR_EMPTY);
+        private static Tile COIN = new Tile(Adventure.CHAR_EMPTY, coin: true);
+        private static Tile WALL = new Tile(Adventure.CHAR_WALL, stopMovement: true);
+        private static Tile WALL_COIN = new Tile(Adventure.CHAR_WALL, stopMovement: true, coin: true);
+        private static Tile INTERACTABLE = new Tile(Adventure.CHAR_INTERACTABLE, stopMovement: true, interactable: true);
 
         static Tile()
         {
-            Tile.TileMap.Add(' ', Tile.TILE_EMPTY);
-            Tile.TileMap.Add('c', Tile.TILE_COIN);
-            Tile.TileMap.Add('w', Tile.TILE_WALL);
-            Tile.TileMap.Add('x', Tile.TILE_WALL_COIN);
-            Tile.TileMap.Add('i', Tile.TILE_INTERACTABLE);
+            Tile.TileMap.Add(' ', Tile.EMPTY);
+            Tile.TileMap.Add('c', Tile.COIN);
+            Tile.TileMap.Add('w', Tile.WALL);
+            Tile.TileMap.Add('x', Tile.WALL_COIN);
+            Tile.TileMap.Add('i', Tile.INTERACTABLE);
         }
 
         public readonly string Chars;
@@ -415,6 +415,12 @@ public sealed class Adventure : Option
 
         static Grid()
         {
+            // ' ' | EMPTY
+            // 'c' | COIN
+            // 'w' | WALL
+            // 'x' | WALL_COIN
+            // 'i' | TILE_INTERACTABLE
+
             // Grid First
             string[] sa = new string[15];
             for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
