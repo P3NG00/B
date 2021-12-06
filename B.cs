@@ -424,12 +424,12 @@ public sealed class Adventure : Option
 
             // Grid First
             sa = Grid.CreateGrid(15);
-            sa[1] = " wwwwwwwwwwwww ";
-            sa[2] = "  w         w  ";
-            sa[3] = "       i       ";
-            sa[7] = "   x       x   ";
-            sa[11] = "   w   c   w   ";
             sa[13] = " wwwwwwwwwwwww ";
+            sa[12] = "  w         w  ";
+            sa[11] = "       i       ";
+            sa[7] = "   x       x   ";
+            sa[3] = "   w   c   w   ";
+            sa[1] = " wwwwwwwwwwwww ";
             Grid.GridFirst = new Grid(sa);
             Grid.GridFirst.AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
         }
@@ -452,13 +452,12 @@ public sealed class Adventure : Option
                 this.height = raw.Length;
                 this.tileGrid = new Tile[this.height][];
 
-                for (int i = 0; i < height; i++)
+                for (int y = 0; y < height; y++)
                 {
-                    string str = raw[i];
+                    string str = raw[y];
 
                     if (str.Length == this.width)
                     {
-                        int y = this.height - i - 1;
                         this.tileGrid[y] = new Tile[this.width];
                         char[] ca = str.ToCharArray();
 
