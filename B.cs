@@ -421,10 +421,16 @@ public sealed class Adventure : Option
 
             // Grid Second
             sa = Grid.CreateGrid(17, 21);
+            sa[19] = " d               ";
             Grid.GridSecond = new Grid(sa);
 
             // Add Doors after initializing each room
             Grid.GridFirst.AddDoor(new Vector2(14, 7), Grid.GridSecond);
+            Grid.GridSecond.AddDoor(new Vector2(1, 19), Grid.GridFirst);
+
+            // Seal Grids
+            Grid.GridFirst.Seal();
+            Grid.GridSecond.Seal();
         }
 
         public int RealWidth { get { return this.width * 2; } }
@@ -437,6 +443,11 @@ public sealed class Adventure : Option
         private readonly Tile[][] tileGrid;
         private readonly int width;
         private readonly int height;
+
+        // Private Initialization Cache
+        private readonly int initInteractables = 0;
+        private readonly int initDoors = 0;
+        private bool seald = false;
 
         public Grid(string[] raw)
         {
@@ -464,17 +475,25 @@ public sealed class Adventure : Option
                             {
                                 this.coinList.Add(new Vector2(x, y));
                             }
+                            else if (tile.IsInteractable)
+                            {
+                                this.initInteractables++;
+                            }
+                            else if (tile.IsDoor)
+                            {
+                                this.initDoors++;
+                            }
                         }
                     }
                     else
                     {
-                        throw new ArgumentException("All rows must be same length");
+                        throw new ArgumentException("Grid Init Error: Rows must be same length");
                     }
                 }
             }
             else
             {
-                throw new ArgumentException("Grid must have at least one row");
+                throw new ArgumentException("Grid Init Error: Must have at least one row");
             }
         }
 
@@ -486,53 +505,89 @@ public sealed class Adventure : Option
 
         public void AddInteraction(Vector2 pos, Action action)
         {
-            if (this.GetTile(pos).IsInteractable)
+            if (!this.seald)
             {
-                this.interactionList.Add(pos, action);
+                if (this.GetTile(pos).IsInteractable)
+                {
+                    this.interactionList.Add(pos, action);
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("Add Interaction Error: Tile is not interactable - {0}", pos));
+                }
             }
             else
             {
-                throw new ArgumentException(string.Format("Tile is not interactable - {0}", pos));
+                throw new InvalidOperationException("Add Interaction Error: Cannot add interactions to a sealed grid");
             }
         }
 
         public void AddDoor(Vector2 pos, Grid grid)
         {
-            if (this.GetTile(pos).IsDoor)
+            if (!this.seald)
             {
-                this.doorList.Add(pos, grid);
+                if (this.GetTile(pos).IsDoor)
+                {
+                    this.doorList.Add(pos, grid);
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("Add Door Error: Tile is not a door - {0}", pos));
+                }
             }
             else
             {
-                throw new ArgumentException(string.Format("Tile is not a door - {0}", pos));
+                throw new InvalidOperationException("Add Door Error: Cannot add doors to a sealed grid");
             }
         }
 
         public void Interact(Vector2 pos)
         {
-            Tile tile = this.GetTile(pos);
-
-            // Pickup Coin
-            if (tile.IsCoin && this.coinList.Contains(pos))
+            if (this.seald)
             {
-                this.coinList.Remove(pos);
-                Adventure.Coins++;
-                Adventure.Message = "You picked up a coin!";
+                Tile tile = this.GetTile(pos);
+
+                // Pickup Coin
+                if (tile.IsCoin && this.coinList.Contains(pos))
+                {
+                    this.coinList.Remove(pos);
+                    Adventure.Coins++;
+                    Adventure.Message = "You picked up a coin!";
+                }
+
+                // Check Interactions
+                if (tile.IsInteractable && this.interactionList.ContainsKey(pos))
+                {
+                    this.interactionList[pos]();
+                }
+
+                // Check Doors
+                if (tile.IsDoor && this.doorList.ContainsKey(pos))
+                {
+                    Adventure.CurrentGrid = this.doorList[pos];
+                    Adventure.ResetPlayerPosition();
+                    Console.Clear();
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
+            }
+        }
+
+        public void Seal()
+        {
+            if (this.initDoors != this.doorList.Count)
+            {
+                throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented doors");
             }
 
-            // Check Interactions
-            if (tile.IsInteractable && this.interactionList.ContainsKey(pos))
+            if (this.initInteractables != this.interactionList.Count)
             {
-                this.interactionList[pos]();
+                throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented interactables");
             }
 
-            // Check Doors
-            if (tile.IsDoor && this.doorList.ContainsKey(pos))
-            {
-                Adventure.CurrentGrid = this.doorList[pos];
-                Adventure.ResetPlayerPosition();
-                Console.Clear();
-            }
+            this.seald = true;
         }
 
         public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this.width, this.height); }
