@@ -661,6 +661,13 @@ public sealed class InputOptionBuilder
 
     public void Request()
     {
+        // Add Debug Keybind
+        this.AddAction(default(char), () =>
+        {
+            Util.ToggleBool(ref Program.DebugMode);
+            Console.Clear();
+        }, key: ConsoleKey.F12);
+
         if (this.message != null)
         {
             Util.Print();
@@ -703,6 +710,7 @@ public sealed class InputOptionBuilder
             }
         }
 
+        // TODO See if this can be moved to different location
         // This needs to be here for parsing InputOptionBuilder Numbers
         int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
 
@@ -842,4 +850,6 @@ public static class Util
         Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
         Console.SetWindowSize(width, height);
     }
+
+    public static void ToggleBool(ref bool b) { b = !b; }
 }
