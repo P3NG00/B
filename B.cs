@@ -342,17 +342,10 @@ public sealed class Adventure : Option
 
         if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height)
         {
-            Tile tile = this.grid.GetTile(newPos);
-            this.grid.CheckCoins(newPos);
-
-            // Interact if possible
-            if (tile.IsInteractable)
-            {
-                this.grid.Interact(newPos);
-            }
+            this.grid.Interact(newPos);
 
             // Move into space if possible
-            if (!tile.StopMovement)
+            if (!this.grid.GetTile(newPos).StopMovement)
             {
                 this.posPlayer = newPos;
             }
@@ -409,7 +402,7 @@ public sealed class Adventure : Option
 
     private sealed class Grid
     {
-        // TODO when done initializing grids, check all for any interactables that don't have added info
+        // TODO when done initializing grids, check all for any interactables that don't have added info // DO THIS WITH 'SEAL' FUNC, THIS WILL 'SEAL' THE CLASS AND NO INFORMATION CAN BE CHANGED OR ADDED LIKE INTERACTIONS OR DOORS
 
         public static readonly Grid GridFirst;
 
@@ -421,9 +414,16 @@ public sealed class Adventure : Option
             // 'x' | WALL_COIN
             // 'i' | TILE_INTERACTABLE
 
+            // Array for modifying before initializing
+            string[] sa;
+
+            // TODO create GridBuilder class to more easily create grids and assign values
+            // TODO create door tiles that clear screen, reset console size, and set player position
+
+            // TODO flip grid initialization y direction
+
             // Grid First
-            string[] sa = new string[15];
-            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", 15); }
+            sa = Grid.CreateGrid(15);
             sa[1] = " wwwwwwwwwwwww ";
             sa[2] = "  w         w  ";
             sa[3] = "       i       ";
@@ -499,30 +499,36 @@ public sealed class Adventure : Option
             }
             else
             {
-                throw new ArgumentException("Tile is not interactable");
-            }
-        }
-
-        public void CheckCoins(Vector2 pos)
-        {
-            if (this.coinList.Contains(pos))
-            {
-                this.coinList.Remove(pos);
-                Adventure.Coins++;
-                Adventure.Message = "You picked up a coin!";
+                throw new ArgumentException(string.Format("Tile is not interactable - {0}", pos));
             }
         }
 
         public void Interact(Vector2 pos)
         {
-            if (this.interactions.ContainsKey(pos))
+            Tile tile = this.GetTile(pos);
+
+            // Pickup Coin
+            if (tile.IsCoin && this.coinList.Contains(pos))
             {
-                this.interactions[pos]();
+                this.coinList.Remove(pos);
+                Adventure.Coins++;
+                Adventure.Message = "You picked up a coin!";
             }
-            else
+
+            // Check Interactions
+            if (tile.IsInteractable && this.interactions.ContainsKey(pos))
             {
-                throw new ArgumentException(string.Format("No interaction at position {0}", pos));
+                this.interactions[pos].Invoke(); // TODO test changin ".Invoke()" to "()"
             }
+        }
+
+        private static string[] CreateGrid(int squareSize) { return CreateGrid(squareSize, squareSize); }
+
+        private static string[] CreateGrid(int width, int height)
+        {
+            string[] sa = new string[height];
+            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", width); }
+            return sa;
         }
     }
 
