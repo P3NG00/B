@@ -420,8 +420,6 @@ public sealed class Adventure : Option
             // TODO create GridBuilder class to more easily create grids and assign values
             // TODO create door tiles that clear screen, reset console size, and set player position
 
-            // TODO flip grid initialization y direction
-
             // Grid First
             sa = Grid.CreateGrid(15);
             sa[13] = " wwwwwwwwwwwww ";
