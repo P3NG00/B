@@ -281,7 +281,6 @@ public sealed class Adventure : Option
                         for (int x = 0; x < Adventure.CurrentGrid.Width; x++)
                         {
                             Vector2 pos = new Vector2(x, y);
-                            Tile tile = Adventure.CurrentGrid.GetTile(pos);
 
                             if (pos == Adventure.posPlayer)
                             {
@@ -293,7 +292,7 @@ public sealed class Adventure : Option
                             }
                             else
                             {
-                                s += tile.Chars;
+                                s += Adventure.CurrentGrid.GetTile(pos).Chars;
                             }
                         }
 
@@ -323,6 +322,9 @@ public sealed class Adventure : Option
 
     private void MovePlayer(Direction direction)
     {
+        // TODO add modifiable speed, can move multiple spaces at once
+        // if run into wall, stop trying to move further and stop at wall
+
         Vector2 newPos = Adventure.posPlayer + direction.ToVector2();
 
         if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
