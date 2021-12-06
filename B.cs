@@ -391,7 +391,6 @@ public sealed class Adventure : Option
 
     public sealed class Grid
     {
-        // TODO when done initializing grids, check all for any interactables that don't have added info // DO THIS WITH 'SEAL' FUNC, THIS WILL 'SEAL' THE CLASS AND NO INFORMATION CAN BE CHANGED OR ADDED LIKE INTERACTIONS OR DOORS
         // TODO create GridBuilder class to more easily create grids and assign values
 
         public static readonly Grid GridFirst;
