@@ -231,6 +231,8 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_A = "//";
     private const string CHAR_CORNER_B = @"\\";
 
+    public static string Message = string.Empty;
+
     private Stage stage = Stage.MainMenu;
     private Vector2 posPlayer;
     private Grid grid;
@@ -263,7 +265,7 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.SetCursorPosition(0, 0);
-                    int consoleHeight = this.grid.Height + 10;
+                    int consoleHeight = this.grid.Height + 12;
 
                     if (Program.DebugMode)
                     {
@@ -302,6 +304,9 @@ public sealed class Adventure : Option
                     }
 
                     Util.Print("{0}{1}{2}", 2, CHAR_CORNER_B, borderHorizontal, CHAR_CORNER_A);
+                    Util.Print();
+                    Util.Print("> {0}", 3, Adventure.Message);
+                    Adventure.Message = "..." + Util.StringOf(" ", this.grid.RealWidth - 3);
                     Util.Print();
                     Util.Print("Coins: {0}", 4, this.coins);
                     Util.Print();
@@ -393,14 +398,7 @@ public sealed class Adventure : Option
             sa[11] = "   w       w   ";
             sa[13] = " wwwwwwwwwwwww ";
             Grid.GridFirst = new Grid(sa);
-            Grid.GridFirst.AddInteraction(new Vector2(7, 11), () =>
-            {
-                // TODO create area below display for printing alert messages
-                Console.Clear();
-                Util.Print();
-                Util.Print("TOUCHED!", 2);
-                Util.WaitForInput();
-            });
+            Grid.GridFirst.AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
         }
 
         private readonly Dictionary<Vector2, Action> interactions = new Dictionary<Vector2, Action>();
