@@ -258,16 +258,10 @@ public sealed class Adventure : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Adventure")
-                        .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
+                        .AddAction('1', () => this.stage = Stage.Game, "New Game")
                         .AddSpacer()
                         .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
                         .Request();
-                }
-                break;
-
-            case Stage.GameSetup:
-                {
-                    this.stage = Stage.Game;
                 }
                 break;
 
@@ -567,7 +561,6 @@ public sealed class Adventure : Option
     private enum Stage
     {
         MainMenu,
-        GameSetup,
         Game,
     }
 }
