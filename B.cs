@@ -221,9 +221,12 @@ public sealed class NumberGuesser : Option
 public sealed class Adventure : Option
 {
     // Chars
+    private const string CHAR_EMPTY = "  ";
     private const string CHAR_PLAYER = "()";
     private const string CHAR_ENEMY = "[]";
     private const string CHAR_COIN = "<>";
+    private const string CHAR_WALL = "▓▓";
+    private const string CHAR_INTERACTABLE = "░░";
     private const string CHAR_BORDER_HORIZONTAL = "==";
     private const string CHAR_BORDER_VERTICAL = "||";
     private const string CHAR_CORNER_A = "//";
@@ -360,28 +363,33 @@ public sealed class Adventure : Option
     {
         public static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
 
-        private static Tile TILE_EMPTY = new Tile("  ");
-        private static Tile TILE_WALL = new Tile("▓▓", true);
-        private static Tile TILE_INTERACTABLE = new Tile("░░", true, true);
+        private static Tile TILE_EMPTY = new Tile(Adventure.CHAR_EMPTY);
+        private static Tile TILE_COIN = new Tile(Adventure.CHAR_EMPTY, coin: true);
+        private static Tile TILE_WALL = new Tile(Adventure.CHAR_WALL, stopMovement: true);
+        private static Tile TILE_WALL_COIN = new Tile(Adventure.CHAR_WALL, stopMovement: true, coin: true);
+        private static Tile TILE_INTERACTABLE = new Tile(Adventure.CHAR_INTERACTABLE, stopMovement: true, interactable: true);
 
         static Tile()
         {
             Tile.TileMap.Add(' ', Tile.TILE_EMPTY);
-            Tile.TileMap.Add('c', Tile.TILE_EMPTY);
+            Tile.TileMap.Add('c', Tile.TILE_COIN);
             Tile.TileMap.Add('w', Tile.TILE_WALL);
+            Tile.TileMap.Add('x', Tile.TILE_WALL_COIN);
             Tile.TileMap.Add('i', Tile.TILE_INTERACTABLE);
         }
 
         public readonly string Chars;
         public readonly bool StopMovement;
         public readonly bool IsInteractable;
+        public readonly bool IsCoin;
 
-        public Tile(string chars, bool stopMovement = false, bool interactable = false)
+        public Tile(string chars, bool stopMovement = false, bool interactable = false, bool coin = false)
         {
             if (chars.Length != 2) { throw new ArgumentException("chars.Length != 2"); }
             this.Chars = chars;
             this.StopMovement = stopMovement;
             this.IsInteractable = interactable;
+            this.IsCoin = coin;
         }
 
         public sealed override string ToString() { return string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.StopMovement, this.IsInteractable); }
@@ -413,7 +421,7 @@ public sealed class Adventure : Option
             sa[1] = " wwwwwwwwwwwww ";
             sa[2] = "  w         w  ";
             sa[3] = "       i       ";
-            sa[7] = "   w       w   ";
+            sa[7] = "   x       x   ";
             sa[11] = "   w   c   w   ";
             sa[13] = " wwwwwwwwwwwww ";
             Grid.GridFirst = new Grid(sa);
@@ -450,14 +458,13 @@ public sealed class Adventure : Option
 
                         for (int x = 0; x < width; x++)
                         {
-                            char c = ca[x];
+                            Tile tile = (Tile)ca[x];
+                            this.tileGrid[y][x] = tile;
 
-                            if (c == 'c')
+                            if (tile.IsCoin)
                             {
                                 this.coinList.Add(new Vector2(x, y));
                             }
-
-                            this.tileGrid[y][x] = (Tile)c;
                         }
                     }
                     else
