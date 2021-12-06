@@ -13,18 +13,8 @@ using System;
 ||                   ||
 \* ================= */
 
-/*
-
-TODO options
-Solitaire
-Minesweeper
-Blackjack
-
-*/
-
 public class Program
 {
-    // TODO switch to false when done implementing
     public static bool DebugMode = false; // TODO implement way of enable during runtime
 
     public static void Main() { new Program().Start(); }
@@ -96,7 +86,7 @@ public abstract class Option
 public sealed class NumberGuesser : Option
 {
     // TODO below
-    // make able to specify custom range of number/
+    // make able to specify custom range of number
     // make able to use decimal places
     // make able to use negative numbers
 
@@ -402,6 +392,7 @@ public sealed class Adventure : Option
     public sealed class Grid
     {
         // TODO when done initializing grids, check all for any interactables that don't have added info // DO THIS WITH 'SEAL' FUNC, THIS WILL 'SEAL' THE CLASS AND NO INFORMATION CAN BE CHANGED OR ADDED LIKE INTERACTIONS OR DOORS
+        // TODO create GridBuilder class to more easily create grids and assign values
 
         public static readonly Grid GridFirst;
         public static readonly Grid GridSecond;
@@ -416,8 +407,6 @@ public sealed class Adventure : Option
 
             // Array for modifying before initializing
             string[] sa;
-
-            // TODO create GridBuilder class to more easily create grids and assign values
 
             // Grid First
             sa = Grid.CreateGrid(15);
