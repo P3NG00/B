@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.05    ||
+||     2021.12.06    ||
 ||                   ||
 \* ================= */
 
@@ -72,6 +72,7 @@ public class Program
                 Util.SetConsoleSize(140, 30);
                 Util.Print(e);
                 Util.WaitForInput();
+                Console.Clear();
             }
         }
 
@@ -223,7 +224,7 @@ public sealed class Adventure : Option
     // Chars
     private const string CHAR_EMPTY = "  ";
     private const string CHAR_PLAYER = "()";
-    private const string CHAR_ENEMY = "[]";
+    private const string CHAR_DOOR = "[]";
     private const string CHAR_COIN = "<>";
     private const string CHAR_WALL = "▓▓";
     private const string CHAR_INTERACTABLE = "░░";
@@ -233,6 +234,7 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
 
     // Public Variables
+    public static Grid CurrentGrid = Grid.GridFirst;
     public static string Message = string.Empty;
     public static int Coins
     {
@@ -240,11 +242,12 @@ public sealed class Adventure : Option
         set { Adventure.coins = Math.Max(0, value); }
     }
 
+    static Adventure() { Adventure.ResetPlayerPosition(); }
+
     // Private Variables
     private static int coins = 0;
+    private static Vector2 posPlayer;
     private Stage stage = Stage.MainMenu;
-    private Vector2 posPlayer;
-    private Grid grid;
 
     public sealed override void Loop()
     {
@@ -264,8 +267,6 @@ public sealed class Adventure : Option
 
             case Stage.GameSetup:
                 {
-                    this.grid = Grid.GridFirst;
-                    this.posPlayer = new Vector2(this.grid.Width / 2, this.grid.Height / 2);
                     this.stage = Stage.Game;
                 }
                 break;
@@ -273,36 +274,36 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.SetCursorPosition(0, 0);
-                    int consoleHeight = this.grid.Height + 12;
+                    int consoleHeight = Adventure.CurrentGrid.Height + 12;
 
                     if (Program.DebugMode)
                     {
                         Util.Print();
                         // Extra spaces are added to the end to clear leftover text
-                        Util.Print("Pos: {0}  ", 1, this.posPlayer);
-                        consoleHeight += 2;
+                        Util.Print("{0,-7}", 1, Adventure.CurrentGrid);
+                        Util.Print("Pos: {0,-8}", 1, Adventure.posPlayer);
+                        consoleHeight += 3;
                     }
 
-                    Util.SetConsoleSize(this.grid.RealWidth + 8, consoleHeight);
+                    Util.SetConsoleSize(Adventure.CurrentGrid.RealWidth + 8, consoleHeight);
                     Util.Print();
-                    string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, this.grid.Width);
+                    string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, Adventure.CurrentGrid.Width);
                     Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B);
-                    string s;
 
-                    for (int y = this.grid.Height - 1; y >= 0; y--)
+                    for (int y = Adventure.CurrentGrid.Height - 1; y >= 0; y--)
                     {
-                        s = CHAR_BORDER_VERTICAL;
+                        string s = CHAR_BORDER_VERTICAL;
 
-                        for (int x = 0; x < this.grid.Width; x++)
+                        for (int x = 0; x < Adventure.CurrentGrid.Width; x++)
                         {
                             Vector2 pos = new Vector2(x, y);
-                            Tile tile = this.grid.GetTile(pos);
+                            Tile tile = Adventure.CurrentGrid.GetTile(pos);
 
-                            if (pos == this.posPlayer)
+                            if (pos == Adventure.posPlayer)
                             {
                                 s += Adventure.CHAR_PLAYER;
                             }
-                            else if (this.grid.HasCoinAt(pos))
+                            else if (Adventure.CurrentGrid.HasCoinAt(pos))
                             {
                                 s += Adventure.CHAR_COIN;
                             }
@@ -318,7 +319,7 @@ public sealed class Adventure : Option
                     Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_B, borderHorizontal, Adventure.CHAR_CORNER_A);
                     Util.Print();
                     Util.Print("> {0}", 3, Adventure.Message);
-                    Adventure.Message = "..." + Util.StringOf(" ", this.grid.RealWidth - 3);
+                    Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 3) + "}", "...");
                     Util.Print();
                     Util.Print("Coins: {0}", 4, Adventure.Coins);
                     Util.Print();
@@ -338,36 +339,38 @@ public sealed class Adventure : Option
 
     private void MovePlayer(Direction direction)
     {
-        Vector2 newPos = this.posPlayer + direction.ToVector2();
+        Vector2 newPos = Adventure.posPlayer + direction.ToVector2();
 
-        if (newPos.x >= 0 && newPos.x < this.grid.Width && newPos.y >= 0 && newPos.y < this.grid.Height)
+        if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
         {
-            this.grid.Interact(newPos);
-
             // Move into space if possible
-            if (!this.grid.GetTile(newPos).StopMovement)
+            if (!Adventure.CurrentGrid.GetTile(newPos).StopMovement)
             {
-                this.posPlayer = newPos;
+                Adventure.posPlayer = newPos;
             }
+
+            Adventure.CurrentGrid.Interact(newPos);
         }
     }
 
-    private sealed class Tile
+    public static void ResetPlayerPosition() { Adventure.posPlayer = new Vector2(Adventure.CurrentGrid.Width / 2, Adventure.CurrentGrid.Height / 2); }
+
+    public sealed class Tile
     {
         public static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
 
         private static Tile EMPTY = new Tile(Adventure.CHAR_EMPTY);
         private static Tile COIN = new Tile(Adventure.CHAR_EMPTY, coin: true);
+        private static Tile DOOR = new Tile(Adventure.CHAR_DOOR, door: true);
         private static Tile WALL = new Tile(Adventure.CHAR_WALL, stopMovement: true);
-        private static Tile WALL_COIN = new Tile(Adventure.CHAR_WALL, stopMovement: true, coin: true);
         private static Tile INTERACTABLE = new Tile(Adventure.CHAR_INTERACTABLE, stopMovement: true, interactable: true);
 
         static Tile()
         {
             Tile.TileMap.Add(' ', Tile.EMPTY);
             Tile.TileMap.Add('c', Tile.COIN);
+            Tile.TileMap.Add('d', Tile.DOOR);
             Tile.TileMap.Add('w', Tile.WALL);
-            Tile.TileMap.Add('x', Tile.WALL_COIN);
             Tile.TileMap.Add('i', Tile.INTERACTABLE);
         }
 
@@ -375,14 +378,16 @@ public sealed class Adventure : Option
         public readonly bool StopMovement;
         public readonly bool IsInteractable;
         public readonly bool IsCoin;
+        public readonly bool IsDoor;
 
-        public Tile(string chars, bool stopMovement = false, bool interactable = false, bool coin = false)
+        public Tile(string chars, bool stopMovement = false, bool interactable = false, bool coin = false, bool door = false)
         {
             if (chars.Length != 2) { throw new ArgumentException("chars.Length != 2"); }
             this.Chars = chars;
             this.StopMovement = stopMovement;
             this.IsInteractable = interactable;
             this.IsCoin = coin;
+            this.IsDoor = door;
         }
 
         public sealed override string ToString() { return string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.StopMovement, this.IsInteractable); }
@@ -400,43 +405,51 @@ public sealed class Adventure : Option
         }
     }
 
-    private sealed class Grid
+    public sealed class Grid
     {
         // TODO when done initializing grids, check all for any interactables that don't have added info // DO THIS WITH 'SEAL' FUNC, THIS WILL 'SEAL' THE CLASS AND NO INFORMATION CAN BE CHANGED OR ADDED LIKE INTERACTIONS OR DOORS
 
         public static readonly Grid GridFirst;
+        public static readonly Grid GridSecond;
 
         static Grid()
         {
             // ' ' | EMPTY
             // 'c' | COIN
+            // 'd' | DOOR
             // 'w' | WALL
-            // 'x' | WALL_COIN
             // 'i' | TILE_INTERACTABLE
 
             // Array for modifying before initializing
             string[] sa;
 
             // TODO create GridBuilder class to more easily create grids and assign values
-            // TODO create door tiles that clear screen, reset console size, and set player position
 
             // Grid First
             sa = Grid.CreateGrid(15);
             sa[13] = " wwwwwwwwwwwww ";
             sa[12] = "  w         w  ";
             sa[11] = "       i       ";
-            sa[7] = "   x       x   ";
+            sa[7] = "   w       w  d";
             sa[3] = "   w   c   w   ";
             sa[1] = " wwwwwwwwwwwww ";
             Grid.GridFirst = new Grid(sa);
             Grid.GridFirst.AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
+
+            // Grid Second
+            sa = Grid.CreateGrid(17, 21);
+            Grid.GridSecond = new Grid(sa);
+
+            // Add Doors after initializing each room
+            Grid.GridFirst.AddDoor(new Vector2(14, 7), Grid.GridSecond);
         }
 
         public int RealWidth { get { return this.width * 2; } }
         public int Width { get { return this.width; } }
         public int Height { get { return this.height; } }
 
-        private readonly Dictionary<Vector2, Action> interactions = new Dictionary<Vector2, Action>();
+        private readonly Dictionary<Vector2, Action> interactionList = new Dictionary<Vector2, Action>();
+        private readonly Dictionary<Vector2, Grid> doorList = new Dictionary<Vector2, Grid>();
         private readonly List<Vector2> coinList = new List<Vector2>();
         private readonly Tile[][] tileGrid;
         private readonly int width;
@@ -492,11 +505,23 @@ public sealed class Adventure : Option
         {
             if (this.GetTile(pos).IsInteractable)
             {
-                this.interactions.Add(pos, action);
+                this.interactionList.Add(pos, action);
             }
             else
             {
                 throw new ArgumentException(string.Format("Tile is not interactable - {0}", pos));
+            }
+        }
+
+        public void AddDoor(Vector2 pos, Grid grid)
+        {
+            if (this.GetTile(pos).IsDoor)
+            {
+                this.doorList.Add(pos, grid);
+            }
+            else
+            {
+                throw new ArgumentException(string.Format("Tile is not a door - {0}", pos));
             }
         }
 
@@ -513,11 +538,21 @@ public sealed class Adventure : Option
             }
 
             // Check Interactions
-            if (tile.IsInteractable && this.interactions.ContainsKey(pos))
+            if (tile.IsInteractable && this.interactionList.ContainsKey(pos))
             {
-                this.interactions[pos].Invoke(); // TODO test changin ".Invoke()" to "()"
+                this.interactionList[pos]();
+            }
+
+            // Check Doors
+            if (tile.IsDoor && this.doorList.ContainsKey(pos))
+            {
+                Adventure.CurrentGrid = this.doorList[pos];
+                Adventure.ResetPlayerPosition();
+                Console.Clear();
             }
         }
+
+        public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this.width, this.height); }
 
         private static string[] CreateGrid(int squareSize) { return CreateGrid(squareSize, squareSize); }
 
@@ -566,7 +601,7 @@ public sealed class InputOptionBuilder
     private readonly List<Tuple<ConsoleKey, char, string, Action>> actions = new List<Tuple<ConsoleKey, char, string, Action>>();
     private string message;
 
-    private static string guess = "";
+    private static string guess = string.Empty;
     private static int guessNum = 0;
 
     public static string Guess { get { return InputOptionBuilder.guess; } }
@@ -679,7 +714,7 @@ public sealed class InputOptionBuilder
 
     public static void ResetNumbersRequestGuess()
     {
-        InputOptionBuilder.guess = "";
+        InputOptionBuilder.guess = string.Empty;
         InputOptionBuilder.guessNum = 0;
     }
 }
@@ -735,7 +770,7 @@ public static class Util
 
     public static string StringOf(string str, int repeat)
     {
-        string s = "";
+        string s = string.Empty;
 
         for (int i = 0; i < repeat; i++)
         {
