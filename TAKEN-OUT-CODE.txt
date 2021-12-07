@@ -1,0 +1,202 @@
+public sealed class Solitaire : Option
+{
+    private const int PILESPLAY = 7;
+    private const int PILESFINAL = 4;
+
+    private readonly Deck[] pilesPlay = new Deck[PILESPLAY];
+    private readonly Deck[] pilesFinal = new Deck[PILESFINAL];
+    private Deck deck;
+    private Deck hand;
+    private Stage stage = Stage.MainMenu;
+
+    public sealed override void Loop()
+    {
+        switch (this.stage)
+        {
+            case Stage.MainMenu:
+                {
+                    Console.Clear();
+                    Util.SetConsoleSize(20, 7);
+                    InputOptionBuilder.Create("Solitaire")
+                        .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
+                        .AddSpacer()
+                        .AddAction('0', () => this.Running = false, "Back")
+                        .Request();
+                }
+                break;
+
+            case Stage.GameSetup:
+                {
+                    for (int i = 0; i < this.pilesPlay.Length; i++)
+                    {
+                        this.pilesPlay[i] = new Deck();
+                    }
+
+                    this.deck = Deck.CreateShuffledDeck();
+                    this.hand = new Deck();
+
+                    // TODO test this by printing out piles, format console window
+                    for (int i = 0; i < PILESPLAY; i++)
+                    {
+                        for (int j = i; j < PILESPLAY; j++)
+                        {
+                            this.deck.DealTo(this.pilesPlay[j]);
+                        }
+                    }
+
+                    this.stage = Stage.Game;
+                }
+                break;
+
+            case Stage.Game:
+                {
+                    /*
+
+                    sample screen
+
+                    A B C D = top card of final play piles
+                    -------------
+
+                      A? B? C? D?
+
+                      1) <pile 1>
+                      2) <pile 2>
+                      3) <pile 3>
+                      4) <pile 4>
+                      5) <pile 5>
+                      6) <pile 6>
+                      7) <pile 7>
+
+                      ENTER) draw 3 cards
+                      TODO need way to access final piles
+
+                    */
+
+                    Console.Clear();
+                    Util.SetConsoleSize(30, 15); // TODO adjust console size appropriately
+
+                    // TODO print screen
+
+                    InputOptionBuilder.Create("Action:")
+                        // TODO add options
+                        // draw from deck (3 cards at a time)
+                        //   enter
+                        // select card
+                        //   1 thru 7 for piles,
+                        //   (use something for final piles)
+                        //   (use something for top card in hand)
+                        .Request();
+                    // TODO
+                }
+                break;
+        }
+    }
+
+    enum Stage
+    {
+        MainMenu,
+        GameSetup,
+        Game,
+    }
+
+    public sealed class Deck
+    {
+        public const int DECKSIZE = 52; // TODO make private?
+        public const int SUITSIZE = 13; // TODO make private?
+
+        private readonly List<Card> cards = new List<Card>();
+
+        private Card GetCard(int index)
+        {
+            if (this.cards.Count > 0)
+            {
+                return this.cards[index];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public Card GetFirstCard() { return this.GetCard(0); }
+        public Card GetLastCard() { return this.GetCard(this.cards.Count - 1); }
+
+        public void DealTo(Deck deck)
+        {
+            if (this.cards.Count > 0)
+            {
+                deck.cards.Add(this.cards[0]);
+                this.cards.RemoveAt(0);
+            }
+        }
+
+        public static Deck CreateShuffledDeck()
+        {
+            string[] suits = new String[] { "Clubs", "Diamonds", "Hearts", "Spades" };
+            Deck deckTemp = new Deck();
+            Deck deck = new Deck();
+
+            for (int i = 0; i < DECKSIZE; i++)
+            {
+                deckTemp.cards.Add(new Card(suits[i / SUITSIZE], (i % SUITSIZE) + 1));
+            }
+
+            // Take all cards out of 'deckTemp' at random order
+            for (int i = 0; i < DECKSIZE; i++)
+            {
+                int r = Util.Random.Next(deckTemp.cards.Count);
+                deck.cards.Add(deckTemp.cards[r]);
+                deckTemp.cards.RemoveAt(r);
+            }
+
+            return deck;
+        }
+
+        public sealed override string ToString()
+        {
+            bool first = true;
+            string s = "";
+
+            foreach (Card card in this.cards)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    s += " ";
+                }
+
+                s += card.ToString();
+            }
+
+            return s;
+        }
+    }
+
+    public sealed class Card
+    {
+        private readonly string suit;
+        private readonly int value;
+
+        public Card(string suit, int value)
+        {
+            this.suit = suit;
+            this.value = value;
+        }
+
+        private string GetValueIcon()
+        {
+            switch (this.value)
+            {
+                case 11: return " J";
+                case 12: return " Q";
+                case 13: return " K";
+                default: return string.Format("{0,2}", value);
+            }
+        }
+
+        public override string ToString() { return " " + this.GetValueIcon() + " of " + this.suit; }
+    }
+}
