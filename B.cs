@@ -302,7 +302,7 @@ public sealed class Adventure : Option
                     Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_B, borderHorizontal, Adventure.CHAR_CORNER_A);
                     Util.Print();
                     Util.Print("> {0}", 3, Adventure.Message);
-                    Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 3) + "}", "...");
+                    Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", "...");
                     Util.Print();
                     Util.Print("Coins: {0}", 4, Adventure.Coins);
                     Util.Print();
@@ -406,11 +406,8 @@ public sealed class Adventure : Option
             // 'w' | WALL
             // 'i' | TILE_INTERACTABLE
 
-            // Array for modifying before initializing
-            string[] sa;
-
             // Grid First
-            sa = Grid.CreateGrid(15);
+            string[] sa = Grid.CreateGrid(15);
             sa[13] = " wwwwwwwwwwwww ";
             sa[12] = "  w         w  ";
             sa[11] = "       i       ";
@@ -712,10 +709,6 @@ public sealed class InputOptionBuilder
             }
         }
 
-        // TODO See if this can be moved to different location
-        // This needs to be here for parsing InputOptionBuilder Numbers
-        int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
-
         // Get User Key Info once, otherwise, it will call different keys each loop
         ConsoleKeyInfo inputKeyInfo = Console.ReadKey(true);
 
@@ -727,6 +720,10 @@ public sealed class InputOptionBuilder
                 break;
             }
         }
+
+        // TODO See if this can be moved to different location
+        // This needs to be here for parsing InputOptionBuilder Numbers
+        int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
     }
 
     public static InputOptionBuilder CreateNumbersRequest(string message)
