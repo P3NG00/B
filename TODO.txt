@@ -1,0 +1,7 @@
+Options to Implement:
+Solitaire
+Minesweeper
+Blackjack
+
+Figure out how to connect debugging to c sharp console application
+seems like i almost got it set up, just need to make my project work in dotnet core or something?

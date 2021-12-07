@@ -721,7 +721,6 @@ public sealed class InputOptionBuilder
             }
         }
 
-        // TODO See if this can be moved to different location
         // This needs to be here for parsing InputOptionBuilder Numbers
         int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
     }
