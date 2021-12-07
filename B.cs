@@ -9,13 +9,13 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.06    ||
+||     2021.12.07    ||
 ||                   ||
 \* ================= */
 
 public class Program
 {
-    public static bool DebugMode = false; // TODO implement way of enable during runtime
+    public static bool DebugMode = false;
 
     public static void Main() { new Program().Start(); }
 
