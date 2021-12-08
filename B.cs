@@ -329,8 +329,6 @@ public sealed class Adventure : Option
 
     private void MovePlayer(Direction direction)
     {
-        // TODO add modifiable speed, can move multiple spaces at once
-        // if run into wall, stop trying to move further and stop at wall
         bool stop = false;
 
         for (int i = 0; i < this.speed && !stop; i++)
