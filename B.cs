@@ -360,8 +360,8 @@ public sealed class Adventure : Option
         private static Tile EMPTY = new Tile(Adventure.CHAR_EMPTY);
         private static Tile COIN = new Tile(Adventure.CHAR_EMPTY, coin: true);
         private static Tile DOOR = new Tile(Adventure.CHAR_DOOR, door: true);
-        private static Tile WALL = new Tile(Adventure.CHAR_WALL, stopMovement: true);
-        private static Tile INTERACTABLE = new Tile(Adventure.CHAR_INTERACTABLE, stopMovement: true, interactable: true);
+        private static Tile WALL = new Tile(Adventure.CHAR_WALL, true);
+        private static Tile INTERACTABLE = new Tile(Adventure.CHAR_INTERACTABLE, true, true);
 
         static Tile()
         {
