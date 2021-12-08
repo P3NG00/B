@@ -331,25 +331,22 @@ public sealed class Adventure : Option
     {
         // TODO add modifiable speed, can move multiple spaces at once
         // if run into wall, stop trying to move further and stop at wall
-        bool wall = false;
+        bool stop = false;
 
-        for (int i = 0; i < this.speed && !wall; i++)
+        for (int i = 0; i < this.speed && !stop; i++)
         {
             Vector2 newPos = Adventure.posPlayer + direction.ToVector2();
 
             if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
             {
-                // Move into space if possible
-                if (Adventure.CurrentGrid.GetTile(newPos).StopMovement)
-                {
-                    wall = true;
-                }
-                else
+                Tile tile = Adventure.CurrentGrid.GetTile(newPos);
+                Adventure.CurrentGrid.Interact(newPos);
+                stop = tile.StopMovement || tile.IsDoor;
+
+                if (!stop)
                 {
                     Adventure.posPlayer = newPos;
                 }
-
-                Adventure.CurrentGrid.Interact(newPos);
             }
         }
     }
