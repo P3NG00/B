@@ -249,6 +249,9 @@ public sealed class Adventure : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Adventure")
+                        // TODO "New Game" should re-instantiate each grid
+                        // TODO implement "Continue"
+                        // TODO implement saving progress (room num, player pos, coins, etc)
                         .AddAction('1', () => this.stage = Stage.Game, "New Game")
                         .AddSpacer()
                         .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
