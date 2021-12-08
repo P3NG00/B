@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.07    ||
+||     2021.12.08    ||
 ||                   ||
 \* ================= */
 
@@ -238,6 +238,7 @@ public sealed class Adventure : Option
     private static int coins = 0;
     private static Vector2 posPlayer;
     private Stage stage = Stage.MainMenu;
+    private int speed = 1;
 
     public sealed override void Loop()
     {
@@ -258,7 +259,7 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.SetCursorPosition(0, 0);
-                    int consoleHeight = Adventure.CurrentGrid.Height + 12;
+                    int consoleHeight = Adventure.CurrentGrid.Height + 13;
 
                     if (Program.DebugMode)
                     {
@@ -304,7 +305,8 @@ public sealed class Adventure : Option
                     Util.Print("> {0}", 3, Adventure.Message);
                     Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", "...");
                     Util.Print();
-                    Util.Print("Coins: {0}", 4, Adventure.Coins);
+                    Util.Print("{0,9}: {1,-5}", 0, "Coins", Adventure.Coins);
+                    Util.Print("{0,9}: {1,-5}", 0, "Speed", this.speed);
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
@@ -314,6 +316,8 @@ public sealed class Adventure : Option
                         .AddAction('d', () => this.MovePlayer(Direction.Right), key: ConsoleKey.NumPad6)
                         .AddSpacer()
                         .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
+                        .AddAction(default(char), () => this.speed++, key: ConsoleKey.Add)
+                        .AddAction(default(char), () => this.speed = Math.Max(1, this.speed - 1), key: ConsoleKey.Subtract)
                         .Request();
                 }
                 break;
@@ -324,18 +328,26 @@ public sealed class Adventure : Option
     {
         // TODO add modifiable speed, can move multiple spaces at once
         // if run into wall, stop trying to move further and stop at wall
+        bool wall = false;
 
-        Vector2 newPos = Adventure.posPlayer + direction.ToVector2();
-
-        if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
+        for (int i = 0; i < this.speed && !wall; i++)
         {
-            // Move into space if possible
-            if (!Adventure.CurrentGrid.GetTile(newPos).StopMovement)
-            {
-                Adventure.posPlayer = newPos;
-            }
+            Vector2 newPos = Adventure.posPlayer + direction.ToVector2();
 
-            Adventure.CurrentGrid.Interact(newPos);
+            if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
+            {
+                // Move into space if possible
+                if (Adventure.CurrentGrid.GetTile(newPos).StopMovement)
+                {
+                    wall = true;
+                }
+                else
+                {
+                    Adventure.posPlayer = newPos;
+                }
+
+                Adventure.CurrentGrid.Interact(newPos);
+            }
         }
     }
 
