@@ -90,6 +90,13 @@ public sealed class NumberGuesser : Option
     // make able to use decimal places
     // make able to use negative numbers
 
+    private readonly string[] winMessages = new string[]
+    {
+        "Right on!",
+        "Perfect!",
+        "Correct!",
+    };
+
     private Stage stage = Stage.MainMenu;
     private int numMax = 100;
     private int number;
@@ -125,7 +132,6 @@ public sealed class NumberGuesser : Option
                     string guess = InputOptionBuilder.Guess;
                     int guessNum = InputOptionBuilder.GuessNum;
                     bool won = guessNum == this.number;
-
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     Util.Print();
@@ -146,14 +152,7 @@ public sealed class NumberGuesser : Option
 
                     if (won)
                     {
-                        string[] winMsgs = new string[]
-                        {
-                            "Right on!",
-                            "Perfect!",
-                            "Correct!",
-                        };
-
-                        guessMessage = winMsgs[Util.Random.Next(winMsgs.Length)];
+                        guessMessage = this.winMessages[Util.Random.Next(this.winMessages.Length)];
                     }
 
                     Util.Print(guessMessage, 2);
@@ -277,14 +276,16 @@ public sealed class Adventure : Option
                     Util.Print();
                     string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, Adventure.CurrentGrid.Width);
                     Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B);
+                    string s;
+                    Vector2 pos;
 
                     for (int y = Adventure.CurrentGrid.Height - 1; y >= 0; y--)
                     {
-                        string s = CHAR_BORDER_VERTICAL;
+                        s = CHAR_BORDER_VERTICAL;
 
                         for (int x = 0; x < Adventure.CurrentGrid.Width; x++)
                         {
-                            Vector2 pos = new Vector2(x, y);
+                            pos = new Vector2(x, y);
 
                             if (pos == Adventure.posPlayer)
                             {
@@ -329,15 +330,17 @@ public sealed class Adventure : Option
 
     private void MovePlayer(Direction direction)
     {
+        Vector2 newPos;
+        Tile tile;
         bool stop = false;
 
         for (int i = 0; i < this.speed && !stop; i++)
         {
-            Vector2 newPos = Adventure.posPlayer + direction.ToVector2();
+            newPos = Adventure.posPlayer + direction.ToVector2();
 
             if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
             {
-                Tile tile = Adventure.CurrentGrid.GetTile(newPos);
+                tile = Adventure.CurrentGrid.GetTile(newPos);
                 Adventure.CurrentGrid.Interact(newPos);
                 stop = tile.StopMovement || tile.IsDoor;
 
@@ -415,7 +418,7 @@ public sealed class Adventure : Option
             // 'i' | TILE_INTERACTABLE
 
             // Grid First
-            string[] sa = Grid.CreateGrid(15);
+            string[] sa = Grid.CreateGrid(new Vector2(15));
             sa[13] = " wwwwwwwwwwwww ";
             sa[12] = "  w         w  ";
             sa[11] = "       i       ";
@@ -426,7 +429,7 @@ public sealed class Adventure : Option
             Grid.GridFirst.AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
 
             // Grid Second
-            sa = Grid.CreateGrid(17, 21);
+            sa = Grid.CreateGrid(new Vector2(17, 21));
             sa[19] = " d               ";
             Grid.GridSecond = new Grid(sa);
 
@@ -466,19 +469,22 @@ public sealed class Adventure : Option
                 this.width = raw[0].Length;
                 this.height = raw.Length;
                 this.tileGrid = new Tile[this.height][];
+                string str;
+                char[] ca;
+                Tile tile;
 
                 for (int y = 0; y < height; y++)
                 {
-                    string str = raw[y];
+                    str = raw[y];
 
                     if (str.Length == this.width)
                     {
                         this.tileGrid[y] = new Tile[this.width];
-                        char[] ca = str.ToCharArray();
+                        ca = str.ToCharArray();
 
                         for (int x = 0; x < width; x++)
                         {
-                            Tile tile = (Tile)ca[x];
+                            tile = (Tile)ca[x];
                             this.tileGrid[y][x] = tile;
 
                             if (tile.IsCoin)
@@ -602,12 +608,11 @@ public sealed class Adventure : Option
 
         public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this.width, this.height); }
 
-        private static string[] CreateGrid(int squareSize) { return CreateGrid(squareSize, squareSize); }
-
-        private static string[] CreateGrid(int width, int height)
+        private static string[] CreateGrid(Vector2 dimensions)
         {
-            string[] sa = new string[height];
-            for (int i = 0; i < sa.Length; i++) { sa[i] = Util.StringOf(" ", width); }
+            string[] sa = new string[dimensions.y];
+            string s = Util.StringOf(" ", dimensions.x);
+            for (int i = 0; i < sa.Length; i++) { sa[i] = s; }
             return sa;
         }
     }
@@ -636,10 +641,8 @@ public static class DirectionFunc
             case Direction.Up: return Vector2.Up;
             case Direction.Left: return Vector2.Left;
             case Direction.Down: return Vector2.Down;
-            case Direction.Right: return Vector2.Right;
+            default: return Vector2.Right;
         }
-
-        return Vector2.Zero;
     }
 }
 
@@ -686,6 +689,7 @@ public sealed class InputOptionBuilder
         }
 
         bool printLine = true;
+        string s;
 
         foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
         {
@@ -695,8 +699,6 @@ public sealed class InputOptionBuilder
             {
                 if (action.Item3 != null)
                 {
-                    string s;
-
                     if (action.Item2 == Util.NULLCHAR)
                     {
                         s = action.Item1.ToString();
@@ -779,12 +781,9 @@ public class Vector2
     public static readonly Vector2 Left = new Vector2(-1, 0);
     public static readonly Vector2 Right = new Vector2(1, 0);
     public static readonly Vector2 Down = new Vector2(0, -1);
-    public static readonly Vector2 Zero = new Vector2(0);
 
     public int x = 0;
     public int y = 0;
-
-    public Vector2() { }
 
     public Vector2(int size) : this(size, size) { }
 
@@ -800,12 +799,6 @@ public class Vector2
 
     public static Vector2 operator +(Vector2 vecA, Vector2 vecB) { return new Vector2(vecA.x + vecB.x, vecA.y + vecB.y); }
 
-    public static Vector2 operator -(Vector2 vecA, Vector2 vecB) { return new Vector2(vecA.x - vecB.x, vecA.y - vecB.y); }
-
-    public static Vector2 operator *(Vector2 vec, int i) { return new Vector2(vec.x * i, vec.y * i); }
-
-    public static Vector2 operator /(Vector2 vec, int i) { return new Vector2(vec.x / i, vec.y / i); }
-
     public static bool operator ==(Vector2 vecA, Vector2 vecB) { return vecA.x == vecB.x && vecA.y == vecB.y; }
 
     public static bool operator !=(Vector2 vecA, Vector2 vecB) { return !(vecA == vecB); }
@@ -815,7 +808,6 @@ public class Vector2
 
 public static class Util
 {
-    public const char DOT = '·';
     public const char NULLCHAR = default(char);
 
     public static readonly Random Random = new Random();
