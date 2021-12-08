@@ -403,8 +403,6 @@ public sealed class Adventure : Option
 
     public sealed class Grid
     {
-        // TODO create GridBuilder class to more easily create grids and assign values
-
         public static readonly Grid GridFirst;
         public static readonly Grid GridSecond;
 
@@ -459,6 +457,10 @@ public sealed class Adventure : Option
 
         public Grid(string[] raw)
         {
+            // on initialization, take down coordinates of doors and interactables in seperate lists,
+            // when adding doors or interactables, check this list for validity (throw exception), remove from list,
+            // when sealing, check this list to be empty (throw exception), seal grid
+
             if (raw.Length > 0)
             {
                 this.width = raw[0].Length;
