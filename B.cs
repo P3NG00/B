@@ -223,7 +223,7 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
 
     // Public Variables
-    public static Grid CurrentGrid = Grid.GridFirst;
+    public static Grid CurrentGrid;
     public static string Message = string.Empty;
     public static int Coins
     {
@@ -231,13 +231,17 @@ public sealed class Adventure : Option
         set { Adventure.coins = Math.Max(0, value); }
     }
 
-    static Adventure() { Adventure.ResetPlayerPosition(); }
-
     // Private Variables
-    private static int coins = 0;
+    private static int coins;
     private static Vector2 posPlayer;
     private Stage stage = Stage.MainMenu;
     private int speed = 1;
+
+    private int Speed
+    {
+        get { return this.speed; }
+        set { this.speed = Math.Max(1, value); }
+    }
 
     public sealed override void Loop()
     {
@@ -248,10 +252,17 @@ public sealed class Adventure : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Adventure")
-                        // TODO "New Game" should re-instantiate each grid
                         // TODO implement "Continue"
                         // TODO implement saving progress (room num, player pos, coins, etc)
-                        .AddAction('1', () => this.stage = Stage.Game, "New Game")
+                        .AddAction('1', () =>
+                        {
+                            this.stage = Stage.Game;
+                            Grid.InitializeGrids();
+                            Adventure.CurrentGrid = Grid.GridFirst;
+                            Adventure.ResetPlayerPosition();
+                            Adventure.Coins = 0;
+                            this.Speed = 1;
+                        }, "New Game")
                         .AddSpacer()
                         .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
                         .Request();
@@ -310,7 +321,7 @@ public sealed class Adventure : Option
                     Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", "...");
                     Util.Print();
                     Util.Print("{0,9}: {1,-5}", 0, "Coins", Adventure.Coins);
-                    Util.Print("{0,9}: {1,-5}", 0, "Speed", this.speed);
+                    Util.Print("{0,9}: {1,-5}", 0, "Speed", this.Speed);
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
@@ -320,8 +331,8 @@ public sealed class Adventure : Option
                         .AddAction('d', () => this.MovePlayer(Direction.Right), key: ConsoleKey.NumPad6)
                         .AddSpacer()
                         .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
-                        .AddAction(default(char), () => this.speed++, key: ConsoleKey.Add)
-                        .AddAction(default(char), () => this.speed = Math.Max(1, this.speed - 1), key: ConsoleKey.Subtract)
+                        .AddAction(default(char), () => this.Speed++, key: ConsoleKey.Add)
+                        .AddAction(default(char), () => this.Speed--, key: ConsoleKey.Subtract)
                         .Request();
                 }
                 break;
@@ -334,7 +345,7 @@ public sealed class Adventure : Option
         Tile tile;
         bool stop = false;
 
-        for (int i = 0; i < this.speed && !stop; i++)
+        for (int i = 0; i < this.Speed && !stop; i++)
         {
             newPos = Adventure.posPlayer + direction.ToVector2();
 
@@ -406,41 +417,11 @@ public sealed class Adventure : Option
 
     public sealed class Grid
     {
-        public static readonly Grid GridFirst;
-        public static readonly Grid GridSecond;
+        public static Grid GridFirst { get { return Grid.gridFirst; } }
+        public static Grid GridSecond { get { return Grid.gridSecond; } }
 
-        static Grid()
-        {
-            // ' ' | EMPTY
-            // 'c' | COIN
-            // 'd' | DOOR
-            // 'w' | WALL
-            // 'i' | TILE_INTERACTABLE
-
-            // Grid First
-            string[] sa = Grid.CreateGrid(new Vector2(15));
-            sa[13] = " wwwwwwwwwwwww ";
-            sa[12] = "  w         w  ";
-            sa[11] = "       i       ";
-            sa[7] = "   w       w  d";
-            sa[3] = "   w   c   w   ";
-            sa[1] = " wwwwwwwwwwwww ";
-            Grid.GridFirst = new Grid(sa);
-            Grid.GridFirst.AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
-
-            // Grid Second
-            sa = Grid.CreateGrid(new Vector2(17, 21));
-            sa[19] = " d               ";
-            Grid.GridSecond = new Grid(sa);
-
-            // Add Doors after initializing each room
-            Grid.GridFirst.AddDoor(new Vector2(14, 7), Grid.GridSecond);
-            Grid.GridSecond.AddDoor(new Vector2(1, 19), Grid.GridFirst);
-
-            // Seal Grids
-            Grid.GridFirst.Seal();
-            Grid.GridSecond.Seal();
-        }
+        private static Grid gridFirst;
+        private static Grid gridSecond;
 
         public int RealWidth { get { return this.width * 2; } }
         public int Width { get { return this.width; } }
@@ -615,6 +596,39 @@ public sealed class Adventure : Option
             string s = Util.StringOf(" ", dimensions.x);
             for (int i = 0; i < sa.Length; i++) { sa[i] = s; }
             return sa;
+        }
+
+        public static void InitializeGrids()
+        {
+            // ' ' | EMPTY
+            // 'c' | COIN
+            // 'd' | DOOR
+            // 'w' | WALL
+            // 'i' | TILE_INTERACTABLE
+
+            // Grid First
+            string[] sa = Grid.CreateGrid(new Vector2(15));
+            sa[13] = " wwwwwwwwwwwww ";
+            sa[12] = "  w         w  ";
+            sa[11] = "       i       ";
+            sa[7] = "   w       w  d";
+            sa[3] = "   w   c   w   ";
+            sa[1] = " wwwwwwwwwwwww ";
+            Grid.gridFirst = new Grid(sa);
+            Grid.gridFirst.AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
+
+            // Grid Second
+            sa = Grid.CreateGrid(new Vector2(17, 21));
+            sa[19] = " d               ";
+            Grid.gridSecond = new Grid(sa);
+
+            // Add Doors after initializing each room
+            Grid.gridFirst.AddDoor(new Vector2(14, 7), Grid.gridSecond);
+            Grid.gridSecond.AddDoor(new Vector2(1, 19), Grid.gridFirst);
+
+            // Seal Grids
+            Grid.gridFirst.Seal();
+            Grid.gridSecond.Seal();
         }
     }
 
