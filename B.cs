@@ -460,6 +460,7 @@ public sealed class Adventure : Option
 
         public Grid(string[] raw)
         {
+            // TODO
             // on initialization, take down coordinates of doors and interactables in seperate lists,
             // when adding doors or interactables, check this list for validity (throw exception), remove from list,
             // when sealing, check this list to be empty (throw exception), seal grid
