@@ -9,15 +9,15 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.08    ||
+||     2021.12.09    ||
 ||                   ||
 \* ================= */
 
-public class Program
+public class B
 {
     public static bool DebugMode = false;
 
-    public static void Main() { new Program().Start(); }
+    public static void Main() { new B().Start(); }
 
     // The currently selected option
     private Option option = null;
@@ -263,7 +263,7 @@ public sealed class Adventure : Option
                     Console.SetCursorPosition(0, 0);
                     int consoleHeight = Adventure.CurrentGrid.Height + 13;
 
-                    if (Program.DebugMode)
+                    if (B.DebugMode)
                     {
                         Util.Print();
                         // Extra spaces are added to the end to clear leftover text
@@ -678,7 +678,7 @@ public sealed class InputOptionBuilder
         // Add Debug Keybind
         this.AddAction(default(char), () =>
         {
-            Util.ToggleBool(ref Program.DebugMode);
+            Util.ToggleBool(ref B.DebugMode);
             Console.Clear();
         }, key: ConsoleKey.F12);
 
