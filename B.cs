@@ -350,9 +350,7 @@ public sealed class Adventure : Option
 
     public sealed class Tile
     {
-        // TODO limit access to this, only allow gets
-        public static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
-
+        private static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
         private static Tile EMPTY = new Tile(Adventure.CHAR_EMPTY);
         private static Tile COIN = new Tile(Adventure.CHAR_EMPTY, coin: true);
         private static Tile DOOR = new Tile(Adventure.CHAR_DOOR, door: true);
