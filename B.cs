@@ -20,15 +20,15 @@ public class B
     public static void Main() { new B().Start(); }
 
     // The currently selected option
-    private Option option = null;
+    private Option _option = null;
     // Whether or not the program should run
-    private bool running = true;
+    private bool _running = true;
 
     private void Start()
     {
         Console.TreatControlCAsInput = true;
 
-        while (running)
+        while (this._running)
         {
             try
             {
@@ -39,22 +39,22 @@ public class B
                 Console.Clear();
 
                 InputOptionBuilder.Create("B's")
-                    .AddAction('1', () => this.option = new NumberGuesser(), "Number Guesser")
-                    .AddAction('2', () => this.option = new Adventure(), "Adventure")
+                    .AddAction('1', () => this._option = new NumberGuesser(), "Number Guesser")
+                    .AddAction('2', () => this._option = new Adventure(), "Adventure")
                     .AddSpacer()
-                    .AddAction(Util.NULLCHAR, () => this.running = false, "Quit", ConsoleKey.Escape)
+                    .AddAction(Util.NULLCHAR, () => this._running = false, "Quit", ConsoleKey.Escape)
                     .Request();
 
-                if (option != null)
+                if (_option != null)
                 {
                     Util.Print("Starting...", 1);
 
-                    while (option.Running)
+                    while (_option.IsRunning)
                     {
-                        option.Loop();
+                        _option.Loop();
                     }
 
-                    option = null;
+                    _option = null;
                 }
             }
             catch (Exception e)
@@ -73,11 +73,11 @@ public class B
 public abstract class Option
 {
     // Whether the Option should continue to run
-    private bool running = true;
+    private bool _running = true;
 
-    public bool Running { get { return this.running; } }
+    public bool IsRunning { get { return this._running; } }
 
-    public void Quit() { this.running = false; }
+    public void Quit() { this._running = false; }
 
     // The method that is called while Option is Running
     public abstract void Loop();
@@ -90,29 +90,29 @@ public sealed class NumberGuesser : Option
     // make able to use decimal places
     // make able to use negative numbers
 
-    private readonly string[] winMessages = new string[]
+    private static readonly string[] _winMessages = new string[]
     {
         "Right on!",
         "Perfect!",
         "Correct!",
     };
 
-    private Stage stage = Stage.MainMenu;
-    private int numMax = 100;
-    private int number;
+    private Stage _stage = Stage.MainMenu;
+    private int _numMax = 100;
+    private int _number;
 
     public sealed override void Loop()
     {
-        switch (this.stage)
+        switch (this._stage)
         {
             case Stage.MainMenu:
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("Number Guesser")
-                        .AddAction('1', () => this.stage = Stage.GameSetup, "New Game")
+                        .AddAction('1', () => this._stage = Stage.GameSetup, "New Game")
                         .AddSpacer()
-                        .AddAction('9', () => this.stage = Stage.Settings, "Settings")
+                        .AddAction('9', () => this._stage = Stage.Settings, "Settings")
                         .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
                         .Request();
                 }
@@ -120,18 +120,18 @@ public sealed class NumberGuesser : Option
 
             case Stage.GameSetup:
                 {
-                    this.number = Util.Random.Next(this.numMax) + 1;
+                    this._number = Util.Random.Next(this._numMax) + 1;
                     InputOptionBuilder.ResetNumbersRequestGuess();
-                    this.stage = Stage.Game;
+                    this._stage = Stage.Game;
                 }
                 break;
 
             case Stage.Game:
                 {
-                    string guessMessage = "Between 0 - " + this.numMax;
+                    string guessMessage = "Between 0 - " + this._numMax;
                     string guess = InputOptionBuilder.Guess;
                     int guessNum = InputOptionBuilder.GuessNum;
-                    bool won = guessNum == this.number;
+                    bool won = guessNum == this._number;
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     Util.Print();
@@ -140,11 +140,11 @@ public sealed class NumberGuesser : Option
 
                     if (guess.Length > 0)
                     {
-                        if (guessNum < this.number)
+                        if (guessNum < this._number)
                         {
                             guessMessage = "too low...";
                         }
-                        else if (guessNum > this.number)
+                        else if (guessNum > this._number)
                         {
                             guessMessage = "TOO HIGH!!!";
                         }
@@ -152,7 +152,7 @@ public sealed class NumberGuesser : Option
 
                     if (won)
                     {
-                        guessMessage = this.winMessages[Util.Random.Next(this.winMessages.Length)];
+                        guessMessage = this._winMessages[Util.Random.Next(this._winMessages.Length)];
                     }
 
                     Util.Print(guessMessage, 2);
@@ -160,7 +160,7 @@ public sealed class NumberGuesser : Option
                     if (won)
                     {
                         Util.WaitForInput();
-                        this.stage = Stage.MainMenu;
+                        this._stage = Stage.MainMenu;
                     }
                     else
                     {
@@ -176,9 +176,9 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Settings")
-                        .AddAction('1', () => this.stage = Stage.Settings_MaxNumber, "Max Number")
+                        .AddAction('1', () => this._stage = Stage.Settings_MaxNumber, "Max Number")
                         .AddSpacer()
-                        .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Back", ConsoleKey.Escape)
+                        .AddAction(Util.NULLCHAR, () => this._stage = Stage.MainMenu, "Back", ConsoleKey.Escape)
                         .Request();
                 }
                 break;
@@ -188,11 +188,11 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     Util.Print();
-                    Util.Print("Max - {0}", 1, this.numMax);
+                    Util.Print("Max - {0}", 1, this._numMax);
                     InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
-                        .AddAction(Util.NULLCHAR, () => this.stage = Stage.Settings, "Back", ConsoleKey.Escape)
+                        .AddAction(Util.NULLCHAR, () => this._stage = Stage.Settings, "Back", ConsoleKey.Escape)
                         .Request();
-                    this.numMax = InputOptionBuilder.GuessNum;
+                    this._numMax = InputOptionBuilder.GuessNum;
                 }
                 break;
         }
@@ -234,18 +234,19 @@ public sealed class Adventure : Option
     // Private Variables
     private static int coins;
     private static Vector2 posPlayer;
-    private Stage stage = Stage.MainMenu;
-    private int speed = 1;
+
+    private Stage _stage = Stage.MainMenu;
+    private int _speed = 1;
 
     private int Speed
     {
-        get { return this.speed; }
-        set { this.speed = Math.Max(1, value); }
+        get { return this._speed; }
+        set { this._speed = Math.Max(1, value); }
     }
 
     public sealed override void Loop()
     {
-        switch (this.stage)
+        switch (this._stage)
         {
             case Stage.MainMenu:
                 {
@@ -256,7 +257,7 @@ public sealed class Adventure : Option
                         // TODO implement saving progress (room num, player pos, coins, etc)
                         .AddAction('1', () =>
                         {
-                            this.stage = Stage.Game;
+                            this._stage = Stage.Game;
                             Grid.InitializeGrids();
                             Adventure.CurrentGrid = Grid.GridFirst;
                             Adventure.ResetPlayerPosition();
@@ -330,7 +331,7 @@ public sealed class Adventure : Option
                         .AddAction('s', () => this.MovePlayer(Direction.Down), key: ConsoleKey.NumPad2)
                         .AddAction('d', () => this.MovePlayer(Direction.Right), key: ConsoleKey.NumPad6)
                         .AddSpacer()
-                        .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
+                        .AddAction(Util.NULLCHAR, () => this._stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
                         .AddAction(Util.NULLCHAR, () => this.Speed++, key: ConsoleKey.Add)
                         .AddAction(Util.NULLCHAR, () => this.Speed--, key: ConsoleKey.Subtract)
                         .Request();
@@ -367,6 +368,7 @@ public sealed class Adventure : Option
 
     public sealed class Tile
     {
+        // TODO limit access to this, only allow gets
         public static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
 
         private static Tile EMPTY = new Tile(Adventure.CHAR_EMPTY);
@@ -423,58 +425,58 @@ public sealed class Adventure : Option
         private static Grid gridFirst;
         private static Grid gridSecond;
 
-        public int RealWidth { get { return this.width * 2; } }
-        public int Width { get { return this.width; } }
-        public int Height { get { return this.height; } }
+        public int RealWidth { get { return this._width * 2; } }
+        public int Width { get { return this._width; } }
+        public int Height { get { return this._height; } }
 
-        private readonly Dictionary<Vector2, Action> interactionList = new Dictionary<Vector2, Action>();
-        private readonly Dictionary<Vector2, Grid> doorList = new Dictionary<Vector2, Grid>();
-        private readonly List<Vector2> coinList = new List<Vector2>();
-        private readonly Tile[][] tileGrid;
-        private readonly int width;
-        private readonly int height;
+        private readonly Dictionary<Vector2, Action> _interactionList = new Dictionary<Vector2, Action>();
+        private readonly Dictionary<Vector2, Grid> _doorList = new Dictionary<Vector2, Grid>();
+        private readonly List<Vector2> _coinList = new List<Vector2>();
+        private readonly Tile[][] _tileGrid;
+        private readonly int _width;
+        private readonly int _height;
 
         // Private Initialization Cache
-        private readonly int initInteractables = 0;
-        private readonly int initDoors = 0;
-        private bool seald = false;
+        private readonly int _initInteractables = 0;
+        private readonly int _initDoors = 0;
+        private bool _seald = false;
 
         public Grid(string[] raw)
         {
             if (raw.Length > 0)
             {
-                this.width = raw[0].Length;
-                this.height = raw.Length;
-                this.tileGrid = new Tile[this.height][];
+                this._width = raw[0].Length;
+                this._height = raw.Length;
+                this._tileGrid = new Tile[this._height][];
                 string str;
                 char[] ca;
                 Tile tile;
 
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < _height; y++)
                 {
                     str = raw[y];
 
-                    if (str.Length == this.width)
+                    if (str.Length == this._width)
                     {
-                        this.tileGrid[y] = new Tile[this.width];
+                        this._tileGrid[y] = new Tile[this._width];
                         ca = str.ToCharArray();
 
-                        for (int x = 0; x < width; x++)
+                        for (int x = 0; x < _width; x++)
                         {
                             tile = (Tile)ca[x];
-                            this.tileGrid[y][x] = tile;
+                            this._tileGrid[y][x] = tile;
 
                             if (tile.IsCoin)
                             {
-                                this.coinList.Add(new Vector2(x, y));
+                                this._coinList.Add(new Vector2(x, y));
                             }
                             else if (tile.IsInteractable)
                             {
-                                this.initInteractables++;
+                                this._initInteractables++;
                             }
                             else if (tile.IsDoor)
                             {
-                                this.initDoors++;
+                                this._initDoors++;
                             }
                         }
                     }
@@ -492,38 +494,38 @@ public sealed class Adventure : Option
 
         public Tile GetTile(Vector2 pos) { return this.GetTile(pos.x, pos.y); }
 
-        public Tile GetTile(int x, int y) { return this.tileGrid[y][x]; }
+        public Tile GetTile(int x, int y) { return this._tileGrid[y][x]; }
 
-        public bool HasCoinAt(Vector2 pos) { return this.coinList.Contains(pos); }
+        public bool HasCoinAt(Vector2 pos) { return this._coinList.Contains(pos); }
 
-        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature<Action>(pos, action, "Interaction", tile => tile.IsInteractable, this.interactionList); }
+        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature<Action>(pos, action, "Interaction", tile => tile.IsInteractable, this._interactionList); }
 
-        public void AddDoor(Vector2 pos, Grid grid) { this.AddFeature<Grid>(pos, grid, "Door", tile => tile.IsDoor, this.doorList); }
+        public void AddDoor(Vector2 pos, Grid grid) { this.AddFeature<Grid>(pos, grid, "Door", tile => tile.IsDoor, this._doorList); }
 
         public void Interact(Vector2 pos)
         {
-            if (this.seald)
+            if (this._seald)
             {
                 Tile tile = this.GetTile(pos);
 
                 // Pickup Coin
-                if (tile.IsCoin && this.coinList.Contains(pos))
+                if (tile.IsCoin && this._coinList.Contains(pos))
                 {
-                    this.coinList.Remove(pos);
+                    this._coinList.Remove(pos);
                     Adventure.Coins++;
                     Adventure.Message = "You picked up a coin!";
                 }
 
                 // Check Interactions
-                if (tile.IsInteractable && this.interactionList.ContainsKey(pos))
+                if (tile.IsInteractable && this._interactionList.ContainsKey(pos))
                 {
-                    this.interactionList[pos]();
+                    this._interactionList[pos]();
                 }
 
                 // Check Doors
-                if (tile.IsDoor && this.doorList.ContainsKey(pos))
+                if (tile.IsDoor && this._doorList.ContainsKey(pos))
                 {
-                    Adventure.CurrentGrid = this.doorList[pos];
+                    Adventure.CurrentGrid = this._doorList[pos];
                     Adventure.ResetPlayerPosition();
                     Console.Clear();
                 }
@@ -536,22 +538,22 @@ public sealed class Adventure : Option
 
         public void Seal()
         {
-            if (this.initDoors != this.doorList.Count)
+            if (this._initDoors != this._doorList.Count)
             {
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented doors");
             }
 
-            if (this.initInteractables != this.interactionList.Count)
+            if (this._initInteractables != this._interactionList.Count)
             {
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented interactables");
             }
 
-            this.seald = true;
+            this._seald = true;
         }
 
         private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dictionary<Vector2, T> list)
         {
-            if (!this.seald)
+            if (!this._seald)
             {
                 if (check.Invoke(this.GetTile(pos)))
                 {
@@ -575,7 +577,7 @@ public sealed class Adventure : Option
             }
         }
 
-        public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this.width, this.height); }
+        public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this._width, this._height); }
 
         private static string[] CreateGrid(Vector2 dimensions)
         {
@@ -655,16 +657,16 @@ public static class DirectionFunc
 
 public sealed class InputOptionBuilder
 {
-    private readonly List<Tuple<ConsoleKey, char, string, Action>> actions = new List<Tuple<ConsoleKey, char, string, Action>>();
-    private string message;
-
     private static string guess = string.Empty;
     private static int guessNum = 0;
 
     public static string Guess { get { return InputOptionBuilder.guess; } }
     public static int GuessNum { get { return InputOptionBuilder.guessNum; } }
 
-    private InputOptionBuilder(string message) { this.message = message; }
+    private readonly List<Tuple<ConsoleKey, char, string, Action>> actions = new List<Tuple<ConsoleKey, char, string, Action>>();
+    private string _message;
+
+    private InputOptionBuilder(string message) { this._message = message; }
 
     public static InputOptionBuilder Create(string message = null) { return new InputOptionBuilder(message); }
 
@@ -689,10 +691,10 @@ public sealed class InputOptionBuilder
             Console.Clear();
         }, key: ConsoleKey.F12);
 
-        if (this.message != null)
+        if (this._message != null)
         {
             Util.Print();
-            Util.Print("  " + this.message);
+            Util.Print("  " + this._message);
         }
 
         bool printLine = true;
