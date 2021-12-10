@@ -606,13 +606,17 @@ public sealed class Adventure : Option
 
             // Grid Second
             sa = Grid.CreateGrid(new Vector2(17, 21));
-            sa[19] = " d               ";
-            sa[18] = "  w              ";
+            sa[15] = "        d        ";
+            sa[12] = " www   w w   www ";
+            sa[11] = " w    w   w    w ";
+            sa[10] = " w             w ";
+            sa[9] = " w    w   w    w ";
+            sa[8] = " www   w w   www ";
             Grid.gridSecond = new Grid(sa);
 
             // Add Doors after initializing each room
             Grid.gridFirst.AddDoor(new Vector2(14, 7), Grid.gridSecond);
-            Grid.gridSecond.AddDoor(new Vector2(1, 19), Grid.gridFirst);
+            Grid.gridSecond.AddDoor(new Vector2(8, 15), Grid.gridFirst);
 
             // Seal Grids
             Grid.gridFirst.Seal();
