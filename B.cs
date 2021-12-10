@@ -494,9 +494,9 @@ public sealed class Adventure : Option
 
         public bool HasCoinAt(Vector2 pos) { return this._coinList.Contains(pos); }
 
-        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature<Action>(pos, action, "Interaction", tile => tile.IsInteractable, this._interactionList); }
+        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.IsInteractable, this._interactionList); }
 
-        public void AddDoor(Vector2 pos, Grid grid) { this.AddFeature<Grid>(pos, grid, "Door", tile => tile.IsDoor, this._doorList); }
+        public void AddDoor(Vector2 pos, Grid grid) { this.AddFeature(pos, grid, "Door", tile => tile.IsDoor, this._doorList); }
 
         public void Interact(Vector2 pos)
         {
