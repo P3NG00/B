@@ -32,27 +32,21 @@ public class B
         {
             try
             {
-                Console.Title = "B";
-                Console.BackgroundColor = ConsoleColor.White;
-                Console.ForegroundColor = ConsoleColor.Black;
-                Util.SetConsoleSize(20, 8);
-                Console.Clear();
-
-                InputOptionBuilder.Create("B's")
-                    .AddAction('1', () => this._option = new NumberGuesser(), "Number Guesser")
-                    .AddAction('2', () => this._option = new Adventure(), "Adventure")
-                    .AddSpacer()
-                    .AddAction(Util.NULLCHAR, () => this._running = false, "Quit", ConsoleKey.Escape)
-                    .Request();
-
-                if (this._option != null)
+                if (this._option != null && this._option.IsRunning)
+                    this._option.Loop();
+                else
                 {
-                    Util.Print("Starting...", 1);
-
-                    while (this._option.IsRunning)
-                        this._option.Loop();
-
-                    this._option = null;
+                    Console.Title = "B";
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Util.SetConsoleSize(20, 8);
+                    Console.Clear();
+                    InputOptionBuilder.Create("B's")
+                        .AddAction('1', () => this._option = new NumberGuesser(), "Number Guesser")
+                        .AddAction('2', () => this._option = new Adventure(), "Adventure")
+                        .AddSpacer()
+                        .AddAction(Util.NULLCHAR, () => this._running = false, "Quit", ConsoleKey.Escape)
+                        .Request();
                 }
             }
             catch (Exception e)
