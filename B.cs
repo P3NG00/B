@@ -152,7 +152,7 @@ public sealed class NumberGuesser : Option
 
                     if (won)
                     {
-                        guessMessage = this._winMessages[Util.Random.Next(this._winMessages.Length)];
+                        guessMessage = NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)];
                     }
 
                     Util.Print(guessMessage, 2);
