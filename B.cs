@@ -50,9 +50,7 @@ public class B
                     Util.Print("Starting...", 1);
 
                     while (this._option.IsRunning)
-                    {
                         this._option.Loop();
-                    }
 
                     this._option = null;
                 }
@@ -130,27 +128,23 @@ public sealed class NumberGuesser : Option
                     int guessNum = InputOptionBuilder.GuessNum;
                     bool won = guessNum == this._number;
                     Console.Clear();
-                    Util.SetConsoleSize(20, 7);
+                    int consoleHeight = 7;
+
+                    if (B.DebugMode)
+                    {
+                        Util.Print();
+                        Util.Print("Number: {0,-3}", 1, this._number);
+                        Util.Print();
+                        consoleHeight += 3;
+                    }
+
+                    Util.SetConsoleSize(20, consoleHeight);
                     Util.Print();
                     Util.Print(guess, 2);
                     Util.Print();
-
-                    if (guess.Length > 0)
-                    {
-                        if (guessNum < this._number)
-                        {
-                            guessMessage = "too low...";
-                        }
-                        else if (guessNum > this._number)
-                        {
-                            guessMessage = "TOO HIGH!!!";
-                        }
-                    }
-
-                    if (won)
-                    {
-                        guessMessage = NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)];
-                    }
+                    guessMessage = guess.Length == 0 ? "..." :
+                        won ? NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)] :
+                            guessNum < this._number ? "too low..." : "TOO HIGH!!!";
 
                     Util.Print(guessMessage, 2);
 
@@ -296,17 +290,11 @@ public sealed class Adventure : Option
                             pos = new Vector2(x, y);
 
                             if (pos == Adventure.posPlayer)
-                            {
                                 s += Adventure.CHAR_PLAYER;
-                            }
                             else if (Adventure.CurrentGrid.HasCoinAt(pos))
-                            {
                                 s += Adventure.CHAR_COIN;
-                            }
                             else
-                            {
                                 s += Adventure.CurrentGrid.GetTile(pos).Chars;
-                            }
                         }
 
                         Util.Print(s + Adventure.CHAR_BORDER_VERTICAL, 2);
@@ -353,9 +341,7 @@ public sealed class Adventure : Option
                 stop = tile.StopMovement || tile.IsDoor;
 
                 if (!stop)
-                {
                     Adventure.posPlayer = newPos;
-                }
             }
         }
     }
@@ -402,14 +388,8 @@ public sealed class Adventure : Option
 
         public static explicit operator Tile(char c)
         {
-            try
-            {
-                return Tile.TileMap[c];
-            }
-            catch (KeyNotFoundException)
-            {
-                throw new ArgumentException(string.Format("Invalid tile character \"{0}\"", c));
-            }
+            try { return Tile.TileMap[c]; }
+            catch (KeyNotFoundException) { throw new ArgumentException(string.Format("Invalid tile character \"{0}\"", c)); }
         }
     }
 
@@ -463,29 +443,19 @@ public sealed class Adventure : Option
                             this._tileGrid[y][x] = tile;
 
                             if (tile.IsCoin)
-                            {
                                 this._coinList.Add(new Vector2(x, y));
-                            }
                             else if (tile.IsInteractable)
-                            {
                                 this._initInteractables++;
-                            }
                             else if (tile.IsDoor)
-                            {
                                 this._initDoors++;
-                            }
                         }
                     }
                     else
-                    {
                         throw new ArgumentException("Grid Init Error: Rows must be same length");
-                    }
                 }
             }
             else
-            {
                 throw new ArgumentException("Grid Init Error: Must have at least one row");
-            }
         }
 
         public Tile GetTile(Vector2 pos) { return this.GetTile(pos.x, pos.y); }
@@ -514,9 +484,7 @@ public sealed class Adventure : Option
 
                 // Check Interactions
                 if (tile.IsInteractable && this._interactionList.ContainsKey(pos))
-                {
                     this._interactionList[pos]();
-                }
 
                 // Check Doors
                 if (tile.IsDoor && this._doorList.ContainsKey(pos))
@@ -527,22 +495,16 @@ public sealed class Adventure : Option
                 }
             }
             else
-            {
                 throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
-            }
         }
 
         public void Seal()
         {
             if (this._initDoors != this._doorList.Count)
-            {
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented doors");
-            }
 
             if (this._initInteractables != this._interactionList.Count)
-            {
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented interactables");
-            }
 
             this._seald = true;
         }
@@ -554,23 +516,15 @@ public sealed class Adventure : Option
                 if (check.Invoke(this.GetTile(pos)))
                 {
                     if (!list.ContainsKey(pos))
-                    {
                         list.Add(pos, obj);
-                    }
                     else
-                    {
                         throw new InvalidOperationException(string.Format("Add {0} Error: {1} already exists at {2}", name, name, pos));
-                    }
                 }
                 else
-                {
                     throw new ArgumentException(string.Format("Add {0} Error: Tile is not {1} - {2}", name, name, pos));
-                }
             }
             else
-            {
                 throw new InvalidOperationException(string.Format("Add {0} Error: Cannot add {1} to a sealed grid", name, name));
-            }
         }
 
         public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this._width, this._height); }
@@ -579,7 +533,7 @@ public sealed class Adventure : Option
         {
             string[] sa = new string[dimensions.y];
             string s = Util.StringOf(" ", dimensions.x);
-            for (int i = 0; i < sa.Length; i++) { sa[i] = s; }
+            for (int i = 0; i < sa.Length; i++) sa[i] = s;
             return sa;
         }
 
@@ -708,14 +662,7 @@ public sealed class InputOptionBuilder
             {
                 if (action.Item3 != null)
                 {
-                    if (action.Item2 == Util.NULLCHAR)
-                    {
-                        s = action.Item1.ToString();
-                    }
-                    else
-                    {
-                        s = action.Item2.ToString();
-                    }
+                    s = action.Item2 == Util.NULLCHAR ? action.Item1.ToString() : action.Item2.ToString();
 
                     if (printLine)
                     {
@@ -727,9 +674,7 @@ public sealed class InputOptionBuilder
                 }
             }
             else if (!printLine)
-            {
                 printLine = true;
-            }
         }
 
         // Get User Key Info once, otherwise, it will call different keys each loop
@@ -756,9 +701,7 @@ public sealed class InputOptionBuilder
                 InputOptionBuilder.guess = InputOptionBuilder.guess.Substring(0, Math.Max(0, InputOptionBuilder.guess.Length - 1));
 
                 if (!int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum))
-                {
                     InputOptionBuilder.guessNum = 0;
-                }
             }, key: ConsoleKey.Backspace);
 
         for (int i = 0; i < 10; i++)
@@ -768,9 +711,7 @@ public sealed class InputOptionBuilder
             iob.AddAction(c, () =>
             {
                 if (int.TryParse(InputOptionBuilder.guess + c, out InputOptionBuilder.guessNum))
-                {
                     InputOptionBuilder.guess = InputOptionBuilder.guessNum.ToString();
-                }
             });
         }
 
@@ -834,12 +775,8 @@ public static class Util
         }
 
         while (true)
-        {
             if (Util.GetInput().Key == key)
-            {
                 break;
-            }
-        }
     }
 
     public static string StringOf(string str, int repeat)
@@ -847,9 +784,7 @@ public static class Util
         string s = string.Empty;
 
         for (int i = 0; i < repeat; i++)
-        {
             s += str;
-        }
 
         return s;
     }
@@ -866,9 +801,7 @@ public static class Util
             string messageStr = string.Format(message.ToString(), args);
 
             for (int i = 0; i < offsetLeft; i++)
-            {
                 messageStr = " " + messageStr;
-            }
 
             Console.WriteLine(messageStr);
         }
