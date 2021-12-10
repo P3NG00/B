@@ -441,11 +441,6 @@ public sealed class Adventure : Option
 
         public Grid(string[] raw)
         {
-            // TODO
-            // on initialization, take down coordinates of doors and interactables in seperate lists,
-            // when adding doors or interactables, check this list for validity (throw exception), remove from list,
-            // when sealing, check this list to be empty (throw exception), seal grid
-
             if (raw.Length > 0)
             {
                 this.width = raw[0].Length;
@@ -501,43 +496,9 @@ public sealed class Adventure : Option
 
         public bool HasCoinAt(Vector2 pos) { return this.coinList.Contains(pos); }
 
-        public void AddInteraction(Vector2 pos, Action action)
-        {
-            if (!this.seald)
-            {
-                if (this.GetTile(pos).IsInteractable)
-                {
-                    this.interactionList.Add(pos, action);
-                }
-                else
-                {
-                    throw new ArgumentException(string.Format("Add Interaction Error: Tile is not interactable - {0}", pos));
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("Add Interaction Error: Cannot add interactions to a sealed grid");
-            }
-        }
+        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature<Action>(pos, action, "Interaction", tile => tile.IsInteractable, this.interactionList); }
 
-        public void AddDoor(Vector2 pos, Grid grid)
-        {
-            if (!this.seald)
-            {
-                if (this.GetTile(pos).IsDoor)
-                {
-                    this.doorList.Add(pos, grid);
-                }
-                else
-                {
-                    throw new ArgumentException(string.Format("Add Door Error: Tile is not a door - {0}", pos));
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("Add Door Error: Cannot add doors to a sealed grid");
-            }
-        }
+        public void AddDoor(Vector2 pos, Grid grid) { this.AddFeature<Grid>(pos, grid, "Door", tile => tile.IsDoor, this.doorList); }
 
         public void Interact(Vector2 pos)
         {
@@ -588,6 +549,32 @@ public sealed class Adventure : Option
             this.seald = true;
         }
 
+        private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dictionary<Vector2, T> list)
+        {
+            if (!this.seald)
+            {
+                if (check.Invoke(this.GetTile(pos)))
+                {
+                    if (!list.ContainsKey(pos))
+                    {
+                        list.Add(pos, obj);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(string.Format("Add {0} Error: {1} already exists at {2}", name, name, pos));
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("Add {0} Error: Tile is not {1} - {2}", name, name, pos));
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(string.Format("Add {0} Error: Cannot add {1} to a sealed grid", name, name));
+            }
+        }
+
         public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this.width, this.height); }
 
         private static string[] CreateGrid(Vector2 dimensions)
@@ -620,6 +607,7 @@ public sealed class Adventure : Option
             // Grid Second
             sa = Grid.CreateGrid(new Vector2(17, 21));
             sa[19] = " d               ";
+            sa[18] = "  w              ";
             Grid.gridSecond = new Grid(sa);
 
             // Add Doors after initializing each room
