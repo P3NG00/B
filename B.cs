@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.09    ||
+||     2021.12.10    ||
 ||                   ||
 \* ================= */
 
@@ -331,8 +331,8 @@ public sealed class Adventure : Option
                         .AddAction('d', () => this.MovePlayer(Direction.Right), key: ConsoleKey.NumPad6)
                         .AddSpacer()
                         .AddAction(Util.NULLCHAR, () => this.stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
-                        .AddAction(default(char), () => this.Speed++, key: ConsoleKey.Add)
-                        .AddAction(default(char), () => this.Speed--, key: ConsoleKey.Subtract)
+                        .AddAction(Util.NULLCHAR, () => this.Speed++, key: ConsoleKey.Add)
+                        .AddAction(Util.NULLCHAR, () => this.Speed--, key: ConsoleKey.Subtract)
                         .Request();
                 }
                 break;
@@ -691,7 +691,7 @@ public sealed class InputOptionBuilder
     public void Request()
     {
         // Add Debug Keybind
-        this.AddAction(default(char), () =>
+        this.AddAction(Util.NULLCHAR, () =>
         {
             Util.ToggleBool(ref B.DebugMode);
             Console.Clear();
@@ -743,7 +743,7 @@ public sealed class InputOptionBuilder
 
         foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
         {
-            if (action != null && (action.Item1 == inputKeyInfo.Key || (action.Item2 != default(char) && action.Item2 == inputKeyInfo.KeyChar)))
+            if (action != null && (action.Item1 == inputKeyInfo.Key || (action.Item2 != Util.NULLCHAR && action.Item2 == inputKeyInfo.KeyChar)))
             {
                 action.Item4.Invoke();
                 break;
