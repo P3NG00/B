@@ -110,19 +110,16 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("Number Guesser")
-                        .AddAction('1', () => this._stage = Stage.GameSetup, "New Game")
+                        .AddAction('1', () =>
+                        {
+                            this._number = Util.Random.Next(this._numMax) + 1;
+                            InputOptionBuilder.ResetNumbersRequestGuess();
+                            this._stage = Stage.Game;
+                        }, "New Game")
                         .AddSpacer()
                         .AddAction('9', () => this._stage = Stage.Settings, "Settings")
                         .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
                         .Request();
-                }
-                break;
-
-            case Stage.GameSetup:
-                {
-                    this._number = Util.Random.Next(this._numMax) + 1;
-                    InputOptionBuilder.ResetNumbersRequestGuess();
-                    this._stage = Stage.Game;
                 }
                 break;
 
@@ -201,7 +198,6 @@ public sealed class NumberGuesser : Option
     private enum Stage
     {
         MainMenu,
-        GameSetup,
         Game,
         Settings,
         Settings_MaxNumber,
