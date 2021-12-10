@@ -61,7 +61,7 @@ public class B
             {
                 Util.SetConsoleSize(140, 30);
                 Util.Print(e);
-                Util.WaitForInput();
+                Util.WaitForKey(ConsoleKey.F1);
                 Console.Clear();
             }
         }
@@ -609,11 +609,15 @@ public sealed class Adventure : Option
             // Grid Second
             sa = Grid.CreateGrid(new Vector2(17, 21));
             sa[15] = "        d        ";
-            sa[12] = " www   w w   www ";
+            sa[14] = " www         www ";
+            sa[13] = " w             w ";
+            sa[12] = " w     w w     w ";
             sa[11] = " w    w   w    w ";
             sa[10] = " w             w ";
             sa[9] = " w    w   w    w ";
-            sa[8] = " www   w w   www ";
+            sa[8] = " w     w w     w ";
+            sa[7] = " w             w ";
+            sa[6] = " www         www ";
             Grid.gridSecond = new Grid(sa);
 
             // Add Doors after initializing each room
@@ -733,7 +737,7 @@ public sealed class InputOptionBuilder
         }
 
         // Get User Key Info once, otherwise, it will call different keys each loop
-        ConsoleKeyInfo inputKeyInfo = Console.ReadKey(true);
+        ConsoleKeyInfo inputKeyInfo = Util.GetInput();
 
         foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
         {
@@ -821,7 +825,26 @@ public static class Util
 
     public static readonly Random Random = new Random();
 
-    public static void WaitForInput() { Console.ReadKey(true); }
+    public static void WaitForInput() { Util.GetInput(); }
+
+    public static ConsoleKeyInfo GetInput() { return Console.ReadKey(true); }
+
+    public static void WaitForKey(ConsoleKey key, bool displayMessage = true)
+    {
+        if (displayMessage)
+        {
+            Util.Print();
+            Util.Print("Press {0} to continue...", 0, key);
+        }
+
+        while (true)
+        {
+            if (Util.GetInput().Key == key)
+            {
+                break;
+            }
+        }
+    }
 
     public static string StringOf(string str, int repeat)
     {
