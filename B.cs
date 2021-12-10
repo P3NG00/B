@@ -45,16 +45,16 @@ public class B
                     .AddAction(Util.NULLCHAR, () => this._running = false, "Quit", ConsoleKey.Escape)
                     .Request();
 
-                if (_option != null)
+                if (this._option != null)
                 {
                     Util.Print("Starting...", 1);
 
-                    while (_option.IsRunning)
+                    while (this._option.IsRunning)
                     {
-                        _option.Loop();
+                        this._option.Loop();
                     }
 
-                    _option = null;
+                    this._option = null;
                 }
             }
             catch (Exception e)
