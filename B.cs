@@ -39,8 +39,8 @@ public class B
                     Console.Title = "B";
                     Console.BackgroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.Black;
-                    Util.SetConsoleSize(20, 8);
                     Console.Clear();
+                    Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("B's")
                         .AddAction('1', () => this._option = new NumberGuesser(), "Number Guesser")
                         .AddAction('2', () => this._option = new Adventure(), "Adventure")
