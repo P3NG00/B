@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.10    ||
+||     2021.12.13    ||
 ||                   ||
 \* ================= */
 
@@ -42,10 +42,10 @@ public class B
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("B's")
-                        .AddAction('1', () => this._option = new NumberGuesser(), "Number Guesser")
-                        .AddAction('2', () => this._option = new Adventure(), "Adventure")
+                        .AddKeybind(new InputOptionBuilder.Keybind('1', () => this._option = new NumberGuesser(), "Number Guesser"))
+                        .AddKeybind(new InputOptionBuilder.Keybind('2', () => this._option = new Adventure(), "Adventure"))
                         .AddSpacer()
-                        .AddAction(Util.NULLCHAR, () => this._running = false, "Quit", ConsoleKey.Escape)
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this._running = false, "Quit", ConsoleKey.Escape))
                         .Request();
                 }
             }
@@ -58,6 +58,7 @@ public class B
             }
         }
 
+        // TODO make exit code run upon Option exit, this should be overridden function in Option for easy implementation
         // Place exit code like data saving here
     }
 }
@@ -102,15 +103,15 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("Number Guesser")
-                        .AddAction('1', () =>
+                        .AddKeybind(new InputOptionBuilder.Keybind('1', () =>
                         {
                             this._number = Util.Random.Next(this._numMax) + 1;
                             InputOptionBuilder.ResetNumbersRequestGuess();
                             this._stage = Stage.Game;
-                        }, "New Game")
+                        }, "New Game"))
                         .AddSpacer()
-                        .AddAction('9', () => this._stage = Stage.Settings, "Settings")
-                        .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
+                        .AddKeybind(new InputOptionBuilder.Keybind('9', () => this._stage = Stage.Settings, "Settings"))
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape))
                         .Request();
                 }
                 break;
@@ -127,7 +128,7 @@ public sealed class NumberGuesser : Option
                     if (B.DebugMode)
                     {
                         Util.Print();
-                        Util.Print("Number: {0,-3}", 1, this._number);
+                        Util.Print(string.Format("Number: {0,-3}", this._number), 1);
                         Util.Print();
                         consoleHeight += 3;
                     }
@@ -150,7 +151,7 @@ public sealed class NumberGuesser : Option
                     else
                     {
                         InputOptionBuilder.CreateNumbersRequest("Enter a Number!")
-                            .AddAction(Util.NULLCHAR, () => this.Quit(), key: ConsoleKey.Escape)
+                            .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this.Quit(), key: ConsoleKey.Escape))
                             .Request();
                     }
                 }
@@ -161,9 +162,9 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Settings")
-                        .AddAction('1', () => this._stage = Stage.Settings_MaxNumber, "Max Number")
+                        .AddKeybind(new InputOptionBuilder.Keybind('1', () => this._stage = Stage.Settings_MaxNumber, "Max Number"))
                         .AddSpacer()
-                        .AddAction(Util.NULLCHAR, () => this._stage = Stage.MainMenu, "Back", ConsoleKey.Escape)
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this._stage = Stage.MainMenu, "Back", ConsoleKey.Escape))
                         .Request();
                 }
                 break;
@@ -173,9 +174,9 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     Util.Print();
-                    Util.Print("Max - {0}", 1, this._numMax);
+                    Util.Print(string.Format("Max - {0}", this._numMax), 1);
                     InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
-                        .AddAction(Util.NULLCHAR, () => this._stage = Stage.Settings, "Back", ConsoleKey.Escape)
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this._stage = Stage.Settings, "Back", ConsoleKey.Escape))
                         .Request();
                     this._numMax = InputOptionBuilder.GuessNum;
                 }
@@ -205,10 +206,11 @@ public sealed class Adventure : Option
     private const string CHAR_BORDER_VERTICAL = "||";
     private const string CHAR_CORNER_A = "//";
     private const string CHAR_CORNER_B = @"\\";
+    private const string MESSAGE_EMPTY = "...";
 
     // Public Variables
     public static Grid CurrentGrid;
-    public static string Message = string.Empty;
+    public static string Message = Adventure.MESSAGE_EMPTY;
     public static int Coins
     {
         get { return Adventure.coins; }
@@ -239,7 +241,7 @@ public sealed class Adventure : Option
                     InputOptionBuilder.Create("Adventure")
                         // TODO implement "Continue"
                         // TODO implement saving progress (room num, player pos, coins, etc)
-                        .AddAction('1', () =>
+                        .AddKeybind(new InputOptionBuilder.Keybind('1', () =>
                         {
                             this._stage = Stage.Game;
                             Grid.InitializeGrids();
@@ -247,9 +249,10 @@ public sealed class Adventure : Option
                             Adventure.ResetPlayerPosition();
                             Adventure.Coins = 0;
                             this.Speed = 1;
-                        }, "New Game")
+                            Console.Clear();
+                        }, "New Game"))
                         .AddSpacer()
-                        .AddAction(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape)
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this.Quit(), "Back", ConsoleKey.Escape))
                         .Request();
                 }
                 break;
@@ -263,15 +266,15 @@ public sealed class Adventure : Option
                     {
                         Util.Print();
                         // Extra spaces are added to the end to clear leftover text
-                        Util.Print("{0,-7}", 1, Adventure.CurrentGrid);
-                        Util.Print("Pos: {0,-8}", 1, Adventure.posPlayer);
+                        Util.Print(string.Format("{0,-7}", Adventure.CurrentGrid), 1);
+                        Util.Print(string.Format("Pos: {0,-8}", Adventure.posPlayer), 1);
                         consoleHeight += 3;
                     }
 
                     Util.SetConsoleSize(Adventure.CurrentGrid.RealWidth + 8, consoleHeight);
                     Util.Print();
                     string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, Adventure.CurrentGrid.Width);
-                    Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B);
+                    Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B), 2);
                     string s;
                     Vector2 pos;
 
@@ -294,24 +297,25 @@ public sealed class Adventure : Option
                         Util.Print(s + Adventure.CHAR_BORDER_VERTICAL, 2);
                     }
 
-                    Util.Print("{0}{1}{2}", 2, Adventure.CHAR_CORNER_B, borderHorizontal, Adventure.CHAR_CORNER_A);
+                    Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_B, borderHorizontal, Adventure.CHAR_CORNER_A), 2);
                     Util.Print();
-                    Util.Print("> {0}", 3, Adventure.Message);
-                    Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", "...");
+                    Util.Print(string.Format("> {0}", Adventure.Message), 3);
+                    Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", Adventure.MESSAGE_EMPTY);
                     Util.Print();
-                    Util.Print("{0,9}: {1,-5}", 0, "Coins", Adventure.Coins);
-                    Util.Print("{0,9}: {1,-5}", 0, "Speed", this.Speed);
+                    string format = "{0,9}: {1,-5}";
+                    Util.Print(string.Format(format, "Coins", Adventure.Coins));
+                    Util.Print(string.Format(format, "Speed", this.Speed));
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
-                        .AddAction('w', () => this.MovePlayer(Direction.Up), key: ConsoleKey.NumPad8)
-                        .AddAction('a', () => this.MovePlayer(Direction.Left), key: ConsoleKey.NumPad4)
-                        .AddAction('s', () => this.MovePlayer(Direction.Down), key: ConsoleKey.NumPad2)
-                        .AddAction('d', () => this.MovePlayer(Direction.Right), key: ConsoleKey.NumPad6)
+                        .AddKeybind(new InputOptionBuilder.Keybind('w', () => this.MovePlayer(Direction.Up), key: ConsoleKey.NumPad8))
+                        .AddKeybind(new InputOptionBuilder.Keybind('a', () => this.MovePlayer(Direction.Left), key: ConsoleKey.NumPad4))
+                        .AddKeybind(new InputOptionBuilder.Keybind('s', () => this.MovePlayer(Direction.Down), key: ConsoleKey.NumPad2))
+                        .AddKeybind(new InputOptionBuilder.Keybind('d', () => this.MovePlayer(Direction.Right), key: ConsoleKey.NumPad6))
                         .AddSpacer()
-                        .AddAction(Util.NULLCHAR, () => this._stage = Stage.MainMenu, "Quit", ConsoleKey.Escape)
-                        .AddAction(Util.NULLCHAR, () => this.Speed++, key: ConsoleKey.Add)
-                        .AddAction(Util.NULLCHAR, () => this.Speed--, key: ConsoleKey.Subtract)
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this._stage = Stage.MainMenu, "Quit", ConsoleKey.Escape))
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this.Speed++, key: ConsoleKey.Add))
+                        .AddKeybind(new InputOptionBuilder.Keybind(Util.NULLCHAR, () => this.Speed--, key: ConsoleKey.Subtract))
                         .Request();
                 }
                 break;
@@ -609,52 +613,48 @@ public sealed class InputOptionBuilder
     public static string Guess { get { return InputOptionBuilder.guess; } }
     public static int GuessNum { get { return InputOptionBuilder.guessNum; } }
 
-    private readonly List<Tuple<ConsoleKey, char, string, Action>> actions = new List<Tuple<ConsoleKey, char, string, Action>>();
+    private readonly List<Keybind> _keybinds = new List<Keybind>();
     private string _message;
 
     private InputOptionBuilder(string message) { this._message = message; }
 
     public static InputOptionBuilder Create(string message = null) { return new InputOptionBuilder(message); }
 
-    public InputOptionBuilder AddAction(char keyChar, Action action, string description = null, ConsoleKey key = default(ConsoleKey))
+    public InputOptionBuilder AddKeybind(Keybind keybind)
     {
-        this.actions.Add(new Tuple<ConsoleKey, char, string, Action>(key, keyChar, description, action));
+        this._keybinds.Add(keybind);
         return this;
     }
 
-    public InputOptionBuilder AddSpacer()
-    {
-        this.actions.Add(null);
-        return this;
-    }
+    public InputOptionBuilder AddSpacer() { return this.AddKeybind(null); }
 
     public void Request()
     {
         // Add Debug Keybind
-        this.AddAction(Util.NULLCHAR, () =>
+        this.AddKeybind(new Keybind(Util.NULLCHAR, () =>
         {
             Util.ToggleBool(ref B.DebugMode);
             Console.Clear();
-        }, key: ConsoleKey.F12);
+        }, key: ConsoleKey.F12));
 
         if (this._message != null)
         {
             Util.Print();
-            Util.Print("  " + this._message);
+            Util.Print(this._message, 2);
         }
 
         bool printLine = true;
         string s;
 
-        foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
+        foreach (Keybind keybind in this._keybinds)
         {
             // If action is null, add space in display
             // If action's char or string is null, don't display option
-            if (action != null)
+            if (keybind != null)
             {
-                if (action.Item3 != null)
+                if (keybind.Description != null)
                 {
-                    s = action.Item2 == Util.NULLCHAR ? action.Item1.ToString() : action.Item2.ToString();
+                    s = keybind.KeyChar == Util.NULLCHAR ? keybind.Key.ToString() : keybind.KeyChar.ToString();
 
                     if (printLine)
                     {
@@ -662,7 +662,7 @@ public sealed class InputOptionBuilder
                         Util.Print();
                     }
 
-                    Util.Print("{0}) {1}", 1, s, action.Item3);
+                    Util.Print(string.Format("{0}) {1}", s, keybind.Description), 1);
                 }
             }
             else if (!printLine)
@@ -672,11 +672,11 @@ public sealed class InputOptionBuilder
         // Get User Key Info once, otherwise, it will call different keys each loop
         ConsoleKeyInfo inputKeyInfo = Util.GetInput();
 
-        foreach (Tuple<ConsoleKey, char, string, Action> action in this.actions)
+        foreach (Keybind keybind in this._keybinds)
         {
-            if (action != null && (action.Item1 == inputKeyInfo.Key || (action.Item2 != Util.NULLCHAR && action.Item2 == inputKeyInfo.KeyChar)))
+            if (keybind != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULLCHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
             {
-                action.Item4.Invoke();
+                keybind.Action.Invoke();
                 break;
             }
         }
@@ -688,23 +688,23 @@ public sealed class InputOptionBuilder
     public static InputOptionBuilder CreateNumbersRequest(string message)
     {
         InputOptionBuilder iob = InputOptionBuilder.Create(message)
-            .AddAction(Util.NULLCHAR, () =>
+            .AddKeybind(new Keybind(Util.NULLCHAR, () =>
             {
                 InputOptionBuilder.guess = InputOptionBuilder.guess.Substring(0, Math.Max(0, InputOptionBuilder.guess.Length - 1));
 
                 if (!int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum))
                     InputOptionBuilder.guessNum = 0;
-            }, key: ConsoleKey.Backspace);
+            }, key: ConsoleKey.Backspace));
 
         for (int i = 0; i < 10; i++)
         {
             char c = (char)('0' + i);
 
-            iob.AddAction(c, () =>
+            iob.AddKeybind(new Keybind(c, () =>
             {
                 if (int.TryParse(InputOptionBuilder.guess + c, out InputOptionBuilder.guessNum))
                     InputOptionBuilder.guess = InputOptionBuilder.guessNum.ToString();
-            });
+            }));
         }
 
         return iob;
@@ -714,6 +714,23 @@ public sealed class InputOptionBuilder
     {
         InputOptionBuilder.guess = string.Empty;
         InputOptionBuilder.guessNum = 0;
+    }
+
+    public sealed class Keybind
+    {
+        public readonly ConsoleKey Key;
+        public readonly char KeyChar;
+        public readonly string Description;
+        public readonly Action Action;
+
+        // TODO make keyChar default to Util.NULLCHAR
+        public Keybind(char keyChar, Action action, string description = null, ConsoleKey key = default(ConsoleKey))
+        {
+            this.KeyChar = keyChar;
+            this.Key = key;
+            this.Description = description;
+            this.Action = action;
+        }
     }
 }
 
@@ -758,12 +775,14 @@ public static class Util
 
     public static ConsoleKeyInfo GetInput() { return Console.ReadKey(true); }
 
+    public static string GetLine() { return Console.ReadLine(); }
+
     public static void WaitForKey(ConsoleKey key, bool displayMessage = true)
     {
         if (displayMessage)
         {
             Util.Print();
-            Util.Print("Press {0} to continue...", 0, key);
+            Util.Print(string.Format("Press {0} to continue...", key), 0);
         }
 
         while (true)
@@ -781,22 +800,17 @@ public static class Util
         return s;
     }
 
-    public static void Print(object message = null, int offsetLeft = 0, params object[] args)
+    public static void Print(object message = null, int offsetLeft = 0, bool newLine = true)
     {
-        // If no message, cannot print
-        if (message == null)
-        {
-            Console.WriteLine();
-        }
-        else
-        {
-            string messageStr = string.Format(message.ToString(), args);
+        string messageStr = (String)message ?? string.Empty;
 
-            for (int i = 0; i < offsetLeft; i++)
-                messageStr = " " + messageStr;
+        for (int i = 0; i < offsetLeft; i++)
+            messageStr = " " + messageStr;
 
+        if (newLine)
             Console.WriteLine(messageStr);
-        }
+        else
+            Console.Write(messageStr);
     }
 
     public static void SetConsoleSize(int width, int height)
