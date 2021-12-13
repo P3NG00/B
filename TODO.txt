@@ -2,6 +2,13 @@ Options to Implement:
 Solitaire
 Minesweeper
 Blackjack
+Mexican Train
+FTP Server (file download/upload)
+Bank/Money Manager (keep track of account)
 
 Figure out how to connect debugging to c sharp console application
 seems like i almost got it set up, just need to make my project work in dotnet core or something?
+
+TODO solution to drive letter problem?
+make batch program at root of USB that runs "~/B/B.exe" with parameter of drive letter;
+    then, in program, keep drive letter and reference it as static readonly variable in B class
