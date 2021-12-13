@@ -600,8 +600,10 @@ public static class DirectionFunc
             case Direction.Up: return Vector2.Up;
             case Direction.Left: return Vector2.Left;
             case Direction.Down: return Vector2.Down;
-            default: return Vector2.Right;
+            case Direction.Right: return Vector2.Right;
         }
+
+        return Vector2.Zero;
     }
 }
 
@@ -740,6 +742,7 @@ public class Vector2
     public static readonly Vector2 Left = new Vector2(-1, 0);
     public static readonly Vector2 Right = new Vector2(1, 0);
     public static readonly Vector2 Down = new Vector2(0, -1);
+    public static readonly Vector2 Zero = new Vector2(0);
 
     public int x = 0;
     public int y = 0;
