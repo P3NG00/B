@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.13    ||
+||     2021.12.14    ||
 ||                   ||
 \* ================= */
 
@@ -52,7 +52,7 @@ public class B
             catch (Exception e)
             {
                 Util.SetConsoleSize(140, 30);
-                Util.Print(e);
+                Util.Print(e.ToString());
                 Util.WaitForKey(ConsoleKey.F1);
                 Console.Clear();
             }
