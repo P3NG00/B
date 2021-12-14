@@ -787,9 +787,11 @@ public static class Util
             Util.Print(string.Format("Press {0} to continue...", key), 0);
         }
 
-        while (true)
+        bool keyPressed = false;
+
+        while (!keyPressed)
             if (Util.GetInput().Key == key)
-                break;
+                keyPressed = true;
     }
 
     public static string StringOf(string str, int repeat)
