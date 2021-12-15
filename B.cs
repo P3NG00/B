@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.14    ||
+||     2021.12.15    ||
 ||                   ||
 \* ================= */
 
@@ -42,10 +42,10 @@ public class B
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("B's")
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '1'))
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._option = new Adventure(), "Adventure", '2'))
+                        .AddKeybind(new Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '1'))
+                        .AddKeybind(new Keybind(() => this._option = new Adventure(), "Adventure", '2'))
                         .AddSpacer()
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
                         .Request();
                 }
             }
@@ -103,15 +103,15 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("Number Guesser")
-                        .AddKeybind(new InputOptionBuilder.Keybind(() =>
+                        .AddKeybind(new Keybind(() =>
                         {
                             this._number = Util.Random.Next(this._numMax) + 1;
                             InputOptionBuilder.ResetNumbersRequestGuess();
                             this._stage = Stage.Game;
                         }, "New Game", '1'))
                         .AddSpacer()
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._stage = Stage.Settings, "Settings", '9'))
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Settings, "Settings", '9'))
+                        .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
                         .Request();
                 }
                 break;
@@ -151,7 +151,7 @@ public sealed class NumberGuesser : Option
                     else
                     {
                         InputOptionBuilder.CreateNumbersRequest("Enter a Number!")
-                            .AddKeybind(new InputOptionBuilder.Keybind(() => this._stage = Stage.MainMenu, key: ConsoleKey.Escape))
+                            .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, key: ConsoleKey.Escape))
                             .Request();
                     }
                 }
@@ -162,9 +162,9 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     InputOptionBuilder.Create("Settings")
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._stage = Stage.Settings_MaxNumber, "Max Number", '1'))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Settings_MaxNumber, "Max Number", '1'))
                         .AddSpacer()
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
                         .Request();
                 }
                 break;
@@ -176,7 +176,7 @@ public sealed class NumberGuesser : Option
                     Util.Print();
                     Util.Print(string.Format("Max - {0}", this._numMax), 1);
                     InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._stage = Stage.Settings, "Back", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Settings, "Back", key: ConsoleKey.Escape))
                         .Request();
                     this._numMax = InputOptionBuilder.GuessNum;
                 }
@@ -241,7 +241,7 @@ public sealed class Adventure : Option
                     InputOptionBuilder.Create("Adventure")
                         // TODO implement "Continue"
                         // TODO implement saving progress (room num, player pos, coins, etc)
-                        .AddKeybind(new InputOptionBuilder.Keybind(() =>
+                        .AddKeybind(new Keybind(() =>
                         {
                             this._stage = Stage.Game;
                             Grid.InitializeGrids();
@@ -252,7 +252,7 @@ public sealed class Adventure : Option
                             Console.Clear();
                         }, "New Game", '1'))
                         .AddSpacer()
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
                         .Request();
                 }
                 break;
@@ -308,14 +308,14 @@ public sealed class Adventure : Option
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
                     InputOptionBuilder.Create()
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2))
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6))
+                        .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
+                        .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))
+                        .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2))
+                        .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6))
                         .AddSpacer()
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this._stage = Stage.MainMenu, "Quit", key: ConsoleKey.Escape))
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.Speed++, key: ConsoleKey.Add))
-                        .AddKeybind(new InputOptionBuilder.Keybind(() => this.Speed--, key: ConsoleKey.Subtract))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Quit", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() => this.Speed++, key: ConsoleKey.Add))
+                        .AddKeybind(new Keybind(() => this.Speed--, key: ConsoleKey.Subtract))
                         .Request();
                 }
                 break;
@@ -717,21 +717,21 @@ public sealed class InputOptionBuilder
         InputOptionBuilder.guess = string.Empty;
         InputOptionBuilder.guessNum = 0;
     }
+}
 
-    public sealed class Keybind
+public sealed class Keybind
+{
+    public readonly ConsoleKey Key;
+    public readonly char KeyChar;
+    public readonly string Description;
+    public readonly Action Action;
+
+    public Keybind(Action action, string description = null, char keyChar = Util.NULLCHAR, ConsoleKey key = default(ConsoleKey))
     {
-        public readonly ConsoleKey Key;
-        public readonly char KeyChar;
-        public readonly string Description;
-        public readonly Action Action;
-
-        public Keybind(Action action, string description = null, char keyChar = Util.NULLCHAR, ConsoleKey key = default(ConsoleKey))
-        {
-            this.KeyChar = keyChar;
-            this.Key = key;
-            this.Description = description;
-            this.Action = action;
-        }
+        this.KeyChar = keyChar;
+        this.Key = key;
+        this.Description = description;
+        this.Action = action;
     }
 }
 
