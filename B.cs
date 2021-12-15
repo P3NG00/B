@@ -735,7 +735,7 @@ public sealed class Keybind
     }
 }
 
-public class Vector2
+public sealed class Vector2
 {
     public static readonly Vector2 Up = new Vector2(0, 1);
     public static readonly Vector2 Left = new Vector2(-1, 0);
