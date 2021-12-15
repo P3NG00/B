@@ -42,8 +42,8 @@ public class B
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     InputOptionBuilder.Create("B's")
-                        .AddKeybind(new Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '1'))
-                        .AddKeybind(new Keybind(() => this._option = new Adventure(), "Adventure", '2'))
+                        .AddKeybind(new Keybind(() => this._option = new Adventure(), "Adventure", '1'))
+                        .AddKeybind(new Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '2'))
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
                         .Request();
