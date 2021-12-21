@@ -42,7 +42,7 @@ public class B
                     Console.ForegroundColor = ConsoleColor.Black;
                     Console.Clear();
                     Util.SetConsoleSize(20, 9);
-                    InputOptionBuilder.Create("B's")
+                    new InputOptionBuilder("B's")
                         .AddKeybind(new Keybind(() => this._option = new Adventure(), "Adventure", '1'))
                         .AddKeybind(new Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '2'))
                         .AddKeybind(new Keybind(() => this._option = new MoneyTracker(), "Money Tracker", '3'))
@@ -104,7 +104,7 @@ public sealed class NumberGuesser : Option
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
-                    InputOptionBuilder.Create("Number Guesser")
+                    new InputOptionBuilder("Number Guesser")
                         .AddKeybind(new Keybind(() =>
                         {
                             this._number = Util.Random.Next(this._numMax) + 1;
@@ -163,7 +163,7 @@ public sealed class NumberGuesser : Option
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
-                    InputOptionBuilder.Create("Settings")
+                    new InputOptionBuilder("Settings")
                         .AddKeybind(new Keybind(() => this._stage = Stage.Settings_MaxNumber, "Max Number", '1'))
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
@@ -240,7 +240,7 @@ public sealed class Adventure : Option
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
-                    InputOptionBuilder.Create("Adventure")
+                    new InputOptionBuilder("Adventure")
                         // TODO implement "Continue"
                         // TODO implement saving progress (room num, player pos, coins, etc)
                         .AddKeybind(new Keybind(() =>
@@ -309,7 +309,7 @@ public sealed class Adventure : Option
                     Util.Print(string.Format(format, "Speed", this.Speed));
                     Util.Print();
                     Util.Print("Move) W A S D", 1);
-                    InputOptionBuilder.Create()
+                    new InputOptionBuilder()
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2))
@@ -617,7 +617,7 @@ public sealed class MoneyTracker : Option
                     // TODO
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
-                    InputOptionBuilder.Create("Money Tracker")
+                    new InputOptionBuilder("Money Tracker")
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'))
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
@@ -644,7 +644,7 @@ public sealed class MoneyTracker : Option
                     else
                         Util.SetConsoleSize(24, 9);
 
-                    InputOptionBuilder.Create("Account")
+                    new InputOptionBuilder("Account")
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account_Create, "Create", '1'))
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account_Select, "Select", '2'))
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account_Remove, "Remove", '3'))
@@ -692,7 +692,7 @@ public sealed class MoneyTracker : Option
                         consoleHeight += amountAccounts + 1;
 
                     Util.SetConsoleSize(27, consoleHeight);
-                    InputOptionBuilder iob = InputOptionBuilder.Create();
+                    InputOptionBuilder iob = new InputOptionBuilder();
 
                     if (amountAccounts > 0)
                     {
@@ -724,7 +724,7 @@ public sealed class MoneyTracker : Option
                         consoleHeight += amountAccounts + 1;
 
                     Util.SetConsoleSize(27, consoleHeight);
-                    InputOptionBuilder iob = InputOptionBuilder.Create("Remove Account");
+                    InputOptionBuilder iob = new InputOptionBuilder("Remove Account");
 
                     if (amountAccounts > 0)
                     {
@@ -867,9 +867,7 @@ public sealed class InputOptionBuilder
     private readonly List<Keybind> _keybinds = new List<Keybind>();
     private string _message;
 
-    private InputOptionBuilder(string message) { this._message = message; }
-
-    public static InputOptionBuilder Create(string message = null) { return new InputOptionBuilder(message); }
+    public InputOptionBuilder(string message = null) { this._message = message; }
 
     public InputOptionBuilder AddKeybind(Keybind keybind)
     {
@@ -938,7 +936,7 @@ public sealed class InputOptionBuilder
 
     public static InputOptionBuilder CreateNumbersRequest(string message)
     {
-        InputOptionBuilder iob = InputOptionBuilder.Create(message)
+        InputOptionBuilder iob = new InputOptionBuilder(message)
             .AddKeybind(new Keybind(() =>
             {
                 InputOptionBuilder.guess = InputOptionBuilder.guess.Substring(0, Math.Max(0, InputOptionBuilder.guess.Length - 1));
