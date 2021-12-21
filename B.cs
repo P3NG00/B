@@ -9,7 +9,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.15    ||
+||     2021.12.21    ||
 ||                   ||
 \* ================= */
 
@@ -719,6 +719,34 @@ public sealed class InputOptionBuilder
     }
 }
 
+public static class InputString
+{
+    private const int MAX_LENGTH = 20;
+
+    // Returns if enter was pressed
+    public static RequestReturn Request(ref string str)
+    {
+        ConsoleKeyInfo keyInfo = Util.GetInput();
+
+        switch (keyInfo.Key)
+        {
+            case ConsoleKey.Enter: return RequestReturn.Enter;
+            case ConsoleKey.Escape: return RequestReturn.Escape;
+            case ConsoleKey.Backspace: str = str.Substring(0, Math.Max(0, str.Length - 1)); break;
+            default: if (str.Length < InputString.MAX_LENGTH) str += keyInfo.KeyChar; break;
+        }
+
+        return RequestReturn.Default;
+    }
+
+    public enum RequestReturn
+    {
+        Default,
+        Enter,
+        Escape,
+    }
+}
+
 public sealed class Keybind
 {
     public readonly ConsoleKey Key;
@@ -776,8 +804,6 @@ public static class Util
     public static void WaitForInput() { Util.GetInput(); }
 
     public static ConsoleKeyInfo GetInput() { return Console.ReadKey(true); }
-
-    public static string GetLine() { return Console.ReadLine(); }
 
     public static void WaitForKey(ConsoleKey key, bool displayMessage = true)
     {
