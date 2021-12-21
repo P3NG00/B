@@ -1079,10 +1079,8 @@ public static class Util
 
     public static void Print(object message = null, int offsetLeft = 0, bool newLine = true)
     {
-        string messageStr = (String)message ?? string.Empty;
-
-        for (int i = 0; i < offsetLeft; i++)
-            messageStr = " " + messageStr;
+        string messageStr = message == null ? string.Empty : message.ToString();
+        messageStr = string.Format("{0," + (messageStr.Length + offsetLeft).ToString() + "}", messageStr);
 
         if (newLine)
             Console.WriteLine(messageStr);
