@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System;
 
 /* ================= *\
@@ -40,10 +41,11 @@ public class B
                     Console.BackgroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.Black;
                     Console.Clear();
-                    Util.SetConsoleSize(20, 8);
+                    Util.SetConsoleSize(20, 9);
                     InputOptionBuilder.Create("B's")
                         .AddKeybind(new Keybind(() => this._option = new Adventure(), "Adventure", '1'))
                         .AddKeybind(new Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '2'))
+                        .AddKeybind(new Keybind(() => this._option = new MoneyTracker(), "Money Tracker", '3'))
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
                         .Request();
@@ -580,6 +582,253 @@ public sealed class Adventure : Option
     {
         MainMenu,
         Game,
+    }
+}
+
+public sealed class MoneyTracker : Option
+{
+    public static readonly DirectoryInfo Directory = new DirectoryInfo(Environment.CurrentDirectory + @"\data");
+
+    private readonly List<Account> _accounts = new List<Account>();
+    private Account _selectedAccount = null;
+    private string _tempName = string.Empty;
+    private Stage _stage = Stage.Initialization;
+
+    public sealed override void Loop()
+    {
+        switch (this._stage)
+        {
+            case Stage.Initialization:
+                {
+                    if (!MoneyTracker.Directory.Exists)
+                        MoneyTracker.Directory.Create();
+
+                    MoneyTracker.Directory.Attributes = FileAttributes.Hidden;
+
+                    foreach (FileInfo file in MoneyTracker.Directory.GetFiles())
+                        this._accounts.Add(new Account(file.Name));
+
+                    this._stage = Stage.MainMenu;
+                }
+                break;
+
+            case Stage.MainMenu:
+                {
+                    // TODO
+                    Console.Clear();
+                    Util.SetConsoleSize(20, 7);
+                    InputOptionBuilder.Create("Money Tracker")
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'))
+                        .AddSpacer()
+                        .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                        .Request();
+
+                    // TODO transaction
+                    // TODO display
+                    // TODO search
+                    // TODO categorize
+                }
+                break;
+
+            case Stage.Account:
+                {
+                    Console.Clear();
+
+                    if (this._selectedAccount != null)
+                    {
+                        Util.SetConsoleSize(24, 12);
+                        Util.Print();
+                        Util.Print("Selected Account:", 3);
+                        Util.Print(this._selectedAccount.Name, 2);
+                    }
+                    else
+                        Util.SetConsoleSize(24, 9);
+
+                    InputOptionBuilder.Create("Account")
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Account_Create, "Create", '1'))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Account_Select, "Select", '2'))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Account_Remove, "Remove", '3'))
+                        .AddSpacer()
+                        .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                        .Request();
+                }
+                break;
+
+            case Stage.Account_Create:
+                {
+                    Console.Clear();
+                    Util.SetConsoleSize(42, 3);
+                    Util.Print();
+                    Util.Print(string.Format("New Account Name: {0}", this._tempName), 2, false);
+
+                    switch (InputString.Request(ref this._tempName))
+                    {
+                        case InputString.RequestReturn.Enter:
+                            if (this._tempName.Length > 0)
+                            {
+                                Account account = new Account(this._tempName);
+                                this._tempName = string.Empty;
+                                this._accounts.Add(account);
+                                this._selectedAccount = account;
+                                this._stage = Stage.Account;
+                            }
+                            break;
+
+                        case InputString.RequestReturn.Escape:
+                            this._tempName = string.Empty;
+                            this._stage = Stage.Account;
+                            break;
+                    }
+                }
+                break;
+
+            case Stage.Account_Select:
+                {
+                    Console.Clear();
+                    int consoleHeight = 3;
+                    int amountAccounts = this._accounts.Count;
+
+                    if (amountAccounts > 0)
+                        consoleHeight += amountAccounts + 1;
+
+                    Util.SetConsoleSize(27, consoleHeight);
+                    InputOptionBuilder iob = InputOptionBuilder.Create();
+
+                    if (amountAccounts > 0)
+                    {
+                        for (int i = 0; i < amountAccounts; i++)
+                        {
+                            Account account = this._accounts[i];
+                            iob.AddKeybind(new Keybind(() =>
+                            {
+                                this._selectedAccount = account;
+                                this._stage = Stage.Account;
+                            }, account.Name, keyChar: (char)('1' + i)));
+                        }
+
+                        iob.AddSpacer();
+                    }
+
+                    iob.AddKeybind(new Keybind(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
+                        .Request();
+                }
+                break;
+
+            case Stage.Account_Remove:
+                {
+                    Console.Clear();
+                    int consoleHeight = 5;
+                    int amountAccounts = this._accounts.Count;
+
+                    if (amountAccounts > 0)
+                        consoleHeight += amountAccounts + 1;
+
+                    Util.SetConsoleSize(27, consoleHeight);
+                    InputOptionBuilder iob = InputOptionBuilder.Create("Remove Account");
+
+                    if (amountAccounts > 0)
+                    {
+                        for (int i = 0; i < amountAccounts; i++)
+                        {
+                            Account account = this._accounts[i];
+                            iob.AddKeybind(new Keybind(() =>
+                            {
+                                if (this._selectedAccount == account)
+                                    this._selectedAccount = null;
+
+                                this._accounts.Remove(account);
+                                account.Delete();
+                                this._stage = Stage.Account;
+                            }, account.Name, keyChar: (char)('1' + i)));
+                        }
+
+                        iob.AddSpacer();
+                    }
+
+                    iob.AddKeybind(new Keybind(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
+                        .Request();
+                }
+                break;
+        }
+    }
+
+    private sealed class Account
+    {
+        private const char SEPERATOR = '|';
+
+        public readonly string Name;
+
+        private readonly List<Transaction> _transactions = new List<Transaction>();
+        private readonly FileInfo _file;
+
+        public Account(string name)
+        {
+            this.Name = name;
+            this._file = new FileInfo(MoneyTracker.Directory.ToString() + @"\" + name);
+
+            if (!this._file.Exists)
+                this._file.Create();
+            else
+            {
+                StreamReader streamReader = new StreamReader(this._file.OpenRead());
+                string[] line;
+                int amount;
+
+                while (!streamReader.EndOfStream)
+                {
+                    line = streamReader.ReadLine().Split(Account.SEPERATOR);
+
+                    if (line.Length != 2)
+                        throw new ArgumentException("String needs 2 comma-seperated values");
+
+                    if (!int.TryParse(line[0], out amount))
+                        throw new ArgumentException("Value is not a number");
+
+                    this._transactions.Add(new Transaction(amount, line[1]));
+                }
+
+                streamReader.Close();
+            }
+        }
+
+        public void Save()
+        {
+            if (!this._file.Exists)
+                this._file.Create();
+
+            StreamWriter streamWriter = new StreamWriter(this._file.OpenWrite());
+
+            foreach (Transaction transaction in this._transactions)
+                streamWriter.WriteLine(string.Format("{0}{1}{2}", transaction.Amount, Account.SEPERATOR, transaction.Description));
+
+            streamWriter.Close();
+        }
+
+        public void Delete() { if (this._file.Exists) this._file.Delete(); }
+
+        private sealed class Transaction
+        {
+            public readonly string Description;
+            public readonly double Amount;
+            // TODO keep date
+            // TODO keep categories
+
+            public Transaction(double amount, string description)
+            {
+                this.Amount = amount;
+                this.Description = description;
+            }
+        }
+    }
+
+    private enum Stage
+    {
+        Initialization,
+        MainMenu,
+        Account,
+        Account_Create,
+        Account_Select,
+        Account_Remove,
     }
 }
 
