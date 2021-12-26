@@ -153,7 +153,11 @@ public sealed class NumberGuesser : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     new InputOptionBuilder("Settings")
-                        .AddKeybind(new Keybind(() => this._stage = Stage.Settings_MaxNumber, "Max Number", '1'))
+                        .AddKeybind(new Keybind(() =>
+                        {
+                            this._numMaxTemp = this._numMax;
+                            this._stage = Stage.Settings_MaxNumber;
+                        }, "Max Number", '1'))
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
                         .Request();
@@ -162,11 +166,10 @@ public sealed class NumberGuesser : Option
 
             case Stage.Settings_MaxNumber:
                 {
-                    this._numMaxTemp = this._numMax;
                     Console.Clear();
-                    Util.SetConsoleSize(20, 7);
+                    Util.SetConsoleSize(20, 5);
                     Util.Print();
-                    Util.Print(string.Format("Max - {0}", this._numMaxTemp), 1);
+                    Util.Print(string.Format("Max - {0}", this._numMaxTemp), 2);
                     Util.Print();
                     Util.Print("Enter Max Number", 2);
 
@@ -175,8 +178,11 @@ public sealed class NumberGuesser : Option
                         case Input.RequestReturn.Escape: this._stage = Stage.Settings; break;
                         case Input.RequestReturn.Enter:
                             {
-                                if (this._numMax < 1)
-                                    this._numMax = 1;
+                                if (this._numMaxTemp < 0)
+                                    this._numMaxTemp = 1;
+
+                                this._numMax = this._numMaxTemp;
+                                this._stage = Stage.Settings;
                             }
                             break;
                     }
