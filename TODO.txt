@@ -1,14 +1,30 @@
+
+Adventure:
+    Implement saving progress (room number, player position, coins, etc)
+    Make able to "Continue" from saved progress
+
+Number Guesser:
+    Make able to specify min and max number
+    Make able to use decimal numbers
+    Make able to use negative numbers
+
+Money Tracker:
+    Make able to create transactions under account
+    Make able to delete transactions under account
+    Make able to edit transactions under account
+    Make able to view transactions under account
+    Make categorization system for transactions
+    Make able to give helpful reports
+        Categorized spending report
+        Total spending report
+        etc.
+
 Options to Implement:
 Solitaire
 Minesweeper
 Blackjack
 Mexican Train
 FTP Server (file download/upload)
-Bank/Money Manager (keep track of account)
 
 Figure out how to connect debugging to c sharp console application
 seems like i almost got it set up, just need to make my project work in dotnet core or something?
-
-TODO solution to drive letter problem?
-make batch program at root of USB that runs "~/B/B.exe" with parameter of drive letter;
-    then, in program, keep drive letter and reference it as static readonly variable in B class

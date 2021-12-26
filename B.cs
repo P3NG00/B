@@ -20,9 +20,7 @@ public class B
 
     public static void Main() { new B().Start(); }
 
-    // The currently selected option
     private Option _option = null;
-    // Whether or not the program should run
     private bool _running = true;
 
     private void Start()
@@ -59,32 +57,21 @@ public class B
                 Console.Clear();
             }
         }
-
-        // TODO make exit code run upon Option exit, this should be overridden function in Option for easy implementation
-        // Place exit code like data saving here
     }
 }
 
 public abstract class Option
 {
-    // Whether the Option should continue to run
     private bool _running = true;
-
     public bool IsRunning { get { return this._running; } }
 
     public void Quit() { this._running = false; }
 
-    // The method that is called while Option is Running
     public abstract void Loop();
 }
 
 public sealed class NumberGuesser : Option
 {
-    // TODO below
-    // make able to specify custom range of number
-    // make able to use decimal places
-    // make able to use negative numbers
-
     private static readonly string[] _winMessages = new string[]
     {
         "Right on!",
@@ -209,7 +196,6 @@ public sealed class NumberGuesser : Option
 
 public sealed class Adventure : Option
 {
-    // Chars
     private const string CHAR_EMPTY = "  ";
     private const string CHAR_PLAYER = "()";
     private const string CHAR_DOOR = "[]";
@@ -222,7 +208,6 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
     private const string MESSAGE_EMPTY = "...";
 
-    // Public Variables
     public static Grid CurrentGrid;
     public static string Message = Adventure.MESSAGE_EMPTY;
     public static int Coins
@@ -231,7 +216,6 @@ public sealed class Adventure : Option
         set { Adventure.coins = Math.Max(0, value); }
     }
 
-    // Private Variables
     private static int coins;
     private static Vector2 posPlayer;
 
@@ -253,8 +237,6 @@ public sealed class Adventure : Option
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     new InputOptionBuilder("Adventure")
-                        // TODO implement "Continue"
-                        // TODO implement saving progress (room num, player pos, coins, etc)
                         .AddKeybind(new Keybind(() =>
                         {
                             this._stage = Stage.Game;
@@ -484,7 +466,6 @@ public sealed class Adventure : Option
             {
                 Tile tile = this.GetTile(pos);
 
-                // Pickup Coin
                 if (tile.IsCoin && this._coinList.Contains(pos))
                 {
                     this._coinList.Remove(pos);
@@ -492,11 +473,9 @@ public sealed class Adventure : Option
                     Adventure.Message = "You picked up a coin!";
                 }
 
-                // Check Interactions
                 if (tile.IsInteractable && this._interactionList.ContainsKey(pos))
                     this._interactionList[pos]();
 
-                // Check Doors
                 if (tile.IsDoor && this._doorList.ContainsKey(pos))
                 {
                     Adventure.CurrentGrid = this._doorList[pos];
@@ -626,7 +605,6 @@ public sealed class MoneyTracker : Option
 
             case Stage.MainMenu:
                 {
-                    // TODO
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     new InputOptionBuilder("Money Tracker")
@@ -634,11 +612,6 @@ public sealed class MoneyTracker : Option
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
                         .Request();
-
-                    // TODO transaction
-                    // TODO display
-                    // TODO search
-                    // TODO categorize
                 }
                 break;
 
@@ -822,8 +795,6 @@ public sealed class MoneyTracker : Option
         {
             public readonly string Description;
             public readonly double Amount;
-            // TODO keep date
-            // TODO keep categories
 
             public Transaction(double amount, string description)
             {
@@ -903,8 +874,8 @@ public sealed class InputOptionBuilder
 
         foreach (Keybind keybind in this._keybinds)
         {
-            // If action is null, add space in display
-            // If action's char or string is null, don't display option
+            // If keybind is null, add spacer in display
+            // If keybind description is null, don't display option
             if (keybind != null)
             {
                 if (keybind.Description != null)
@@ -924,7 +895,6 @@ public sealed class InputOptionBuilder
                 printLine = true;
         }
 
-        // Get User Input
         ConsoleKeyInfo inputKeyInfo = Util.GetInput();
 
         foreach (Keybind keybind in this._keybinds)
