@@ -351,19 +351,14 @@ public sealed class Adventure : Option
     public sealed class Tile
     {
         private static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
-        private static Tile EMPTY = new Tile(Adventure.CHAR_EMPTY);
-        private static Tile COIN = new Tile(Adventure.CHAR_EMPTY, coin: true);
-        private static Tile DOOR = new Tile(Adventure.CHAR_DOOR, door: true);
-        private static Tile WALL = new Tile(Adventure.CHAR_WALL, true);
-        private static Tile INTERACTABLE = new Tile(Adventure.CHAR_INTERACTABLE, true, true);
 
         static Tile()
         {
-            Tile.TileMap.Add(' ', Tile.EMPTY);
-            Tile.TileMap.Add('c', Tile.COIN);
-            Tile.TileMap.Add('d', Tile.DOOR);
-            Tile.TileMap.Add('w', Tile.WALL);
-            Tile.TileMap.Add('i', Tile.INTERACTABLE);
+            Tile.TileMap.Add(' ', new Tile(Adventure.CHAR_EMPTY));
+            Tile.TileMap.Add('c', new Tile(Adventure.CHAR_EMPTY, coin: true));
+            Tile.TileMap.Add('d', new Tile(Adventure.CHAR_DOOR, door: true));
+            Tile.TileMap.Add('w', new Tile(Adventure.CHAR_WALL, true));
+            Tile.TileMap.Add('i', new Tile(Adventure.CHAR_INTERACTABLE, true, true));
         }
 
         public readonly string Chars;
