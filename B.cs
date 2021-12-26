@@ -10,7 +10,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.21    ||
+||     2021.12.26    ||
 ||                   ||
 \* ================= */
 
@@ -94,7 +94,9 @@ public sealed class NumberGuesser : Option
 
     private Stage _stage = Stage.MainMenu;
     private int _numMax = 100;
-    private int _number;
+    private int _guessNum;
+    private int _guessNumUser;
+    private int _numMaxTemp = 0;
 
     public sealed override void Loop()
     {
@@ -107,8 +109,8 @@ public sealed class NumberGuesser : Option
                     new InputOptionBuilder("Number Guesser")
                         .AddKeybind(new Keybind(() =>
                         {
-                            this._number = Util.Random.Next(this._numMax) + 1;
-                            InputOptionBuilder.ResetNumbersRequestGuess();
+                            this._guessNum = Util.Random.Next(this._numMax) + 1;
+                            this._guessNumUser = 0;
                             this._stage = Stage.Game;
                         }, "New Game", '1'))
                         .AddSpacer()
@@ -121,27 +123,25 @@ public sealed class NumberGuesser : Option
             case Stage.Game:
                 {
                     string guessMessage = "Between 0 - " + this._numMax;
-                    string guess = InputOptionBuilder.Guess;
-                    int guessNum = InputOptionBuilder.GuessNum;
-                    bool won = guessNum == this._number;
+                    bool won = this._guessNum == this._guessNumUser;
                     Console.Clear();
                     int consoleHeight = 7;
 
                     if (B.DebugMode)
                     {
                         Util.Print();
-                        Util.Print(string.Format("Number: {0,-3}", this._number), 1);
+                        Util.Print(string.Format("Number: {0,-3}", this._guessNum), 1);
                         Util.Print();
                         consoleHeight += 3;
                     }
 
                     Util.SetConsoleSize(20, consoleHeight);
                     Util.Print();
-                    Util.Print(guess, 2);
+                    Util.Print(this._guessNumUser, 2);
                     Util.Print();
-                    guessMessage = guess.Length == 0 ? "..." :
+                    guessMessage = this._guessNumUser.ToString().Length == 0 ? "..." :
                         won ? NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)] :
-                            guessNum < this._number ? "too low..." : "TOO HIGH!!!";
+                            this._guessNumUser < this._guessNum ? "too low..." : "TOO HIGH!!!";
 
                     Util.Print(guessMessage, 2);
 
@@ -152,9 +152,11 @@ public sealed class NumberGuesser : Option
                     }
                     else
                     {
-                        InputOptionBuilder.CreateNumbersRequest("Enter a Number!")
-                            .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, key: ConsoleKey.Escape))
-                            .Request();
+                        Util.Print();
+                        Util.Print("Enter a Number!");
+
+                        if (Input.RequestInt(ref this._guessNumUser) == Input.RequestReturn.Escape)
+                            this._stage = Stage.MainMenu;
                     }
                 }
                 break;
@@ -173,14 +175,24 @@ public sealed class NumberGuesser : Option
 
             case Stage.Settings_MaxNumber:
                 {
+                    this._numMaxTemp = this._numMax;
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     Util.Print();
-                    Util.Print(string.Format("Max - {0}", this._numMax), 1);
-                    InputOptionBuilder.CreateNumbersRequest("Enter Max Number")
-                        .AddKeybind(new Keybind(() => this._stage = Stage.Settings, "Back", key: ConsoleKey.Escape))
-                        .Request();
-                    this._numMax = InputOptionBuilder.GuessNum;
+                    Util.Print(string.Format("Max - {0}", this._numMaxTemp), 1);
+                    Util.Print();
+                    Util.Print("Enter Max Number", 2);
+
+                    switch (Input.RequestInt(ref this._numMaxTemp))
+                    {
+                        case Input.RequestReturn.Escape: this._stage = Stage.Settings; break;
+                        case Input.RequestReturn.Enter:
+                            {
+                                if (this._numMax < 1)
+                                    this._numMax = 1;
+                            }
+                            break;
+                    }
                 }
                 break;
         }
@@ -661,9 +673,9 @@ public sealed class MoneyTracker : Option
                     Util.Print();
                     Util.Print(string.Format("New Account Name: {0}", this._tempName), 2, false);
 
-                    switch (InputString.Request(ref this._tempName))
+                    switch (Input.RequestString(ref this._tempName))
                     {
-                        case InputString.RequestReturn.Enter:
+                        case Input.RequestReturn.Enter:
                             if (this._tempName.Length > 0)
                             {
                                 Account account = new Account(this._tempName);
@@ -674,7 +686,7 @@ public sealed class MoneyTracker : Option
                             }
                             break;
 
-                        case InputString.RequestReturn.Escape:
+                        case Input.RequestReturn.Escape:
                             this._tempName = string.Empty;
                             this._stage = Stage.Account;
                             break;
@@ -858,12 +870,6 @@ public static class DirectionFunc
 
 public sealed class InputOptionBuilder
 {
-    private static string guess = string.Empty;
-    private static int guessNum = 0;
-
-    public static string Guess { get { return InputOptionBuilder.guess; } }
-    public static int GuessNum { get { return InputOptionBuilder.guessNum; } }
-
     private readonly List<Keybind> _keybinds = new List<Keybind>();
     private string _message;
 
@@ -918,7 +924,7 @@ public sealed class InputOptionBuilder
                 printLine = true;
         }
 
-        // Get User Key Info once, otherwise, it will call different keys each loop
+        // Get User Input
         ConsoleKeyInfo inputKeyInfo = Util.GetInput();
 
         foreach (Keybind keybind in this._keybinds)
@@ -929,49 +935,50 @@ public sealed class InputOptionBuilder
                 break;
             }
         }
-
-        // This needs to be here for parsing InputOptionBuilder Numbers
-        int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum);
-    }
-
-    public static InputOptionBuilder CreateNumbersRequest(string message)
-    {
-        InputOptionBuilder iob = new InputOptionBuilder(message)
-            .AddKeybind(new Keybind(() =>
-            {
-                InputOptionBuilder.guess = InputOptionBuilder.guess.Substring(0, Math.Max(0, InputOptionBuilder.guess.Length - 1));
-
-                if (!int.TryParse(InputOptionBuilder.guess, out InputOptionBuilder.guessNum))
-                    InputOptionBuilder.guessNum = 0;
-            }, key: ConsoleKey.Backspace));
-
-        for (int i = 0; i < 10; i++)
-        {
-            char c = (char)('0' + i);
-
-            iob.AddKeybind(new Keybind(() =>
-            {
-                if (int.TryParse(InputOptionBuilder.guess + c, out InputOptionBuilder.guessNum))
-                    InputOptionBuilder.guess = InputOptionBuilder.guessNum.ToString();
-            }, keyChar: c));
-        }
-
-        return iob;
-    }
-
-    public static void ResetNumbersRequestGuess()
-    {
-        InputOptionBuilder.guess = string.Empty;
-        InputOptionBuilder.guessNum = 0;
     }
 }
 
-public static class InputString
+public static class Input
 {
-    private const int MAX_LENGTH = 20;
+    private const int MAX_STRING_LENGTH = 20;
 
-    // Returns if enter was pressed
-    public static RequestReturn Request(ref string str)
+    public static RequestReturn RequestString(ref string str)
+    {
+        return Input.Request<string>(ref str,
+            (keyInfo, str0) =>
+            {
+                if (str0.Length < Input.MAX_STRING_LENGTH)
+                    str0 += keyInfo.KeyChar;
+
+                return str0;
+            },
+            (str0) => str0.Substring(0, Math.Max(0, str0.Length - 1)));
+    }
+
+    public static RequestReturn RequestInt(ref int num)
+    {
+        return Input.Request<int>(ref num,
+            (keyInfo, num0) =>
+            {
+                string numStr = num0.ToString();
+                numStr += keyInfo.KeyChar;
+                int num1 = num0;
+
+                if (!int.TryParse(numStr, out num0))
+                    num0 = num1;
+
+                return num0;
+            },
+            (num0) =>
+            {
+                string numStr = num0.ToString();
+                numStr = numStr.Substring(0, Math.Max(0, numStr.Length - 1));
+                int.TryParse(numStr, out num0);
+                return num0;
+            });
+    }
+
+    private static RequestReturn Request<T>(ref T tObj, Func<ConsoleKeyInfo, T, T> funcDefault, Func<T, T> funcBackspace)
     {
         ConsoleKeyInfo keyInfo = Util.GetInput();
 
@@ -979,8 +986,8 @@ public static class InputString
         {
             case ConsoleKey.Enter: return RequestReturn.Enter;
             case ConsoleKey.Escape: return RequestReturn.Escape;
-            case ConsoleKey.Backspace: str = str.Substring(0, Math.Max(0, str.Length - 1)); break;
-            default: if (str.Length < InputString.MAX_LENGTH) str += keyInfo.KeyChar; break;
+            case ConsoleKey.Backspace: tObj = funcBackspace.Invoke(tObj); break;
+            default: tObj = funcDefault.Invoke(keyInfo, tObj); break;
         }
 
         return RequestReturn.Default;
