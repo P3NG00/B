@@ -25,6 +25,9 @@ public class B
 
     private void Start()
     {
+        Console.Title = "B";
+        Console.BackgroundColor = ConsoleColor.White;
+        Console.ForegroundColor = ConsoleColor.Black;
         Console.TreatControlCAsInput = true;
 
         while (this._running)
@@ -35,9 +38,6 @@ public class B
                     this._option.Loop();
                 else
                 {
-                    Console.Title = "B";
-                    Console.BackgroundColor = ConsoleColor.White;
-                    Console.ForegroundColor = ConsoleColor.Black;
                     Console.Clear();
                     Util.SetConsoleSize(20, 9);
                     new InputOptionBuilder("B's")
