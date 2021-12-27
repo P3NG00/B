@@ -262,7 +262,7 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.SetCursorPosition(0, 0);
-                    int consoleHeight = Adventure.CurrentGrid.Height + 13;
+                    int consoleHeight = Adventure.CurrentGrid.Height + 14;
 
                     if (B.DebugMode)
                     {
@@ -308,7 +308,8 @@ public sealed class Adventure : Option
                     Util.Print(string.Format(format, "Coins", Adventure.Coins));
                     Util.Print(string.Format(format, "Speed", this.Speed));
                     Util.Print();
-                    Util.Print("Move) W A S D", 1);
+                    Util.Print("Move) W A S D", 2);
+                    Util.Print("Speed) + -", 1);
                     new InputOptionBuilder()
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))
