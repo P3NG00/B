@@ -410,7 +410,7 @@ public sealed class Adventure : Option
         private readonly int _initDoors = 0;
         private bool _seald = false;
 
-        public Grid(in string[] raw)
+        public Grid(string[] raw)
         {
             if (raw.Length > 0)
             {
