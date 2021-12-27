@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System;
 
@@ -243,7 +243,7 @@ public sealed class Adventure : Option
         public static explicit operator Tile(char c)
         {
             try { return Tile.TileMap[c]; }
-            catch (KeyNotFoundException) { throw new ArgumentException(string.Format("Invalid tile character \"{0}\"", c)); }
+            catch (ArgumentException) { throw new ArgumentException(string.Format("Invalid tile character \"{0}\"", c)); }
         }
     }
 
@@ -986,6 +986,94 @@ public sealed class Keybind
         this.Key = key;
         this.Description = description;
         this.Action = action;
+    }
+}
+
+public sealed class List<T>
+{
+    private T[] _items = new T[0];
+
+    public int Count { get { return this._items.Length; } }
+
+    public void Add(T t)
+    {
+        T[] newItems = new T[this._items.Length + 1];
+        Array.Copy(this._items, newItems, this._items.Length);
+        newItems[this._items.Length] = t;
+        this._items = newItems;
+    }
+
+    public void Remove(T t)
+    {
+        T[] newItems = new T[this._items.Length - 1];
+        int index = 0;
+
+        for (int i = 0; i < this._items.Length; i++)
+        {
+            if (this._items[i].Equals(t))
+                continue;
+
+            newItems[index] = this._items[i];
+            index++;
+        }
+
+        this._items = newItems;
+    }
+
+    public bool Contains(T t)
+    {
+        foreach (T item in this._items)
+        {
+            if (item.Equals(t))
+                return true;
+        }
+
+        return false;
+    }
+
+    public IEnumerator GetEnumerator() { return this._items.GetEnumerator(); }
+
+    public T this[int index] { get { return this._items[index]; } }
+}
+
+public sealed class Dictionary<T, V>
+{
+    private Tuple<T, V>[] _tuples = new Tuple<T, V>[0];
+
+    public int Count { get { return this._tuples.Length; } }
+
+    public void Add(T t, V v)
+    {
+        Tuple<T, V>[] newTuples = new Tuple<T, V>[this._tuples.Length + 1];
+        Array.Copy(this._tuples, newTuples, this._tuples.Length);
+        newTuples[this._tuples.Length] = new Tuple<T, V>(t, v);
+        this._tuples = newTuples;
+    }
+
+    public bool ContainsKey(T t)
+    {
+        foreach (Tuple<T, V> tuple in this._tuples)
+        {
+            if (tuple.Item1.Equals(t))
+                return true;
+        }
+
+        return false;
+    }
+
+    public V this[T t]
+    {
+        get { return this._tuples[this.GetIndex(t)].Item2; }
+        set { this._tuples[this.GetIndex(t)] = new Tuple<T, V>(t, value); }
+    }
+
+    private int GetIndex(T t)
+    {
+        for (int i = 0; i < this._tuples.Length; i++)
+            if (this._tuples[i].Item1.Equals(t))
+                return i;
+
+        throw new ArgumentException("Key not found");
     }
 }
 
