@@ -60,146 +60,6 @@ public class B
     }
 }
 
-public abstract class Option
-{
-    private bool _running = true;
-    public bool IsRunning { get { return this._running; } }
-
-    public void Quit() { this._running = false; }
-
-    public abstract void Loop();
-}
-
-public sealed class NumberGuesser : Option
-{
-    private static readonly string[] _winMessages = new string[]
-    {
-        "Right on!",
-        "Perfect!",
-        "Correct!",
-    };
-
-    private Stage _stage = Stage.MainMenu;
-    private int _numMax = 100;
-    private int _guessNum;
-    private int _guessNumUser;
-    private int _numMaxTemp = 0;
-
-    public sealed override void Loop()
-    {
-        switch (this._stage)
-        {
-            case Stage.MainMenu:
-                {
-                    Console.Clear();
-                    Util.SetConsoleSize(20, 8);
-                    new InputOptionBuilder("Number Guesser")
-                        .AddKeybind(new Keybind(() =>
-                        {
-                            this._guessNum = Util.Random.Next(this._numMax) + 1;
-                            this._guessNumUser = 0;
-                            this._stage = Stage.Game;
-                        }, "New Game", '1'))
-                        .AddSpacer()
-                        .AddKeybind(new Keybind(() => this._stage = Stage.Settings, "Settings", '9'))
-                        .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
-                        .Request();
-                }
-                break;
-
-            case Stage.Game:
-                {
-                    string guessMessage = "Between 0 - " + this._numMax;
-                    bool won = this._guessNum == this._guessNumUser;
-                    Console.Clear();
-                    int consoleHeight = 7;
-
-                    if (B.DebugMode)
-                    {
-                        Util.Print();
-                        Util.Print(string.Format("Number: {0,-3}", this._guessNum), 1);
-                        Util.Print();
-                        consoleHeight += 3;
-                    }
-
-                    Util.SetConsoleSize(20, consoleHeight);
-                    Util.Print();
-                    Util.Print(this._guessNumUser, 2);
-                    Util.Print();
-                    guessMessage = this._guessNumUser.ToString().Length == 0 ? "..." :
-                        won ? NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)] :
-                            this._guessNumUser < this._guessNum ? "too low..." : "TOO HIGH!!!";
-
-                    Util.Print(guessMessage, 2);
-
-                    if (won)
-                    {
-                        Util.WaitForInput();
-                        this._stage = Stage.MainMenu;
-                    }
-                    else
-                    {
-                        Util.Print();
-                        Util.Print("Enter a Number!");
-
-                        if (Input.RequestInt(ref this._guessNumUser) == Input.RequestReturn.Escape)
-                            this._stage = Stage.MainMenu;
-                    }
-                }
-                break;
-
-            case Stage.Settings:
-                {
-                    Console.Clear();
-                    Util.SetConsoleSize(20, 7);
-                    new InputOptionBuilder("Settings")
-                        .AddKeybind(new Keybind(() =>
-                        {
-                            this._numMaxTemp = this._numMax;
-                            this._stage = Stage.Settings_MaxNumber;
-                        }, "Max Number", '1'))
-                        .AddSpacer()
-                        .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
-                        .Request();
-                }
-                break;
-
-            case Stage.Settings_MaxNumber:
-                {
-                    Console.Clear();
-                    Util.SetConsoleSize(20, 5);
-                    Util.Print();
-                    Util.Print(string.Format("Max - {0}", this._numMaxTemp), 2);
-                    Util.Print();
-                    Util.Print("Enter Max Number", 2);
-
-                    switch (Input.RequestInt(ref this._numMaxTemp))
-                    {
-                        case Input.RequestReturn.Escape: this._stage = Stage.Settings; break;
-                        case Input.RequestReturn.Enter:
-                            {
-                                if (this._numMaxTemp < 0)
-                                    this._numMaxTemp = 1;
-
-                                this._numMax = this._numMaxTemp;
-                                this._stage = Stage.Settings;
-                            }
-                            break;
-                    }
-                }
-                break;
-        }
-    }
-
-    private enum Stage
-    {
-        MainMenu,
-        Game,
-        Settings,
-        Settings_MaxNumber,
-    }
-}
-
 public sealed class Adventure : Option
 {
     private const string CHAR_EMPTY = "  ";
@@ -578,6 +438,136 @@ public sealed class Adventure : Option
     }
 }
 
+public sealed class NumberGuesser : Option
+{
+    private static readonly string[] _winMessages = new string[]
+    {
+        "Right on!",
+        "Perfect!",
+        "Correct!",
+    };
+
+    private Stage _stage = Stage.MainMenu;
+    private int _numMax = 100;
+    private int _guessNum;
+    private int _guessNumUser;
+    private int _numMaxTemp = 0;
+
+    public sealed override void Loop()
+    {
+        switch (this._stage)
+        {
+            case Stage.MainMenu:
+                {
+                    Console.Clear();
+                    Util.SetConsoleSize(20, 8);
+                    new InputOptionBuilder("Number Guesser")
+                        .AddKeybind(new Keybind(() =>
+                        {
+                            this._guessNum = Util.Random.Next(this._numMax) + 1;
+                            this._guessNumUser = 0;
+                            this._stage = Stage.Game;
+                        }, "New Game", '1'))
+                        .AddSpacer()
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Settings, "Settings", '9'))
+                        .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                        .Request();
+                }
+                break;
+
+            case Stage.Game:
+                {
+                    string guessMessage = "Between 0 - " + this._numMax;
+                    bool won = this._guessNum == this._guessNumUser;
+                    Console.Clear();
+                    int consoleHeight = 7;
+
+                    if (B.DebugMode)
+                    {
+                        Util.Print();
+                        Util.Print(string.Format("Number: {0,-3}", this._guessNum), 1);
+                        Util.Print();
+                        consoleHeight += 3;
+                    }
+
+                    Util.SetConsoleSize(20, consoleHeight);
+                    Util.Print();
+                    Util.Print(this._guessNumUser, 2);
+                    Util.Print();
+                    guessMessage = this._guessNumUser.ToString().Length == 0 ? "..." :
+                        won ? NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)] :
+                            this._guessNumUser < this._guessNum ? "too low..." : "TOO HIGH!!!";
+
+                    Util.Print(guessMessage, 2);
+
+                    if (won)
+                    {
+                        Util.WaitForInput();
+                        this._stage = Stage.MainMenu;
+                    }
+                    else
+                    {
+                        Util.Print();
+                        Util.Print("Enter a Number!");
+
+                        if (Input.RequestInt(ref this._guessNumUser) == Input.RequestReturn.Escape)
+                            this._stage = Stage.MainMenu;
+                    }
+                }
+                break;
+
+            case Stage.Settings:
+                {
+                    Console.Clear();
+                    Util.SetConsoleSize(20, 7);
+                    new InputOptionBuilder("Settings")
+                        .AddKeybind(new Keybind(() =>
+                        {
+                            this._numMaxTemp = this._numMax;
+                            this._stage = Stage.Settings_MaxNumber;
+                        }, "Max Number", '1'))
+                        .AddSpacer()
+                        .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                        .Request();
+                }
+                break;
+
+            case Stage.Settings_MaxNumber:
+                {
+                    Console.Clear();
+                    Util.SetConsoleSize(20, 5);
+                    Util.Print();
+                    Util.Print(string.Format("Max - {0}", this._numMaxTemp), 2);
+                    Util.Print();
+                    Util.Print("Enter Max Number", 2);
+
+                    switch (Input.RequestInt(ref this._numMaxTemp))
+                    {
+                        case Input.RequestReturn.Escape: this._stage = Stage.Settings; break;
+                        case Input.RequestReturn.Enter:
+                            {
+                                if (this._numMaxTemp < 0)
+                                    this._numMaxTemp = 1;
+
+                                this._numMax = this._numMaxTemp;
+                                this._stage = Stage.Settings;
+                            }
+                            break;
+                    }
+                }
+                break;
+        }
+    }
+
+    private enum Stage
+    {
+        MainMenu,
+        Game,
+        Settings,
+        Settings_MaxNumber,
+    }
+}
+
 public sealed class MoneyTracker : Option
 {
     public static readonly DirectoryInfo Directory = new DirectoryInfo(Environment.CurrentDirectory + @"\data");
@@ -817,6 +807,16 @@ public sealed class MoneyTracker : Option
     }
 }
 
+public abstract class Option
+{
+    private bool _running = true;
+    public bool IsRunning { get { return this._running; } }
+
+    public void Quit() { this._running = false; }
+
+    public abstract void Loop();
+}
+
 public enum Direction
 {
     Up,
@@ -825,7 +825,7 @@ public enum Direction
     Right,
 }
 
-public static class DirectionFunc
+public static class DirectionToVector2
 {
     public static Vector2 ToVector2(this Direction direction)
     {
