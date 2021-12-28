@@ -40,7 +40,7 @@ public class B
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 9);
-                    new InputOptionBuilder("B's")
+                    new Input.Option("B's")
                         .AddKeybind(new Keybind(() => this._option = new Adventure(), "Adventure", '1'))
                         .AddKeybind(new Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '2'))
                         .AddKeybind(new Keybind(() => this._option = new MoneyTracker(), "Money Tracker", '3'))
@@ -102,7 +102,7 @@ public sealed class Adventure : Option
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
-                    new InputOptionBuilder("Adventure")
+                    new Input.Option("Adventure")
                         .AddKeybind(new Keybind(() =>
                         {
                             this._stage = Stage.Game;
@@ -170,7 +170,7 @@ public sealed class Adventure : Option
                     Util.Print();
                     Util.Print("Move) W A S D", 2);
                     Util.Print("Speed) + -", 1);
-                    new InputOptionBuilder()
+                    new Input.Option()
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2))
@@ -461,7 +461,7 @@ public sealed class NumberGuesser : Option
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 8);
-                    new InputOptionBuilder("Number Guesser")
+                    new Input.Option("Number Guesser")
                         .AddKeybind(new Keybind(() =>
                         {
                             this._guessNum = Util.Random.Next(this._numMax) + 1;
@@ -520,7 +520,7 @@ public sealed class NumberGuesser : Option
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
-                    new InputOptionBuilder("Settings")
+                    new Input.Option("Settings")
                         .AddKeybind(new Keybind(() =>
                         {
                             this._numMaxTemp = this._numMax;
@@ -599,7 +599,7 @@ public sealed class MoneyTracker : Option
                 {
                     Console.Clear();
                     Util.SetConsoleSize(20, 7);
-                    new InputOptionBuilder("Money Tracker")
+                    new Input.Option("Money Tracker")
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'))
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
@@ -621,7 +621,7 @@ public sealed class MoneyTracker : Option
                     else
                         Util.SetConsoleSize(24, 9);
 
-                    new InputOptionBuilder("Account")
+                    new Input.Option("Account")
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account_Create, "Create", '1'))
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account_Select, "Select", '2'))
                         .AddKeybind(new Keybind(() => this._stage = Stage.Account_Remove, "Remove", '3'))
@@ -681,7 +681,7 @@ public sealed class MoneyTracker : Option
                         consoleHeight += amountAccounts + 1;
 
                     Util.SetConsoleSize(27, consoleHeight);
-                    InputOptionBuilder iob = new InputOptionBuilder();
+                    Input.Option iob = new Input.Option();
 
                     if (amountAccounts > 0)
                     {
@@ -713,7 +713,7 @@ public sealed class MoneyTracker : Option
                         consoleHeight += amountAccounts + 1;
 
                     Util.SetConsoleSize(27, consoleHeight);
-                    InputOptionBuilder iob = new InputOptionBuilder("Remove Account");
+                    Input.Option iob = new Input.Option("Remove Account");
 
                     if (amountAccounts > 0)
                     {
@@ -864,75 +864,6 @@ public static class DirectionToVector2
     }
 }
 
-public sealed class InputOptionBuilder
-{
-    private readonly List<Keybind> _keybinds = new List<Keybind>();
-    private string _message;
-
-    public InputOptionBuilder(string message = null) { this._message = message; }
-
-    public InputOptionBuilder AddKeybind(Keybind keybind)
-    {
-        this._keybinds.Add(keybind);
-        return this;
-    }
-
-    public InputOptionBuilder AddSpacer() { return this.AddKeybind(null); }
-
-    public void Request()
-    {
-        // Add Debug Keybind
-        this.AddKeybind(new Keybind(() =>
-        {
-            Util.ToggleBool(ref B.DebugMode);
-            Console.Clear();
-        }, key: ConsoleKey.F12));
-
-        if (this._message != null)
-        {
-            Util.Print();
-            Util.Print(this._message, 2);
-        }
-
-        bool printLine = true;
-        string s;
-
-        foreach (Keybind keybind in this._keybinds)
-        {
-            // If keybind is null, add spacer in display
-            // If keybind description is null, don't display option
-            if (keybind != null)
-            {
-                if (keybind.Description != null)
-                {
-                    s = keybind.KeyChar == Util.NULLCHAR ? keybind.Key.ToString() : keybind.KeyChar.ToString();
-
-                    if (printLine)
-                    {
-                        printLine = false;
-                        Util.Print();
-                    }
-
-                    Util.Print(string.Format("{0}) {1}", s, keybind.Description), 1);
-                }
-            }
-            else if (!printLine)
-                printLine = true;
-        }
-
-        ConsoleKeyInfo inputKeyInfo = Util.GetInput();
-
-        foreach (Keybind keybind in this._keybinds)
-        {
-            if (keybind != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULLCHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
-            {
-                keybind.Action.Invoke();
-                break;
-            }
-        }
-    }
-}
-
 public static class Input
 {
     private const int MAX_STRING_LENGTH = 20;
@@ -986,6 +917,75 @@ public static class Input
         }
 
         return RequestReturn.Default;
+    }
+
+    public sealed class Option
+    {
+        private readonly List<Keybind> _keybinds = new List<Keybind>();
+        private string _message;
+
+        public Option(string message = null) { this._message = message; }
+
+        public Option AddKeybind(Keybind keybind)
+        {
+            this._keybinds.Add(keybind);
+            return this;
+        }
+
+        public Option AddSpacer() { return this.AddKeybind(null); }
+
+        public void Request()
+        {
+            // Add Debug Keybind
+            this.AddKeybind(new Keybind(() =>
+            {
+                Util.ToggleBool(ref B.DebugMode);
+                Console.Clear();
+            }, key: ConsoleKey.F12));
+
+            if (this._message != null)
+            {
+                Util.Print();
+                Util.Print(this._message, 2);
+            }
+
+            bool printLine = true;
+            string s;
+
+            foreach (Keybind keybind in this._keybinds)
+            {
+                // If keybind is null, add spacer in display
+                // If keybind description is null, don't display option
+                if (keybind != null)
+                {
+                    if (keybind.Description != null)
+                    {
+                        s = keybind.KeyChar == Util.NULLCHAR ? keybind.Key.ToString() : keybind.KeyChar.ToString();
+
+                        if (printLine)
+                        {
+                            printLine = false;
+                            Util.Print();
+                        }
+
+                        Util.Print(string.Format("{0}) {1}", s, keybind.Description), 1);
+                    }
+                }
+                else if (!printLine)
+                    printLine = true;
+            }
+
+            ConsoleKeyInfo inputKeyInfo = Util.GetInput();
+
+            foreach (Keybind keybind in this._keybinds)
+            {
+                if (keybind != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULLCHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
+                {
+                    keybind.Action.Invoke();
+                    break;
+                }
+            }
+        }
     }
 
     public enum RequestReturn
