@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Collections;
 using System.IO;
 using System;
@@ -634,7 +635,7 @@ public sealed class MoneyTracker : Option
             case Stage.Account_Create:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(42, 3);
+                    Util.SetConsoleSize(42, 5);
                     Util.Print();
                     Util.Print(string.Format("New Account Name: {0}", this._tempName), 2, false);
 
@@ -644,10 +645,22 @@ public sealed class MoneyTracker : Option
                             if (this._tempName.Length > 0)
                             {
                                 Account account = new Account(this._tempName);
-                                this._tempName = string.Empty;
-                                this._accounts.Add(account);
-                                this._selectedAccount = account;
-                                this._stage = Stage.Account;
+                                Util.Print();
+                                Util.Print();
+
+                                if (!account.Exists)
+                                {
+                                    account.Load();
+                                    this._accounts.Add(account);
+                                    this._selectedAccount = account;
+                                    Util.Print(string.Format("\"{0}\" created!", account.Name), 2);
+                                    this._tempName = string.Empty;
+                                    this._stage = Stage.Account;
+                                }
+                                else
+                                    Util.Print("Name already taken!", 4);
+
+                                Util.WaitForInput();
                             }
                             break;
 
@@ -734,6 +747,14 @@ public sealed class MoneyTracker : Option
         private const char SEPERATOR = '|';
 
         public readonly string Name;
+        public bool Exists
+        {
+            get
+            {
+                this._file.Refresh();
+                return this._file.Exists;
+            }
+        }
 
         private readonly List<Transaction> _transactions = new List<Transaction>();
         private readonly FileInfo _file;
@@ -742,46 +763,49 @@ public sealed class MoneyTracker : Option
         {
             this.Name = name;
             this._file = new FileInfo(MoneyTracker.Directory.ToString() + @"\" + name);
+        }
 
-            if (!this._file.Exists)
-                this._file.Create();
-            else
+        public void Load()
+        {
+            if (this.Exists)
             {
-                StreamReader streamReader = new StreamReader(this._file.OpenRead());
                 string[] line;
                 int amount;
 
-                while (!streamReader.EndOfStream)
+                using (StreamReader streamReader = new StreamReader(this._file.OpenRead()))
                 {
-                    line = streamReader.ReadLine().Split(Account.SEPERATOR);
+                    while (!streamReader.EndOfStream)
+                    {
+                        line = streamReader.ReadLine().Split(Account.SEPERATOR);
 
-                    if (line.Length != 2)
-                        throw new ArgumentException("String needs 2 comma-seperated values");
+                        if (line.Length != 2)
+                            throw new ArgumentException("String needs 2 comma-seperated values");
 
-                    if (!int.TryParse(line[0], out amount))
-                        throw new ArgumentException("Value is not a number");
+                        if (!int.TryParse(line[0], out amount))
+                            throw new ArgumentException("Value is not a number");
 
-                    this._transactions.Add(new Transaction(amount, line[1]));
+                        this._transactions.Add(new Transaction(amount, line[1]));
+                    }
                 }
-
-                streamReader.Close();
             }
+            else
+                this._file.Create().Close();
         }
 
         public void Save()
         {
-            if (!this._file.Exists)
-                this._file.Create();
+            this._file.Refresh();
 
-            StreamWriter streamWriter = new StreamWriter(this._file.OpenWrite());
-
-            foreach (Transaction transaction in this._transactions)
-                streamWriter.WriteLine(string.Format("{0}{1}{2}", transaction.Amount, Account.SEPERATOR, transaction.Description));
-
-            streamWriter.Close();
+            using (StreamWriter streamWriter = this.Exists ? new StreamWriter(this._file.OpenWrite()) : this._file.CreateText())
+                foreach (Transaction transaction in this._transactions)
+                    streamWriter.WriteLine(string.Format("{0}{1}{2}", transaction.Amount, Account.SEPERATOR, transaction.Description));
         }
 
-        public void Delete() { if (this._file.Exists) this._file.Delete(); }
+        public void Delete()
+        {
+            if (this.Exists)
+                this._file.Delete();
+        }
 
         private sealed class Transaction
         {
