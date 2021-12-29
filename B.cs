@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Threading;
 using System.Collections;
 using System.IO;
 using System;
@@ -576,6 +578,9 @@ public sealed class MoneyTracker : Option
     private Account _selectedAccount = null;
     private Stage _stage = Stage.Initialization;
 
+    private Account.Transaction _tempTransaction = null;
+    private byte _tempTransactionState = 0;
+
     public sealed override void Loop()
     {
         Console.Clear();
@@ -588,9 +593,14 @@ public sealed class MoneyTracker : Option
                         MoneyTracker.Directory.Create();
 
                     MoneyTracker.Directory.Attributes = FileAttributes.Hidden;
+                    Account account;
 
                     foreach (FileInfo file in MoneyTracker.Directory.GetFiles())
-                        this._accounts.Add(new Account(file.Name));
+                    {
+                        account = new Account(file.Name);
+                        account.Load();
+                        this._accounts.Add(account);
+                    }
 
                     this._stage = Stage.MainMenu;
                 }
@@ -612,7 +622,13 @@ public sealed class MoneyTracker : Option
                         iob.AddKeybind(new Keybind(() => this._stage = Stage.Transaction, "Transaction", '2'));
 
                     iob.AddSpacer()
-                        .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() =>
+                        {
+                            foreach (Account account in this._accounts)
+                                account.Save();
+
+                            this.Quit();
+                        }, "Back", key: ConsoleKey.Escape))
                         .Request();
                 }
                 break;
@@ -644,7 +660,7 @@ public sealed class MoneyTracker : Option
                     Util.SetConsoleSize(42, 5);
                     Util.Print();
                     Util.Print(string.Format("New Account Name: {0}", Input.Str), 2, false);
-                    ConsoleKey key = Input.RequestString();
+                    ConsoleKey key = Input.RequestString(20);
 
                     if (key == ConsoleKey.Enter)
                     {
@@ -745,44 +761,93 @@ public sealed class MoneyTracker : Option
 
             case Stage.Transaction:
                 {
-                    Util.SetConsoleSize(20, 9);
+                    Util.SetConsoleSize(20, 10);
                     new Input.Option("Transaction")
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_View, "View", '1'))
                         .AddKeybind(new Keybind(() =>
                         {
                             Input.Str = string.Empty;
+                            this._tempTransaction = new Account.Transaction();
+                            this._tempTransactionState = 0;
                             this._stage = Stage.Transaction_Add;
-                        }, "Add", '1'))
-                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Delete, "Delete", '2'))
-                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Edit, "Edit", '3'))
+                        }, "Add", '2'))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Delete, "Delete", '3'))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Edit, "Edit", '4'))
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
                         .Request();
                 }
                 break;
 
+            case Stage.Transaction_View:
+                {
+                    // TODO make height account for number of accounts
+                    Util.SetConsoleSize(34, 10);
+                    Util.Print();
+                    Account.Transaction transaction;
+
+                    for (int i = 0; i < this._selectedAccount.Transactions.Count; i++)
+                    {
+                        transaction = this._selectedAccount.Transactions[i];
+                        Util.Print(string.Format("{0}) {1,8:0.00} | {2,16}", i, transaction.Amount, transaction.Description), 2);
+                    }
+
+                    // TODO
+                    Util.WaitForInput();
+                    this._stage = Stage.Transaction;
+                }
+                break;
+
             case Stage.Transaction_Add:
                 {
-                    Util.SetConsoleSize(20, 5);
+                    Util.SetConsoleSize(20, 7);
                     Util.Print();
-                    Util.Print(string.Format("Amount: {0}", Input.Str), 2, false);
-                    ConsoleKey key = Input.RequestString();
+                    Util.Print("Amount", 2);
+                    ConsoleKey key;
+
+                    if (this._tempTransactionState == 0)
+                    {
+                        Util.Print(Input.Str, 2, false);
+                        key = Input.RequestString(8);
+                    }
+                    else
+                    {
+                        Util.Print(this._tempTransaction.Amount, 2);
+                        Util.Print();
+                        Util.Print("Description:", 2);
+                        Util.Print(Input.Str, 2, false);
+                        key = Input.RequestString(16);
+                    }
 
                     if (key == ConsoleKey.Enter)
                     {
-                        double amount;
-
-                        if (double.TryParse(Input.Str, out amount))
+                        if (this._tempTransactionState == 0)
                         {
-                            // TODO
+                            if (double.TryParse(Input.Str, out this._tempTransaction.Amount))
+                            {
+                                Input.Str = string.Empty;
+                                this._tempTransactionState = 1;
+                            }
                         }
                         else
                         {
-                            // TODO
+                            if (Input.Str.Length > 0)
+                            {
+                                this._tempTransaction.Description = Input.Str;
+                                this._selectedAccount.Transactions.Add(this._tempTransaction);
+                                this._tempTransaction = null;
+                                this._tempTransactionState = 0;
+                                Input.Str = string.Empty;
+                                this._stage = Stage.Transaction;
+                            }
                         }
                     }
                     else if (key == ConsoleKey.Escape)
                     {
-                        // TODO
+                        this._tempTransaction = null;
+                        this._tempTransactionState = 0;
+                        Input.Str = string.Empty;
+                        this._stage = Stage.Transaction;
                     }
                 }
                 break;
@@ -808,6 +873,7 @@ public sealed class MoneyTracker : Option
         private const char SEPERATOR = '|';
 
         public readonly string Name;
+        public List<Transaction> Transactions { get { return this._transactions; } }
         public bool Exists
         {
             get
@@ -831,7 +897,7 @@ public sealed class MoneyTracker : Option
             if (this.Exists)
             {
                 string[] line;
-                int amount;
+                double amount;
 
                 using (StreamReader streamReader = new StreamReader(this._file.OpenRead()))
                 {
@@ -842,7 +908,7 @@ public sealed class MoneyTracker : Option
                         if (line.Length != 2)
                             throw new ArgumentException("String needs 2 comma-seperated values");
 
-                        if (!int.TryParse(line[0], out amount))
+                        if (!double.TryParse(line[0], out amount))
                             throw new ArgumentException("Value is not a number");
 
                         this._transactions.Add(new Transaction(amount, line[1]));
@@ -868,10 +934,12 @@ public sealed class MoneyTracker : Option
                 this._file.Delete();
         }
 
-        private sealed class Transaction
+        public sealed class Transaction
         {
-            public readonly string Description;
-            public readonly double Amount;
+            public string Description = string.Empty;
+            public double Amount = 0d;
+
+            public Transaction() { }
 
             public Transaction(double amount, string description)
             {
@@ -890,6 +958,7 @@ public sealed class MoneyTracker : Option
         Account_Select,
         Account_Remove,
         Transaction,
+        Transaction_View,
         Transaction_Add,
         Transaction_Delete,
         Transaction_Edit,
@@ -932,44 +1001,42 @@ public static class DirectionToVector2
 
 public static class Input
 {
-    private const int MAX_STRING_LENGTH = 20;
-
     public static string Str = string.Empty;
     public static int Int = 0;
 
-    public static ConsoleKey RequestString()
+    public static ConsoleKey RequestString(int maxLength)
     {
         return Input.Request(ref Input.Str,
-            (keyInfo, str0) =>
+            (keyInfo, str) =>
             {
-                if (str0.Length < Input.MAX_STRING_LENGTH)
-                    str0 += keyInfo.KeyChar;
+                if (str.Length < maxLength)
+                    str += keyInfo.KeyChar;
 
-                return str0;
+                return str;
             },
-            (str0) => str0.Substring(0, Math.Max(0, str0.Length - 1)));
+            (str) => str.Substring(0, Math.Max(0, str.Length - 1)));
     }
 
     public static ConsoleKey RequestInt()
     {
         return Input.Request(ref Input.Int,
-            (keyInfo, num0) =>
+            (keyInfo, num) =>
             {
-                string numStr = num0.ToString();
+                string numStr = num.ToString();
                 numStr += keyInfo.KeyChar;
-                int num1 = num0;
+                int n = num;
 
-                if (!int.TryParse(numStr, out num0))
-                    num0 = num1;
+                if (!int.TryParse(numStr, out num))
+                    num = n;
 
-                return num0;
+                return num;
             },
-            (num0) =>
+            (str) =>
             {
-                string numStr = num0.ToString();
+                string numStr = str.ToString();
                 numStr = numStr.Substring(0, Math.Max(0, numStr.Length - 1));
-                int.TryParse(numStr, out num0);
-                return num0;
+                int.TryParse(numStr, out str);
+                return str;
             });
     }
 
