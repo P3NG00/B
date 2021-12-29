@@ -939,8 +939,7 @@ public static class Input
 
     public static ConsoleKey RequestString()
     {
-        // TODO remove type parameter in angle brackets for this and those below
-        return Input.Request<string>(ref Input.Str,
+        return Input.Request(ref Input.Str,
             (keyInfo, str0) =>
             {
                 if (str0.Length < Input.MAX_STRING_LENGTH)
@@ -953,7 +952,7 @@ public static class Input
 
     public static ConsoleKey RequestInt()
     {
-        return Input.Request<int>(ref Input.Int,
+        return Input.Request(ref Input.Int,
             (keyInfo, num0) =>
             {
                 string numStr = num0.ToString();
