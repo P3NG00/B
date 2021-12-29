@@ -10,15 +10,22 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.28    ||
+||     2021.12.29    ||
 ||                   ||
 \* ================= */
 
 public class B
 {
-    public static bool DebugMode = false;
-
     public static void Main() { new B().Start(); }
+
+    public static bool DebugMode { get { return B._debugMode; } }
+    private static bool _debugMode = false;
+
+    public static void ToggleDebugMode()
+    {
+        Util.ToggleBool(ref B._debugMode);
+        Console.Clear();
+    }
 
     private Option _option = null;
     private bool _running = true;
@@ -450,22 +457,21 @@ public sealed class NumberGuesser : Option
     private Stage _stage = Stage.MainMenu;
     private int _numMax = 100;
     private int _guessNum;
-    private int _guessNumUser;
-    private int _numMaxTemp = 0;
 
     public sealed override void Loop()
     {
+        Console.Clear();
+
         switch (this._stage)
         {
             case Stage.MainMenu:
                 {
-                    Console.Clear();
                     Util.SetConsoleSize(20, 8);
                     new Input.Option("Number Guesser")
                         .AddKeybind(new Keybind(() =>
                         {
                             this._guessNum = Util.Random.Next(this._numMax) + 1;
-                            this._guessNumUser = 0;
+                            Input.Int = 0;
                             this._stage = Stage.Game;
                         }, "New Game", '1'))
                         .AddSpacer()
@@ -478,25 +484,23 @@ public sealed class NumberGuesser : Option
             case Stage.Game:
                 {
                     string guessMessage = "Between 0 - " + this._numMax;
-                    bool won = this._guessNum == this._guessNumUser;
-                    Console.Clear();
+                    bool won = this._guessNum == Input.Int;
                     int consoleHeight = 7;
 
                     if (B.DebugMode)
                     {
                         Util.Print();
                         Util.Print(string.Format("Number: {0,-3}", this._guessNum), 1);
-                        Util.Print();
-                        consoleHeight += 3;
+                        consoleHeight += 2;
                     }
 
                     Util.SetConsoleSize(20, consoleHeight);
                     Util.Print();
-                    Util.Print(this._guessNumUser, 2);
+                    Util.Print(Input.Int, 2);
                     Util.Print();
-                    guessMessage = this._guessNumUser.ToString().Length == 0 ? "..." :
+                    guessMessage = Input.Int.ToString().Length == 0 ? "..." :
                         won ? NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)] :
-                            this._guessNumUser < this._guessNum ? "too low..." : "TOO HIGH!!!";
+                            Input.Int < this._guessNum ? "too low..." : "TOO HIGH!!!";
 
                     Util.Print(guessMessage, 2);
 
@@ -508,9 +512,9 @@ public sealed class NumberGuesser : Option
                     else
                     {
                         Util.Print();
-                        Util.Print("Enter a Number!");
+                        Util.Print("Enter a Number!", 1);
 
-                        if (Input.RequestInt(ref this._guessNumUser) == Input.RequestReturn.Escape)
+                        if (Input.RequestInt() == ConsoleKey.Escape)
                             this._stage = Stage.MainMenu;
                     }
                 }
@@ -518,12 +522,11 @@ public sealed class NumberGuesser : Option
 
             case Stage.Settings:
                 {
-                    Console.Clear();
                     Util.SetConsoleSize(20, 7);
                     new Input.Option("Settings")
                         .AddKeybind(new Keybind(() =>
                         {
-                            this._numMaxTemp = this._numMax;
+                            Input.Int = this._numMax;
                             this._stage = Stage.Settings_MaxNumber;
                         }, "Max Number", '1'))
                         .AddSpacer()
@@ -534,26 +537,23 @@ public sealed class NumberGuesser : Option
 
             case Stage.Settings_MaxNumber:
                 {
-                    Console.Clear();
                     Util.SetConsoleSize(20, 5);
                     Util.Print();
-                    Util.Print(string.Format("Max - {0}", this._numMaxTemp), 2);
+                    Util.Print(string.Format("Max - {0}", Input.Int), 2);
                     Util.Print();
                     Util.Print("Enter Max Number", 2);
+                    ConsoleKey key = Input.RequestInt();
 
-                    switch (Input.RequestInt(ref this._numMaxTemp))
+                    if (key == ConsoleKey.Enter)
                     {
-                        case Input.RequestReturn.Escape: this._stage = Stage.Settings; break;
-                        case Input.RequestReturn.Enter:
-                            {
-                                if (this._numMaxTemp < 0)
-                                    this._numMaxTemp = 1;
+                        if (Input.Int < 1)
+                            Input.Int = 1;
 
-                                this._numMax = this._numMaxTemp;
-                                this._stage = Stage.Settings;
-                            }
-                            break;
+                        this._numMax = Input.Int;
+                        this._stage = Stage.Settings;
                     }
+                    else if (key == ConsoleKey.Escape)
+                        this._stage = Stage.Settings;
                 }
                 break;
         }
@@ -574,11 +574,12 @@ public sealed class MoneyTracker : Option
 
     private readonly List<Account> _accounts = new List<Account>();
     private Account _selectedAccount = null;
-    private string _tempName = string.Empty;
     private Stage _stage = Stage.Initialization;
 
     public sealed override void Loop()
     {
+        Console.Clear();
+
         switch (this._stage)
         {
             case Stage.Initialization:
@@ -597,11 +598,20 @@ public sealed class MoneyTracker : Option
 
             case Stage.MainMenu:
                 {
-                    Console.Clear();
-                    Util.SetConsoleSize(20, 7);
-                    new Input.Option("Money Tracker")
-                        .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'))
-                        .AddSpacer()
+                    int consoleHeight = 7;
+                    bool selected = this._selectedAccount != null;
+
+                    if (selected)
+                        consoleHeight++;
+
+                    Util.SetConsoleSize(20, consoleHeight);
+                    Input.Option iob = new Input.Option("Money Tracker")
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'));
+
+                    if (selected)
+                        iob.AddKeybind(new Keybind(() => this._stage = Stage.Transaction, "Transaction", '2'));
+
+                    iob.AddSpacer()
                         .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
                         .Request();
                 }
@@ -609,8 +619,6 @@ public sealed class MoneyTracker : Option
 
             case Stage.Account:
                 {
-                    Console.Clear();
-
                     if (this._selectedAccount != null)
                     {
                         Util.SetConsoleSize(24, 12);
@@ -633,47 +641,44 @@ public sealed class MoneyTracker : Option
 
             case Stage.Account_Create:
                 {
-                    Console.Clear();
                     Util.SetConsoleSize(42, 5);
                     Util.Print();
-                    Util.Print(string.Format("New Account Name: {0}", this._tempName), 2, false);
+                    Util.Print(string.Format("New Account Name: {0}", Input.Str), 2, false);
+                    ConsoleKey key = Input.RequestString();
 
-                    switch (Input.RequestString(ref this._tempName))
+                    if (key == ConsoleKey.Enter)
                     {
-                        case Input.RequestReturn.Enter:
-                            if (this._tempName.Length > 0)
+                        if (Input.Str.Length > 0)
+                        {
+                            Account account = new Account(Input.Str);
+                            Util.Print();
+                            Util.Print();
+
+                            if (!account.Exists)
                             {
-                                Account account = new Account(this._tempName);
-                                Util.Print();
-                                Util.Print();
-
-                                if (!account.Exists)
-                                {
-                                    account.Load();
-                                    this._accounts.Add(account);
-                                    this._selectedAccount = account;
-                                    Util.Print(string.Format("\"{0}\" created!", account.Name), 2);
-                                    this._tempName = string.Empty;
-                                    this._stage = Stage.Account;
-                                }
-                                else
-                                    Util.Print("Name already taken!", 4);
-
-                                Util.WaitForInput();
+                                account.Load();
+                                this._accounts.Add(account);
+                                this._selectedAccount = account;
+                                Util.Print(string.Format("\"{0}\" created!", account.Name), 2);
+                                Input.Str = string.Empty;
+                                this._stage = Stage.Account;
                             }
-                            break;
+                            else
+                                Util.Print("Name already taken!", 4);
 
-                        case Input.RequestReturn.Escape:
-                            this._tempName = string.Empty;
-                            this._stage = Stage.Account;
-                            break;
+                            Util.WaitForInput();
+                        }
+                    }
+                    else if (key == ConsoleKey.Escape)
+                    {
+                        Input.Str = string.Empty;
+                        this._stage = Stage.Account;
                     }
                 }
                 break;
 
             case Stage.Account_Select:
                 {
-                    Console.Clear();
                     int consoleHeight = 3;
                     int amountAccounts = this._accounts.Count;
 
@@ -705,7 +710,6 @@ public sealed class MoneyTracker : Option
 
             case Stage.Account_Remove:
                 {
-                    Console.Clear();
                     int consoleHeight = 5;
                     int amountAccounts = this._accounts.Count;
 
@@ -736,6 +740,64 @@ public sealed class MoneyTracker : Option
 
                     iob.AddKeybind(new Keybind(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
                         .Request();
+                }
+                break;
+
+            case Stage.Transaction:
+                {
+                    Util.SetConsoleSize(20, 9);
+                    new Input.Option("Transaction")
+                        .AddKeybind(new Keybind(() =>
+                        {
+                            Input.Str = string.Empty;
+                            this._stage = Stage.Transaction_Add;
+                        }, "Add", '1'))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Delete, "Delete", '2'))
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Edit, "Edit", '3'))
+                        .AddSpacer()
+                        .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                        .Request();
+                }
+                break;
+
+            case Stage.Transaction_Add:
+                {
+                    Util.SetConsoleSize(20, 5);
+                    Util.Print();
+                    Util.Print(string.Format("Amount: {0}", Input.Str), 2, false);
+                    ConsoleKey key = Input.RequestString();
+
+                    if (key == ConsoleKey.Enter)
+                    {
+                        double amount;
+
+                        if (double.TryParse(Input.Str, out amount))
+                        {
+                            // TODO
+                        }
+                        else
+                        {
+                            // TODO
+                        }
+                    }
+                    else if (key == ConsoleKey.Escape)
+                    {
+                        // TODO
+                    }
+                }
+                break;
+
+            case Stage.Transaction_Delete:
+                {
+                    this._stage = Stage.Transaction;
+                    // TODO
+                }
+                break;
+
+            case Stage.Transaction_Edit:
+                {
+                    this._stage = Stage.Transaction;
+                    // TODO
                 }
                 break;
         }
@@ -827,6 +889,10 @@ public sealed class MoneyTracker : Option
         Account_Create,
         Account_Select,
         Account_Remove,
+        Transaction,
+        Transaction_Add,
+        Transaction_Delete,
+        Transaction_Edit,
     }
 }
 
@@ -868,9 +934,13 @@ public static class Input
 {
     private const int MAX_STRING_LENGTH = 20;
 
-    public static RequestReturn RequestString(ref string str)
+    public static string Str = string.Empty;
+    public static int Int = 0;
+
+    public static ConsoleKey RequestString()
     {
-        return Input.Request<string>(ref str,
+        // TODO remove type parameter in angle brackets for this and those below
+        return Input.Request<string>(ref Input.Str,
             (keyInfo, str0) =>
             {
                 if (str0.Length < Input.MAX_STRING_LENGTH)
@@ -881,9 +951,9 @@ public static class Input
             (str0) => str0.Substring(0, Math.Max(0, str0.Length - 1)));
     }
 
-    public static RequestReturn RequestInt(ref int num)
+    public static ConsoleKey RequestInt()
     {
-        return Input.Request<int>(ref num,
+        return Input.Request<int>(ref Input.Int,
             (keyInfo, num0) =>
             {
                 string numStr = num0.ToString();
@@ -904,19 +974,18 @@ public static class Input
             });
     }
 
-    private static RequestReturn Request<T>(ref T tObj, Func<ConsoleKeyInfo, T, T> funcDefault, Func<T, T> funcBackspace)
+    private static ConsoleKey Request<T>(ref T tObj, Func<ConsoleKeyInfo, T, T> funcDefault, Func<T, T> funcBackspace)
     {
         ConsoleKeyInfo keyInfo = Util.GetInput();
 
-        switch (keyInfo.Key)
-        {
-            case ConsoleKey.Enter: return RequestReturn.Enter;
-            case ConsoleKey.Escape: return RequestReturn.Escape;
-            case ConsoleKey.Backspace: tObj = funcBackspace.Invoke(tObj); break;
-            default: tObj = funcDefault.Invoke(keyInfo, tObj); break;
-        }
+        if (keyInfo.Key == ConsoleKey.Backspace)
+            tObj = funcBackspace.Invoke(tObj);
+        else if (keyInfo.Key == ConsoleKey.F12)
+            B.ToggleDebugMode();
+        else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape)
+            tObj = funcDefault.Invoke(keyInfo, tObj);
 
-        return RequestReturn.Default;
+        return keyInfo.Key;
     }
 
     public sealed class Option
@@ -937,11 +1006,7 @@ public static class Input
         public void Request()
         {
             // Add Debug Keybind
-            this.AddKeybind(new Keybind(() =>
-            {
-                Util.ToggleBool(ref B.DebugMode);
-                Console.Clear();
-            }, key: ConsoleKey.F12));
+            this.AddKeybind(new Keybind(() => B.ToggleDebugMode(), key: ConsoleKey.F12));
 
             if (this._message != null)
             {
@@ -986,13 +1051,6 @@ public static class Input
                 }
             }
         }
-    }
-
-    public enum RequestReturn
-    {
-        Default,
-        Enter,
-        Escape,
     }
 }
 
