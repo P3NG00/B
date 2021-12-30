@@ -133,17 +133,15 @@ public sealed class Adventure : Option
 
                     if (B.DebugMode)
                     {
-                        Util.Print();
                         // Extra spaces are added to the end to clear leftover text
-                        Util.Print(string.Format("{0,-7}", Adventure.CurrentGrid), 1);
+                        Util.Print(string.Format("{0,-7}", Adventure.CurrentGrid), 1, linesBefore: 1);
                         Util.Print(string.Format("Pos: {0,-8}", Adventure.posPlayer), 1);
                         consoleHeight += 3;
                     }
 
                     Util.SetConsoleSize(Adventure.CurrentGrid.RealWidth + 8, consoleHeight);
-                    Util.Print();
                     string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, Adventure.CurrentGrid.Width);
-                    Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B), 2);
+                    Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B), 2, linesBefore: 1);
                     string s;
                     Vector2 pos;
 
@@ -167,15 +165,12 @@ public sealed class Adventure : Option
                     }
 
                     Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_B, borderHorizontal, Adventure.CHAR_CORNER_A), 2);
-                    Util.Print();
-                    Util.Print(string.Format("> {0}", Adventure.Message), 3);
+                    Util.Print(string.Format("> {0}", Adventure.Message), 3, linesBefore: 1);
                     Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", Adventure.MESSAGE_EMPTY);
-                    Util.Print();
                     string format = "{0,9}: {1,-5}";
-                    Util.Print(string.Format(format, "Coins", Adventure.Coins));
+                    Util.Print(string.Format(format, "Coins", Adventure.Coins), linesBefore: 1);
                     Util.Print(string.Format(format, "Speed", this.Speed));
-                    Util.Print();
-                    Util.Print("Move) W A S D", 2);
+                    Util.Print("Move) W A S D", 2, linesBefore: 1);
                     Util.Print("Speed) + -", 1);
                     new Input.Option()
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
@@ -489,20 +484,17 @@ public sealed class NumberGuesser : Option
 
                     if (B.DebugMode)
                     {
-                        Util.Print();
-                        Util.Print(string.Format("Number: {0,-3}", this._guessNum), 1);
+                        Util.Print(string.Format("Number: {0,-3}", this._guessNum), 1, linesBefore: 1);
                         consoleHeight += 2;
                     }
 
                     Util.SetConsoleSize(20, consoleHeight);
-                    Util.Print();
-                    Util.Print(Input.Int, 2);
-                    Util.Print();
+                    Util.Print(Input.Int, 2, linesBefore: 1);
                     guessMessage = Input.Int.ToString().Length == 0 ? "..." :
                         won ? NumberGuesser._winMessages[Util.Random.Next(NumberGuesser._winMessages.Length)] :
                             Input.Int < this._guessNum ? "too low..." : "TOO HIGH!!!";
 
-                    Util.Print(guessMessage, 2);
+                    Util.Print(guessMessage, 2, linesBefore: 1);
 
                     if (won)
                     {
@@ -511,8 +503,7 @@ public sealed class NumberGuesser : Option
                     }
                     else
                     {
-                        Util.Print();
-                        Util.Print("Enter a Number!", 1);
+                        Util.Print("Enter a Number!", 1, linesBefore: 1);
 
                         if (Input.RequestInt() == ConsoleKey.Escape)
                             this._stage = Stage.MainMenu;
@@ -538,10 +529,8 @@ public sealed class NumberGuesser : Option
             case Stage.Settings_MaxNumber:
                 {
                     Util.SetConsoleSize(20, 5);
-                    Util.Print();
-                    Util.Print(string.Format("Max - {0}", Input.Int), 2);
-                    Util.Print();
-                    Util.Print("Enter Max Number", 2);
+                    Util.Print(string.Format("Max - {0}", Input.Int), 2, linesBefore: 1);
+                    Util.Print("Enter Max Number", 2, linesBefore: 1);
                     ConsoleKey key = Input.RequestInt();
 
                     if (key == ConsoleKey.Enter)
@@ -636,8 +625,7 @@ public sealed class MoneyTracker : Option
                     if (this._selectedAccount != null)
                     {
                         Util.SetConsoleSize(24, 12);
-                        Util.Print();
-                        Util.Print("Selected Account:", 3);
+                        Util.Print("Selected Account:", 3, linesBefore: 1);
                         Util.Print(this._selectedAccount.Name, 2);
                     }
                     else
@@ -656,8 +644,7 @@ public sealed class MoneyTracker : Option
             case Stage.Account_Create:
                 {
                     Util.SetConsoleSize(42, 5);
-                    Util.Print();
-                    Util.Print(string.Format("New Account Name: {0}", Input.Str), 2, false);
+                    Util.Print(string.Format("New Account Name: {0}", Input.Str), 2, false, 1);
                     ConsoleKey key = Input.RequestString(20);
 
                     if (key == ConsoleKey.Enter)
@@ -665,20 +652,18 @@ public sealed class MoneyTracker : Option
                         if (Input.Str.Length > 0)
                         {
                             Account account = new Account(Input.Str);
-                            Util.Print();
-                            Util.Print();
 
                             if (!account.Exists)
                             {
                                 account.Load();
                                 this._accounts.Add(account);
                                 this._selectedAccount = account;
-                                Util.Print(string.Format("\"{0}\" created!", account.Name), 2);
+                                Util.Print(string.Format("\"{0}\" created!", account.Name), 2, linesBefore: 2);
                                 Input.Str = string.Empty;
                                 this._stage = Stage.Account;
                             }
                             else
-                                Util.Print("Name already taken!", 4);
+                                Util.Print("Name already taken!", 4, linesBefore: 2);
 
                             Util.WaitForInput();
                         }
@@ -793,8 +778,7 @@ public sealed class MoneyTracker : Option
             case Stage.Transaction_Add:
                 {
                     Util.SetConsoleSize(20, 7);
-                    Util.Print();
-                    Util.Print("Amount", 2);
+                    Util.Print("Amount", 2, linesBefore: 1);
                     ConsoleKey key;
 
                     if (this._tempTransactionState == 0)
@@ -821,8 +805,7 @@ public sealed class MoneyTracker : Option
                     else
                     {
                         Util.Print(this._tempTransaction.Amount, 2);
-                        Util.Print();
-                        Util.Print("Description:", 2);
+                        Util.Print("Description:", 2, linesBefore: 1);
                         Util.Print(Input.Str, 2, false);
                         key = Input.RequestString(16);
 
@@ -1071,10 +1054,7 @@ public static class Input
             this.AddKeybind(new Keybind(() => B.ToggleDebugMode(), key: ConsoleKey.F12));
 
             if (this._message != null)
-            {
-                Util.Print();
-                Util.Print(this._message, 2);
-            }
+                Util.Print(this._message, 2, linesBefore: 1);
 
             bool printLine = true;
             string s;
@@ -1275,10 +1255,7 @@ public static class Util
     public static void WaitForKey(ConsoleKey key, bool displayMessage = true)
     {
         if (displayMessage)
-        {
-            Util.Print();
-            Util.Print(string.Format("Press {0} to continue...", key), 0);
-        }
+            Util.Print(string.Format("Press {0} to continue...", key), offsetLeft, linesBefore: 1);
 
         bool keyPressed = false;
 
@@ -1297,8 +1274,11 @@ public static class Util
         return s;
     }
 
-    public static void Print(object message = null, int offsetLeft = 0, bool newLine = true)
+    public static void Print(object message = null, int offsetLeft = 0, bool newLine = true, int linesBefore = 0)
     {
+        for (int i = 0; i < linesBefore; i++)
+            Console.WriteLine();
+
         string messageStr = message == null ? string.Empty : message.ToString();
         messageStr = string.Format("{0," + (messageStr.Length + offsetLeft).ToString() + "}", messageStr);
 
