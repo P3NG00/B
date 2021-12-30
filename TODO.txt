@@ -18,6 +18,7 @@ Money Tracker:
         Categorized spending report
         Total spending report
         etc.
+    TODO account settings, like changing amount of decimal places
 
 Options to Implement:
 Solitaire

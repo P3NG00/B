@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Threading;
 using System.Collections;
 using System.IO;
 using System;
@@ -12,7 +10,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.29    ||
+||     2021.12.30    ||
 ||                   ||
 \* ================= */
 
@@ -781,19 +779,13 @@ public sealed class MoneyTracker : Option
 
             case Stage.Transaction_View:
                 {
-                    // TODO make height account for number of accounts
-                    Util.SetConsoleSize(34, 10);
+                    Util.SetConsoleSize(31, this._selectedAccount.Transactions.Count + 4);
                     Util.Print();
-                    Account.Transaction transaction;
 
-                    for (int i = 0; i < this._selectedAccount.Transactions.Count; i++)
-                    {
-                        transaction = this._selectedAccount.Transactions[i];
-                        Util.Print(string.Format("{0}) {1,8:0.00} | {2,16}", i, transaction.Amount, transaction.Description), 2);
-                    }
+                    foreach (Account.Transaction transaction in this._selectedAccount.Transactions)
+                        Util.Print(string.Format("{0,8:0.00} | {1,16}", transaction.Amount, transaction.Description), 2);
 
-                    // TODO
-                    Util.WaitForInput();
+                    Util.WaitForKey(ConsoleKey.Spacebar);
                     this._stage = Stage.Transaction;
                 }
                 break;
@@ -809,6 +801,22 @@ public sealed class MoneyTracker : Option
                     {
                         Util.Print(Input.Str, 2, false);
                         key = Input.RequestString(8);
+
+                        if (key == ConsoleKey.Enter)
+                        {
+                            if (double.TryParse(Input.Str, out this._tempTransaction.Amount))
+                            {
+                                Input.Str = this._tempTransaction.Description;
+                                this._tempTransactionState = 1;
+                            }
+                        }
+                        else if (key == ConsoleKey.Escape)
+                        {
+                            this._tempTransaction = null;
+                            this._tempTransactionState = 0;
+                            Input.Str = string.Empty;
+                            this._stage = Stage.Transaction;
+                        }
                     }
                     else
                     {
@@ -817,19 +825,8 @@ public sealed class MoneyTracker : Option
                         Util.Print("Description:", 2);
                         Util.Print(Input.Str, 2, false);
                         key = Input.RequestString(16);
-                    }
 
-                    if (key == ConsoleKey.Enter)
-                    {
-                        if (this._tempTransactionState == 0)
-                        {
-                            if (double.TryParse(Input.Str, out this._tempTransaction.Amount))
-                            {
-                                Input.Str = string.Empty;
-                                this._tempTransactionState = 1;
-                            }
-                        }
-                        else
+                        if (key == ConsoleKey.Enter)
                         {
                             if (Input.Str.Length > 0)
                             {
@@ -841,13 +838,12 @@ public sealed class MoneyTracker : Option
                                 this._stage = Stage.Transaction;
                             }
                         }
-                    }
-                    else if (key == ConsoleKey.Escape)
-                    {
-                        this._tempTransaction = null;
-                        this._tempTransactionState = 0;
-                        Input.Str = string.Empty;
-                        this._stage = Stage.Transaction;
+                        else if (key == ConsoleKey.Escape)
+                        {
+                            this._tempTransaction.Description = Input.Str;
+                            Input.Str = this._tempTransaction.Amount.ToString();
+                            this._tempTransactionState = 0;
+                        }
                     }
                 }
                 break;
@@ -1200,10 +1196,8 @@ public sealed class Dictionary<T, V>
     public bool ContainsKey(T t)
     {
         foreach (Tuple<T, V> tuple in this._tuples)
-        {
             if (tuple.Item1.Equals(t))
                 return true;
-        }
 
         return false;
     }
@@ -1211,7 +1205,7 @@ public sealed class Dictionary<T, V>
     public V this[T t]
     {
         get { return this._tuples[this.GetIndex(t)].Item2; }
-        set { this._tuples[this.GetIndex(t)] = new Tuple<T, V>(t, value); }
+        set { this._tuples[this.GetIndex(t)].Item2 = value; }
     }
 
     private int GetIndex(T t)
@@ -1221,6 +1215,18 @@ public sealed class Dictionary<T, V>
                 return i;
 
         throw new ArgumentException("Key not found");
+    }
+}
+
+public sealed class Tuple<T1, T2>
+{
+    public T1 Item1;
+    public T2 Item2;
+
+    public Tuple(T1 left, T2 right)
+    {
+        this.Item1 = left;
+        this.Item2 = right;
     }
 }
 
@@ -1281,11 +1287,11 @@ public static class Util
                 keyPressed = true;
     }
 
-    public static string StringOf(string str, int repeat)
+    public static string StringOf(string str, int length)
     {
         string s = string.Empty;
 
-        for (int i = 0; i < repeat; i++)
+        for (int i = 0; i < length; i++)
             s += str;
 
         return s;
