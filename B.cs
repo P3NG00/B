@@ -765,12 +765,8 @@ public sealed class MoneyTracker : Option
             case Stage.Transaction_View:
                 {
                     Util.SetConsoleSize(31, this._selectedAccount.Transactions.Count + 4);
-                    Util.Print();
-
-                    foreach (Account.Transaction transaction in this._selectedAccount.Transactions)
-                        Util.Print(string.Format("{0,8:0.00} | {1,16}", transaction.Amount, transaction.Description), 2);
-
-                    Util.WaitForKey(ConsoleKey.Spacebar);
+                    this._selectedAccount.PrintTransactions();
+                    Util.WaitForKey(ConsoleKey.Spacebar, offsetLeft: 1);
                     this._stage = Stage.Transaction;
                 }
                 break;
@@ -833,8 +829,13 @@ public sealed class MoneyTracker : Option
 
             case Stage.Transaction_Delete:
                 {
+                    Util.SetConsoleSize(31, this._selectedAccount.Transactions.Count + 4);
+                    Util.Print("Delete", 2, linesBefore: 1);
+                    this._selectedAccount.PrintTransactions();
+
+                    Util.WaitForInput();
+                    // TODO add keybinds to delete a transaction
                     this._stage = Stage.Transaction;
-                    // TODO
                 }
                 break;
 
@@ -911,6 +912,14 @@ public sealed class MoneyTracker : Option
         {
             if (this.Exists)
                 this._file.Delete();
+        }
+
+        public void PrintTransactions()
+        {
+            Util.Print();
+
+            foreach (Account.Transaction transaction in this.Transactions)
+                Util.Print(string.Format("{0,8:0.00} | {1,16}", transaction.Amount, transaction.Description), 2);
         }
 
         public sealed class Transaction
@@ -1252,7 +1261,7 @@ public static class Util
 
     public static ConsoleKeyInfo GetInput() { return Console.ReadKey(true); }
 
-    public static void WaitForKey(ConsoleKey key, bool displayMessage = true)
+    public static void WaitForKey(ConsoleKey key, bool displayMessage = true, int offsetLeft = 0)
     {
         if (displayMessage)
             Util.Print(string.Format("Press {0} to continue...", key), offsetLeft, linesBefore: 1);
