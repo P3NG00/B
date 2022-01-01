@@ -10,7 +10,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.30    ||
+||     2021.12.31    ||
 ||                   ||
 \* ================= */
 
@@ -20,6 +20,7 @@ public class B
 
     public static bool DebugMode { get { return B._debugMode; } }
     private static bool _debugMode = false;
+    public static readonly DirectoryInfo Directory = new DirectoryInfo(Environment.CurrentDirectory + @"\data");
 
     public static void ToggleDebugMode()
     {
@@ -36,6 +37,13 @@ public class B
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
         Console.TreatControlCAsInput = true;
+
+        if (!B.Directory.Exists)
+        {
+            B.Directory.Create();
+            B.Directory.Attributes = FileAttributes.Hidden;
+            B.Directory.Refresh();
+        }
 
         while (this._running)
         {
@@ -559,14 +567,13 @@ public sealed class NumberGuesser : Option
 
 public sealed class MoneyTracker : Option
 {
-    public static readonly DirectoryInfo Directory = new DirectoryInfo(Environment.CurrentDirectory + @"\data");
+    public static readonly DirectoryInfo Directory = new DirectoryInfo(B.Directory.FullName + @"\accounts");
 
     private readonly List<Account> _accounts = new List<Account>();
     private Account _selectedAccount = null;
-    private Stage _stage = Stage.Initialization;
-
     private Account.Transaction _tempTransaction = null;
     private byte _tempTransactionState = 0;
+    private Stage _stage = Stage.Initialization;
 
     public sealed override void Loop()
     {
@@ -579,7 +586,6 @@ public sealed class MoneyTracker : Option
                     if (!MoneyTracker.Directory.Exists)
                         MoneyTracker.Directory.Create();
 
-                    MoneyTracker.Directory.Attributes = FileAttributes.Hidden;
                     Account account;
 
                     foreach (FileInfo file in MoneyTracker.Directory.GetFiles())
@@ -764,10 +770,14 @@ public sealed class MoneyTracker : Option
 
             case Stage.Transaction_View:
                 {
-                    Util.SetConsoleSize(31, this._selectedAccount.Transactions.Count + 4);
+                    Util.SetConsoleSize(this._selectedAccount.Decimals + 29, this._selectedAccount.Transactions.Count + 7);
                     this._selectedAccount.PrintTransactions();
-                    Util.WaitForKey(ConsoleKey.Spacebar, offsetLeft: 1);
-                    this._stage = Stage.Transaction;
+                    new Input.Option()
+                        .AddKeybind(new Keybind(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
+                        .AddKeybind(new Keybind(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'))
+                        .AddSpacer()
+                        .AddKeybind(new Keybind(() => this._stage = Stage.Transaction, "Back", key: ConsoleKey.Escape))
+                        .Request();
                 }
                 break;
 
@@ -854,6 +864,11 @@ public sealed class MoneyTracker : Option
 
         public readonly string Name;
         public List<Transaction> Transactions { get { return this._transactions; } }
+        public int Decimals
+        {
+            get { return this._decimals; }
+            set { this._decimals = Util.Clamp(value, 0, 8); }
+        }
         public bool Exists
         {
             get
@@ -865,6 +880,7 @@ public sealed class MoneyTracker : Option
 
         private readonly List<Transaction> _transactions = new List<Transaction>();
         private readonly FileInfo _file;
+        private int _decimals = 2;
 
         public Account(string name)
         {
@@ -881,6 +897,8 @@ public sealed class MoneyTracker : Option
 
                 using (StreamReader streamReader = new StreamReader(this._file.OpenRead()))
                 {
+                    this._decimals = int.Parse(streamReader.ReadLine());
+
                     while (!streamReader.EndOfStream)
                     {
                         line = streamReader.ReadLine().Split(Account.SEPERATOR);
@@ -896,7 +914,8 @@ public sealed class MoneyTracker : Option
                 }
             }
             else
-                this._file.Create().Close();
+                using (StreamWriter streamWriter = this._file.CreateText())
+                    streamWriter.WriteLine(this._decimals);
         }
 
         public void Save()
@@ -904,8 +923,12 @@ public sealed class MoneyTracker : Option
             this._file.Refresh();
 
             using (StreamWriter streamWriter = this.Exists ? new StreamWriter(this._file.OpenWrite()) : this._file.CreateText())
+            {
+                streamWriter.WriteLine(this._decimals);
+
                 foreach (Transaction transaction in this._transactions)
                     streamWriter.WriteLine(string.Format("{0}{1}{2}", transaction.Amount, Account.SEPERATOR, transaction.Description));
+            }
         }
 
         public void Delete()
@@ -919,7 +942,7 @@ public sealed class MoneyTracker : Option
             Util.Print();
 
             foreach (Account.Transaction transaction in this.Transactions)
-                Util.Print(string.Format("{0,8:0.00} | {1,16}", transaction.Amount, transaction.Description), 2);
+                Util.Print(string.Format("{0," + (6 + this.Decimals) + ":0." + Util.StringOf("0", this.Decimals) + "} | {1,16}", transaction.Amount, transaction.Description), 2);
         }
 
         public sealed class Transaction
@@ -1272,6 +1295,8 @@ public static class Util
             if (Util.GetInput().Key == key)
                 keyPressed = true;
     }
+
+    public static int Clamp(int value, int min, int max) { return Math.Min(Math.Max(value, min), max); }
 
     public static string StringOf(string str, int length)
     {
