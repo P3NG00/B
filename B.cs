@@ -18,9 +18,9 @@ public class B
 {
     public static void Main() { new B().Start(); }
 
+    public static readonly string DirectoryPath = Environment.CurrentDirectory + @"\data\";
     public static bool DebugMode { get { return B._debugMode; } }
     private static bool _debugMode = false;
-    public static readonly string DirectoryPath = Environment.CurrentDirectory + @"\data\";
 
     public static void ToggleDebugMode()
     {
@@ -90,15 +90,11 @@ public sealed class Adventure : Option
 
     public static Grid CurrentGrid;
     public static string Message = Adventure.MESSAGE_EMPTY;
-    public static int Coins
-    {
-        get { return Adventure.coins; }
-        set { Adventure.coins = Math.Max(0, value); }
-    }
+    private static readonly string FilePath = B.DirectoryPath + "adventureInfo";
 
-    private static int coins;
     private static Vector2 posPlayer;
-
+    private static AdventureInfo info = new AdventureInfo();
+    // TODO move below variables into AdventureInfo
     private Stage _stage = Stage.MainMenu;
     private int _speed = 1;
 
@@ -115,19 +111,26 @@ public sealed class Adventure : Option
             case Stage.MainMenu:
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(20, 7);
-                    new Input.Option("Adventure")
+                    int consoleHeight = 7;
+                    bool fileExists = File.Exists(Adventure.FilePath);
+                    if (fileExists) consoleHeight++;
+                    Util.SetConsoleSize(20, consoleHeight);
+                    Input.Option iob = new Input.Option("Adventure")
                         .AddKeybind(new Keybind(() =>
                         {
-                            this._stage = Stage.Game;
-                            Grid.InitializeGrids();
-                            Adventure.CurrentGrid = Grid.GridFirst;
-                            Adventure.ResetPlayerPosition();
-                            Adventure.Coins = 0;
-                            this.Speed = 1;
-                            Console.Clear();
-                        }, "New Game", '1'))
-                        .AddSpacer()
+                            StartGame();
+                        }, "New Game", '1'));
+
+                    if (fileExists)
+                    {
+                        iob.AddKeybind(new Keybind(() =>
+                        {
+                            Adventure.info = Util.Deserialize<AdventureInfo>(Adventure.FilePath);
+                            StartGame();
+                        }, "Continue", '2'));
+                    }
+
+                    iob.AddSpacer()
                         .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
                         .Request();
                 }
@@ -175,7 +178,7 @@ public sealed class Adventure : Option
                     Util.Print(string.Format("> {0}", Adventure.Message), 3, linesBefore: 1);
                     Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", Adventure.MESSAGE_EMPTY);
                     string format = "{0,9}: {1,-5}";
-                    Util.Print(string.Format(format, "Coins", Adventure.Coins), linesBefore: 1);
+                    Util.Print(string.Format(format, "Coins", info.Coins), linesBefore: 1);
                     Util.Print(string.Format(format, "Speed", this.Speed));
                     Util.Print("Move) W A S D", 2, linesBefore: 1);
                     Util.Print("Speed) + -", 1);
@@ -185,13 +188,27 @@ public sealed class Adventure : Option
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6))
                         .AddSpacer()
-                        .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Quit", key: ConsoleKey.Escape))
+                        .AddKeybind(new Keybind(() =>
+                        {
+                            Util.Serialize(Adventure.FilePath, Adventure.info);
+                            this._stage = Stage.MainMenu;
+                        }, "Quit", key: ConsoleKey.Escape))
                         .AddKeybind(new Keybind(() => this.Speed++, key: ConsoleKey.Add))
                         .AddKeybind(new Keybind(() => this.Speed--, key: ConsoleKey.Subtract))
                         .Request();
                 }
                 break;
         }
+    }
+
+    private void StartGame()
+    {
+        Console.Clear();
+        Grid.InitializeGrids();
+        Adventure.CurrentGrid = Grid.GridFirst;
+        Adventure.ResetPlayerPosition();
+        this.Speed = 1;
+        this._stage = Stage.Game;
     }
 
     private void MovePlayer(Direction direction)
@@ -340,7 +357,7 @@ public sealed class Adventure : Option
                 if (tile.IsCoin && this._coinList.Contains(pos))
                 {
                     this._coinList.Remove(pos);
-                    Adventure.Coins++;
+                    info.Coins++;
                     Adventure.Message = "You picked up a coin!";
                 }
 
@@ -438,6 +455,12 @@ public sealed class Adventure : Option
             Grid.gridFirst.Seal();
             Grid.gridSecond.Seal();
         }
+    }
+
+    [Serializable]
+    public class AdventureInfo
+    {
+        public int Coins = 0;
     }
 
     private enum Stage
@@ -566,7 +589,7 @@ public sealed class NumberGuesser : Option
 
 public sealed class MoneyTracker : Option
 {
-    public static readonly string DirectoryPath = B.DirectoryPath + @"accounts\";
+    private static readonly string DirectoryPath = B.DirectoryPath + @"accounts\";
 
     private readonly List<Account> _accounts = new List<Account>();
     private Account _selectedAccount = null;
@@ -864,7 +887,7 @@ public sealed class MoneyTracker : Option
         return account;
     }
 
-    [System.Serializable]
+    [Serializable]
     private sealed class Account
     {
         private const char SEPERATOR = '|';
@@ -888,7 +911,7 @@ public sealed class MoneyTracker : Option
             this._filePath = MoneyTracker.DirectoryPath + name;
         }
 
-        public void Save() { Util.Serialize<Account>(this._filePath, this); }
+        public void Save() { Util.Serialize(this._filePath, this); }
 
         public void Delete() { if (this.Exists) File.Delete(this._filePath); }
 
@@ -900,7 +923,7 @@ public sealed class MoneyTracker : Option
                 Util.Print(string.Format("{0," + (6 + this.Decimals) + ":0." + Util.StringOf("0", this.Decimals) + "} | {1,16}", transaction.Amount, transaction.Description), 2);
         }
 
-        [System.Serializable]
+        [Serializable]
         public sealed class Transaction
         {
             public string Description = string.Empty;
@@ -1100,7 +1123,7 @@ public sealed class Keybind
     }
 }
 
-[System.Serializable]
+[Serializable]
 public sealed class List<T>
 {
     private T[] _items = new T[0];
