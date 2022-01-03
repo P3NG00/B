@@ -10,7 +10,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2021.12.31    ||
+||     2022.01.03    ||
 ||                   ||
 \* ================= */
 
@@ -20,7 +20,7 @@ public class B
 
     public static bool DebugMode { get { return B._debugMode; } }
     private static bool _debugMode = false;
-    public static readonly DirectoryInfo Directory = new DirectoryInfo(Environment.CurrentDirectory + @"\data");
+    public static readonly string DirectoryPath = Environment.CurrentDirectory + @"\data\";
 
     public static void ToggleDebugMode()
     {
@@ -38,11 +38,10 @@ public class B
         Console.ForegroundColor = ConsoleColor.Black;
         Console.TreatControlCAsInput = true;
 
-        if (!B.Directory.Exists)
+        if (!Directory.Exists(B.DirectoryPath))
         {
-            B.Directory.Create();
-            B.Directory.Attributes = FileAttributes.Hidden;
-            B.Directory.Refresh();
+            DirectoryInfo mainDirectory = Directory.CreateDirectory(B.DirectoryPath);
+            mainDirectory.Attributes = FileAttributes.Hidden;
         }
 
         while (this._running)
@@ -567,7 +566,7 @@ public sealed class NumberGuesser : Option
 
 public sealed class MoneyTracker : Option
 {
-    public static readonly DirectoryInfo Directory = new DirectoryInfo(B.Directory.FullName + @"\accounts");
+    public static readonly string DirectoryPath = B.DirectoryPath + @"accounts\";
 
     private readonly List<Account> _accounts = new List<Account>();
     private Account _selectedAccount = null;
@@ -583,17 +582,11 @@ public sealed class MoneyTracker : Option
         {
             case Stage.Initialization:
                 {
-                    if (!MoneyTracker.Directory.Exists)
-                        MoneyTracker.Directory.Create();
+                    if (!Directory.Exists(MoneyTracker.DirectoryPath))
+                        Directory.CreateDirectory(MoneyTracker.DirectoryPath);
 
-                    Account account;
-
-                    foreach (FileInfo file in MoneyTracker.Directory.GetFiles())
-                    {
-                        account = new Account(file.Name);
-                        account.Load();
-                        this._accounts.Add(account);
-                    }
+                    foreach (string filePath in Directory.GetFiles(MoneyTracker.DirectoryPath))
+                        this.AddAccount(new FileInfo(filePath).Name, true);
 
                     this._stage = Stage.MainMenu;
                 }
@@ -617,9 +610,7 @@ public sealed class MoneyTracker : Option
                     iob.AddSpacer()
                         .AddKeybind(new Keybind(() =>
                         {
-                            foreach (Account account in this._accounts)
-                                account.Save();
-
+                            foreach (Account account in this._accounts) account.Save();
                             this.Quit();
                         }, "Back", key: ConsoleKey.Escape))
                         .Request();
@@ -657,14 +648,13 @@ public sealed class MoneyTracker : Option
                     {
                         if (Input.Str.Length > 0)
                         {
-                            Account account = new Account(Input.Str);
+                            string filePath = MoneyTracker.DirectoryPath + Input.Str;
 
-                            if (!account.Exists)
+                            if (!File.Exists(filePath))
                             {
-                                account.Load();
-                                this._accounts.Add(account);
+                                Account account = this.AddAccount(new FileInfo(filePath).Name);
                                 this._selectedAccount = account;
-                                Util.Print(string.Format("\"{0}\" created!", account.Name), 2, linesBefore: 2);
+                                Util.Print(string.Format("\"{0}\" created!", Input.Str), 2, linesBefore: 2);
                                 Input.Str = string.Empty;
                                 this._stage = Stage.Account;
                             }
@@ -858,6 +848,23 @@ public sealed class MoneyTracker : Option
         }
     }
 
+    private Account AddAccount(string name, bool deserialize = false)
+    {
+        Account account;
+
+        if (deserialize)
+            account = Util.Deserialize<Account>(MoneyTracker.DirectoryPath + name);
+        else
+        {
+            account = new Account(name);
+            account.Save();
+        }
+
+        this._accounts.Add(account);
+        return account;
+    }
+
+    [System.Serializable]
     private sealed class Account
     {
         private const char SEPERATOR = '|';
@@ -869,73 +876,21 @@ public sealed class MoneyTracker : Option
             get { return this._decimals; }
             set { this._decimals = Util.Clamp(value, 0, 8); }
         }
-        public bool Exists
-        {
-            get
-            {
-                this._file.Refresh();
-                return this._file.Exists;
-            }
-        }
+        public bool Exists { get { return Directory.Exists(this._filePath); } }
 
         private readonly List<Transaction> _transactions = new List<Transaction>();
-        private readonly FileInfo _file;
+        private readonly string _filePath;
         private int _decimals = 2;
 
         public Account(string name)
         {
             this.Name = name;
-            this._file = new FileInfo(MoneyTracker.Directory.ToString() + @"\" + name);
+            this._filePath = MoneyTracker.DirectoryPath + name;
         }
 
-        public void Load()
-        {
-            if (this.Exists)
-            {
-                string[] line;
-                double amount;
+        public void Save() { Util.Serialize<Account>(this._filePath, this); }
 
-                using (StreamReader streamReader = new StreamReader(this._file.OpenRead()))
-                {
-                    this._decimals = int.Parse(streamReader.ReadLine());
-
-                    while (!streamReader.EndOfStream)
-                    {
-                        line = streamReader.ReadLine().Split(Account.SEPERATOR);
-
-                        if (line.Length != 2)
-                            throw new ArgumentException("String needs 2 comma-seperated values");
-
-                        if (!double.TryParse(line[0], out amount))
-                            throw new ArgumentException("Value is not a number");
-
-                        this._transactions.Add(new Transaction(amount, line[1]));
-                    }
-                }
-            }
-            else
-                using (StreamWriter streamWriter = this._file.CreateText())
-                    streamWriter.WriteLine(this._decimals);
-        }
-
-        public void Save()
-        {
-            this._file.Refresh();
-
-            using (StreamWriter streamWriter = this.Exists ? new StreamWriter(this._file.OpenWrite()) : this._file.CreateText())
-            {
-                streamWriter.WriteLine(this._decimals);
-
-                foreach (Transaction transaction in this._transactions)
-                    streamWriter.WriteLine(string.Format("{0}{1}{2}", transaction.Amount, Account.SEPERATOR, transaction.Description));
-            }
-        }
-
-        public void Delete()
-        {
-            if (this.Exists)
-                this._file.Delete();
-        }
+        public void Delete() { if (this.Exists) File.Delete(this._filePath); }
 
         public void PrintTransactions()
         {
@@ -945,6 +900,7 @@ public sealed class MoneyTracker : Option
                 Util.Print(string.Format("{0," + (6 + this.Decimals) + ":0." + Util.StringOf("0", this.Decimals) + "} | {1,16}", transaction.Amount, transaction.Description), 2);
         }
 
+        [System.Serializable]
         public sealed class Transaction
         {
             public string Description = string.Empty;
@@ -1144,6 +1100,7 @@ public sealed class Keybind
     }
 }
 
+[System.Serializable]
 public sealed class List<T>
 {
     private T[] _items = new T[0];
@@ -1330,4 +1287,22 @@ public static class Util
     }
 
     public static void ToggleBool(ref bool b) { b = !b; }
+
+    public static void Serialize<T>(string filePath, T objectToWrite)
+    {
+        using (Stream stream = File.Open(filePath, FileMode.Create))
+        {
+            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            binaryFormatter.Serialize(stream, objectToWrite);
+        }
+    }
+
+    public static T Deserialize<T>(string filePath)
+    {
+        using (Stream stream = File.Open(filePath, FileMode.Open))
+        {
+            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            return (T)binaryFormatter.Deserialize(stream);
+        }
+    }
 }
