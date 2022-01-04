@@ -1,3 +1,4 @@
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
 using System.IO;
 using System;
@@ -1256,6 +1257,7 @@ public static class Util
     public const char NULLCHAR = default(char);
 
     public static readonly Random Random = new Random();
+    private static readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
 
     public static void WaitForInput() { Util.GetInput(); }
 
@@ -1308,7 +1310,15 @@ public static class Util
 
     public static void ToggleBool(ref bool b) { b = !b; }
 
-    public static void Serialize<T>(string filePath, T objectToWrite) { new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter().Serialize(File.Open(filePath, FileMode.Create), objectToWrite); }
+    public static void Serialize<T>(string filePath, T objectToWrite)
+    {
+        using (FileStream fileStream = File.Open(filePath, FileMode.Create))
+            Util._binaryFormatter.Serialize(fileStream, objectToWrite);
+    }
 
-    public static T Deserialize<T>(string filePath) { return (T)new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter().Deserialize(File.Open(filePath, FileMode.Open)); }
+    public static T Deserialize<T>(string filePath)
+    {
+        using (FileStream fileStream = File.Open(filePath, FileMode.Open))
+            return (T)Util._binaryFormatter.Deserialize(fileStream);
+    }
 }
