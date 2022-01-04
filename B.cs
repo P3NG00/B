@@ -57,6 +57,12 @@ public class B
             }
             catch (Exception e)
             {
+                if (this._option != null)
+                {
+                    this._option.Save();
+                    this._option = null;
+                }
+
                 Util.SetConsoleSize(140, 30);
                 Util.Print(e.ToString());
                 Util.WaitForKey(ConsoleKey.F1);
@@ -171,7 +177,7 @@ public sealed class Adventure : Option
                         .AddSpacer()
                         .AddKeybind(new Keybind(() =>
                         {
-                            Util.Serialize(this._filePath, Adventure.Info);
+                            this.Save();
                             this._stage = Stage.MainMenu;
                         }, "Quit", key: ConsoleKey.Escape))
                         .AddKeybind(new Keybind(() => Adventure.Info.Speed++, key: ConsoleKey.Add))
@@ -181,6 +187,8 @@ public sealed class Adventure : Option
                 break;
         }
     }
+
+    public sealed override void Save() { Util.Serialize(this._filePath, Adventure.Info); }
 
     private void InitGame(bool newGame)
     {
@@ -347,16 +355,14 @@ public sealed class Adventure : Option
     [Serializable]
     public sealed class Grid
     {
-        public int RealWidth { get { return this._width * 2; } }
-        public int Width { get { return this._width; } }
-        public int Height { get { return this._height; } }
+        public int RealWidth { get { return this.Width * 2; } }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         private readonly Dictionary<Vector2, Action> _interactionList = new Dictionary<Vector2, Action>();
         private readonly Dictionary<Vector2, int> _doorList = new Dictionary<Vector2, int>();
         private readonly List<Vector2> _coinList = new List<Vector2>();
         private readonly Tile[][] _tileGrid;
-        private readonly int _width;
-        private readonly int _height;
 
         // Private Initialization Cache
         private readonly int _initInteractables = 0;
@@ -367,23 +373,23 @@ public sealed class Adventure : Option
         {
             if (raw.Length > 0)
             {
-                this._width = raw[0].Length;
-                this._height = raw.Length;
-                this._tileGrid = new Tile[this._height][];
+                this.Width = raw[0].Length;
+                this.Height = raw.Length;
+                this._tileGrid = new Tile[this.Height][];
                 string str;
                 char[] ca;
                 Tile tile;
 
-                for (int y = 0; y < _height; y++)
+                for (int y = 0; y < this.Height; y++)
                 {
                     str = raw[y];
 
-                    if (str.Length == this._width)
+                    if (str.Length == this.Width)
                     {
-                        this._tileGrid[y] = new Tile[this._width];
+                        this._tileGrid[y] = new Tile[this.Width];
                         ca = str.ToCharArray();
 
-                        for (int x = 0; x < _width; x++)
+                        for (int x = 0; x < this.Width; x++)
                         {
                             tile = (Tile)ca[x];
                             this._tileGrid[y][x] = tile;
@@ -410,7 +416,7 @@ public sealed class Adventure : Option
 
         public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.IsInteractable, this._interactionList); }
 
-        // TODO specify coordinates of 
+        // TODO specify coordinates of location after door
         public void AddDoor(Vector2 pos, int gridID) { this.AddFeature(pos, gridID, "Door", tile => tile.IsDoor, this._doorList); }
 
         public void Interact(Vector2 pos)
@@ -465,7 +471,7 @@ public sealed class Adventure : Option
                 throw new InvalidOperationException(string.Format("Add {0} Error: Cannot add {1} to a sealed grid", name, name));
         }
 
-        public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this._width, this._height); }
+        public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this.Width, this.Height); }
 
         public static string[] CreateGrid(Vector2 dimensions)
         {
@@ -608,7 +614,16 @@ public sealed class MoneyTracker : Option
     private Account _selectedAccount = null;
     private Account.Transaction _tempTransaction = null;
     private byte _tempTransactionState = 0;
-    private Stage _stage = Stage.Initialization;
+    private Stage _stage = Stage.MainMenu;
+
+    public MoneyTracker()
+    {
+        if (!Directory.Exists(MoneyTracker.DirectoryPath))
+            Directory.CreateDirectory(MoneyTracker.DirectoryPath);
+
+        foreach (string filePath in Directory.GetFiles(MoneyTracker.DirectoryPath))
+            this.AddAccount(new FileInfo(filePath).Name, true);
+    }
 
     public sealed override void Loop()
     {
@@ -616,18 +631,6 @@ public sealed class MoneyTracker : Option
 
         switch (this._stage)
         {
-            case Stage.Initialization:
-                {
-                    if (!Directory.Exists(MoneyTracker.DirectoryPath))
-                        Directory.CreateDirectory(MoneyTracker.DirectoryPath);
-
-                    foreach (string filePath in Directory.GetFiles(MoneyTracker.DirectoryPath))
-                        this.AddAccount(new FileInfo(filePath).Name, true);
-
-                    this._stage = Stage.MainMenu;
-                }
-                break;
-
             case Stage.MainMenu:
                 {
                     int consoleHeight = 7;
@@ -646,7 +649,7 @@ public sealed class MoneyTracker : Option
                     iob.AddSpacer()
                         .AddKeybind(new Keybind(() =>
                         {
-                            foreach (Account account in this._accounts) account.Save();
+                            this.Save();
                             this.Quit();
                         }, "Back", key: ConsoleKey.Escape))
                         .Request();
@@ -884,6 +887,8 @@ public sealed class MoneyTracker : Option
         }
     }
 
+    public sealed override void Save() { foreach (Account account in this._accounts) account.Save(); }
+
     private Account AddAccount(string name, bool deserialize = false)
     {
         Account account;
@@ -946,7 +951,6 @@ public sealed class MoneyTracker : Option
 
     private enum Stage
     {
-        Initialization,
         MainMenu,
         Account,
         Account_Create,
@@ -964,6 +968,8 @@ public abstract class Option
 {
     public bool IsRunning { get { return this._running; } }
     private bool _running = true;
+
+    public virtual void Save() { }
 
     public void Quit() { this._running = false; }
 
@@ -1251,22 +1257,26 @@ public static class Util
 
     public static readonly Random Random = new Random();
 
+    public static ConsoleKeyInfo LastInput { get; private set; }
+
     private static readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
 
-    public static void WaitForInput() { Util.GetInput(); }
+    public static void WaitForInput() { Console.ReadKey(true); }
 
-    public static ConsoleKeyInfo GetInput() { return Console.ReadKey(true); }
+    public static ConsoleKeyInfo GetInput()
+    {
+        Util.LastInput = Console.ReadKey(true);
+        return Util.LastInput;
+    }
 
     public static void WaitForKey(ConsoleKey key, bool displayMessage = true, int offsetLeft = 0)
     {
         if (displayMessage)
             Util.Print(string.Format("Press {0} to continue...", key), offsetLeft, linesBefore: 1);
 
-        bool keyPressed = false;
-
-        while (!keyPressed)
+        while (true)
             if (Util.GetInput().Key == key)
-                keyPressed = true;
+                break;
     }
 
     public static int Clamp(int value, int min, int max) { return Math.Min(Math.Max(value, min), max); }
