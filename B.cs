@@ -893,8 +893,6 @@ public sealed class MoneyTracker : Option
     [Serializable]
     private sealed class Account
     {
-        private const char SEPERATOR = '|';
-
         public readonly string Name;
         public List<Transaction> Transactions { get { return this._transactions; } }
         public int Decimals
@@ -933,12 +931,6 @@ public sealed class MoneyTracker : Option
             public double Amount = 0d;
 
             public Transaction() { }
-
-            public Transaction(double amount, string description)
-            {
-                this.Amount = amount;
-                this.Description = description;
-            }
         }
     }
 
@@ -1253,6 +1245,7 @@ public sealed class Vector2
 
     public static bool operator ==(Vector2 vecA, Vector2 vecB) { return vecA.x == vecB.x && vecA.y == vecB.y; }
 
+    // This isn't utilized, but needs to exist for '==' to work
     public static bool operator !=(Vector2 vecA, Vector2 vecB) { return !(vecA == vecB); }
 
     public sealed override string ToString() { return string.Format("({0}, {1})", this.x, this.y); }
