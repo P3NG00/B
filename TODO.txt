@@ -28,3 +28,8 @@ FTP Server (file download/upload)
 
 Figure out how to connect debugging to c sharp console application
 seems like i almost got it set up, just need to make my project work in dotnet core or something?
+
+TODO
+Change Util.WaitForKey - simplify code, remove bool, use break
+Change Util.GetInput - keep last input in variable in util, then check for keys in main loop using last input
+Reorganize Adventure & Adventure.Grid - keep save info in AdventureInfo

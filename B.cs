@@ -88,10 +88,9 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
     private const string MESSAGE_EMPTY = "...";
 
-    public static Grid CurrentGrid { get { return Grid.Grids[Adventure._info.GridID]; } }
-    public static string Message = Adventure.MESSAGE_EMPTY;
-    private static readonly string _filePath = B.DirectoryPath + "adventureInfo";
-    private static AdventureInfo _info = new AdventureInfo();
+    private static AdventureInfo Info = new AdventureInfo();
+    private static string Message = Adventure.MESSAGE_EMPTY;
+    private readonly string _filePath = B.DirectoryPath + "adventureInfo";
     private Stage _stage = Stage.MainMenu;
 
     public sealed override void Loop()
@@ -102,24 +101,14 @@ public sealed class Adventure : Option
                 {
                     Console.Clear();
                     int consoleHeight = 7;
-                    bool fileExists = File.Exists(Adventure._filePath);
+                    bool fileExists = File.Exists(this._filePath);
                     if (fileExists) consoleHeight++;
                     Util.SetConsoleSize(20, consoleHeight);
                     Input.Option iob = new Input.Option("Adventure")
-                        .AddKeybind(new Keybind(() =>
-                        {
-                            InitGame();
-                            Adventure.ResetPlayerPosition();
-                        }, "New Game", '1'));
+                        .AddKeybind(new Keybind(() => this.InitGame(true), "New Game", '1'));
 
                     if (fileExists)
-                    {
-                        iob.AddKeybind(new Keybind(() =>
-                        {
-                            Adventure._info = Util.Deserialize<AdventureInfo>(Adventure._filePath);
-                            InitGame();
-                        }, "Continue", '2'));
-                    }
+                        iob.AddKeybind(new Keybind(() => this.InitGame(false), "Continue", '2'));
 
                     iob.AddSpacer()
                         .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
@@ -130,36 +119,37 @@ public sealed class Adventure : Option
             case Stage.Game:
                 {
                     Console.SetCursorPosition(0, 0);
-                    int consoleHeight = Adventure.CurrentGrid.Height + 14;
+                    Grid currentGrid = Adventure.Info.CurrentGrid;
+                    int consoleHeight = currentGrid.Height + 14;
 
                     if (B.DebugMode)
                     {
                         // Extra spaces are added to the end to clear leftover text
-                        Util.Print(string.Format("{0,-7}", Adventure.CurrentGrid), 1, linesBefore: 1);
-                        Util.Print(string.Format("Pos: {0,-8}", Adventure._info.Position), 1);
+                        Util.Print(string.Format("{0,-7}", currentGrid), 1, linesBefore: 1);
+                        Util.Print(string.Format("Pos: {0,-8}", Adventure.Info.Position), 1);
                         consoleHeight += 3;
                     }
 
-                    Util.SetConsoleSize(Adventure.CurrentGrid.RealWidth + 8, consoleHeight);
-                    string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, Adventure.CurrentGrid.Width);
+                    Util.SetConsoleSize(currentGrid.RealWidth + 8, consoleHeight);
+                    string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, currentGrid.Width);
                     Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B), 2, linesBefore: 1);
                     Vector2 pos;
                     string s;
 
-                    for (int y = Adventure.CurrentGrid.Height - 1; y >= 0; y--)
+                    for (int y = currentGrid.Height - 1; y >= 0; y--)
                     {
                         s = CHAR_BORDER_VERTICAL;
 
-                        for (int x = 0; x < Adventure.CurrentGrid.Width; x++)
+                        for (int x = 0; x < currentGrid.Width; x++)
                         {
                             pos = new Vector2(x, y);
 
-                            if (pos == Adventure._info.Position)
+                            if (pos == Adventure.Info.Position)
                                 s += Adventure.CHAR_PLAYER;
-                            else if (Adventure.CurrentGrid.HasCoinAt(pos))
+                            else if (currentGrid.HasCoinAt(pos))
                                 s += Adventure.CHAR_COIN;
                             else
-                                s += Adventure.CurrentGrid.GetTile(pos).Chars;
+                                s += currentGrid.GetTile(pos).Chars;
                         }
 
                         Util.Print(s + Adventure.CHAR_BORDER_VERTICAL, 2);
@@ -167,10 +157,10 @@ public sealed class Adventure : Option
 
                     Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_B, borderHorizontal, Adventure.CHAR_CORNER_A), 2);
                     Util.Print(string.Format("> {0}", Adventure.Message), 3, linesBefore: 1);
-                    Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", Adventure.MESSAGE_EMPTY);
+                    Adventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", Adventure.MESSAGE_EMPTY);
                     string format = "{0,9}: {1,-5}";
-                    Util.Print(string.Format(format, "Coins", Adventure._info.Coins), linesBefore: 1);
-                    Util.Print(string.Format(format, "Speed", Adventure._info.Speed));
+                    Util.Print(string.Format(format, "Coins", Adventure.Info.Coins), linesBefore: 1);
+                    Util.Print(string.Format(format, "Speed", Adventure.Info.Speed));
                     Util.Print("Move) W A S D", 2, linesBefore: 1);
                     Util.Print("Speed) + -", 1);
                     new Input.Option()
@@ -181,21 +171,28 @@ public sealed class Adventure : Option
                         .AddSpacer()
                         .AddKeybind(new Keybind(() =>
                         {
-                            Util.Serialize(Adventure._filePath, Adventure._info);
+                            Util.Serialize(this._filePath, Adventure.Info);
                             this._stage = Stage.MainMenu;
                         }, "Quit", key: ConsoleKey.Escape))
-                        .AddKeybind(new Keybind(() => Adventure._info.Speed++, key: ConsoleKey.Add))
-                        .AddKeybind(new Keybind(() => Adventure._info.Speed--, key: ConsoleKey.Subtract))
+                        .AddKeybind(new Keybind(() => Adventure.Info.Speed++, key: ConsoleKey.Add))
+                        .AddKeybind(new Keybind(() => Adventure.Info.Speed--, key: ConsoleKey.Subtract))
                         .Request();
                 }
                 break;
         }
     }
 
-    private void InitGame()
+    private void InitGame(bool newGame)
     {
+        if (newGame)
+        {
+            Adventure.InitializeGrids();
+            Adventure.ResetPlayerPosition();
+        }
+        else
+            Adventure.Info = Util.Deserialize<AdventureInfo>(this._filePath);
+
         Console.Clear();
-        Grid.InitializeGrids();
         this._stage = Stage.Game;
     }
 
@@ -205,22 +202,110 @@ public sealed class Adventure : Option
         Tile tile;
         bool stop = false;
 
-        for (int i = 0; i < Adventure.info.Speed && !stop; i++)
+        for (int i = 0; i < Adventure.Info.Speed && !stop; i++)
         {
-            newPos = Adventure._info.Position + (Vector2)direction;
+            newPos = Adventure.Info.Position + (Vector2)direction;
+            Grid currentGrid = Adventure.Info.CurrentGrid;
 
-            if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
+            if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
             {
-                tile = Adventure.CurrentGrid.GetTile(newPos);
-                Adventure.CurrentGrid.Interact(newPos);
+                tile = currentGrid.GetTile(newPos);
+                currentGrid.Interact(newPos);
                 stop = tile.StopMovement || tile.IsDoor;
-                if (!stop) Adventure._info.Position = newPos;
+                if (!stop) Adventure.Info.Position = newPos;
             }
         }
     }
 
-    public static void ResetPlayerPosition() { Adventure._info.Position = new Vector2(Adventure.CurrentGrid.Width / 2, Adventure.CurrentGrid.Height / 2); }
+    public static void ResetPlayerPosition()
+    {
+        Grid currentGrid = Adventure.Info.CurrentGrid;
+        Adventure.Info.Position = new Vector2(
+            currentGrid.Width / 2,
+            currentGrid.Height / 2);
+    }
 
+    public static void InitializeGrids()
+    {
+        // ' ' | EMPTY
+        // 'c' | COIN
+        // 'd' | DOOR
+        // 'w' | WALL
+        // 'i' | TILE_INTERACTABLE
+
+        // Initialize Grid Array
+        Adventure.Info.Grids = new Grid[3];
+
+        // Grid First
+        string[] sa = Grid.CreateGrid(new Vector2(15));
+        sa[13] = " wwwwwwwwwwwww ";
+        sa[12] = "  w         w  ";
+        sa[11] = "       i       ";
+        sa[7] = "   w       w  d";
+        sa[3] = "   w   c   w   ";
+        sa[1] = " wwwwwwwwwwwww ";
+        Adventure.Info.Grids[0] = new Grid(sa);
+        Adventure.Info.Grids[0].AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
+
+        // Grid Second
+        sa = Grid.CreateGrid(new Vector2(17, 21));
+        sa[15] = "        d        ";
+        sa[14] = " www         www ";
+        sa[13] = " w             w ";
+        sa[12] = " w     w w     w ";
+        sa[11] = " w    w   w    w ";
+        sa[10] = " w             w ";
+        sa[9] = " w    w   w    w ";
+        sa[8] = " w     w w     w ";
+        sa[7] = " w             w ";
+        sa[6] = " www         www ";
+        Adventure.Info.Grids[1] = new Grid(sa);
+
+        // Grid Third
+        sa = Grid.CreateGrid(new Vector2(13, 9));
+        sa[4] = "           i ";
+        Adventure.Info.Grids[2] = new Grid(sa);
+        Adventure.Info.Grids[2].AddInteraction(new Vector2(11, 4), () => Adventure.Message = "The End...?");
+
+        // Add Doors after initializing each room
+        Adventure.Info.Grids[0].AddDoor(new Vector2(14, 7), 1);
+        Adventure.Info.Grids[1].AddDoor(new Vector2(8, 15), 2);
+
+        // Seal Grids
+        foreach (Grid grid in Adventure.Info.Grids) grid.Seal();
+    }
+
+    [Serializable]
+    public class AdventureInfo
+    {
+        public Grid CurrentGrid { get { return this.Grids[this.GridID]; } }
+
+        public int GridID
+        {
+            get { return this._gridID; }
+            set
+            {
+                this._gridID = value;
+                Adventure.ResetPlayerPosition();
+                Console.Clear();
+            }
+        }
+
+        public int Speed
+        {
+            get { return this._speed; }
+            set { this._speed = Util.Clamp(value, 1, 25); }
+        }
+
+        public Grid[] Grids;
+        public Vector2 Position; // Doesn't need to be initliazed, will be set by ResetPlayerPosition()
+        public int Coins = 0;
+
+        private int _speed = 1;
+        private int _gridID = 0;
+    }
+
+    [Serializable]
     public sealed class Tile
     {
         private static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
@@ -259,12 +344,9 @@ public sealed class Adventure : Option
         }
     }
 
+    [Serializable]
     public sealed class Grid
     {
-        public static Grid[] Grids { get { return Grid._grids; } }
-
-        private static Grid[] _grids;
-
         public int RealWidth { get { return this._width * 2; } }
         public int Width { get { return this._width; } }
         public int Height { get { return this._height; } }
@@ -328,6 +410,7 @@ public sealed class Adventure : Option
 
         public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.IsInteractable, this._interactionList); }
 
+        // TODO specify coordinates of 
         public void AddDoor(Vector2 pos, int gridID) { this.AddFeature(pos, gridID, "Door", tile => tile.IsDoor, this._doorList); }
 
         public void Interact(Vector2 pos)
@@ -339,7 +422,7 @@ public sealed class Adventure : Option
                 if (tile.IsCoin && this._coinList.Contains(pos))
                 {
                     this._coinList.Remove(pos);
-                    Adventure._info.Coins++;
+                    Adventure.Info.Coins++;
                     Adventure.Message = "You picked up a coin!";
                 }
 
@@ -347,7 +430,7 @@ public sealed class Adventure : Option
                     this._interactionList[pos]();
 
                 if (tile.IsDoor && this._doorList.ContainsKey(pos))
-                    Adventure._info.GridID = this._doorList[pos];
+                    Adventure.Info.GridID = this._doorList[pos];
             }
             else
                 throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
@@ -384,84 +467,13 @@ public sealed class Adventure : Option
 
         public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this._width, this._height); }
 
-        private static string[] CreateGrid(Vector2 dimensions)
+        public static string[] CreateGrid(Vector2 dimensions)
         {
             string[] sa = new string[dimensions.y];
             string s = Util.StringOf(" ", dimensions.x);
             for (int i = 0; i < sa.Length; i++) sa[i] = s;
             return sa;
         }
-
-        public static void InitializeGrids()
-        {
-            // ' ' | EMPTY
-            // 'c' | COIN
-            // 'd' | DOOR
-            // 'w' | WALL
-            // 'i' | TILE_INTERACTABLE
-
-            // Initialize Grid Array
-            Grid._grids = new Grid[2];
-
-            // Grid First
-            string[] sa = Grid.CreateGrid(new Vector2(15));
-            sa[13] = " wwwwwwwwwwwww ";
-            sa[12] = "  w         w  ";
-            sa[11] = "       i       ";
-            sa[7] = "   w       w  d";
-            sa[3] = "   w   c   w   ";
-            sa[1] = " wwwwwwwwwwwww ";
-            Grid._grids[0] = new Grid(sa);
-            Grid._grids[0].AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
-
-            // Grid Second
-            sa = Grid.CreateGrid(new Vector2(17, 21));
-            sa[15] = "        d        ";
-            sa[14] = " www         www ";
-            sa[13] = " w             w ";
-            sa[12] = " w     w w     w ";
-            sa[11] = " w    w   w    w ";
-            sa[10] = " w             w ";
-            sa[9] = " w    w   w    w ";
-            sa[8] = " w     w w     w ";
-            sa[7] = " w             w ";
-            sa[6] = " www         www ";
-            Grid._grids[1] = new Grid(sa);
-
-            // Add Doors after initializing each room
-            Grid._grids[0].AddDoor(new Vector2(14, 7), 1);
-            Grid._grids[1].AddDoor(new Vector2(8, 15), 0);
-
-            // Seal Grids
-            foreach (Grid grid in Grid.Grids) grid.Seal();
-        }
-    }
-
-    [Serializable]
-    public class AdventureInfo
-    {
-        public Vector2 Position;
-        public int Coins = 0;
-
-        public int GridID
-        {
-            get { return this._gridID; }
-            set
-            {
-                this._gridID = value;
-                Adventure.ResetPlayerPosition();
-                Console.Clear();
-            }
-        }
-
-        public int Speed
-        {
-            get { return this._speed; }
-            set { this._speed = Util.Clamp(value, 1, 25); }
-        }
-
-        private int _speed = 1;
-        private int _gridID = 0;
     }
 
     private enum Stage
@@ -1146,6 +1158,7 @@ public sealed class List<T>
     public T this[int index] { get { return this._items[index]; } }
 }
 
+[Serializable]
 public sealed class Dictionary<T, V>
 {
     private Tuple<T, V>[] _tuples = new Tuple<T, V>[0];
@@ -1237,6 +1250,7 @@ public static class Util
     public const char NULLCHAR = default(char);
 
     public static readonly Random Random = new Random();
+
     private static readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
 
     public static void WaitForInput() { Util.GetInput(); }
