@@ -1193,7 +1193,7 @@ public sealed class Dictionary<T, V>
     public V this[T t]
     {
         get { return this._tuples[this.GetIndex(t)].Item2; }
-        set { this._tuples[this.GetIndex(t)].Item2 = value; }
+        set { this._tuples[this.GetIndex(t)] = new Tuple<T, V>(t, value); }
     }
 
     private int GetIndex(T t)
@@ -1203,18 +1203,6 @@ public sealed class Dictionary<T, V>
                 return i;
 
         throw new ArgumentException("Key not found");
-    }
-}
-
-public sealed class Tuple<T1, T2>
-{
-    public T1 Item1;
-    public T2 Item2;
-
-    public Tuple(T1 left, T2 right)
-    {
-        this.Item1 = left;
-        this.Item2 = right;
     }
 }
 
