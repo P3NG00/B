@@ -10,7 +10,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2022.01.03    ||
+||     2022.01.04    ||
 ||                   ||
 \* ================= */
 
@@ -1315,21 +1315,7 @@ public static class Util
 
     public static void ToggleBool(ref bool b) { b = !b; }
 
-    public static void Serialize<T>(string filePath, T objectToWrite)
-    {
-        using (Stream stream = File.Open(filePath, FileMode.Create))
-        {
-            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            binaryFormatter.Serialize(stream, objectToWrite);
-        }
-    }
+    public static void Serialize<T>(string filePath, T objectToWrite) { new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter().Serialize(File.Open(filePath, FileMode.Create), objectToWrite); }
 
-    public static T Deserialize<T>(string filePath)
-    {
-        using (Stream stream = File.Open(filePath, FileMode.Open))
-        {
-            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            return (T)binaryFormatter.Deserialize(stream);
-        }
-    }
+    public static T Deserialize<T>(string filePath) { return (T)new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter().Deserialize(File.Open(filePath, FileMode.Open)); }
 }
