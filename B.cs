@@ -17,18 +17,9 @@ using System;
 
 public class B
 {
-    public static void Main() { new B().Start(); }
-
     public static readonly string DirectoryPath = Environment.CurrentDirectory + @"\data\";
     public static bool DebugMode { get { return B._debugMode; } }
     private static bool _debugMode = false;
-
-    public static void ToggleDebugMode()
-    {
-        Util.ToggleBool(ref B._debugMode);
-        Console.Clear();
-    }
-
     private Option _option = null;
     private bool _running = true;
 
@@ -73,6 +64,14 @@ public class B
             }
         }
     }
+
+    public static void ToggleDebugMode()
+    {
+        Util.ToggleBool(ref B._debugMode);
+        Console.Clear();
+    }
+
+    public static void Main() { new B().Start(); }
 }
 
 public sealed class Adventure : Option
@@ -89,10 +88,10 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
     private const string MESSAGE_EMPTY = "...";
 
-    public static Grid CurrentGrid { get { return Grid.Grids[Adventure.info.GridID]; } }
+    public static Grid CurrentGrid { get { return Grid.Grids[Adventure._info.GridID]; } }
     public static string Message = Adventure.MESSAGE_EMPTY;
-    private static readonly string FilePath = B.DirectoryPath + "adventureInfo";
-    private static AdventureInfo info = new AdventureInfo();
+    private static readonly string _filePath = B.DirectoryPath + "adventureInfo";
+    private static AdventureInfo _info = new AdventureInfo();
     private Stage _stage = Stage.MainMenu;
 
     public sealed override void Loop()
@@ -103,7 +102,7 @@ public sealed class Adventure : Option
                 {
                     Console.Clear();
                     int consoleHeight = 7;
-                    bool fileExists = File.Exists(Adventure.FilePath);
+                    bool fileExists = File.Exists(Adventure._filePath);
                     if (fileExists) consoleHeight++;
                     Util.SetConsoleSize(20, consoleHeight);
                     Input.Option iob = new Input.Option("Adventure")
@@ -117,7 +116,7 @@ public sealed class Adventure : Option
                     {
                         iob.AddKeybind(new Keybind(() =>
                         {
-                            Adventure.info = Util.Deserialize<AdventureInfo>(Adventure.FilePath);
+                            Adventure._info = Util.Deserialize<AdventureInfo>(Adventure._filePath);
                             InitGame();
                         }, "Continue", '2'));
                     }
@@ -137,15 +136,15 @@ public sealed class Adventure : Option
                     {
                         // Extra spaces are added to the end to clear leftover text
                         Util.Print(string.Format("{0,-7}", Adventure.CurrentGrid), 1, linesBefore: 1);
-                        Util.Print(string.Format("Pos: {0,-8}", Adventure.info.Position), 1);
+                        Util.Print(string.Format("Pos: {0,-8}", Adventure._info.Position), 1);
                         consoleHeight += 3;
                     }
 
                     Util.SetConsoleSize(Adventure.CurrentGrid.RealWidth + 8, consoleHeight);
                     string borderHorizontal = Util.StringOf(Adventure.CHAR_BORDER_HORIZONTAL, Adventure.CurrentGrid.Width);
                     Util.Print(string.Format("{0}{1}{2}", Adventure.CHAR_CORNER_A, borderHorizontal, Adventure.CHAR_CORNER_B), 2, linesBefore: 1);
-                    string s;
                     Vector2 pos;
+                    string s;
 
                     for (int y = Adventure.CurrentGrid.Height - 1; y >= 0; y--)
                     {
@@ -155,7 +154,7 @@ public sealed class Adventure : Option
                         {
                             pos = new Vector2(x, y);
 
-                            if (pos == Adventure.info.Position)
+                            if (pos == Adventure._info.Position)
                                 s += Adventure.CHAR_PLAYER;
                             else if (Adventure.CurrentGrid.HasCoinAt(pos))
                                 s += Adventure.CHAR_COIN;
@@ -170,8 +169,8 @@ public sealed class Adventure : Option
                     Util.Print(string.Format("> {0}", Adventure.Message), 3, linesBefore: 1);
                     Adventure.Message = string.Format("{0,-" + (Adventure.CurrentGrid.RealWidth - 7) + "}", Adventure.MESSAGE_EMPTY);
                     string format = "{0,9}: {1,-5}";
-                    Util.Print(string.Format(format, "Coins", info.Coins), linesBefore: 1);
-                    Util.Print(string.Format(format, "Speed", Adventure.info.Speed));
+                    Util.Print(string.Format(format, "Coins", Adventure._info.Coins), linesBefore: 1);
+                    Util.Print(string.Format(format, "Speed", Adventure._info.Speed));
                     Util.Print("Move) W A S D", 2, linesBefore: 1);
                     Util.Print("Speed) + -", 1);
                     new Input.Option()
@@ -182,11 +181,11 @@ public sealed class Adventure : Option
                         .AddSpacer()
                         .AddKeybind(new Keybind(() =>
                         {
-                            Util.Serialize(Adventure.FilePath, Adventure.info);
+                            Util.Serialize(Adventure._filePath, Adventure._info);
                             this._stage = Stage.MainMenu;
                         }, "Quit", key: ConsoleKey.Escape))
-                        .AddKeybind(new Keybind(() => Adventure.info.Speed++, key: ConsoleKey.Add))
-                        .AddKeybind(new Keybind(() => Adventure.info.Speed--, key: ConsoleKey.Subtract))
+                        .AddKeybind(new Keybind(() => Adventure._info.Speed++, key: ConsoleKey.Add))
+                        .AddKeybind(new Keybind(() => Adventure._info.Speed--, key: ConsoleKey.Subtract))
                         .Request();
                 }
                 break;
@@ -208,19 +207,19 @@ public sealed class Adventure : Option
 
         for (int i = 0; i < Adventure.info.Speed && !stop; i++)
         {
-            newPos = Adventure.info.Position + direction.ToVector2();
+            newPos = Adventure._info.Position + (Vector2)direction;
 
             if (newPos.x >= 0 && newPos.x < Adventure.CurrentGrid.Width && newPos.y >= 0 && newPos.y < Adventure.CurrentGrid.Height)
             {
                 tile = Adventure.CurrentGrid.GetTile(newPos);
                 Adventure.CurrentGrid.Interact(newPos);
                 stop = tile.StopMovement || tile.IsDoor;
-                if (!stop) Adventure.info.Position = newPos;
+                if (!stop) Adventure._info.Position = newPos;
             }
         }
     }
 
-    public static void ResetPlayerPosition() { Adventure.info.Position = new Vector2(Adventure.CurrentGrid.Width / 2, Adventure.CurrentGrid.Height / 2); }
+    public static void ResetPlayerPosition() { Adventure._info.Position = new Vector2(Adventure.CurrentGrid.Width / 2, Adventure.CurrentGrid.Height / 2); }
 
     public sealed class Tile
     {
@@ -323,9 +322,7 @@ public sealed class Adventure : Option
                 throw new ArgumentException("Grid Init Error: Must have at least one row");
         }
 
-        public Tile GetTile(Vector2 pos) { return this.GetTile(pos.x, pos.y); }
-
-        public Tile GetTile(int x, int y) { return this._tileGrid[y][x]; }
+        public Tile GetTile(Vector2 pos) { return this._tileGrid[pos.y][pos.x]; }
 
         public bool HasCoinAt(Vector2 pos) { return this._coinList.Contains(pos); }
 
@@ -342,7 +339,7 @@ public sealed class Adventure : Option
                 if (tile.IsCoin && this._coinList.Contains(pos))
                 {
                     this._coinList.Remove(pos);
-                    info.Coins++;
+                    Adventure._info.Coins++;
                     Adventure.Message = "You picked up a coin!";
                 }
 
@@ -350,7 +347,7 @@ public sealed class Adventure : Option
                     this._interactionList[pos]();
 
                 if (tile.IsDoor && this._doorList.ContainsKey(pos))
-                    info.GridID = this._doorList[pos];
+                    Adventure._info.GridID = this._doorList[pos];
             }
             else
                 throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
@@ -953,8 +950,8 @@ public sealed class MoneyTracker : Option
 
 public abstract class Option
 {
-    private bool _running = true;
     public bool IsRunning { get { return this._running; } }
+    private bool _running = true;
 
     public void Quit() { this._running = false; }
 
@@ -967,22 +964,6 @@ public enum Direction
     Left,
     Down,
     Right,
-}
-
-public static class DirectionToVector2
-{
-    public static Vector2 ToVector2(this Direction direction)
-    {
-        switch (direction)
-        {
-            case Direction.Up: return Vector2.Up;
-            case Direction.Left: return Vector2.Left;
-            case Direction.Down: return Vector2.Down;
-            case Direction.Right: return Vector2.Right;
-        }
-
-        return Vector2.Zero;
-    }
 }
 
 public static class Input
@@ -1154,10 +1135,8 @@ public sealed class List<T>
     public bool Contains(T t)
     {
         foreach (T item in this._items)
-        {
             if (item.Equals(t))
                 return true;
-        }
 
         return false;
     }
@@ -1238,6 +1217,19 @@ public sealed class Vector2
     public static bool operator !=(Vector2 vecA, Vector2 vecB) { return !(vecA == vecB); }
 
     public sealed override string ToString() { return string.Format("({0}, {1})", this.x, this.y); }
+
+    public static explicit operator Vector2(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.Up: return Vector2.Up;
+            case Direction.Left: return Vector2.Left;
+            case Direction.Down: return Vector2.Down;
+            case Direction.Right: return Vector2.Right;
+        }
+
+        return Vector2.Zero;
+    }
 }
 
 public static class Util
