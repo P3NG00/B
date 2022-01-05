@@ -281,7 +281,7 @@ public sealed class Adventure : Option
 
         // Add Doors after initializing each room
         Adventure.Info.Grids[0].AddDoor(new Vector2(14, 7), new Tuple<int, Vector2>(1, new Vector2(8)));
-        Adventure.Info.Grids[1].AddDoor(new Vector2(8, 13), new Tuple<int, Vector2>(2, new Vector2(1, 4)));
+        Adventure.Info.Grids[1].AddDoor(new Vector2(8, 13), new Tuple<int, Vector2>(2, new Vector2(-1, 4))); // TODO change back
 
         // Seal Grids
         foreach (Grid grid in Adventure.Info.Grids) grid.Seal();
@@ -614,7 +614,7 @@ public sealed class NumberGuesser : Option
 
 public sealed class MoneyTracker : Option
 {
-    private static readonly string DirectoryPath = B.DirectoryPath + @"accounts\";
+    private static readonly string _directoryPath = B.DirectoryPath + @"accounts\";
 
     private readonly List<Account> _accounts = new List<Account>();
     private Account _selectedAccount = null;
@@ -624,10 +624,10 @@ public sealed class MoneyTracker : Option
 
     public MoneyTracker()
     {
-        if (!Directory.Exists(MoneyTracker.DirectoryPath))
-            Directory.CreateDirectory(MoneyTracker.DirectoryPath);
+        if (!Directory.Exists(MoneyTracker._directoryPath))
+            Directory.CreateDirectory(MoneyTracker._directoryPath);
 
-        foreach (string filePath in Directory.GetFiles(MoneyTracker.DirectoryPath))
+        foreach (string filePath in Directory.GetFiles(MoneyTracker._directoryPath))
             this.AddAccount(new FileInfo(filePath).Name, true);
     }
 
@@ -693,7 +693,7 @@ public sealed class MoneyTracker : Option
                     {
                         if (Input.Str.Length > 0)
                         {
-                            string filePath = MoneyTracker.DirectoryPath + Input.Str;
+                            string filePath = MoneyTracker._directoryPath + Input.Str;
 
                             if (!File.Exists(filePath))
                             {
@@ -900,7 +900,7 @@ public sealed class MoneyTracker : Option
         Account account;
 
         if (deserialize)
-            account = Util.Deserialize<Account>(MoneyTracker.DirectoryPath + name);
+            account = Util.Deserialize<Account>(MoneyTracker._directoryPath + name);
         else
         {
             account = new Account(name);
@@ -930,7 +930,7 @@ public sealed class MoneyTracker : Option
         public Account(string name)
         {
             this.Name = name;
-            this._filePath = MoneyTracker.DirectoryPath + name;
+            this._filePath = MoneyTracker._directoryPath + name;
         }
 
         public void Save() { Util.Serialize(this._filePath, this); }
