@@ -309,7 +309,7 @@ public sealed class Adventure : Option
         }
 
         public Grid[] Grids;
-        public Vector2 Position; // Doesn't need to be initliazed, will be set by ResetPlayerPosition() or loaded from file
+        public Vector2 Position; // Doesn't need to be initliazed, will be set by centered upon new game or it will be loaded from file
         public int Coins = 0;
 
         private int _speed = 1;
