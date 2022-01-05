@@ -921,7 +921,6 @@ public sealed class MoneyTracker : Option
             get { return this._decimals; }
             set { this._decimals = Util.Clamp(value, 0, 8); }
         }
-        public bool Exists { get { return Directory.Exists(this._filePath); } }
 
         private readonly List<Transaction> _transactions = new List<Transaction>();
         private readonly string _filePath;
@@ -935,7 +934,7 @@ public sealed class MoneyTracker : Option
 
         public void Save() { Util.Serialize(this._filePath, this); }
 
-        public void Delete() { if (this.Exists) File.Delete(this._filePath); }
+        public void Delete() { if (File.Exists(this._filePath)) File.Delete(this._filePath); }
 
         public void PrintTransactions()
         {
