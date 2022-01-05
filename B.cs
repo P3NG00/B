@@ -204,7 +204,10 @@ public sealed class Adventure : Option
         if (newGame)
         {
             Adventure.InitializeGrids();
-            Adventure.ResetPlayerPosition();
+            Grid currentGrid = Adventure.Info.CurrentGrid;
+            Adventure.Info.Position = new Vector2(
+                currentGrid.Width / 2,
+                currentGrid.Height / 2);
         }
         else
             Adventure.Info = Util.Deserialize<AdventureInfo>(this._filePath);
@@ -234,14 +237,6 @@ public sealed class Adventure : Option
         }
     }
 
-    public static void ResetPlayerPosition()
-    {
-        Grid currentGrid = Adventure.Info.CurrentGrid;
-        Adventure.Info.Position = new Vector2(
-            currentGrid.Width / 2,
-            currentGrid.Height / 2);
-    }
-
     public static void InitializeGrids()
     {
         // ' ' | EMPTY
@@ -253,7 +248,7 @@ public sealed class Adventure : Option
         // Initialize Grid Array
         Adventure.Info.Grids = new Grid[3];
 
-        // Grid First
+        // Grid 0
         string[] sa = Grid.CreateGrid(new Vector2(15));
         sa[13] = " wwwwwwwwwwwww ";
         sa[12] = "  w         w  ";
@@ -264,29 +259,29 @@ public sealed class Adventure : Option
         Adventure.Info.Grids[0] = new Grid(sa);
         Adventure.Info.Grids[0].AddInteraction(new Vector2(7, 11), () => Adventure.Message = "You touched it!");
 
-        // Grid Second
+        // Grid 1
         sa = Grid.CreateGrid(new Vector2(17, 21));
-        sa[15] = "        d        ";
-        sa[14] = " www         www ";
-        sa[13] = " w             w ";
-        sa[12] = " w     w w     w ";
-        sa[11] = " w    w   w    w ";
-        sa[10] = " w             w ";
+        sa[13] = "        d        ";
+        sa[12] = " www         www ";
+        sa[11] = " w             w ";
+        sa[10] = " w     w w     w ";
         sa[9] = " w    w   w    w ";
-        sa[8] = " w     w w     w ";
-        sa[7] = " w             w ";
-        sa[6] = " www         www ";
+        sa[8] = " w             w ";
+        sa[7] = " w    w   w    w ";
+        sa[6] = " w     w w     w ";
+        sa[5] = " w             w ";
+        sa[4] = " www         www ";
         Adventure.Info.Grids[1] = new Grid(sa);
 
-        // Grid Third
+        // Grid 2
         sa = Grid.CreateGrid(new Vector2(13, 9));
         sa[4] = "           i ";
         Adventure.Info.Grids[2] = new Grid(sa);
         Adventure.Info.Grids[2].AddInteraction(new Vector2(11, 4), () => Adventure.Message = "The End...?");
 
         // Add Doors after initializing each room
-        Adventure.Info.Grids[0].AddDoor(new Vector2(14, 7), 1);
-        Adventure.Info.Grids[1].AddDoor(new Vector2(8, 15), 2);
+        Adventure.Info.Grids[0].AddDoor(new Vector2(14, 7), new Tuple<int, Vector2>(1, new Vector2(8)));
+        Adventure.Info.Grids[1].AddDoor(new Vector2(8, 13), new Tuple<int, Vector2>(2, new Vector2(1, 4)));
 
         // Seal Grids
         foreach (Grid grid in Adventure.Info.Grids) grid.Seal();
@@ -303,7 +298,6 @@ public sealed class Adventure : Option
             set
             {
                 this._gridID = value;
-                Adventure.ResetPlayerPosition();
                 Console.Clear();
             }
         }
@@ -315,7 +309,7 @@ public sealed class Adventure : Option
         }
 
         public Grid[] Grids;
-        public Vector2 Position; // Doesn't need to be initliazed, will be set by ResetPlayerPosition()
+        public Vector2 Position; // Doesn't need to be initliazed, will be set by ResetPlayerPosition() or loaded from file
         public int Coins = 0;
 
         private int _speed = 1;
@@ -369,7 +363,7 @@ public sealed class Adventure : Option
         public int Height { get; private set; }
 
         private readonly Dictionary<Vector2, Action> _interactionList = new Dictionary<Vector2, Action>();
-        private readonly Dictionary<Vector2, int> _doorList = new Dictionary<Vector2, int>();
+        private readonly Dictionary<Vector2, Tuple<int, Vector2>> _doorList = new Dictionary<Vector2, Tuple<int, Vector2>>();
         private readonly List<Vector2> _coinList = new List<Vector2>();
         private readonly Tile[][] _tileGrid;
 
@@ -425,8 +419,7 @@ public sealed class Adventure : Option
 
         public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.IsInteractable, this._interactionList); }
 
-        // TODO specify coordinates of location after door
-        public void AddDoor(Vector2 pos, int gridID) { this.AddFeature(pos, gridID, "Door", tile => tile.IsDoor, this._doorList); }
+        public void AddDoor(Vector2 pos, Tuple<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.IsDoor, this._doorList); }
 
         public void Interact(Vector2 pos)
         {
@@ -445,7 +438,11 @@ public sealed class Adventure : Option
                     this._interactionList[pos]();
 
                 if (tile.IsDoor && this._doorList.ContainsKey(pos))
-                    Adventure.Info.GridID = this._doorList[pos];
+                {
+                    Tuple<int, Vector2> gridIdAndPos = this._doorList[pos];
+                    Adventure.Info.GridID = gridIdAndPos.Item1;
+                    Adventure.Info.Position = gridIdAndPos.Item2;
+                }
             }
             else
                 throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
@@ -1211,7 +1208,7 @@ public sealed class Dictionary<T, V>
 }
 
 [Serializable]
-public sealed class Vector2
+public class Vector2
 {
     public static readonly Vector2 Up = new Vector2(0, 1);
     public static readonly Vector2 Left = new Vector2(-1, 0);
@@ -1222,7 +1219,7 @@ public sealed class Vector2
     public int x = 0;
     public int y = 0;
 
-    public Vector2(int size) : this(size, size) { }
+    public Vector2(int xy) : this(xy, xy) { }
 
     public Vector2(int x, int y)
     {

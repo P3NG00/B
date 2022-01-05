@@ -28,3 +28,13 @@ FTP Server (file download/upload)
 
 Figure out how to connect debugging to c sharp console application
 seems like i almost got it set up, just need to make my project work in dotnet core or something?
+
+// WAY LATER
+Adventure
+    New Game
+        Basic
+            Start new game with default world
+        Randomly Generated
+            Start new game with randomly generated world
+        Custom
+            Start new game reading info from files in specified 'custom' directory or something
