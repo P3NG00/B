@@ -30,22 +30,25 @@ public class B
         Console.ForegroundColor = ConsoleColor.Black;
         Console.TreatControlCAsInput = true;
 
-        if (!Directory.Exists(B.DirectoryPath))
-        {
-            DirectoryInfo mainDirectory = Directory.CreateDirectory(B.DirectoryPath);
-            mainDirectory.Attributes = FileAttributes.Hidden;
-        }
-
         while (this._running)
         {
             try
             {
+                if (!Directory.Exists(B.DirectoryPath))
+                {
+                    DirectoryInfo mainDirectory = Directory.CreateDirectory(B.DirectoryPath);
+                    mainDirectory.Attributes = FileAttributes.Hidden;
+                }
+
                 if (this._option != null && this._option.IsRunning)
                     this._option.Loop();
                 else
                 {
                     Console.Clear();
-                    Util.SetConsoleSize(20, 9);
+                    int consoleHeight = 9;
+                    if (B.DebugMode) consoleHeight += 2;
+                    Util.SetConsoleSize(20, consoleHeight);
+                    if (B.DebugMode) Util.Print("DEBUG ON", 4, linesBefore: 1);
                     new Input.Option("B's")
                         .AddKeybind(new Keybind(() => this._option = new Adventure(), "Adventure", '1'))
                         .AddKeybind(new Keybind(() => this._option = new NumberGuesser(), "Number Guesser", '2'))
@@ -53,6 +56,12 @@ public class B
                         .AddSpacer()
                         .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
                         .Request();
+                }
+
+                switch (Util.LastInput.Key)
+                {
+                    case ConsoleKey.F12: B.ToggleDebugMode(); break;
+                    case ConsoleKey.F11: Directory.Delete(B.DirectoryPath, true); break;
                 }
             }
             catch (Exception e)
@@ -1056,9 +1065,6 @@ public static class Input
 
         public void Request()
         {
-            // Add Debug Keybind
-            this.AddKeybind(new Keybind(() => B.ToggleDebugMode(), key: ConsoleKey.F12));
-
             if (this._message != null)
                 Util.Print(this._message, 2, linesBefore: 1);
 
