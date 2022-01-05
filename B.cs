@@ -135,7 +135,7 @@ public sealed class Adventure : Option
                 {
                     Console.SetCursorPosition(0, 0);
                     Grid currentGrid = Adventure.Info.CurrentGrid;
-                    int consoleHeight = currentGrid.Height + 14;
+                    int consoleHeight = currentGrid.Height + 15;
 
                     if (B.DebugMode)
                     {
@@ -176,21 +176,25 @@ public sealed class Adventure : Option
                     string format = "{0,9}: {1,-5}";
                     Util.Print(string.Format(format, "Coins", Adventure.Info.Coins), linesBefore: 1);
                     Util.Print(string.Format(format, "Speed", Adventure.Info.Speed));
-                    Util.Print("Move) W A S D", 2, linesBefore: 1);
-                    Util.Print("Speed) + -", 1);
+                    Util.Print("Move) W A S D", 6, linesBefore: 1);
+                    Util.Print("Interact) Space", 2);
+                    Util.Print("Speed) + -", 5);
                     new Input.Option()
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2))
                         .AddKeybind(new Keybind(() => this.MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6))
-                        .AddSpacer()
+                        .AddKeybind(new Keybind(() => this.Interact(Direction.Up), key: ConsoleKey.UpArrow))
+                        .AddKeybind(new Keybind(() => this.Interact(Direction.Left), key: ConsoleKey.LeftArrow))
+                        .AddKeybind(new Keybind(() => this.Interact(Direction.Down), key: ConsoleKey.DownArrow))
+                        .AddKeybind(new Keybind(() => this.Interact(Direction.Right), key: ConsoleKey.RightArrow))
+                        .AddKeybind(new Keybind(() => Adventure.Info.Speed++, key: ConsoleKey.Add))
+                        .AddKeybind(new Keybind(() => Adventure.Info.Speed--, key: ConsoleKey.Subtract))
                         .AddKeybind(new Keybind(() =>
                         {
                             this.Save();
                             this._stage = Stage.MainMenu;
                         }, "Quit", key: ConsoleKey.Escape))
-                        .AddKeybind(new Keybind(() => Adventure.Info.Speed++, key: ConsoleKey.Add))
-                        .AddKeybind(new Keybind(() => Adventure.Info.Speed--, key: ConsoleKey.Subtract))
                         .Request();
                 }
                 break;
@@ -230,12 +234,14 @@ public sealed class Adventure : Option
             if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
             {
                 tile = currentGrid.GetTile(newPos);
-                currentGrid.Interact(newPos);
+                currentGrid.MoveTo(newPos);
                 stop = tile.StopMovement || tile.IsDoor;
                 if (!stop) Adventure.Info.Position = newPos;
             }
         }
     }
+
+    private void Interact(Direction direction) { Adventure.Info.CurrentGrid.Interact(Adventure.Info.Position + (Vector2)direction); }
 
     public static void InitializeGrids()
     {
@@ -421,7 +427,7 @@ public sealed class Adventure : Option
 
         public void AddDoor(Vector2 pos, Tuple<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.IsDoor, this._doorList); }
 
-        public void Interact(Vector2 pos)
+        public void MoveTo(Vector2 pos)
         {
             if (this._seald)
             {
@@ -434,15 +440,23 @@ public sealed class Adventure : Option
                     Adventure.Message = "You picked up a coin!";
                 }
 
-                if (tile.IsInteractable && this._interactionList.ContainsKey(pos))
-                    this._interactionList[pos]();
-
                 if (tile.IsDoor && this._doorList.ContainsKey(pos))
                 {
                     Tuple<int, Vector2> gridIdAndPos = this._doorList[pos];
                     Adventure.Info.GridID = gridIdAndPos.Item1;
                     Adventure.Info.Position = gridIdAndPos.Item2;
                 }
+            }
+            else
+                throw new InvalidOperationException("Interact Error: Cannot move on unsealed grid");
+        }
+
+        public void Interact(Vector2 pos)
+        {
+            if (this._seald)
+            {
+                if (this.GetTile(pos).IsInteractable && this._interactionList.ContainsKey(pos))
+                    this._interactionList[pos]();
             }
             else
                 throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
@@ -1111,6 +1125,7 @@ public sealed class Keybind
     public readonly string Description;
     public readonly Action Action;
 
+    // TODO change from ConsoleKey to ConsoleKeyInfo OR add ConsoleKeyModifiers
     public Keybind(Action action, string description = null, char keyChar = Util.NULLCHAR, ConsoleKey key = default(ConsoleKey))
     {
         this.KeyChar = keyChar;
