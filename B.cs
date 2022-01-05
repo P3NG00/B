@@ -281,7 +281,7 @@ public sealed class Adventure : Option
 
         // Add Doors after initializing each room
         Adventure.Info.Grids[0].AddDoor(new Vector2(14, 7), new Tuple<int, Vector2>(1, new Vector2(8)));
-        Adventure.Info.Grids[1].AddDoor(new Vector2(8, 13), new Tuple<int, Vector2>(2, new Vector2(-1, 4))); // TODO change back
+        Adventure.Info.Grids[1].AddDoor(new Vector2(8, 13), new Tuple<int, Vector2>(2, new Vector2(1, 4)));
 
         // Seal Grids
         foreach (Grid grid in Adventure.Info.Grids) grid.Seal();
