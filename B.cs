@@ -236,7 +236,7 @@ public sealed class Adventure : Option
                 tile = currentGrid.GetTile(newPos);
                 currentGrid.MoveTo(newPos);
                 Tile.TileTypes tileType = tile.TileType;
-                stop = tileType.StopsMovement() | tileType.IsDoor();
+                stop = tileType.StopsMovement() || tileType == Tile.TileTypes.Door;
                 if (!stop) Adventure.Info.Position = newPos;
             }
         }
@@ -356,7 +356,7 @@ public sealed class Adventure : Option
             Interactable
         }
 
-        public sealed override string ToString() { return string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.TileType.StopsMovement(), this.TileType.IsInteractable()); }
+        public sealed override string ToString() { return string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.TileType.StopsMovement(), this.TileType == TileTypes.Interactable); }
 
         public static explicit operator Tile(char c)
         {
@@ -409,11 +409,11 @@ public sealed class Adventure : Option
                             this._tileGrid[y][x] = tile;
                             tileType = tile.TileType;
 
-                            if (tileType.IsCoin())
+                            if (tileType == Tile.TileTypes.Coin)
                                 this._coinList.Add(new Vector2(x, y));
-                            else if (tileType.IsInteractable())
+                            else if (tileType == Tile.TileTypes.Interactable)
                                 this._initInteractables++;
-                            else if (tileType.IsDoor())
+                            else if (tileType == Tile.TileTypes.Door)
                                 this._initDoors++;
                         }
                     }
@@ -429,9 +429,9 @@ public sealed class Adventure : Option
 
         public bool HasCoinAt(Vector2 pos) { return this._coinList.Contains(pos); }
 
-        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.TileType.IsInteractable(), this._interactionList); }
+        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, this._interactionList); }
 
-        public void AddDoor(Vector2 pos, Tuple<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType.IsDoor(), this._doorList); }
+        public void AddDoor(Vector2 pos, Tuple<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorList); }
 
         public void MoveTo(Vector2 pos)
         {
@@ -439,14 +439,14 @@ public sealed class Adventure : Option
             {
                 Tile.TileTypes tileType = this.GetTile(pos).TileType;
 
-                if (tileType.IsCoin() && this._coinList.Contains(pos))
+                if (tileType == Tile.TileTypes.Coin && this._coinList.Contains(pos))
                 {
                     this._coinList.Remove(pos);
                     Adventure.Info.Coins++;
                     Adventure.Message = "You picked up a coin!";
                 }
 
-                if (tileType.IsDoor() && this._doorList.ContainsKey(pos))
+                if (tileType == Tile.TileTypes.Door && this._doorList.ContainsKey(pos))
                 {
                     Tuple<int, Vector2> gridIdAndPos = this._doorList[pos];
                     Adventure.Info.GridID = gridIdAndPos.Item1;
@@ -461,7 +461,7 @@ public sealed class Adventure : Option
         {
             if (this._seald)
             {
-                if (this.GetTile(pos).TileType.IsInteractable() && this._interactionList.ContainsKey(pos))
+                if (this.GetTile(pos).TileType == Tile.TileTypes.Interactable && this._interactionList.ContainsKey(pos))
                     this._interactionList[pos]();
             }
             else
@@ -518,9 +518,6 @@ public sealed class Adventure : Option
 public static class TileTypeFunc
 {
     public static bool StopsMovement(this Adventure.Tile.TileTypes tileType) { return tileType == Adventure.Tile.TileTypes.Wall || tileType == Adventure.Tile.TileTypes.Interactable; }
-    public static bool IsInteractable(this Adventure.Tile.TileTypes tileType) { return tileType == Adventure.Tile.TileTypes.Interactable; }
-    public static bool IsCoin(this Adventure.Tile.TileTypes tileType) { return tileType == Adventure.Tile.TileTypes.Coin; }
-    public static bool IsDoor(this Adventure.Tile.TileTypes tileType) { return tileType == Adventure.Tile.TileTypes.Door; }
 }
 
 public sealed class NumberGuesser : Option
