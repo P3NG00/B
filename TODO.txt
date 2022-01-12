@@ -29,6 +29,16 @@ FTP Server (file download/upload)
 Figure out how to connect debugging to c sharp console application
 seems like i almost got it set up, just need to make my project work in dotnet core or something?
 
+TODO create new Tile class
+1) Create basic Tile class
+2) Add TileWall
+3) Add TileCoin
+4) Add TileDoor
+
+TODO seperate classes to different files
+
+TODO add better Grid seal method / or remove
+
 // WAY LATER
 Adventure
     New Game

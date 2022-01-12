@@ -11,7 +11,7 @@ using System;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2022.01.05    ||
+||     2022.01.11    ||
 ||                   ||
 \* ================= */
 
@@ -103,7 +103,7 @@ public sealed class Adventure : Option
     private const string CHAR_CORNER_B = @"\\";
     private const string MESSAGE_EMPTY = "...";
 
-    private static AdventureInfo Info = new AdventureInfo();
+    private static AdventureInfo Info;
     private static string Message = Adventure.MESSAGE_EMPTY;
     private readonly string _filePath = B.DirectoryPath + "adventureInfo";
     private Stage _stage = Stage.MainMenu;
@@ -207,6 +207,7 @@ public sealed class Adventure : Option
     {
         if (newGame)
         {
+            Adventure.Info = new AdventureInfo();
             Adventure.InitializeGrids();
             Grid currentGrid = Adventure.Info.CurrentGrid;
             Adventure.Info.Position = new Vector2(
@@ -372,8 +373,8 @@ public sealed class Adventure : Option
         public int Width { get; private set; }
         public int Height { get; private set; }
 
-        private readonly Dictionary<Vector2, Action> _interactionList = new Dictionary<Vector2, Action>();
-        private readonly Dictionary<Vector2, Tuple<int, Vector2>> _doorList = new Dictionary<Vector2, Tuple<int, Vector2>>();
+        private readonly Dictionary<Vector2, Action> _interactionDict = new Dictionary<Vector2, Action>();
+        private readonly Dictionary<Vector2, Tuple<int, Vector2>> _doorDict = new Dictionary<Vector2, Tuple<int, Vector2>>();
         private readonly List<Vector2> _coinList = new List<Vector2>();
         private readonly Tile[][] _tileGrid;
 
@@ -429,9 +430,16 @@ public sealed class Adventure : Option
 
         public bool HasCoinAt(Vector2 pos) { return this._coinList.Contains(pos); }
 
-        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, this._interactionList); }
+        public void PickupCoinAt(Vector2 pos)
+        {
+            this._coinList.Remove(pos);
+            Adventure.Info.Coins++;
+            Adventure.Message = "You picked up a coin!";
+        }
 
-        public void AddDoor(Vector2 pos, Tuple<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorList); }
+        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, this._interactionDict); }
+
+        public void AddDoor(Vector2 pos, Tuple<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorDict); }
 
         public void MoveTo(Vector2 pos)
         {
@@ -440,15 +448,11 @@ public sealed class Adventure : Option
                 Tile.TileTypes tileType = this.GetTile(pos).TileType;
 
                 if (tileType == Tile.TileTypes.Coin && this._coinList.Contains(pos))
-                {
-                    this._coinList.Remove(pos);
-                    Adventure.Info.Coins++;
-                    Adventure.Message = "You picked up a coin!";
-                }
+                    this.PickupCoinAt(pos);
 
-                if (tileType == Tile.TileTypes.Door && this._doorList.ContainsKey(pos))
+                if (tileType == Tile.TileTypes.Door && this._doorDict.ContainsKey(pos))
                 {
-                    Tuple<int, Vector2> gridIdAndPos = this._doorList[pos];
+                    Tuple<int, Vector2> gridIdAndPos = this._doorDict[pos];
                     Adventure.Info.GridID = gridIdAndPos.Item1;
                     Adventure.Info.Position = gridIdAndPos.Item2;
                 }
@@ -461,8 +465,15 @@ public sealed class Adventure : Option
         {
             if (this._seald)
             {
-                if (this.GetTile(pos).TileType == Tile.TileTypes.Interactable && this._interactionList.ContainsKey(pos))
-                    this._interactionList[pos]();
+                Tile.TileTypes tileType = this.GetTile(pos).TileType;
+
+                if (tileType == Tile.TileTypes.Interactable && this._interactionDict.ContainsKey(pos))
+                {
+                    this._interactionDict[pos]();
+                    this._interactionDict.Remove(pos);
+                }
+                else if (tileType == Tile.TileTypes.Coin && this._coinList.Contains(pos))
+                    PickupCoinAt(pos);
             }
             else
                 throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
@@ -470,10 +481,10 @@ public sealed class Adventure : Option
 
         public void Seal()
         {
-            if (this._initDoors != this._doorList.Count)
+            if (this._initDoors != this._doorDict.Count)
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented doors");
 
-            if (this._initInteractables != this._interactionList.Count)
+            if (this._initInteractables != this._interactionDict.Count)
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented interactables");
 
             this._seald = true;
@@ -518,6 +529,7 @@ public sealed class Adventure : Option
 public static class TileTypeFunc
 {
     public static bool StopsMovement(this Adventure.Tile.TileTypes tileType) { return tileType == Adventure.Tile.TileTypes.Wall || tileType == Adventure.Tile.TileTypes.Interactable; }
+    public static bool IsInteractable(this Adventure.Tile.TileTypes tileType) { return tileType == Adventure.Tile.TileTypes.Interactable || tileType == Adventure.Tile.TileTypes.Coin; }
 }
 
 public sealed class NumberGuesser : Option
@@ -1204,6 +1216,18 @@ public sealed class Dictionary<T, V>
         Tuple<T, V>[] newTuples = new Tuple<T, V>[this._tuples.Length + 1];
         Array.Copy(this._tuples, newTuples, this._tuples.Length);
         newTuples[this._tuples.Length] = new Tuple<T, V>(t, v);
+        this._tuples = newTuples;
+    }
+
+    public void Remove(T t)
+    {
+        Tuple<T, V>[] newTuples = new Tuple<T, V>[this._tuples.Length - 1];
+        int index = 0;
+
+        for (int i = 0; i < this._tuples.Length; i++)
+            if (!this._tuples[i].Item1.Equals(t))
+                newTuples[index++] = this._tuples[i];
+
         this._tuples = newTuples;
     }
 
