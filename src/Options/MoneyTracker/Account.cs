@@ -6,14 +6,14 @@ namespace B.Options.MoneyTracker
     sealed class Account
     {
         public readonly string Name;
-        public List<Transaction> Transactions { get { return this._transactions; } }
+        public readonly Utils.List<Transaction> Transactions = new Utils.List<Transaction>();
         public int Decimals
         {
             get { return this._decimals; }
             set { this._decimals = Util.Clamp(value, 0, 8); }
         }
 
-        private readonly List<Transaction> _transactions = new List<Transaction>();
+        private readonly Utils.List<Transaction> _transactions = new Utils.List<Transaction>();
         private readonly string _filePath;
         private int _decimals = 2;
 

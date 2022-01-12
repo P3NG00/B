@@ -49,8 +49,6 @@ namespace B.Inputs
 
             if (keyInfo.Key == ConsoleKey.Backspace)
                 tObj = funcBackspace.Invoke(tObj);
-            else if (keyInfo.Key == ConsoleKey.F12)
-                Program.ToggleDebugMode();
             else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape)
                 tObj = funcDefault.Invoke(keyInfo, tObj);
 
@@ -59,8 +57,8 @@ namespace B.Inputs
 
         public sealed class Option
         {
-            private readonly List<Keybind> _keybinds = new List<Keybind>();
-            private string _message;
+            private readonly Utils.List<Keybind> _keybinds = new Utils.List<Keybind>();
+            private readonly string _message;
 
             public Option(string message = null) { this._message = message; }
 

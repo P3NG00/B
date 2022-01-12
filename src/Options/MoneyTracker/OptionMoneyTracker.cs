@@ -7,7 +7,7 @@ namespace B.Options.MoneyTracker
     {
         public static readonly string DirectoryPath = Program.DirectoryPath + @"accounts\";
 
-        private readonly List<Account> _accounts = new List<Account>();
+        private readonly Utils.List<Account> _accounts = new Utils.List<Account>();
         private Account _selectedAccount = null;
         private Account.Transaction _tempTransaction = null;
         private byte _tempTransactionState = 0;

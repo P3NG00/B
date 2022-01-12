@@ -18,10 +18,10 @@ namespace B.Options.Adventure
         public const string MESSAGE_EMPTY = "...";
 
         public static string Message = OptionAdventure.MESSAGE_EMPTY;
-        public static AdventureInfo Info;
+        public static AdventureInfo Info = new AdventureInfo();
 
         public static Grid CurrentGrid { get { return OptionAdventure._grids[OptionAdventure.Info.GridID]; } }
-        private static Grid[] _grids;
+        private static Grid[] _grids = new Grid[0];
 
         private readonly string _filePath = Program.DirectoryPath + "adventureInfo";
         private Stage _stage = Stage.MainMenu;
@@ -210,8 +210,8 @@ namespace B.Options.Adventure
             OptionAdventure._grids[2].AddInteraction(new Vector2(11, 4), () => OptionAdventure.Message = "The End...?");
 
             // Add Doors after initializing each room
-            OptionAdventure._grids[0].AddDoor(new Vector2(14, 7), new Tuple<int, Vector2>(1, new Vector2(8)));
-            OptionAdventure._grids[1].AddDoor(new Vector2(8, 13), new Tuple<int, Vector2>(2, new Vector2(1, 4)));
+            OptionAdventure._grids[0].AddDoor(new Vector2(14, 7), new Pair<int, Vector2>(1, new Vector2(8)));
+            OptionAdventure._grids[1].AddDoor(new Vector2(8, 13), new Pair<int, Vector2>(2, new Vector2(1, 4)));
 
             // Seal Grids
             foreach (Grid grid in OptionAdventure._grids) grid.Seal();

@@ -1,9 +1,11 @@
+using B.Utils;
+
 namespace B.Options.Adventure
 {
     [Serializable]
     public sealed class Tile
     {
-        private static readonly Dictionary<char, Tile> TileMap = new Dictionary<char, Tile>();
+        private static readonly Dict<char, Tile> TileMap = new Dict<char, Tile>();
 
         static Tile()
         {

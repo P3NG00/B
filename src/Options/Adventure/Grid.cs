@@ -8,9 +8,9 @@ namespace B.Options.Adventure
         public readonly int Width;
         public readonly int Height;
 
-        private readonly Dictionary<Vector2, Action> _interactionDict = new Dictionary<Vector2, Action>();
-        private readonly Dictionary<Vector2, Tuple<int, Vector2>> _doorDict = new Dictionary<Vector2, Tuple<int, Vector2>>();
-        private readonly List<Vector2> _coinList = new List<Vector2>();
+        private readonly Dict<Vector2, Action> _interactionDict = new Dict<Vector2, Action>();
+        private readonly Dict<Vector2, Pair<int, Vector2>> _doorDict = new Dict<Vector2, Pair<int, Vector2>>();
+        private readonly Utils.List<Vector2> _coinList = new Utils.List<Vector2>();
         private readonly Tile[][] _tileGrid;
 
         // Private Initialization Cache
@@ -74,7 +74,7 @@ namespace B.Options.Adventure
 
         public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, this._interactionDict); }
 
-        public void AddDoor(Vector2 pos, Tuple<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorDict); }
+        public void AddDoor(Vector2 pos, Pair<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorDict); }
 
         public void MoveTo(Vector2 pos)
         {
@@ -87,7 +87,7 @@ namespace B.Options.Adventure
 
                 if (tileType == Tile.TileTypes.Door && this._doorDict.ContainsKey(pos))
                 {
-                    Tuple<int, Vector2> gridIdAndPos = this._doorDict[pos];
+                    Pair<int, Vector2> gridIdAndPos = this._doorDict[pos];
                     OptionAdventure.Info.GridID = gridIdAndPos.Item1;
                     OptionAdventure.Info.Position = gridIdAndPos.Item2;
                 }
@@ -125,14 +125,14 @@ namespace B.Options.Adventure
             this._seald = true;
         }
 
-        private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dictionary<Vector2, T> list)
+        private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dict<Vector2, T> dict)
         {
             if (!this._seald)
             {
                 if (check.Invoke(this.GetTile(pos)))
                 {
-                    if (!list.ContainsKey(pos))
-                        list.Add(pos, obj);
+                    if (!dict.ContainsKey(pos))
+                        dict.Add(pos, obj);
                     else
                         throw new InvalidOperationException(string.Format("Add {0} Error: {1} already exists at {2}", name, name, pos));
                 }

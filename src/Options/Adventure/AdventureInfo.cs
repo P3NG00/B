@@ -5,6 +5,8 @@ namespace B.Options.Adventure
     [Serializable]
     public class AdventureInfo
     {
+        // TODO keep track of Tuple<gridId (int), coinPos (vector2)>
+
         public int GridID
         {
             get { return this._gridID; }
@@ -21,7 +23,7 @@ namespace B.Options.Adventure
             set { this._speed = Util.Clamp(value, 1, 25); }
         }
 
-        public Vector2 Position; // Doesn't need to be initliazed, will be set by centered upon new game or it will be loaded from file
+        public Vector2 Position = new Vector2();
         public int Coins = 0;
 
         private int _speed = 1;
