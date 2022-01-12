@@ -1,3 +1,6 @@
 .git/
+bin/
 data/
+obj/
+build.lnk
 B.exe
