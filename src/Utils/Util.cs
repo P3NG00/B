@@ -61,8 +61,6 @@ namespace B.Utils
             Console.SetWindowSize(width, height);
         }
 
-        public static void ToggleBool(ref bool b) { b = !b; }
-
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
             using (FileStream fileStream = File.Open(filePath, FileMode.Create))

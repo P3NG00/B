@@ -22,8 +22,7 @@ namespace B
     public class Program
     {
         public static readonly string DirectoryPath = Environment.CurrentDirectory + @"\data\";
-        public static bool DebugMode { get { return Program._debugMode; } }
-        private static bool _debugMode = false;
+        public static bool DebugMode { get; private set; } = false;
         private Option _option = null;
         private bool _running = true;
 
@@ -86,7 +85,7 @@ namespace B
 
         public static void ToggleDebugMode()
         {
-            Util.ToggleBool(ref Program._debugMode);
+            Program.DebugMode = !Program.DebugMode;
             Console.Clear();
         }
 
