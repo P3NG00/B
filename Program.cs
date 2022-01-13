@@ -37,16 +37,19 @@ namespace B
             {
                 try
                 {
+                    // If directory doesn't exist, create it and add hidden attribute
                     if (!Directory.Exists(Program.DirectoryPath))
                     {
                         DirectoryInfo mainDirectory = Directory.CreateDirectory(Program.DirectoryPath);
                         mainDirectory.Attributes = FileAttributes.Hidden;
                     }
 
+                    // If option is running, execute option code
                     if (this._option != null && this._option.IsRunning)
                         this._option.Loop();
                     else
                     {
+                        // Display main menu options
                         Console.Clear();
                         int consoleHeight = 9;
                         if (Program.DebugMode) consoleHeight += 2;
@@ -79,6 +82,7 @@ namespace B
                 }
                 catch (Exception e)
                 {
+                    // Go back to main menu if exception was caught
                     if (this._option != null)
                     {
                         this._option.Save();
@@ -93,6 +97,7 @@ namespace B
             }
         }
 
+        // Code entry point
         public static void Main() => new Program().Start();
     }
 }
