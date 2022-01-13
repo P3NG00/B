@@ -5,7 +5,7 @@ namespace B.Utils
     {
         private Pair<T, V>[] _pairs = new Pair<T, V>[0];
 
-        public int Count => this._pairs.Length;
+        public int Length => this._pairs.Length;
 
         public void Add(T t, V v)
         {
@@ -41,6 +41,8 @@ namespace B.Utils
             get => this._pairs[this.GetIndex(t)].Item2;
             set => this._pairs[this.GetIndex(t)].Item2 = value;
         }
+
+        public Pair<T, V> this[int index] => this._pairs[index];
 
         private int GetIndex(T t)
         {

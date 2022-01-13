@@ -23,6 +23,16 @@ namespace B
     {
         public static readonly string DirectoryPath = Environment.CurrentDirectory + @"\data\";
         public static bool DebugMode { get; private set; } = false;
+
+        private static readonly Dict<string, Type> _optionDict = new Dict<string, Type>();
+
+        static Program()
+        {
+            Program._optionDict.Add("Adventure", typeof(OptionAdventure));
+            Program._optionDict.Add("Money Tracker", typeof(OptionMoneyTracker));
+            Program._optionDict.Add("Number Guesser", typeof(OptionNumberGuesser));
+        }
+
         private Option? _option = null;
         private bool _running = true;
 
@@ -51,15 +61,25 @@ namespace B
                     {
                         // Display main menu options
                         Console.Clear();
-                        int consoleHeight = 9;
-                        if (Program.DebugMode) consoleHeight += 2;
+                        int consoleHeight = Program._optionDict.Length + 6;
+
+                        if (Program.DebugMode)
+                            consoleHeight += 2;
+
                         Util.SetConsoleSize(20, consoleHeight);
-                        if (Program.DebugMode) Util.Print("DEBUG ON", 4, linesBefore: 1);
-                        new Input.Option("B's")
-                            .AddKeybind(new Keybind(() => this._option = new OptionAdventure(), "Adventure", '1'))
-                            .AddKeybind(new Keybind(() => this._option = new OptionNumberGuesser(), "Number Guesser", '2'))
-                            .AddKeybind(new Keybind(() => this._option = new OptionMoneyTracker(), "Money Tracker", '3'))
-                            .AddSpacer()
+
+                        if (Program.DebugMode)
+                            Util.Print("DEBUG ON", 4, linesBefore: 1);
+
+                        Input.Option iob = new Input.Option("B's");
+
+                        for (int i = 0; i < Program._optionDict.Length; i++)
+                        {
+                            Pair<string, Type> optionEntry = Program._optionDict[i];
+                            iob.AddKeybind(new Keybind(() => this._option = Activator.CreateInstance(optionEntry.Item2) as Option, optionEntry.Item1, (char)('1' + i)));
+                        }
+
+                        iob.AddSpacer()
                             .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
                             .Request();
                     }

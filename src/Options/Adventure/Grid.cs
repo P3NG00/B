@@ -113,10 +113,10 @@ namespace B.Options.Adventure
 
         public void Seal()
         {
-            if (this._initDoors != this._doorDict.Count)
+            if (this._initDoors != this._doorDict.Length)
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented doors");
 
-            if (this._initInteractables != this._interactionDict.Count)
+            if (this._initInteractables != this._interactionDict.Length)
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented interactables");
 
             this._seald = true;
