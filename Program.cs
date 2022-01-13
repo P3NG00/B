@@ -63,8 +63,18 @@ namespace B
 
                     switch (Util.LastInput.Key)
                     {
-                        case ConsoleKey.F12: Program.ToggleDebugMode(); break;
+                        // Key to delete saved data
                         case ConsoleKey.F11: Directory.Delete(Program.DirectoryPath, true); break;
+
+                        // Key to toggle debug mode
+                        case ConsoleKey.F12:
+                            {
+                                Program.DebugMode = !Program.DebugMode;
+                                // When toggling Debug mode, the console should be cleared
+                                // in case it affects the visuals to be printed.
+                                Console.Clear();
+                            }
+                            break;
                     }
                 }
                 catch (Exception e)
@@ -81,14 +91,6 @@ namespace B
                     Console.Clear();
                 }
             }
-        }
-
-        public static void ToggleDebugMode()
-        {
-            Program.DebugMode = !Program.DebugMode;
-            // When toggling Debug mode, the console should be cleared
-            // in case it affects the visuals to be printed.
-            Console.Clear();
         }
 
         public static void Main() => new Program().Start();
