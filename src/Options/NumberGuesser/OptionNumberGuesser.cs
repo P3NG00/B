@@ -47,7 +47,7 @@ namespace B.Options.NumberGuesser
 
                         if (Program.DebugMode)
                         {
-                            Util.Print(string.Format("Number: {0,-3}", this._guessNum), 1, linesBefore: 1);
+                            Util.Print($"Number: {this._guessNum,-3}", 1, linesBefore: 1);
                             consoleHeight += 2;
                         }
 
@@ -92,7 +92,7 @@ namespace B.Options.NumberGuesser
                 case Stage.Settings_MaxNumber:
                     {
                         Util.SetConsoleSize(20, 5);
-                        Util.Print(string.Format("Max - {0}", Input.Int), 2, linesBefore: 1);
+                        Util.Print($"Max - {Input.Int}", 2, linesBefore: 1);
                         Util.Print("Enter Max Number", 2, linesBefore: 1);
                         ConsoleKey key = Input.RequestInt();
 

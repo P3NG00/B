@@ -131,16 +131,16 @@ namespace B.Options.Adventure
                     if (!dict.ContainsKey(pos))
                         dict.Add(pos, obj);
                     else
-                        throw new InvalidOperationException(string.Format("Add {0} Error: {1} already exists at {2}", name, name, pos));
+                        throw new InvalidOperationException($"Add {name} Error: {name} already exists at {pos}");
                 }
                 else
-                    throw new ArgumentException(string.Format("Add {0} Error: Tile is not {1} - {2}", name, name, pos));
+                    throw new ArgumentException($"Add {name} Error: Tile is not {name} - {pos}");
             }
             else
-                throw new InvalidOperationException(string.Format("Add {0} Error: Cannot add {1} to a sealed grid", name, name));
+                throw new InvalidOperationException($"Add {name} Error: Cannot add {name} to a sealed grid");
         }
 
-        public sealed override string ToString() => string.Format("Grid: {0}x{1}", this.Width, this.Height);
+        public sealed override string ToString() => $"Grid: {this.Width}x{this.Height}";
 
         public static string[] CreateGrid(Vector2 dimensions)
         {

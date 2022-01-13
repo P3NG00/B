@@ -17,8 +17,12 @@ namespace B.Utils
 
         public static void WaitForKey(ConsoleKey key, bool displayMessage = true, int offsetLeft = 0)
         {
-            if (displayMessage) Util.Print(string.Format("Press {0} to continue...", key), offsetLeft, linesBefore: 1);
-            while (true) if (Util.GetInput().Key == key) break;
+            if (displayMessage)
+                Util.Print($"Press {key} to continue...", offsetLeft, linesBefore: 1);
+
+            while (true)
+                if (Util.GetInput().Key == key)
+                    break;
         }
 
         public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);

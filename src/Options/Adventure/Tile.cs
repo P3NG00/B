@@ -35,12 +35,12 @@ namespace B.Options.Adventure
             Interactable
         }
 
-        public sealed override string ToString() => string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.TileType.StopsMovement(), this.TileType == TileTypes.Interactable);
+        public sealed override string ToString() => $"Tile: chars:'{this.Chars}', stopMovement: {this.TileType.StopsMovement()}, isInteractable: {this.TileType.IsInteractable()}";
 
         public static explicit operator Tile(char c)
         {
             try { return Tile.TileMap[c]; }
-            catch (ArgumentException) { throw new ArgumentException(string.Format("Invalid tile character \"{0}\"", c)); }
+            catch (ArgumentException) { throw new ArgumentException($"Invalid tile character \"{c}\""); }
         }
     }
 

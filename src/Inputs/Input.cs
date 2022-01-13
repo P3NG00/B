@@ -94,7 +94,7 @@ namespace B.Inputs
                                 Util.Print();
                             }
 
-                            Util.Print(string.Format("{0}) {1}", s, keybind.Description), 1);
+                            Util.Print($"{s}) {keybind.Description}", 1);
                         }
                     }
                     else if (!printLine)

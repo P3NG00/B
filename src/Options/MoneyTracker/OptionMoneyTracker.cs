@@ -77,7 +77,7 @@ namespace B.Options.MoneyTracker
                 case Stage.Account_Create:
                     {
                         Util.SetConsoleSize(42, 5);
-                        Util.Print(string.Format("New Account Name: {0}", Input.Str), 2, false, 1);
+                        Util.Print($"New Account Name: {Input.Str}", 2, false, 1);
                         ConsoleKey key = Input.RequestString(20);
 
                         if (key == ConsoleKey.Enter)
@@ -90,7 +90,7 @@ namespace B.Options.MoneyTracker
                                 {
                                     Account account = this.AddAccount(new FileInfo(filePath).Name);
                                     this._selectedAccount = account;
-                                    Util.Print(string.Format("\"{0}\" created!", Input.Str), 2, linesBefore: 2);
+                                    Util.Print($"\"{Input.Str}\" created!", 2, linesBefore: 2);
                                     Input.Str = string.Empty;
                                     this._stage = Stage.Account;
                                 }

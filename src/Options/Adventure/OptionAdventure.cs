@@ -60,14 +60,14 @@ namespace B.Options.Adventure
                         if (Program.DebugMode)
                         {
                             // Extra spaces are added to the end to clear leftover text
-                            Util.Print(string.Format("{0,-7}", currentGrid), 1, linesBefore: 1);
-                            Util.Print(string.Format("Pos: {0,-8}", OptionAdventure.Info.Position), 1);
+                            Util.Print($"{currentGrid,-7}", 1, linesBefore: 1);
+                            Util.Print($"Pos: {OptionAdventure.Info.Position,-8}", 1);
                             consoleHeight += 3;
                         }
 
                         Util.SetConsoleSize(currentGrid.RealWidth + 8, consoleHeight);
                         string borderHorizontal = Util.StringOf(OptionAdventure.CHAR_BORDER_HORIZONTAL, currentGrid.Width);
-                        Util.Print(string.Format("{0}{1}{2}", OptionAdventure.CHAR_CORNER_A, borderHorizontal, OptionAdventure.CHAR_CORNER_B), 2, linesBefore: 1);
+                        Util.Print($"{OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}", 2, linesBefore: 1);
                         Vector2 pos;
                         string s;
 
@@ -90,8 +90,8 @@ namespace B.Options.Adventure
                             Util.Print(s + OptionAdventure.CHAR_BORDER_VERTICAL, 2);
                         }
 
-                        Util.Print(string.Format("{0}{1}{2}", OptionAdventure.CHAR_CORNER_B, borderHorizontal, OptionAdventure.CHAR_CORNER_A), 2);
-                        Util.Print(string.Format("> {0}", OptionAdventure.Message), 3, linesBefore: 1);
+                        Util.Print($"{OptionAdventure.CHAR_CORNER_B}{borderHorizontal}{OptionAdventure.CHAR_CORNER_A}", 2);
+                        Util.Print($"> {OptionAdventure.Message}", 3, linesBefore: 1);
                         OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
                         string format = "{0,9}: {1,-5}";
                         Util.Print(string.Format(format, "Coins", OptionAdventure.Info.Coins), linesBefore: 1);
