@@ -4,7 +4,7 @@ namespace B.Options.Adventure
 {
     public sealed class Grid
     {
-        public int RealWidth { get { return this.Width * 2; } }
+        public int RealWidth => this.Width * 2;
         public readonly int Width;
         public readonly int Height;
 
@@ -61,9 +61,9 @@ namespace B.Options.Adventure
                 throw new ArgumentException("Grid Init Error: Must have at least one row");
         }
 
-        public Tile GetTile(Vector2 pos) { return this._tileGrid[pos.y][pos.x]; }
+        public Tile GetTile(Vector2 pos) => this._tileGrid[pos.y][pos.x];
 
-        public bool HasCoinAt(Vector2 pos) { return this._coinList.Contains(pos); }
+        public bool HasCoinAt(Vector2 pos) => this._coinList.Contains(pos);
 
         public void PickupCoinAt(Vector2 pos)
         {
@@ -72,9 +72,9 @@ namespace B.Options.Adventure
             OptionAdventure.Message = "You picked up a coin!";
         }
 
-        public void AddInteraction(Vector2 pos, Action action) { this.AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, this._interactionDict); }
+        public void AddInteraction(Vector2 pos, Action action) => this.AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, this._interactionDict);
 
-        public void AddDoor(Vector2 pos, Pair<int, Vector2> gridIdAndPos) { this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorDict); }
+        public void AddDoor(Vector2 pos, Pair<int, Vector2> gridIdAndPos) => this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorDict);
 
         public void MoveTo(Vector2 pos)
         {
@@ -103,10 +103,7 @@ namespace B.Options.Adventure
                 Tile.TileTypes tileType = this.GetTile(pos).TileType;
 
                 if (tileType == Tile.TileTypes.Interactable && this._interactionDict.ContainsKey(pos))
-                {
                     this._interactionDict[pos]();
-                    this._interactionDict.Remove(pos);
-                }
                 else if (tileType == Tile.TileTypes.Coin && this._coinList.Contains(pos))
                     PickupCoinAt(pos);
             }
@@ -143,7 +140,7 @@ namespace B.Options.Adventure
                 throw new InvalidOperationException(string.Format("Add {0} Error: Cannot add {1} to a sealed grid", name, name));
         }
 
-        public sealed override string ToString() { return string.Format("Grid: {0}x{1}", this.Width, this.Height); }
+        public sealed override string ToString() => string.Format("Grid: {0}x{1}", this.Width, this.Height);
 
         public static string[] CreateGrid(Vector2 dimensions)
         {

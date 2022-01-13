@@ -20,16 +20,13 @@ namespace B.Options.Adventure
         public static string Message = OptionAdventure.MESSAGE_EMPTY;
         public static AdventureInfo Info = new AdventureInfo();
 
-        public static Grid CurrentGrid { get { return OptionAdventure._grids[OptionAdventure.Info.GridID]; } }
+        public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
         private static Grid[] _grids = new Grid[0];
 
         private readonly string _filePath = Program.DirectoryPath + "adventureInfo";
         private Stage _stage = Stage.MainMenu;
 
-        static OptionAdventure()
-        {
-            OptionAdventure.InitializeGrids();
-        }
+        static OptionAdventure() => OptionAdventure.InitializeGrids();
 
         public sealed override void Loop()
         {
@@ -124,7 +121,7 @@ namespace B.Options.Adventure
             }
         }
 
-        public sealed override void Save() { Util.Serialize(this._filePath, OptionAdventure.Info); }
+        public sealed override void Save() => Util.Serialize(this._filePath, OptionAdventure.Info);
 
         private void InitGame(bool newGame)
         {
@@ -137,7 +134,7 @@ namespace B.Options.Adventure
                     currentGrid.Height / 2);
             }
             else
-                OptionAdventure.Info = Util.Deserialize<AdventureInfo>(this._filePath);
+                OptionAdventure.Info = Util.Deserialize<AdventureInfo>(this._filePath)!;
 
             Console.Clear();
             this._stage = Stage.Game;
@@ -165,7 +162,7 @@ namespace B.Options.Adventure
             }
         }
 
-        private void Interact(Direction direction) { OptionAdventure.CurrentGrid.Interact(OptionAdventure.Info.Position + (Vector2)direction); }
+        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(OptionAdventure.Info.Position + (Vector2)direction);
 
         public static void InitializeGrids()
         {

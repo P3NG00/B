@@ -8,8 +8,8 @@ namespace B.Options.MoneyTracker
         public static readonly string DirectoryPath = Program.DirectoryPath + @"accounts\";
 
         private readonly Utils.List<Account> _accounts = new Utils.List<Account>();
-        private Account _selectedAccount = null;
-        private Account.Transaction _tempTransaction = null;
+        private Account? _selectedAccount;
+        private Account.Transaction? _tempTransaction;
         private byte _tempTransactionState = 0;
         private Stage _stage = Stage.MainMenu;
 
@@ -196,7 +196,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_View:
                     {
-                        Util.SetConsoleSize(this._selectedAccount.Decimals + 29, this._selectedAccount.Transactions.Count + 7);
+                        Util.SetConsoleSize(this._selectedAccount!.Decimals + 29, this._selectedAccount.Transactions.Count + 7);
                         this._selectedAccount.PrintTransactions();
                         new Input.Option()
                             .AddKeybind(new Keybind(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
@@ -220,7 +220,7 @@ namespace B.Options.MoneyTracker
 
                             if (key == ConsoleKey.Enter)
                             {
-                                if (double.TryParse(Input.Str, out this._tempTransaction.Amount))
+                                if (double.TryParse(Input.Str, out this._tempTransaction!.Amount))
                                 {
                                     Input.Str = this._tempTransaction.Description;
                                     this._tempTransactionState = 1;
@@ -236,7 +236,7 @@ namespace B.Options.MoneyTracker
                         }
                         else
                         {
-                            Util.Print(this._tempTransaction.Amount, 2);
+                            Util.Print(this._tempTransaction!.Amount, 2);
                             Util.Print("Description:", 2, linesBefore: 1);
                             Util.Print(Input.Str, 2, false);
                             key = Input.RequestString(16);
@@ -246,7 +246,7 @@ namespace B.Options.MoneyTracker
                                 if (Input.Str.Length > 0)
                                 {
                                     this._tempTransaction.Description = Input.Str;
-                                    this._selectedAccount.Transactions.Add(this._tempTransaction);
+                                    this._selectedAccount!.Transactions.Add(this._tempTransaction);
                                     this._tempTransaction = null;
                                     this._tempTransactionState = 0;
                                     Input.Str = string.Empty;
@@ -265,7 +265,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Delete:
                     {
-                        Util.SetConsoleSize(31, this._selectedAccount.Transactions.Count + 4);
+                        Util.SetConsoleSize(31, this._selectedAccount!.Transactions.Count + 4);
                         Util.Print("Delete", 2, linesBefore: 1);
                         this._selectedAccount.PrintTransactions();
 
@@ -284,14 +284,18 @@ namespace B.Options.MoneyTracker
             }
         }
 
-        public sealed override void Save() { foreach (Account account in this._accounts) account.Save(); }
+        public sealed override void Save()
+        {
+            foreach (Account account in this._accounts)
+                account.Save();
+        }
 
         private Account AddAccount(string name, bool deserialize = false)
         {
             Account account;
 
             if (deserialize)
-                account = Util.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name);
+                account = Util.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name)!;
             else
             {
                 account = new Account(name);

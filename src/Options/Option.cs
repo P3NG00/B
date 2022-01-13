@@ -2,13 +2,12 @@ namespace B.Options
 {
     public abstract class Option
     {
-        public bool IsRunning { get { return this._running; } }
-        private bool _running = true;
+        public bool IsRunning { get; private set; } = true;
+
+        public abstract void Loop();
 
         public virtual void Save() { }
 
-        public void Quit() { this._running = false; }
-
-        public abstract void Loop();
+        public void Quit() => this.IsRunning = false;
     }
 }

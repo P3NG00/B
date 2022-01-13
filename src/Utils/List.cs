@@ -7,7 +7,7 @@ namespace B.Utils
     {
         private T[] _items = new T[0];
 
-        public int Count { get { return this._items.Length; } }
+        public int Count => this._items.Length;
 
         public void Add(T t)
         {
@@ -43,8 +43,8 @@ namespace B.Utils
             return false;
         }
 
-        public IEnumerator GetEnumerator() { return this._items.GetEnumerator(); }
+        public IEnumerator GetEnumerator() => this._items.GetEnumerator();
 
-        public T this[int index] { get { return this._items[index]; } }
+        public T this[int index] => this._items[index];
     }
 }

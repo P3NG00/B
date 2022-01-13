@@ -1,7 +1,7 @@
 namespace B.Utils
 {
     [Serializable]
-    public sealed class Pair<T1, T2>
+    public class Pair<T1, T2>
     {
         public T1 Item1;
         public T2 Item2;

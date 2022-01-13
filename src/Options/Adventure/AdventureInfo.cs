@@ -9,18 +9,21 @@ namespace B.Options.Adventure
 
         public int GridID
         {
-            get { return this._gridID; }
+            get => this._gridID;
             set
             {
                 this._gridID = value;
+                // The console should be cleared if the GridID is changed because
+                // the grid needs to be replaced completely instead of being written
+                // on top of in case there is left over artifacts.
                 Console.Clear();
             }
         }
 
         public int Speed
         {
-            get { return this._speed; }
-            set { this._speed = Util.Clamp(value, 1, 25); }
+            get => this._speed;
+            set => this._speed = Util.Clamp(value, 1, 25);
         }
 
         public Vector2 Position = new Vector2();

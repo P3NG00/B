@@ -60,7 +60,7 @@ namespace B.Inputs
             private readonly Utils.List<Keybind> _keybinds = new Utils.List<Keybind>();
             private readonly string _message;
 
-            public Option(string message = null) { this._message = message; }
+            public Option(string message = Util.NULL_STRING) => this._message = message;
 
             public Option AddKeybind(Keybind keybind)
             {
@@ -68,11 +68,11 @@ namespace B.Inputs
                 return this;
             }
 
-            public Option AddSpacer() { return this.AddKeybind(null); }
+            public Option AddSpacer() => this.AddKeybind(Keybind.NULL);
 
             public void Request()
             {
-                if (this._message != null)
+                if (this._message != Util.NULL_STRING)
                     Util.Print(this._message, 2, linesBefore: 1);
 
                 bool printLine = true;
@@ -82,11 +82,11 @@ namespace B.Inputs
                 {
                     // If keybind is null, add spacer in display
                     // If keybind description is null, don't display option
-                    if (keybind != null)
+                    if (keybind != Keybind.NULL)
                     {
-                        if (keybind.Description != null)
+                        if (keybind.Description != Util.NULL_STRING)
                         {
-                            s = keybind.KeyChar == Util.NULLCHAR ? keybind.Key.ToString() : keybind.KeyChar.ToString();
+                            s = keybind.KeyChar == Util.NULL_CHAR ? keybind.Key.ToString() : keybind.KeyChar.ToString();
 
                             if (printLine)
                             {
@@ -105,9 +105,9 @@ namespace B.Inputs
 
                 foreach (Keybind keybind in this._keybinds)
                 {
-                    if (keybind != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULLCHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
+                    if (!Keybind.IsNull(keybind) && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULL_CHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
                     {
-                        keybind.Action.Invoke();
+                        keybind.Action!.Invoke();
                         break;
                     }
                 }

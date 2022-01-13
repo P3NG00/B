@@ -35,7 +35,7 @@ namespace B.Options.Adventure
             Interactable
         }
 
-        public sealed override string ToString() { return string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.TileType.StopsMovement(), this.TileType == TileTypes.Interactable); }
+        public sealed override string ToString() => string.Format("Tile: chars:'{0}', stopMovement: {1}, isInteractable: {2}", this.Chars, this.TileType.StopsMovement(), this.TileType == TileTypes.Interactable);
 
         public static explicit operator Tile(char c)
         {

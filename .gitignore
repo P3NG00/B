@@ -2,5 +2,8 @@
 bin/
 data/
 obj/
+assoc_git.bat
 build.lnk
 B.exe
+TAKEN-OUT-CODE.txt
+TODO.txt

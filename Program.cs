@@ -13,7 +13,7 @@ using B.Utils;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2022.01.12    ||
+||     2022.01.13    ||
 ||                   ||
 \* ================= */
 
@@ -23,7 +23,7 @@ namespace B
     {
         public static readonly string DirectoryPath = Environment.CurrentDirectory + @"\data\";
         public static bool DebugMode { get; private set; } = false;
-        private Option _option = null;
+        private Option? _option = null;
         private bool _running = true;
 
         private void Start()
@@ -86,9 +86,11 @@ namespace B
         public static void ToggleDebugMode()
         {
             Program.DebugMode = !Program.DebugMode;
+            // When toggling Debug mode, the console should be cleared
+            // in case it affects the visuals to be printed.
             Console.Clear();
         }
 
-        public static void Main() { new Program().Start(); }
+        public static void Main() => new Program().Start();
     }
 }
