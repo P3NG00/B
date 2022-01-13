@@ -1,7 +1,7 @@
 namespace B.Utils
 {
     [Serializable]
-    public sealed class Vector2 : Pair<int, int>
+    public sealed class Vector2
     {
         public static readonly Vector2 Up = new Vector2(0, 1);
         public static readonly Vector2 Left = new Vector2(-1, 0);
@@ -9,14 +9,18 @@ namespace B.Utils
         public static readonly Vector2 Down = new Vector2(0, -1);
         public static readonly Vector2 Zero = new Vector2(0);
 
-        public int x { get => this.Item1; set => this.Item1 = value; }
-        public int y { get => this.Item2; set => this.Item2 = value; }
+        public int x;
+        public int y;
 
         public Vector2() : this(0) { }
 
         public Vector2(int xy) : this(xy, xy) { }
 
-        public Vector2(int x, int y) : base(x, y) { }
+        public Vector2(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
 
         public override int GetHashCode() => (this.x * this.y).GetHashCode();
 
@@ -26,7 +30,6 @@ namespace B.Utils
 
         public static bool operator ==(Vector2 vecA, Vector2 vecB) => vecA.x == vecB.x && vecA.y == vecB.y;
 
-        // This isn't utilized, but needs to exist for '==' to work
         public static bool operator !=(Vector2 vecA, Vector2 vecB) => !(vecA == vecB);
 
         public sealed override string ToString() => string.Format("({0}, {1})", this.x, this.y);
@@ -41,7 +44,7 @@ namespace B.Utils
                 case Direction.Right: return Vector2.Right;
             }
 
-            return Vector2.Zero;
+            return null!;
         }
     }
 }
