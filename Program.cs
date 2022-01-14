@@ -28,7 +28,7 @@ namespace B
 
         static Program()
         {
-            Program._optionDict.Add("Adventure", typeof(OptionAdventure));
+            Program._optionDict.Add("Adventure!", typeof(OptionAdventure));
             Program._optionDict.Add("Money Tracker", typeof(OptionMoneyTracker));
             Program._optionDict.Add("Number Guesser", typeof(OptionNumberGuesser));
         }
