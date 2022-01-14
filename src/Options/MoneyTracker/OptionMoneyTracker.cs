@@ -196,7 +196,9 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_View:
                     {
-                        Util.SetConsoleSize(this._selectedAccount!.Decimals + 29, this._selectedAccount.Transactions.Length + 7);
+                        int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8; // TODO
+
+                        Util.SetConsoleSize(consoleWidth, this._selectedAccount.Transactions.Length + 9);
                         this._selectedAccount.PrintTransactions();
                         new Input.Option()
                             .AddKeybind(new Keybind(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
@@ -267,7 +269,7 @@ namespace B.Options.MoneyTracker
                     {
                         Util.SetConsoleSize(31, this._selectedAccount!.Transactions.Length + 4);
                         Util.Print("Delete", 2, linesBefore: 1);
-                        this._selectedAccount.PrintTransactions();
+                        // this._selectedAccount.PrintTransactions(); // TODO
 
                         Util.WaitForInput();
                         // TODO add keybinds to delete a transaction

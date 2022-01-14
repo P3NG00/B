@@ -33,9 +33,15 @@ namespace B.Options.MoneyTracker
         public void PrintTransactions()
         {
             Util.Print();
+            decimal total = 0m;
 
             foreach (Transaction transaction in this.Transactions)
-                Util.Print(string.Format("{0," + (6 + this.Decimals) + ":0." + Util.StringOf("0", this.Decimals) + "} | {1,16}", transaction.Amount, transaction.Description), 2);
+            {
+                total += transaction.Amount;
+                Util.Print(string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this.Decimals + 1) + ":0." + Util.StringOf("0", this.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description), 2);
+            }
+
+            Util.Print("Total: " + total, 2, linesBefore: 1);
         }
     }
 }
