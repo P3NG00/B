@@ -7,7 +7,7 @@ namespace B.Utils
     {
         public T[] _items = new T[0];
 
-        public int Count => this._items.Length;
+        public int Length => this._items.Length;
 
         public void Add(T t)
         {

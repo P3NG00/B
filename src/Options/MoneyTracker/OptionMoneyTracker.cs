@@ -111,7 +111,7 @@ namespace B.Options.MoneyTracker
                 case Stage.Account_Select:
                     {
                         int consoleHeight = 3;
-                        int amountAccounts = this._accounts.Count;
+                        int amountAccounts = this._accounts.Length;
 
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
@@ -142,7 +142,7 @@ namespace B.Options.MoneyTracker
                 case Stage.Account_Remove:
                     {
                         int consoleHeight = 5;
-                        int amountAccounts = this._accounts.Count;
+                        int amountAccounts = this._accounts.Length;
 
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
@@ -196,7 +196,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_View:
                     {
-                        Util.SetConsoleSize(this._selectedAccount!.Decimals + 29, this._selectedAccount.Transactions.Count + 7);
+                        Util.SetConsoleSize(this._selectedAccount!.Decimals + 29, this._selectedAccount.Transactions.Length + 7);
                         this._selectedAccount.PrintTransactions();
                         new Input.Option()
                             .AddKeybind(new Keybind(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
@@ -265,7 +265,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Delete:
                     {
-                        Util.SetConsoleSize(31, this._selectedAccount!.Transactions.Count + 4);
+                        Util.SetConsoleSize(31, this._selectedAccount!.Transactions.Length + 4);
                         Util.Print("Delete", 2, linesBefore: 1);
                         this._selectedAccount.PrintTransactions();
 
