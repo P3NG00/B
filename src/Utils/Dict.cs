@@ -38,7 +38,7 @@ namespace B.Utils
 
         public V this[T t]
         {
-            get => this._pairs[this.GetIndex(t)].Item2;
+            get => this._pairs[this.GetIndex(t)].Item2!;
             set => this._pairs[this.GetIndex(t)].Item2 = value;
         }
 

@@ -89,7 +89,7 @@ namespace B.Options.Adventure
                 {
                     Pair<int, Vector2> gridIdAndPos = this._doorDict[pos];
                     OptionAdventure.Info.GridID = gridIdAndPos.Item1;
-                    OptionAdventure.Info.Position = gridIdAndPos.Item2;
+                    OptionAdventure.Info.Position = gridIdAndPos.Item2 ?? Vector2.Zero;
                 }
             }
             else

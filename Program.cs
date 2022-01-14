@@ -76,7 +76,7 @@ namespace B
                         for (int i = 0; i < Program._optionDict.Length; i++)
                         {
                             Pair<string, Type> optionEntry = Program._optionDict[i];
-                            iob.AddKeybind(new Keybind(() => this._option = Activator.CreateInstance(optionEntry.Item2) as Option, optionEntry.Item1, (char)('1' + i)));
+                            iob.AddKeybind(new Keybind(() => this._option = (Activator.CreateInstance(optionEntry.Item2!) as Option)!, optionEntry.Item1!, (char)('1' + i)));
                         }
 
                         iob.AddSpacer()

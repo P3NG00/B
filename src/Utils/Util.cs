@@ -30,19 +30,25 @@ namespace B.Utils
         public static string StringOf(string str, int length)
         {
             string s = string.Empty;
-            for (int i = 0; i < length; i++) s += str;
+
+            for (int i = 0; i < length; i++)
+                s += str;
+
             return s;
         }
 
         public static void Print(object? message = null, int offsetLeft = 0, bool newLine = true, int linesBefore = 0)
         {
-            for (int i = 0; i < linesBefore; i++) Console.WriteLine();
+            for (int i = 0; i < linesBefore; i++)
+                Console.WriteLine();
 
             string messageStr = message?.ToString() ?? string.Empty;
             messageStr = string.Format("{0," + (messageStr.Length + offsetLeft).ToString() + "}", messageStr);
 
-            if (newLine) Console.WriteLine(messageStr);
-            else Console.Write(messageStr);
+            if (newLine)
+                Console.WriteLine(messageStr);
+            else
+                Console.Write(messageStr);
         }
 
         public static void SetConsoleSize(int width, int height)
