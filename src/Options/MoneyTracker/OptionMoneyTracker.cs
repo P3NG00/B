@@ -9,7 +9,7 @@ namespace B.Options.MoneyTracker
 
         private readonly Utils.List<Account> _accounts = new Utils.List<Account>();
         private Account? _selectedAccount;
-        private Account.Transaction? _tempTransaction;
+        private Transaction? _tempTransaction;
         private byte _tempTransactionState = 0;
         private Stage _stage = Stage.MainMenu;
 
@@ -182,7 +182,7 @@ namespace B.Options.MoneyTracker
                             .AddKeybind(new Keybind(() =>
                             {
                                 Input.Str = string.Empty;
-                                this._tempTransaction = new Account.Transaction();
+                                this._tempTransaction = new Transaction();
                                 this._tempTransactionState = 0;
                                 this._stage = Stage.Transaction_Add;
                             }, "Add", '2'))
@@ -209,18 +209,18 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Add:
                     {
-                        Util.SetConsoleSize(20, 7);
+                        Util.SetConsoleSize(Util.MAX_CHARS_DECIMAL + 4, 7);
                         Util.Print("Amount", 2, linesBefore: 1);
                         ConsoleKey key;
 
                         if (this._tempTransactionState == 0)
                         {
                             Util.Print(Input.Str, 2, false);
-                            key = Input.RequestString(8);
+                            key = Input.RequestString(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
                             {
-                                if (double.TryParse(Input.Str, out this._tempTransaction!.Amount))
+                                if (decimal.TryParse(Input.Str, out this._tempTransaction!.Amount))
                                 {
                                     Input.Str = this._tempTransaction.Description;
                                     this._tempTransactionState = 1;
@@ -239,7 +239,7 @@ namespace B.Options.MoneyTracker
                             Util.Print(this._tempTransaction!.Amount, 2);
                             Util.Print("Description:", 2, linesBefore: 1);
                             Util.Print(Input.Str, 2, false);
-                            key = Input.RequestString(16);
+                            key = Input.RequestString(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
                             {

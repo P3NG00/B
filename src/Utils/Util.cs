@@ -6,6 +6,7 @@ namespace B.Utils
     {
         public const char NULL_CHAR = default(char);
         public const string NULL_STRING = "";
+        public const int MAX_CHARS_DECIMAL = 28;
 
         public static readonly Random Random = new Random();
 

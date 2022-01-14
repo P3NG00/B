@@ -11,7 +11,7 @@ namespace B.Options.MoneyTracker
         public int Decimals
         {
             get => this._decimals;
-            set => this._decimals = Util.Clamp(value, 0, 8);
+            set => this._decimals = Util.Clamp(value, 0, Util.MAX_CHARS_DECIMAL);
         }
 
         private int _decimals = 2;
@@ -34,17 +34,8 @@ namespace B.Options.MoneyTracker
         {
             Util.Print();
 
-            foreach (Account.Transaction transaction in this.Transactions)
+            foreach (Transaction transaction in this.Transactions)
                 Util.Print(string.Format("{0," + (6 + this.Decimals) + ":0." + Util.StringOf("0", this.Decimals) + "} | {1,16}", transaction.Amount, transaction.Description), 2);
-        }
-
-        [Serializable]
-        public sealed class Transaction
-        {
-            public string Description = string.Empty;
-            public double Amount = 0d;
-
-            public Transaction() { }
         }
     }
 }
