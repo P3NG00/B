@@ -1,4 +1,4 @@
-﻿using B.Inputs;
+using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
 using B.Options.MoneyTracker;
@@ -86,6 +86,14 @@ namespace B
 
                     switch (Util.LastInput.Key)
                     {
+                        // Toggle black and white colors
+                        case ConsoleKey.F10:
+                            {
+                                Console.BackgroundColor = Console.BackgroundColor == ConsoleColor.White ? ConsoleColor.Black : ConsoleColor.White;
+                                Console.ForegroundColor = Console.BackgroundColor == ConsoleColor.White ? ConsoleColor.Black : ConsoleColor.White;
+                            }
+                            break;
+
                         // Key to delete saved data
                         case ConsoleKey.F11: Directory.Delete(Program.DirectoryPath, true); break;
 
