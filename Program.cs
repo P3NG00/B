@@ -1,4 +1,4 @@
-using B.Inputs;
+﻿using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
 using B.Options.MoneyTracker;
@@ -38,11 +38,17 @@ namespace B
 
         private void Start()
         {
+            // Set console window title
             Console.Title = "B";
+
+            // Ensure console colors
             Console.BackgroundColor = ConsoleColor.White;
             Console.ForegroundColor = ConsoleColor.Black;
+
+            // Console input ctrl+c
             Console.TreatControlCAsInput = true;
 
+            // Program loop
             while (this._running)
             {
                 try
