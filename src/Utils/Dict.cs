@@ -7,6 +7,8 @@ namespace B.Utils
 
         public int Length => this._pairs.Length;
 
+        public Dict(params Pair<T, V>[] pairs) => this._pairs = pairs;
+
         public void Add(T t, V v)
         {
             Pair<T, V>[] newPairs = new Pair<T, V>[this._pairs.Length + 1];

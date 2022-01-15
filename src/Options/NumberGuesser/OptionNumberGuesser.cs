@@ -45,7 +45,7 @@ namespace B.Options.NumberGuesser
                         bool won = this._guessNum == Input.Int;
                         int consoleHeight = 7;
 
-                        if (Program.DebugMode)
+                        if (Program.Settings.DebugMode)
                         {
                             Util.Print($"Number: {this._guessNum,-3}", 1, linesBefore: 1);
                             consoleHeight += 2;

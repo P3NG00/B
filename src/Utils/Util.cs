@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 
 namespace B.Utils
@@ -6,7 +7,7 @@ namespace B.Utils
     {
         public const char NULL_CHAR = default(char);
         public const string NULL_STRING = "";
-        public const int MAX_CHARS_DECIMAL = 28;
+        public const int MAX_CHARS_DECIMAL = 27;
 
         public static readonly Random Random = new Random();
 
@@ -54,11 +55,17 @@ namespace B.Utils
 
         public static void SetConsoleSize(int width, int height)
         {
-            Console.SetWindowSize(width, height);
-            // TODO test this on OS other than Windows
-            Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
-            Console.SetWindowSize(width, height);
+            // This can only be called on Windows
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Console.SetWindowSize(width, height);
+                Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
+                // This is called twice to fix the scrollbar from showing
+                Console.SetWindowSize(width, height);
+            }
         }
+
+        public static void ToggleBool(ref bool b) => b = !b;
 
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
@@ -66,10 +73,10 @@ namespace B.Utils
                 new XmlSerializer(typeof(T)).Serialize(fileStream, objectToWrite);
         }
 
-        public static T? Deserialize<T>(string filePath)
+        public static T Deserialize<T>(string filePath)
         {
             using (FileStream fileStream = File.Open(filePath, FileMode.Open))
-                return (T?)new XmlSerializer(typeof(T)).Deserialize(fileStream);
+                return (T)new XmlSerializer(typeof(T)).Deserialize(fileStream)!;
         }
     }
 }
