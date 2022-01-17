@@ -7,7 +7,7 @@ namespace B.Options.MoneyTracker
     {
         public string FilePath => OptionMoneyTracker.DirectoryPath + this.Name;
         public Utils.List<Transaction> Transactions = new Utils.List<Transaction>();
-        public string Name = Util.NULL_STRING;
+        public string Name = string.Empty;
         public int Decimals
         {
             get => this._decimals;

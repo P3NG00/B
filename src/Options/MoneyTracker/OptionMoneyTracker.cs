@@ -5,7 +5,7 @@ namespace B.Options.MoneyTracker
 {
     public sealed class OptionMoneyTracker : Option
     {
-        public static readonly string DirectoryPath = Program.DirectoryPath + @"accounts\";
+        public static readonly string DirectoryPath = Program.PathData + @"accounts\";
 
         private readonly Utils.List<Account> _accounts = new Utils.List<Account>();
         private Account? _selectedAccount;
@@ -77,21 +77,21 @@ namespace B.Options.MoneyTracker
                 case Stage.Account_Create:
                     {
                         Util.SetConsoleSize(42, 5);
-                        Util.Print($"New Account Name: {Input.Str}", 2, false, 1);
-                        ConsoleKey key = Input.RequestString(20);
+                        Util.Print($"New Account Name: {Input.String}", 2, false, 1);
+                        ConsoleKey key = Input.Request(20);
 
                         if (key == ConsoleKey.Enter)
                         {
-                            if (Input.Str.Length > 0)
+                            if (Input.String.Length > 0)
                             {
-                                string filePath = OptionMoneyTracker.DirectoryPath + Input.Str;
+                                string filePath = OptionMoneyTracker.DirectoryPath + Input.String;
 
                                 if (!File.Exists(filePath))
                                 {
                                     Account account = this.AddAccount(new FileInfo(filePath).Name);
                                     this._selectedAccount = account;
-                                    Util.Print($"\"{Input.Str}\" created!", 2, linesBefore: 2);
-                                    Input.Str = string.Empty;
+                                    Util.Print($"\"{Input.String}\" created!", 2, linesBefore: 2);
+                                    Input.String = string.Empty;
                                     this._stage = Stage.Account;
                                 }
                                 else
@@ -102,7 +102,7 @@ namespace B.Options.MoneyTracker
                         }
                         else if (key == ConsoleKey.Escape)
                         {
-                            Input.Str = string.Empty;
+                            Input.String = string.Empty;
                             this._stage = Stage.Account;
                         }
                     }
@@ -181,7 +181,7 @@ namespace B.Options.MoneyTracker
                             .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_View, "View", '1'))
                             .AddKeybind(new Keybind(() =>
                             {
-                                Input.Str = string.Empty;
+                                Input.String = string.Empty;
                                 this._tempTransaction = new Transaction();
                                 this._tempTransactionState = 0;
                                 this._stage = Stage.Transaction_Add;
@@ -217,14 +217,23 @@ namespace B.Options.MoneyTracker
 
                         if (this._tempTransactionState == 0)
                         {
-                            Util.Print(Input.Str, 2, false);
-                            key = Input.RequestString(Util.MAX_CHARS_DECIMAL);
+                            Util.Print(Input.String, 2, false);
+                            key = Input.Request(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
                             {
-                                if (decimal.TryParse(Input.Str, out this._tempTransaction!.Amount))
+                                decimal? amount = Input.Decimal;
+
+                                if (amount.HasValue)
                                 {
-                                    Input.Str = this._tempTransaction.Description;
+                                    this._tempTransaction!.Amount = amount.Value;
+                                    Input.String = this._tempTransaction.Description;
+                                    this._tempTransactionState = 1;
+                                }
+
+                                if (decimal.TryParse(Input.String, out this._tempTransaction!.Amount))
+                                {
+                                    Input.String = this._tempTransaction.Description;
                                     this._tempTransactionState = 1;
                                 }
                             }
@@ -232,7 +241,7 @@ namespace B.Options.MoneyTracker
                             {
                                 this._tempTransaction = null;
                                 this._tempTransactionState = 0;
-                                Input.Str = string.Empty;
+                                Input.String = string.Empty;
                                 this._stage = Stage.Transaction;
                             }
                         }
@@ -240,25 +249,25 @@ namespace B.Options.MoneyTracker
                         {
                             Util.Print(this._tempTransaction!.Amount, 2);
                             Util.Print("Description:", 2, linesBefore: 1);
-                            Util.Print(Input.Str, 2, false);
-                            key = Input.RequestString(Util.MAX_CHARS_DECIMAL);
+                            Util.Print(Input.String, 2, false);
+                            key = Input.Request(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
                             {
-                                if (Input.Str.Length > 0)
+                                if (Input.String.Length > 0)
                                 {
-                                    this._tempTransaction.Description = Input.Str;
+                                    this._tempTransaction.Description = Input.String;
                                     this._selectedAccount!.Transactions.Add(this._tempTransaction);
                                     this._tempTransaction = null;
                                     this._tempTransactionState = 0;
-                                    Input.Str = string.Empty;
+                                    Input.String = string.Empty;
                                     this._stage = Stage.Transaction;
                                 }
                             }
                             else if (key == ConsoleKey.Escape)
                             {
-                                this._tempTransaction.Description = Input.Str;
-                                Input.Str = this._tempTransaction.Amount.ToString();
+                                this._tempTransaction.Description = Input.String;
+                                Input.String = this._tempTransaction.Amount.ToString();
                                 this._tempTransactionState = 0;
                             }
                         }

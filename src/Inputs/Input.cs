@@ -4,53 +4,21 @@ namespace B.Inputs
 {
     static class Input
     {
-        public static string Str = string.Empty;
-        public static int Int = 0;
+        public static string String = string.Empty;
+        public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
+        public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
 
-        public static ConsoleKey RequestString(int maxLength)
-        {
-            return Input.Request(ref Input.Str,
-                (keyInfo, str) =>
-                {
-                    if (str.Length < maxLength)
-                        str += keyInfo.KeyChar;
-
-                    return str;
-                },
-                (str) => str.Substring(0, Math.Max(0, str.Length - 1)));
-        }
-
-        public static ConsoleKey RequestInt()
-        {
-            return Input.Request(ref Input.Int,
-                (keyInfo, num) =>
-                {
-                    string numStr = num.ToString();
-                    numStr += keyInfo.KeyChar;
-                    int n = num;
-
-                    if (!int.TryParse(numStr, out num))
-                        num = n;
-
-                    return num;
-                },
-                (str) =>
-                {
-                    string numStr = str.ToString();
-                    numStr = numStr.Substring(0, Math.Max(0, numStr.Length - 1));
-                    int.TryParse(numStr, out str);
-                    return str;
-                });
-        }
-
-        private static ConsoleKey Request<T>(ref T tObj, Func<ConsoleKeyInfo, T, T> funcDefault, Func<T, T> funcBackspace)
+        public static ConsoleKey Request(int maxLength)
         {
             ConsoleKeyInfo keyInfo = Util.GetInput();
 
             if (keyInfo.Key == ConsoleKey.Backspace)
-                tObj = funcBackspace.Invoke(tObj);
+                Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
             else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape)
-                tObj = funcDefault.Invoke(keyInfo, tObj);
+            {
+                if (Input.String.Length < maxLength)
+                    Input.String += keyInfo.KeyChar;
+            }
 
             return keyInfo.Key;
         }
@@ -72,7 +40,7 @@ namespace B.Inputs
 
             public void Request()
             {
-                if (this._message != Util.NULL_STRING)
+                if (this._message != string.Empty)
                     Util.Print(this._message, 2, linesBefore: 1);
 
                 bool printLine = true;
@@ -84,7 +52,7 @@ namespace B.Inputs
                     // If keybind description is null, don't display option
                     if (keybind != Keybind.NULL)
                     {
-                        if (keybind.Description != Util.NULL_STRING)
+                        if (keybind.Description != string.Empty)
                         {
                             s = keybind.KeyChar == Util.NULL_CHAR ? keybind.Key.ToString() : keybind.KeyChar.ToString();
 

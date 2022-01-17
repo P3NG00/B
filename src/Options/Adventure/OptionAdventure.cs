@@ -23,7 +23,7 @@ namespace B.Options.Adventure
         public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
         private static Grid[] _grids = new Grid[0];
 
-        private readonly string _filePath = Program.DirectoryPath + "adventureInfo";
+        private readonly string _filePath = Program.PathData + "adventureInfo";
         private Stage _stage = Stage.MainMenu;
 
         static OptionAdventure() => OptionAdventure.InitializeGrids();
