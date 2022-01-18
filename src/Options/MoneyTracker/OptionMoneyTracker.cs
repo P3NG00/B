@@ -196,8 +196,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_View:
                     {
-                        int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8; // TODO
-
+                        int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8;
                         Util.SetConsoleSize(consoleWidth, this._selectedAccount.Transactions.Length + 9);
                         this._selectedAccount.PrintTransactions();
                         new Input.Option()

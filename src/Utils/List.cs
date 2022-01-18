@@ -5,7 +5,7 @@ namespace B.Utils
     [Serializable]
     public sealed class List<T>
     {
-        public T[] _items = new T[0];
+        private T[] _items = new T[0];
 
         public int Length => this._items.Length;
 

@@ -1,6 +1,8 @@
-﻿using B.Inputs;
+﻿using System.Runtime.InteropServices;
+using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
+using B.Options.FTP;
 using B.Options.MoneyTracker;
 using B.Options.NumberGuesser;
 using B.Utils;
@@ -13,7 +15,7 @@ using B.Utils;
 ||     2021.11.17    ||
 ||                   ||
 ||  Edited:          ||
-||     2022.01.15    ||
+||     2022.01.18    ||
 ||                   ||
 \* ================= */
 
@@ -27,8 +29,10 @@ namespace B
         // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
         private readonly Dict<string, Type> _optionDict = new Dict<string, Type>(
             new Pair<string, Type>("Adventure!", typeof(OptionAdventure)),
+            new Pair<string, Type>("FTP", typeof(OptionFTP)),
             new Pair<string, Type>("Money Tracker", typeof(OptionMoneyTracker)),
             new Pair<string, Type>("Number Guesser", typeof(OptionNumberGuesser))
+        // , new Pair<string, Type>("DEBUG", typeof(OptionDebug))
         );
 
         private Option? _option = null;
@@ -40,7 +44,8 @@ namespace B
             Console.Title = "B";
 
             // Console input ctrl+c
-            Console.TreatControlCAsInput = true;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Console.TreatControlCAsInput = true;
 
             // Load program settings
             if (File.Exists(Settings.Path))
@@ -108,8 +113,7 @@ namespace B
                         case ConsoleKey.F12:
                             {
                                 Util.ToggleBool(ref Program.Settings.DebugMode);
-                                // When toggling Debug mode, the console should be cleared
-                                // in case it affects the visuals to be printed.
+                                // Toggling Debug mode clears console to avoid artifacts
                                 Console.Clear();
                             }
                             break;
