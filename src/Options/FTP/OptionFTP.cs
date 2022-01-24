@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using B.Inputs;
 using B.Utils;
 using Renci.SshNet;
@@ -15,11 +16,35 @@ namespace B.Options.FTP
         private const int PORT = 22;
         private const string USER = "***REMOVED***";
 
+        private static Func<string, string>[] _scramblers = new Func<string, string>[]
+        {
+            // Hashcode
+            s => s.GetHashCode().ToString(),
+            // Star Scroll
+            s =>
+            {
+                char[] ca = new char[7];
+                Array.Fill(ca, '-');
+                ca[s.Length % ca.Length] = '*';
+                return new string(ca);
+            },
+            // Random Scroll
+            s =>
+            {
+                char[] ca = new char[9];
+                Array.Fill(ca, ' ');
+                ca[s.Length % ca.Length] = Util.RandomFromList("!?@#$%&*+=~XO§®¡©█■".ToCharArray());
+                return new string(ca);
+            },
+        };
+        private static Func<string, string> _scrambler = null!;
+
         private SftpClient _client = null!;
         private IEnumerable<SftpFile> _files = null!;
         private string _path = string.Empty;
         private Stage _stage = Stage.Login;
 
+        private SftpFile CurrentFile => this._files.ElementAt(this.Index);
         private int Index
         {
             get => this._index;
@@ -27,9 +52,11 @@ namespace B.Options.FTP
         }
         private int _index = 0;
 
-        private SftpFile CurrentFile => this._files.ElementAt(this.Index);
-
-        public OptionFTP() => Input.String = string.Empty;
+        public OptionFTP()
+        {
+            Input.String = string.Empty;
+            OptionFTP._scrambler = Util.RandomFromList(OptionFTP._scramblers);
+        }
 
         public override void Loop()
         {
@@ -38,17 +65,12 @@ namespace B.Options.FTP
                 case Stage.Login:
                     {
                         Console.Clear();
-                        Util.SetConsoleSize(16, 5);
+                        int consoleWidth = 16;
+                        Util.SetConsoleSize(consoleWidth, 5);
                         Util.Print("Login", 5, linesBefore: 1);
-
-                        // TODO make cool random patterns that appear when typing in password
-                        // examples:
-                        // password length - shows how many characters are input in the password
-                        // scrolling text - each character typed puts the char at the end of the line to the front of the line
-                        // random characters - each character typed makes random characters appear on this line
-                        // hash code - each character typed makes the hash code for your password appear on this line
-                        // etc......
-                        Util.Print(string.Format("{0,8}", Input.String.Length));
+                        string scrambled = OptionFTP._scrambler(Input.String);
+                        int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
+                        Util.Print(string.Format("{0," + textDepth + "}", scrambled));
 
                         switch (Input.Request(OptionFTP.MAX_LENGTH_PASSWORD))
                         {
@@ -66,7 +88,12 @@ namespace B.Options.FTP
                                     }
                                     catch (SshAuthenticationException)
                                     {
-                                        Util.Print("Wrong password", 1);
+                                        Util.Print("Wrong password");
+                                        Util.WaitForInput();
+                                    }
+                                    catch (SocketException)
+                                    {
+                                        Util.Print("Can't connect", 1);
                                         Util.WaitForInput();
                                     }
                                     // TODO test wrong passwords

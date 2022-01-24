@@ -40,6 +40,8 @@ namespace B.Utils
             return s;
         }
 
+        public static T RandomFromList<T>(params T[] list) => list[Util.Random.Next(list.Length)];
+
         public static void Print(object? message = null, int offsetLeft = 0, bool newLine = true, int linesBefore = 0)
         {
             for (int i = 0; i < linesBefore; i++)
