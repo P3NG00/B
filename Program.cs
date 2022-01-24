@@ -7,18 +7,6 @@ using B.Options.MoneyTracker;
 using B.Options.NumberGuesser;
 using B.Utils;
 
-/* ================= *\
-||                   ||
-||        B's        ||
-||                   ||
-||  Created:         ||
-||     2021.11.17    ||
-||                   ||
-||  Edited:          ||
-||     2022.01.18    ||
-||                   ||
-\* ================= */
-
 namespace B
 {
     public class Program
