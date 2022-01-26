@@ -42,8 +42,17 @@ namespace B.Options.FTP
 
         private SftpClient _client = null!;
         private IEnumerable<SftpFile> _files = null!;
-        private string _path = string.Empty;
         private Stage _stage = Stage.Login;
+        private string Path
+        {
+            get => this._path;
+            set
+            {
+                this._path = value;
+                this.RefreshFiles();
+            }
+        }
+        private string _path = string.Empty;
 
         private SftpFile CurrentFile => this._files.ElementAt(this.Index);
         private int Index
@@ -121,10 +130,10 @@ namespace B.Options.FTP
 
                 case Stage.Navigate:
                     {
-                        int consoleHeight = Math.Min(this._files.Count(), OptionFTP.MAX_LIST_ENTRIES) + 10;
+                        int consoleHeight = Math.Min(this._files.Count(), OptionFTP.MAX_LIST_ENTRIES) + 9;
                         Util.SetConsoleSize(100, consoleHeight);
                         Console.SetCursorPosition(0, 0);
-                        Util.Print($"path > '{this._path}/'", 1, linesBefore: 1);
+                        Util.Print($"path > '{this.Path}/'", 1, linesBefore: 1);
                         Util.Print();
                         int startIndex = this.Index - (this.Index % OptionFTP.MAX_LIST_ENTRIES);
                         int endIndex = Math.Min(startIndex + OptionFTP.MAX_LIST_ENTRIES, this._files.Count());
@@ -150,18 +159,10 @@ namespace B.Options.FTP
                             .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
                             .AddKeybind(new Keybind(() =>
                             {
-                                this._path = this._path.Substring(0, this._path.LastIndexOf('/')); // TODO error here, needs testing backspacing
-                                this.RefreshFiles();
-                            }, "Previous", key: ConsoleKey.Backspace))
-                            .AddKeybind(new Keybind(() =>
-                            {
                                 SftpFile file = this.CurrentFile;
 
                                 if (file.IsDirectory)
-                                {
-                                    this._path += "/" + file.Name;
-                                    this.RefreshFiles();
-                                }
+                                    this.Path += "/" + file.Name;
                                 else
                                 {
                                     // TODO interact with files
@@ -169,8 +170,13 @@ namespace B.Options.FTP
                             }, "Select", key: ConsoleKey.Enter))
                             .AddKeybind(new Keybind(() =>
                             {
-                                this._client.Disconnect();
-                                this.Quit();
+                                if (this.Path != string.Empty)
+                                    this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
+                                else
+                                {
+                                    this._client.Disconnect();
+                                    this.Quit();
+                                }
                             }, "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
@@ -180,7 +186,7 @@ namespace B.Options.FTP
 
         private void RefreshFiles()
         {
-            this._files = this._client.ListDirectory(this._path).OrderBy(x => !x.IsDirectory);
+            this._files = this._client.ListDirectory(this.Path).OrderBy(x => !x.IsDirectory);
             this.Index = 0;
             Console.Clear();
         }
