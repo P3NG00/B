@@ -32,7 +32,7 @@ namespace B.Utils
 
         public static bool operator !=(Vector2 vecA, Vector2 vecB) => !(vecA == vecB);
 
-        public sealed override string ToString() => string.Format("({0}, {1})", this.x, this.y);
+        public sealed override string ToString() => $"({this.x}, {this.y})";
 
         public static explicit operator Vector2(Direction direction)
         {

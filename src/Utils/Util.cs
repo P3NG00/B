@@ -47,6 +47,9 @@ namespace B.Utils
             for (int i = 0; i < linesBefore; i++)
                 Console.WriteLine();
 
+            // TODO?
+            // string test = message == null ? string.Empty : message.ToString();
+
             string messageStr = message?.ToString() ?? string.Empty;
             messageStr = string.Format("{0," + (messageStr.Length + offsetLeft).ToString() + "}", messageStr);
 

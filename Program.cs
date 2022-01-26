@@ -11,7 +11,10 @@ namespace B
 {
     public class Program
     {
-        public static string PathData => Environment.CurrentDirectory + @"\data\";
+        // Code entry point
+        public static void Main() => new Program().Start();
+
+        public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static Settings Settings { get; private set; } = new Settings();
 
         // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
@@ -28,6 +31,18 @@ namespace B
 
         private void Start()
         {
+            this.Initialize();
+
+            // Program loop
+            while (this._running)
+                this.Loop();
+
+            // Save before exiting
+            this.Save();
+        }
+
+        private void Initialize()
+        {
             // Set console window title
             Console.Title = "B";
 
@@ -42,98 +57,95 @@ namespace B
             // Set console colors
             this.UpdateColors();
 
-            // Program loop
-            while (this._running)
+            // TODO find max size of console window. if options are too big, resize them
+        }
+
+        private void Loop()
+        {
+            try
             {
-                try
+                // If directory doesn't exist, create it and add hidden attribute
+                if (!Directory.Exists(Program.DataPath))
                 {
-                    // If directory doesn't exist, create it and add hidden attribute
-                    if (!Directory.Exists(Program.PathData))
-                    {
-                        DirectoryInfo mainDirectory = Directory.CreateDirectory(Program.PathData);
-                        mainDirectory.Attributes = FileAttributes.Hidden;
-                    }
-
-                    // If option is running, execute option code
-                    if (this._option != null && this._option.IsRunning)
-                        this._option.Loop();
-                    else
-                    {
-                        // Display main menu options
-                        Console.Clear();
-                        int consoleHeight = this._optionDict.Length + 6;
-
-                        if (Program.Settings.DebugMode)
-                            consoleHeight += 2;
-
-                        Util.SetConsoleSize(20, consoleHeight);
-
-                        if (Program.Settings.DebugMode)
-                            Util.Print("DEBUG ON", 4, linesBefore: 1);
-
-                        Input.Option iob = new Input.Option("B's");
-
-                        for (int i = 0; i < this._optionDict.Length; i++)
-                        {
-                            Pair<string, Type> optionEntry = this._optionDict[i];
-                            iob.AddKeybind(new Keybind(() => this._option = (Activator.CreateInstance(optionEntry.Item2!) as Option)!, optionEntry.Item1!, (char)('1' + i)));
-                        }
-
-                        iob.AddSpacer()
-                            .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
-                            .Request();
-                    }
-
-                    switch (Util.LastInput.Key)
-                    {
-                        // Toggle black and white colors
-                        case ConsoleKey.F10:
-                            {
-                                Util.ToggleBool(ref Program.Settings.DarkMode);
-                                this.UpdateColors();
-                            }
-                            break;
-
-                        // Key to delete saved data
-                        case ConsoleKey.F11: Directory.Delete(Program.PathData, true); break;
-
-                        // Key to toggle debug mode
-                        case ConsoleKey.F12:
-                            {
-                                Util.ToggleBool(ref Program.Settings.DebugMode);
-                                // Toggling Debug mode clears console to avoid artifacts
-                                Console.Clear();
-                            }
-                            break;
-                    }
+                    DirectoryInfo mainDirectory = Directory.CreateDirectory(Program.DataPath);
+                    mainDirectory.Attributes = FileAttributes.Hidden;
                 }
-                catch (Exception e)
+
+                // If option is running, execute option code
+                if (this._option != null && this._option.IsRunning)
+                    this._option.Loop();
+                else
                 {
-                    // Go back to main menu if exception was caught
-                    if (this._option != null)
+                    // Display main menu options
+                    Console.Clear();
+                    int consoleHeight = this._optionDict.Length + 6;
+
+                    if (Program.Settings.DebugMode)
+                        consoleHeight += 2;
+
+                    Util.SetConsoleSize(20, consoleHeight);
+
+                    if (Program.Settings.DebugMode)
+                        Util.Print("DEBUG ON", 4, linesBefore: 1);
+
+                    Input.Option iob = new Input.Option("B's");
+
+                    for (int i = 0; i < this._optionDict.Length; i++)
                     {
-                        this._option.Save();
-                        this._option = null;
+                        Pair<string, Type> optionEntry = this._optionDict[i];
+                        iob.AddKeybind(new Keybind(() => this._option = (Activator.CreateInstance(optionEntry.Item2!) as Option)!, optionEntry.Item1!, (char)('1' + i)));
                     }
 
-                    Util.SetConsoleSize(140, 30);
-                    Util.Print(e.ToString());
-                    Util.WaitForKey(ConsoleKey.F1);
-                    Console.Clear();
+                    iob.AddSpacer()
+                        .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
+                        .Request();
+                }
+
+                switch (Util.LastInput.Key)
+                {
+                    // Toggle black and white colors
+                    case ConsoleKey.F10:
+                        {
+                            Util.ToggleBool(ref Program.Settings.DarkMode);
+                            this.UpdateColors();
+                        }
+                        break;
+
+                    // Key to delete saved data
+                    case ConsoleKey.F11: Directory.Delete(Program.DataPath, true); break;
+
+                    // Key to toggle debug mode
+                    case ConsoleKey.F12:
+                        {
+                            Util.ToggleBool(ref Program.Settings.DebugMode);
+                            // Toggling Debug mode clears console to avoid artifacts
+                            Console.Clear();
+                        }
+                        break;
                 }
             }
+            catch (Exception e)
+            {
+                // Go back to main menu if exception was caught
+                if (this._option != null)
+                {
+                    this._option.Save();
+                    this._option = null;
+                }
 
-            // Save before exiting
-            Util.Serialize(Settings.Path, Program.Settings);
+                Util.SetConsoleSize(140, 30);
+                Util.Print(e.ToString());
+                Util.WaitForKey(ConsoleKey.F1);
+                Console.Clear();
+            }
         }
+
+        private void Save() => Util.Serialize(Settings.Path, Program.Settings);
 
         private void UpdateColors()
         {
             Console.BackgroundColor = Program.Settings.DarkMode ? ConsoleColor.Black : ConsoleColor.White;
             Console.ForegroundColor = Program.Settings.DarkMode ? ConsoleColor.White : ConsoleColor.Black;
         }
-
-        // Code entry point
-        public static void Main() => new Program().Start();
     }
 }

@@ -2,7 +2,7 @@ namespace B.Utils
 {
     public sealed class Keybind
     {
-        public static Keybind NULL = new Keybind(null!);
+        public static readonly Keybind NULL = new Keybind(null!);
 
         public readonly ConsoleKey Key;
         public readonly char KeyChar;

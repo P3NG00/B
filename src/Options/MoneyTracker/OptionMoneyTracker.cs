@@ -5,7 +5,7 @@ namespace B.Options.MoneyTracker
 {
     public sealed class OptionMoneyTracker : Option
     {
-        public static readonly string DirectoryPath = Program.PathData + @"accounts\";
+        public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
 
         private readonly Utils.List<Account> _accounts = new Utils.List<Account>();
         private Account? _selectedAccount;
@@ -226,12 +226,6 @@ namespace B.Options.MoneyTracker
                                 if (amount.HasValue)
                                 {
                                     this._tempTransaction!.Amount = amount.Value;
-                                    Input.String = this._tempTransaction.Description;
-                                    this._tempTransactionState = 1;
-                                }
-
-                                if (decimal.TryParse(Input.String, out this._tempTransaction!.Amount))
-                                {
                                     Input.String = this._tempTransaction.Description;
                                     this._tempTransactionState = 1;
                                 }
