@@ -5,6 +5,8 @@ namespace B.Options.MoneyTracker
 {
     public sealed class OptionMoneyTracker : Option
     {
+        private const int MAX_TRANSACTIONS_PER_PAGE = 50;
+
         public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
 
         private readonly Utils.List<Account> _accounts = new Utils.List<Account>();
@@ -12,6 +14,25 @@ namespace B.Options.MoneyTracker
         private Transaction? _tempTransaction;
         private byte _tempTransactionState = 0;
         private Stage _stage = Stage.MainMenu;
+        private int Index
+        {
+            get => this._index;
+            set
+            {
+                // Get last value
+                int lastValue = this._index % OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE;
+                // Update value
+                this._index = Util.Clamp(value, 0, this._selectedAccount!.Transactions.Length - 1);
+                // Get new value
+                int newValue = this._index % OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE;
+                // If crossing into new page, clear console
+                int oneLess = OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE - 1;
+
+                if ((lastValue == oneLess && newValue == 0) || (lastValue == 0 && newValue == oneLess))
+                    Console.Clear();
+            }
+        }
+        private int _index = 0;
 
         public OptionMoneyTracker()
         {
@@ -24,8 +45,6 @@ namespace B.Options.MoneyTracker
 
         public sealed override void Loop()
         {
-            Console.Clear();
-
             switch (this._stage)
             {
                 case Stage.MainMenu:
@@ -36,6 +55,7 @@ namespace B.Options.MoneyTracker
                         if (selected)
                             consoleHeight++;
 
+                        Console.Clear();
                         Util.SetConsoleSize(20, consoleHeight);
                         Input.Option iob = new Input.Option("Money Tracker")
                             .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'));
@@ -55,6 +75,8 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Account:
                     {
+                        Console.Clear();
+
                         if (this._selectedAccount != null)
                         {
                             Util.SetConsoleSize(24, 12);
@@ -76,6 +98,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Account_Create:
                     {
+                        Console.Clear();
                         Util.SetConsoleSize(42, 5);
                         Util.Print($"New Account Name: {Input.String}", 2, false, 1);
                         ConsoleKey key = Input.Request(20);
@@ -116,6 +139,7 @@ namespace B.Options.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
+                        Console.Clear();
                         Util.SetConsoleSize(27, consoleHeight);
                         Input.Option iob = new Input.Option();
 
@@ -147,6 +171,7 @@ namespace B.Options.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
+                        Console.Clear();
                         Util.SetConsoleSize(27, consoleHeight);
                         Input.Option iob = new Input.Option("Remove Account");
 
@@ -176,9 +201,14 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction:
                     {
+                        Console.Clear();
                         Util.SetConsoleSize(20, 10);
                         new Input.Option("Transaction")
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_View, "View", '1'))
+                            .AddKeybind(new Keybind(() =>
+                            {
+                                this._stage = Stage.Transaction_View;
+                                Console.Clear();
+                            }, "View", '1'))
                             .AddKeybind(new Keybind(() =>
                             {
                                 Input.String = string.Empty;
@@ -197,19 +227,46 @@ namespace B.Options.MoneyTracker
                 case Stage.Transaction_View:
                     {
                         int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8;
-                        Util.SetConsoleSize(consoleWidth, this._selectedAccount.Transactions.Length + 9);
-                        this._selectedAccount.PrintTransactions();
+                        int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 11;
+                        Util.SetConsoleSize(consoleWidth, consoleHeight);
+                        Console.SetCursorPosition(0, 0);
+                        Util.Print();
+                        decimal total = 0m;
+                        int startIndex = this.Index - (this.Index % OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE);
+                        int endIndex = Math.Min(startIndex + OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE, this._selectedAccount.Transactions.Length);
+
+                        for (int i = startIndex; i < endIndex; i++)
+                        {
+                            Transaction transaction = this._selectedAccount.Transactions[i];
+                            total += transaction.Amount;
+                            string message = string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf("0", this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description);
+
+                            if (i == this.Index)
+                                Util.Print($"> {message}", 1);
+                            else
+                                Util.Print($"{message} ", 2);
+                        }
+
+                        Util.Print("Total: " + total, 2, linesBefore: 1); // TODO fix total, now innacurately only showing total of transactions on page
+                        Util.Print("Use Up/Down to navigate", 2, linesBefore: 1);
                         new Input.Option()
+                            .AddKeybind(new Keybind(() => this.Index++, key: ConsoleKey.DownArrow))
+                            .AddKeybind(new Keybind(() => this.Index--, key: ConsoleKey.UpArrow))
                             .AddKeybind(new Keybind(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
                             .AddKeybind(new Keybind(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'))
                             .AddSpacer()
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Transaction, "Back", key: ConsoleKey.Escape))
+                            .AddKeybind(new Keybind(() =>
+                            {
+                                this.Index = 0;
+                                this._stage = Stage.Transaction;
+                            }, "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
 
                 case Stage.Transaction_Add:
                     {
+                        Console.Clear();
                         Util.SetConsoleSize(Util.MAX_CHARS_DECIMAL + 4, 7);
                         Util.Print("Amount", 2, linesBefore: 1);
                         ConsoleKey key;
@@ -269,6 +326,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Delete:
                     {
+                        Console.Clear();
                         Util.SetConsoleSize(31, this._selectedAccount!.Transactions.Length + 4);
                         Util.Print("Delete", 2, linesBefore: 1);
                         // this._selectedAccount.PrintTransactions(); // TODO
@@ -281,6 +339,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Edit:
                     {
+                        Console.Clear();
                         this._stage = Stage.Transaction;
                         // TODO
                     }

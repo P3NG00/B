@@ -5,46 +5,46 @@ namespace B.Utils
     [Serializable]
     public sealed class List<T>
     {
-        private T[] _items = new T[0];
+        public T[] Items = new T[0];
 
-        public int Length => this._items.Length;
+        public int Length => this.Items.Length;
 
         public void Add(T t)
         {
-            T[] newItems = new T[this._items.Length + 1];
-            Array.Copy(this._items, newItems, this._items.Length);
-            newItems[this._items.Length] = t!;
-            this._items = newItems;
+            T[] newItems = new T[this.Items.Length + 1];
+            Array.Copy(this.Items, newItems, this.Items.Length);
+            newItems[this.Items.Length] = t!;
+            this.Items = newItems;
         }
 
         public void Remove(T t)
         {
-            T[] newItems = new T[this._items.Length - 1];
+            T[] newItems = new T[this.Items.Length - 1];
             int index = 0;
 
-            for (int i = 0; i < this._items.Length; i++)
+            for (int i = 0; i < this.Items.Length; i++)
             {
-                if (this._items[i]!.Equals(t))
+                if (this.Items[i]!.Equals(t))
                     continue;
 
-                newItems[index] = this._items[i];
+                newItems[index] = this.Items[i];
                 index++;
             }
 
-            this._items = newItems;
+            this.Items = newItems;
         }
 
         public bool Contains(T t)
         {
-            foreach (T item in this._items)
+            foreach (T item in this.Items)
                 if (item!.Equals(t))
                     return true;
 
             return false;
         }
 
-        public IEnumerator GetEnumerator() => this._items.GetEnumerator();
+        public IEnumerator GetEnumerator() => this.Items.GetEnumerator();
 
-        public T this[int index] => this._items[index];
+        public T this[int index] => this.Items[index];
     }
 }

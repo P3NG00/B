@@ -10,6 +10,7 @@ namespace B.Options.FTP
     public sealed class OptionFTP : Option
     {
         private const int MAX_LENGTH_PASSWORD = 50;
+        private const int MAX_LIST_ENTRIES = 50;
 
         // TODO store IP's in serializable Profiles
         private const string IP = "***REMOVED***";
@@ -48,7 +49,20 @@ namespace B.Options.FTP
         private int Index
         {
             get => this._index;
-            set => this._index = Util.Clamp(value, 0, this._files.Count() - 1);
+            set
+            {
+                // Get last value
+                int lastValue = this._index % OptionFTP.MAX_LIST_ENTRIES;
+                // Update value
+                this._index = Util.Clamp(value, 0, this._files.Count() - 1);
+                // Get new value
+                int newValue = this._index % OptionFTP.MAX_LIST_ENTRIES;
+                // If crossing into new page, clear console
+                int oneLess = OptionFTP.MAX_LIST_ENTRIES - 1;
+
+                if ((lastValue == oneLess && newValue == 0) || (lastValue == 0 && newValue == oneLess))
+                    Console.Clear();
+            }
         }
         private int _index = 0;
 
@@ -107,24 +121,15 @@ namespace B.Options.FTP
 
                 case Stage.Navigate:
                     {
+                        int consoleHeight = Math.Min(this._files.Count(), OptionFTP.MAX_LIST_ENTRIES) + 10;
+                        Util.SetConsoleSize(100, consoleHeight);
                         Console.SetCursorPosition(0, 0);
-
-                        int consoleHeight = this._files.Count() + 10;
-
-                        // TODO limit pages to 50 per page
-
-                        if (consoleHeight > Util.MAX_CONSOLE_HEIGHT)
-                        {
-                            // TODO fix console height
-                            // an error will be throw if the height is too big
-                        }
-
-                        // TODO change width
-                        Util.SetConsoleSize(100, this._files.Count() + 10);
                         Util.Print($"path > '{this._path}/'", 1, linesBefore: 1);
                         Util.Print();
+                        int startIndex = this.Index - (this.Index % OptionFTP.MAX_LIST_ENTRIES);
+                        int endIndex = Math.Min(startIndex + OptionFTP.MAX_LIST_ENTRIES, this._files.Count());
 
-                        for (int i = 0; i < this._files.Count(); i++)
+                        for (int i = startIndex; i < endIndex; i++)
                         {
                             SftpFile file = this._files.ElementAt(i);
                             string fileName = file.Name;
@@ -145,7 +150,7 @@ namespace B.Options.FTP
                             .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
                             .AddKeybind(new Keybind(() =>
                             {
-                                this._path = this._path.Substring(0, this._path.LastIndexOf('/'));
+                                this._path = this._path.Substring(0, this._path.LastIndexOf('/')); // TODO error here, needs testing backspacing
                                 this.RefreshFiles();
                             }, "Previous", key: ConsoleKey.Backspace))
                             .AddKeybind(new Keybind(() =>

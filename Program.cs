@@ -127,12 +127,7 @@ namespace B
             catch (Exception e)
             {
                 // Go back to main menu if exception was caught
-                if (this._option != null)
-                {
-                    this._option.Save();
-                    this._option = null;
-                }
-
+                this._option = null;
                 Util.SetConsoleSize(140, 30);
                 Util.Print(e.ToString());
                 Util.WaitForKey(ConsoleKey.F1);
