@@ -20,13 +20,11 @@ namespace B.Options.NumberGuesser
 
         public sealed override void Loop()
         {
-            Console.Clear();
-
             switch (this._stage)
             {
                 case Stage.MainMenu:
                     {
-                        Util.SetConsoleSize(20, 8);
+                        Util.ClearConsole(20, 8);
                         new Input.Option("Number Guesser")
                             .AddKeybind(new Keybind(() =>
                             {
@@ -54,7 +52,7 @@ namespace B.Options.NumberGuesser
                             consoleHeight += 2;
                         }
 
-                        Util.SetConsoleSize(20, consoleHeight);
+                        Util.ClearConsole(20, consoleHeight);
                         Util.Print(Input.String, 2, linesBefore: 1);
 
                         if (guess == null)
@@ -85,7 +83,7 @@ namespace B.Options.NumberGuesser
 
                 case Stage.Settings:
                     {
-                        Util.SetConsoleSize(20, 7);
+                        Util.ClearConsole(20, 7);
                         new Input.Option("Settings")
                             .AddKeybind(new Keybind(() =>
                             {
@@ -100,7 +98,7 @@ namespace B.Options.NumberGuesser
 
                 case Stage.Settings_MaxNumber:
                     {
-                        Util.SetConsoleSize(20, 5);
+                        Util.ClearConsole(20, 5);
                         Util.Print($"Max - {Input.String}", 2, linesBefore: 1);
                         Util.Print("Enter Max Number", 2, linesBefore: 1);
                         ConsoleKey key = Input.Request(OptionNumberGuesser.GUESS_LENGTH);

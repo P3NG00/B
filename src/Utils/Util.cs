@@ -71,6 +71,14 @@ namespace B.Utils
             }
         }
 
+        public static void ClearConsole(int width = 0, int height = 0)
+        {
+            Console.Clear();
+
+            if (width != 0 && height != 0)
+                Util.SetConsoleSize(width, height);
+        }
+
         public static void ToggleBool(ref bool b) => b = !b;
 
         public static void Serialize<T>(string filePath, T objectToWrite)

@@ -34,11 +34,10 @@ namespace B.Options.Adventure
             {
                 case Stage.MainMenu:
                     {
-                        Console.Clear();
                         int consoleHeight = 7;
                         bool fileExists = File.Exists(this._filePath);
                         if (fileExists) consoleHeight++;
-                        Util.SetConsoleSize(20, consoleHeight);
+                        Util.ClearConsole(20, consoleHeight);
                         Input.Option iob = new Input.Option("Adventure")
                             .AddKeybind(new Keybind(() => this.InitGame(true), "New Game", '1'));
 
@@ -136,7 +135,7 @@ namespace B.Options.Adventure
             else
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(this._filePath)!;
 
-            Console.Clear();
+            Util.ClearConsole();
             this._stage = Stage.Game;
         }
 

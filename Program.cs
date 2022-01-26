@@ -77,13 +77,12 @@ namespace B
                 else
                 {
                     // Display main menu options
-                    Console.Clear();
                     int consoleHeight = this._optionDict.Length + 6;
 
                     if (Program.Settings.DebugMode)
                         consoleHeight += 2;
 
-                    Util.SetConsoleSize(20, consoleHeight);
+                    Util.ClearConsole(20, consoleHeight);
 
                     if (Program.Settings.DebugMode)
                         Util.Print("DEBUG ON", 4, linesBefore: 1);
@@ -112,14 +111,23 @@ namespace B
                         break;
 
                     // Key to delete saved data
-                    case ConsoleKey.F11: Directory.Delete(Program.DataPath, true); break;
+                    case ConsoleKey.F11:
+                        {
+                            Util.ClearConsole(15, 6);
+                            new Input.Option("Delete Data?")
+                                .AddKeybind(new Keybind(() => Directory.Delete(Program.DataPath, true), "Yes", key: ConsoleKey.Enter))
+                                .AddKeybind(new Keybind(null!, "No", key: ConsoleKey.Escape))
+                                .Request();
+                            Directory.Delete(Program.DataPath, true);
+                        }
+                        break;
 
                     // Key to toggle debug mode
                     case ConsoleKey.F12:
                         {
                             Util.ToggleBool(ref Program.Settings.DebugMode);
                             // Toggling Debug mode clears console to avoid artifacts
-                            Console.Clear();
+                            Util.ClearConsole();
                         }
                         break;
                 }
@@ -131,7 +139,7 @@ namespace B
                 Util.SetConsoleSize(140, 30);
                 Util.Print(e.ToString());
                 Util.WaitForKey(ConsoleKey.F1);
-                Console.Clear();
+                Util.ClearConsole();
             }
         }
 

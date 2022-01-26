@@ -16,7 +16,7 @@ namespace B.Options.Adventure
                 // The console should be cleared if the GridID is changed because
                 // the grid needs to be replaced completely instead of being written
                 // on top of in case there is left over artifacts.
-                Console.Clear();
+                Util.ClearConsole();
             }
         }
 

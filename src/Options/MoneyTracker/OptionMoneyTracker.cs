@@ -29,7 +29,7 @@ namespace B.Options.MoneyTracker
                 int oneLess = OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE - 1;
 
                 if ((lastValue == oneLess && newValue == 0) || (lastValue == 0 && newValue == oneLess))
-                    Console.Clear();
+                    Util.ClearConsole();
             }
         }
         private int _index = 0;
@@ -55,8 +55,7 @@ namespace B.Options.MoneyTracker
                         if (selected)
                             consoleHeight++;
 
-                        Console.Clear();
-                        Util.SetConsoleSize(20, consoleHeight);
+                        Util.ClearConsole(20, consoleHeight);
                         Input.Option iob = new Input.Option("Money Tracker")
                             .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'));
 
@@ -75,16 +74,14 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Account:
                     {
-                        Console.Clear();
-
                         if (this._selectedAccount != null)
                         {
-                            Util.SetConsoleSize(24, 12);
+                            Util.ClearConsole(24, 12);
                             Util.Print("Selected Account:", 3, linesBefore: 1);
                             Util.Print(this._selectedAccount.Name, 2);
                         }
                         else
-                            Util.SetConsoleSize(24, 9);
+                            Util.ClearConsole(24, 9);
 
                         new Input.Option("Account")
                             .AddKeybind(new Keybind(() => this._stage = Stage.Account_Create, "Create", '1'))
@@ -98,8 +95,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Account_Create:
                     {
-                        Console.Clear();
-                        Util.SetConsoleSize(42, 5);
+                        Util.ClearConsole(42, 5);
                         Util.Print($"New Account Name: {Input.String}", 2, false, 1);
                         ConsoleKey key = Input.Request(20);
 
@@ -139,8 +135,7 @@ namespace B.Options.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Console.Clear();
-                        Util.SetConsoleSize(27, consoleHeight);
+                        Util.ClearConsole(27, consoleHeight);
                         Input.Option iob = new Input.Option();
 
                         if (amountAccounts > 0)
@@ -171,8 +166,7 @@ namespace B.Options.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Console.Clear();
-                        Util.SetConsoleSize(27, consoleHeight);
+                        Util.ClearConsole(27, consoleHeight);
                         Input.Option iob = new Input.Option("Remove Account");
 
                         if (amountAccounts > 0)
@@ -201,13 +195,12 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction:
                     {
-                        Console.Clear();
-                        Util.SetConsoleSize(20, 10);
+                        Util.ClearConsole(20, 10);
                         new Input.Option("Transaction")
                             .AddKeybind(new Keybind(() =>
                             {
                                 this._stage = Stage.Transaction_View;
-                                Console.Clear();
+                                Util.ClearConsole();
                             }, "View", '1'))
                             .AddKeybind(new Keybind(() =>
                             {
@@ -266,8 +259,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Add:
                     {
-                        Console.Clear();
-                        Util.SetConsoleSize(Util.MAX_CHARS_DECIMAL + 4, 7);
+                        Util.ClearConsole(Util.MAX_CHARS_DECIMAL + 4, 7);
                         Util.Print("Amount", 2, linesBefore: 1);
                         ConsoleKey key;
 
@@ -326,8 +318,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Delete:
                     {
-                        Console.Clear();
-                        Util.SetConsoleSize(31, this._selectedAccount!.Transactions.Length + 4);
+                        Util.ClearConsole(31, this._selectedAccount!.Transactions.Length + 4);
                         Util.Print("Delete", 2, linesBefore: 1);
                         // this._selectedAccount.PrintTransactions(); // TODO
 
@@ -339,7 +330,7 @@ namespace B.Options.MoneyTracker
 
                 case Stage.Transaction_Edit:
                     {
-                        Console.Clear();
+                        Util.ClearConsole();
                         this._stage = Stage.Transaction;
                         // TODO
                     }

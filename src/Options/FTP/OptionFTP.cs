@@ -70,7 +70,7 @@ namespace B.Options.FTP
                 int oneLess = OptionFTP.MAX_LIST_ENTRIES - 1;
 
                 if ((lastValue == oneLess && newValue == 0) || (lastValue == 0 && newValue == oneLess))
-                    Console.Clear();
+                    Util.ClearConsole();
             }
         }
         private int _index = 0;
@@ -87,9 +87,8 @@ namespace B.Options.FTP
             {
                 case Stage.Login:
                     {
-                        Console.Clear();
                         int consoleWidth = 16;
-                        Util.SetConsoleSize(consoleWidth, 5);
+                        Util.ClearConsole(consoleWidth, 5);
                         Util.Print("Login", 5, linesBefore: 1);
                         string scrambled = OptionFTP._scrambler(Input.String);
                         int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
@@ -188,7 +187,7 @@ namespace B.Options.FTP
         {
             this._files = this._client.ListDirectory(this.Path).OrderBy(x => !x.IsDirectory);
             this.Index = 0;
-            Console.Clear();
+            Util.ClearConsole();
         }
 
         private enum Stage
