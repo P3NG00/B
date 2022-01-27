@@ -207,7 +207,7 @@ namespace B.Options.FTP
                         iob.AddKeybind(new Keybind(() =>
                                 {
                                     if (this.Path != string.Empty)
-                                        this.BackPath();
+                                        this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
                                     else
                                     {
                                         this._client.Disconnect();
@@ -265,8 +265,6 @@ namespace B.Options.FTP
             this._client.Delete(file.FullName);
             this.RefreshFiles();
         }
-
-        private void BackPath() => this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
 
         private enum Stage
         {
