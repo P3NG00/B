@@ -11,6 +11,7 @@ namespace B.Options.FTP
     {
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int MAX_LIST_ENTRIES = 50;
+        private const int WIDTH = 140;
         private const string IP = "***REMOVED***"; // TODO store IP's in serializable Profiles
         private const int PORT = 22;
         private const string USER = "***REMOVED***";
@@ -159,51 +160,73 @@ namespace B.Options.FTP
                 case Stage.Navigate:
                     {
                         int entryAmount = this._files.Count();
-                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 10;
-                        Util.SetConsoleSize(140, consoleHeight);
+                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 11;
+                        Util.SetConsoleSize(OptionFTP.WIDTH, consoleHeight);
                         Console.SetCursorPosition(0, 0);
-                        string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}/'";
+                        string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}'";
                         Util.Print($"{header,-98}", 1, linesBefore: 1);
                         Util.Print();
-                        int startIndex = this.Index - (this.Index % OptionFTP.MAX_LIST_ENTRIES);
-                        int endIndex = Math.Min(startIndex + OptionFTP.MAX_LIST_ENTRIES, entryAmount);
+                        Input.Option iob = new Input.Option();
 
-                        for (int i = startIndex; i < endIndex; i++)
+                        if (entryAmount > 0)
                         {
-                            SftpFile file = this._files.ElementAt(i);
-                            string fileName = file.Name;
+                            int startIndex = this.Index - (this.Index % OptionFTP.MAX_LIST_ENTRIES);
+                            int endIndex = Math.Min(startIndex + OptionFTP.MAX_LIST_ENTRIES, entryAmount);
 
-                            if (file.IsDirectory)
-                                fileName += "/";
-
-                            if (i == this.Index)
-                                Util.Print($"> {fileName}", 1);
-                            else
-                                Util.Print(string.Format("{0,-" + (fileName.Length + 1) + "}", fileName), 2);
-                        }
-
-                        Util.Print("Use Up/Down Arrow to navigate.", 1, linesBefore: 1);
-
-                        new Input.Option()
-                            .AddKeybind(new Keybind(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
-                            .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
-                            .AddKeybind(new Keybind(() => this.Download(this.CurrentFile), "Download", key: ConsoleKey.PageDown))
-                            .AddKeybind(new Keybind(() =>
+                            for (int i = startIndex; i < endIndex; i++)
                             {
-                                SftpFile file = this.CurrentFile;
+                                SftpFile file = this._files.ElementAt(i);
+                                string fileName = file.Name;
+
                                 if (file.IsDirectory)
-                                    this.Path += "/" + file.Name;
-                            }, "Select", key: ConsoleKey.Enter))
-                            .AddKeybind(new Keybind(() =>
-                            {
-                                if (this.Path != string.Empty)
-                                    this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
+                                    fileName += "/";
+
+                                if (i == this.Index)
+                                    Util.Print($"> {fileName}", 1);
                                 else
+                                    Util.Print(string.Format("{0,-" + (fileName.Length + 1) + "}", fileName), 2);
+                            }
+
+                            Util.Print("Use Up/Down Arrow to navigate.", 1, linesBefore: 1);
+                            SftpFile currentFile = this.CurrentFile;
+                            iob.AddKeybind(new Keybind(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
+                                .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
+                                .AddKeybind(new Keybind(() => this.Download(currentFile), "Download", key: ConsoleKey.PageDown))
+                                .AddKeybind(new Keybind(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete))
+                                .AddKeybind(new Keybind(() =>
                                 {
-                                    this._client.Disconnect();
-                                    this.Quit();
-                                }
-                            }, "Back", key: ConsoleKey.Escape))
+                                    if (currentFile.IsDirectory)
+                                        this.Path += "/" + currentFile.Name;
+                                    else
+                                        this._stage = Stage.FileInteract;
+                                }, "Select", key: ConsoleKey.Enter));
+                        }
+                        else
+                            Util.Print("Directory empty...", 3);
+
+                        iob.AddKeybind(new Keybind(() =>
+                                {
+                                    if (this.Path != string.Empty)
+                                        this.BackPath();
+                                    else
+                                    {
+                                        this._client.Disconnect();
+                                        this.Quit();
+                                    }
+                                }, "Back", key: ConsoleKey.Escape))
+                                .Request();
+                    }
+                    break;
+
+                case Stage.FileInteract:
+                    {
+                        Util.ClearConsole(OptionFTP.WIDTH, 8);
+                        SftpFile file = this.CurrentFile;
+                        new Input.Option(file.FullName)
+                            .AddKeybind(new Keybind(() => this.Download(file), "Download", key: ConsoleKey.PageDown))
+                            .AddKeybind(new Keybind(() => this.Delete(file), "Delete", key: ConsoleKey.Delete))
+                            .AddSpacer()
+                            .AddKeybind(new Keybind(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
@@ -237,10 +260,19 @@ namespace B.Options.FTP
             }
         }
 
+        private void Delete(SftpFile file)
+        {
+            this._client.Delete(file.FullName);
+            this.RefreshFiles();
+        }
+
+        private void BackPath() => this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
+
         private enum Stage
         {
             Login,
             Navigate,
+            FileInteract,
         }
     }
 }
