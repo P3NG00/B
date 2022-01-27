@@ -118,7 +118,6 @@ namespace B
                                 .AddKeybind(new Keybind(() => Directory.Delete(Program.DataPath, true), "Yes", key: ConsoleKey.Enter))
                                 .AddKeybind(new Keybind(null!, "No", key: ConsoleKey.Escape))
                                 .Request();
-                            Directory.Delete(Program.DataPath, true);
                         }
                         break;
 
