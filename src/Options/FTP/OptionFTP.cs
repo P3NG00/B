@@ -106,6 +106,10 @@ namespace B.Options.FTP
         {
             Input.String = string.Empty;
             OptionFTP._scrambler = Util.RandomFromList(OptionFTP._scramblers);
+            DirectoryInfo downloadDir = new DirectoryInfo(OptionFTP.DownloadPath);
+
+            if (!downloadDir.Exists)
+                downloadDir.Create();
         }
 
         public override void Loop()
@@ -155,7 +159,7 @@ namespace B.Options.FTP
                 case Stage.Navigate:
                     {
                         int entryAmount = this._files.Count();
-                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 9;
+                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 10;
                         Util.SetConsoleSize(140, consoleHeight);
                         Console.SetCursorPosition(0, 0);
                         string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}/'";
@@ -183,7 +187,7 @@ namespace B.Options.FTP
                         new Input.Option()
                             .AddKeybind(new Keybind(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
                             .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
-                            // TODO add keybind to download files or recursively download directories
+                            .AddKeybind(new Keybind(() => this.Download(this.CurrentFile), "Download", key: ConsoleKey.PageDown))
                             .AddKeybind(new Keybind(() =>
                             {
                                 SftpFile file = this.CurrentFile;
@@ -211,6 +215,26 @@ namespace B.Options.FTP
             this._files = this._client.ListDirectory(this.Path).OrderBy(x => !x.IsDirectory);
             this.Index = 0;
             Util.ClearConsole();
+        }
+
+        private void Download(SftpFile file)
+        {
+            if (file.IsDirectory)
+            {
+                foreach (SftpFile subFile in this._client.ListDirectory(this.Path + file.FullName))
+                    this.Download(subFile);
+            }
+            else
+            {
+                string path = OptionFTP.DownloadPath + file.FullName.Substring(1);
+                DirectoryInfo? newFileDir = new FileInfo(path).Directory;
+
+                if (newFileDir != null)
+                    newFileDir.Create();
+
+                using (Stream stream = File.Open(path, FileMode.Create))
+                    this._client.DownloadFile(file.FullName, stream);
+            }
         }
 
         private enum Stage
