@@ -11,16 +11,43 @@ namespace B.Options.FTP
     {
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int MAX_LIST_ENTRIES = 50;
-
-        // TODO store IP's in serializable Profiles
-        private const string IP = "***REMOVED***";
+        private const string IP = "***REMOVED***"; // TODO store IP's in serializable Profiles
         private const int PORT = 22;
         private const string USER = "***REMOVED***";
 
+        private static string DownloadPath => Environment.CurrentDirectory + @"\download\";
         private static Func<string, string>[] _scramblers = new Func<string, string>[]
         {
-            // Hashcode
-            s => s.GetHashCode().ToString(),
+            // Center Waves
+            s =>
+            {
+                string[] sa =
+                {
+                    @"    ^    ",
+                    @"   / \   ",
+                    @"  /   \  ",
+                    @" /     \ ",
+                    @"/       \",
+                };
+                return sa[s.Length % sa.Length];
+            },
+            // Crazy Scroll
+            s =>
+            {
+                string[] sa =
+                {
+                    "    ~    ",
+                    "   ~     ",
+                    "     ~   ",
+                    "  ~      ",
+                    "      ~  ",
+                    " ~       ",
+                    "       ~ ",
+                    "~        ",
+                    "        ~",
+                };
+                return sa[s.Length % sa.Length];
+            },
             // Star Scroll
             s =>
             {
@@ -66,9 +93,9 @@ namespace B.Options.FTP
                 this._index = Util.Clamp(value, 0, this._files.Count() - 1);
                 // Get new value
                 int newValue = this._index % OptionFTP.MAX_LIST_ENTRIES;
+
                 // If crossing into new page, clear console
                 int oneLess = OptionFTP.MAX_LIST_ENTRIES - 1;
-
                 if ((lastValue == oneLess && newValue == 0) || (lastValue == 0 && newValue == oneLess))
                     Util.ClearConsole();
             }
@@ -100,7 +127,6 @@ namespace B.Options.FTP
                                 {
                                     this._client = new SftpClient(OptionFTP.IP, OptionFTP.PORT, OptionFTP.USER, Input.String);
                                     Input.String = string.Empty;
-                                    this._client.KeepAliveInterval = TimeSpan.FromSeconds(5); // TODO test, necessary?
 
                                     try
                                     {
@@ -118,7 +144,6 @@ namespace B.Options.FTP
                                         Util.Print("Can't connect", 1);
                                         Util.WaitForInput();
                                     }
-                                    // TODO test wrong passwords
                                 }
                                 break;
 
@@ -129,13 +154,15 @@ namespace B.Options.FTP
 
                 case Stage.Navigate:
                     {
-                        int consoleHeight = Math.Min(this._files.Count(), OptionFTP.MAX_LIST_ENTRIES) + 9;
-                        Util.SetConsoleSize(100, consoleHeight);
+                        int entryAmount = this._files.Count();
+                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 9;
+                        Util.SetConsoleSize(140, consoleHeight);
                         Console.SetCursorPosition(0, 0);
-                        Util.Print($"path > '{this.Path}/'", 1, linesBefore: 1);
+                        string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}/'";
+                        Util.Print($"{header,-98}", 1, linesBefore: 1);
                         Util.Print();
                         int startIndex = this.Index - (this.Index % OptionFTP.MAX_LIST_ENTRIES);
-                        int endIndex = Math.Min(startIndex + OptionFTP.MAX_LIST_ENTRIES, this._files.Count());
+                        int endIndex = Math.Min(startIndex + OptionFTP.MAX_LIST_ENTRIES, entryAmount);
 
                         for (int i = startIndex; i < endIndex; i++)
                         {
@@ -156,16 +183,12 @@ namespace B.Options.FTP
                         new Input.Option()
                             .AddKeybind(new Keybind(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
                             .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
+                            // TODO add keybind to download files or recursively download directories
                             .AddKeybind(new Keybind(() =>
                             {
                                 SftpFile file = this.CurrentFile;
-
                                 if (file.IsDirectory)
                                     this.Path += "/" + file.Name;
-                                else
-                                {
-                                    // TODO interact with files
-                                }
                             }, "Select", key: ConsoleKey.Enter))
                             .AddKeybind(new Keybind(() =>
                             {
