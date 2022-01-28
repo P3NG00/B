@@ -73,7 +73,7 @@ namespace B.Inputs
 
                 foreach (Keybind keybind in this._keybinds)
                 {
-                    if (!Keybind.IsNull(keybind) && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULL_CHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
+                    if (keybind != null && keybind != Keybind.NULL && keybind.Action != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULL_CHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
                     {
                         keybind.Action!.Invoke();
                         break;

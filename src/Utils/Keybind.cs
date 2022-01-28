@@ -17,7 +17,5 @@ namespace B.Utils
             this.Description = description;
             this.Action = action;
         }
-
-        public static bool IsNull(Keybind keybind) => keybind == null || keybind == Keybind.NULL || keybind.Action == null;
     }
 }
