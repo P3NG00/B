@@ -244,7 +244,7 @@ namespace B.Options.FTP
         {
             if (file.IsDirectory)
             {
-                foreach (SftpFile subFile in this._client.ListDirectory(this.Path + file.FullName))
+                foreach (SftpFile subFile in this._client.ListDirectory(file.FullName))
                     this.Download(subFile);
             }
             else
