@@ -8,6 +8,6 @@ namespace B.Options
 
         public virtual void Save() { }
 
-        public void Quit() => this.IsRunning = false;
+        public virtual void Quit() => this.IsRunning = false;
     }
 }

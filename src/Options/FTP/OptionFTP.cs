@@ -191,7 +191,7 @@ namespace B.Options.FTP
                             SftpFile currentFile = this.CurrentFile;
                             iob.AddKeybind(new Keybind(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
                                 .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
-                                .AddKeybind(new Keybind(() => this.Download(currentFile), "Download", key: ConsoleKey.PageDown))
+                                .AddKeybind(new Keybind(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
                                 .AddKeybind(new Keybind(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete))
                                 .AddKeybind(new Keybind(() =>
                                 {
@@ -223,11 +223,24 @@ namespace B.Options.FTP
                         Util.ClearConsole(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
                         new Input.Option(file.FullName)
-                            .AddKeybind(new Keybind(() => this.Download(file), "Download", key: ConsoleKey.PageDown))
+                            .AddKeybind(new Keybind(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
                             .AddKeybind(new Keybind(() => this.Delete(file), "Delete", key: ConsoleKey.Delete))
                             .AddSpacer()
                             .AddKeybind(new Keybind(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape))
                             .Request();
+                    }
+                    break;
+
+                case Stage.Download:
+                    {
+                        Util.ClearConsole(OptionFTP.WIDTH, 5);
+                        Util.Print("Downloading...", 1, linesBefore: 1);
+                        SftpFile file = this.CurrentFile;
+                        Util.Print(file.FullName, 2, linesBefore: 1);
+                        // May hang while downloading files
+                        this.Download(file);
+                        Util.ClearConsole();
+                        this._stage = Stage.Navigate;
                     }
                     break;
             }
@@ -271,6 +284,13 @@ namespace B.Options.FTP
             Login,
             Navigate,
             FileInteract,
+            Download,
+        }
+
+        public override void Quit()
+        {
+            this._client.Disconnect();
+            base.Quit();
         }
     }
 }

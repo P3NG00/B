@@ -63,11 +63,7 @@ namespace B.Options.MoneyTracker
                             iob.AddKeybind(new Keybind(() => this._stage = Stage.Transaction, "Transaction", '2'));
 
                         iob.AddSpacer()
-                            .AddKeybind(new Keybind(() =>
-                            {
-                                this.Save();
-                                this.Quit();
-                            }, "Back", key: ConsoleKey.Escape))
+                            .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
@@ -372,6 +368,12 @@ namespace B.Options.MoneyTracker
             Transaction_Add,
             Transaction_Delete,
             Transaction_Edit,
+        }
+
+        public override void Quit()
+        {
+            this.Save();
+            base.Quit();
         }
     }
 }
