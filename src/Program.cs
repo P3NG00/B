@@ -12,19 +12,18 @@ namespace B
     public class Program
     {
         // Code entry point
+        // TODO allow for arguments to enter specific things using shortcuts
         public static void Main() => new Program().Start();
 
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
-        public static Settings Settings { get; private set; } = new Settings();
+        public static ProgramSettings Settings { get; private set; } = new ProgramSettings();
 
         // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
         private readonly Dict<string, Type> _optionDict = new Dict<string, Type>(
-            new Pair<string, Type>("Adventure!", typeof(OptionAdventure)),
-            new Pair<string, Type>("FTP", typeof(OptionFTP)),
-            new Pair<string, Type>("Money Tracker", typeof(OptionMoneyTracker)),
-            new Pair<string, Type>("Number Guesser", typeof(OptionNumberGuesser))
-        // , new Pair<string, Type>("DEBUG", typeof(OptionDebug))
-        );
+            new("Adventure!", typeof(OptionAdventure)),
+            new("FTP", typeof(OptionFTP)),
+            new("Money Tracker", typeof(OptionMoneyTracker)),
+            new("Number Guesser", typeof(OptionNumberGuesser)));
 
         private Option? _option = null;
         private bool _running = true;
@@ -51,8 +50,8 @@ namespace B
                 Console.TreatControlCAsInput = true;
 
             // Load program settings
-            if (File.Exists(Settings.Path))
-                Program.Settings = Util.Deserialize<Settings>(Settings.Path);
+            if (File.Exists(ProgramSettings.Path))
+                Program.Settings = Util.Deserialize<ProgramSettings>(ProgramSettings.Path);
 
             // Set console colors
             this.UpdateColors();
@@ -72,7 +71,7 @@ namespace B
                 }
 
                 // If option is running, execute option code
-                if (this._option != null && this._option.IsRunning)
+                if (this._option != null && this._option.Running)
                     this._option.Loop();
                 else
                 {
@@ -85,7 +84,7 @@ namespace B
                     Util.ClearConsole(20, consoleHeight);
 
                     if (Program.Settings.DebugMode)
-                        Util.Print("DEBUG ON", 4, linesBefore: 1);
+                        Util.Print($"DEBUG ON : {DateTime.Now.Millisecond}", 4, linesBefore: 1);
 
                     Input.Option iob = new Input.Option("B's");
 
@@ -142,7 +141,7 @@ namespace B
             }
         }
 
-        private void Save() => Util.Serialize(Settings.Path, Program.Settings);
+        private void Save() => Util.Serialize(ProgramSettings.Path, Program.Settings);
 
         private void UpdateColors()
         {

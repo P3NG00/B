@@ -189,6 +189,8 @@ namespace B.Options.FTP
 
                             Util.Print("Use Up/Down Arrow to navigate.", 1, linesBefore: 1);
                             SftpFile currentFile = this.CurrentFile;
+                            // TODO use backspace to navigate pathing.
+                            // TODO use escape to exit immediately.
                             iob.AddKeybind(new Keybind(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
                                 .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
                                 .AddKeybind(new Keybind(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
@@ -228,6 +230,7 @@ namespace B.Options.FTP
                             .AddSpacer()
                             .AddKeybind(new Keybind(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape))
                             .Request();
+                        Util.ClearConsole();
                     }
                     break;
 

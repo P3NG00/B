@@ -1,6 +1,6 @@
 namespace B.Utils
 {
-    public sealed class Settings
+    public sealed class ProgramSettings
     {
         public static string Path => Program.DataPath + "settings";
 
