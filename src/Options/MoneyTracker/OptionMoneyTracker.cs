@@ -9,7 +9,7 @@ namespace B.Options.MoneyTracker
 
         public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
 
-        private readonly Utils.List<Account> _accounts = new Utils.List<Account>();
+        private readonly Utils.List<Account> _accounts = new();
         private Account? _selectedAccount;
         private Transaction? _tempTransaction;
         private byte _tempTransactionState = 0;
@@ -57,13 +57,13 @@ namespace B.Options.MoneyTracker
 
                         Util.ClearConsole(20, consoleHeight);
                         Input.Option iob = new Input.Option("Money Tracker")
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Account, "Account", '1'));
+                            .AddKeybind(new(() => this._stage = Stage.Account, "Account", '1'));
 
                         if (selected)
-                            iob.AddKeybind(new Keybind(() => this._stage = Stage.Transaction, "Transaction", '2'));
+                            iob.AddKeybind(new(() => this._stage = Stage.Transaction, "Transaction", '2'));
 
                         iob.AddSpacer()
-                            .AddKeybind(new Keybind(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                            .AddKeybind(new(() => this.Quit(), "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
@@ -80,11 +80,11 @@ namespace B.Options.MoneyTracker
                             Util.ClearConsole(24, 9);
 
                         new Input.Option("Account")
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Account_Create, "Create", '1'))
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Account_Select, "Select", '2'))
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Account_Remove, "Remove", '3'))
+                            .AddKeybind(new(() => this._stage = Stage.Account_Create, "Create", '1'))
+                            .AddKeybind(new(() => this._stage = Stage.Account_Select, "Select", '2'))
+                            .AddKeybind(new(() => this._stage = Stage.Account_Remove, "Remove", '3'))
                             .AddSpacer()
-                            .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                            .AddKeybind(new(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
@@ -132,14 +132,14 @@ namespace B.Options.MoneyTracker
                             consoleHeight += amountAccounts + 1;
 
                         Util.ClearConsole(27, consoleHeight);
-                        Input.Option iob = new Input.Option();
+                        Input.Option iob = new();
 
                         if (amountAccounts > 0)
                         {
                             for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = this._accounts[i];
-                                iob.AddKeybind(new Keybind(() =>
+                                iob.AddKeybind(new(() =>
                                 {
                                     this._selectedAccount = account;
                                     this._stage = Stage.Account;
@@ -149,7 +149,7 @@ namespace B.Options.MoneyTracker
                             iob.AddSpacer();
                         }
 
-                        iob.AddKeybind(new Keybind(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
+                        iob.AddKeybind(new(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
@@ -163,14 +163,14 @@ namespace B.Options.MoneyTracker
                             consoleHeight += amountAccounts + 1;
 
                         Util.ClearConsole(27, consoleHeight);
-                        Input.Option iob = new Input.Option("Remove Account");
+                        Input.Option iob = new("Remove Account");
 
                         if (amountAccounts > 0)
                         {
                             for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = this._accounts[i];
-                                iob.AddKeybind(new Keybind(() =>
+                                iob.AddKeybind(new(() =>
                                 {
                                     if (this._selectedAccount == account)
                                         this._selectedAccount = null;
@@ -184,7 +184,7 @@ namespace B.Options.MoneyTracker
                             iob.AddSpacer();
                         }
 
-                        iob.AddKeybind(new Keybind(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
+                        iob.AddKeybind(new(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
@@ -193,22 +193,22 @@ namespace B.Options.MoneyTracker
                     {
                         Util.ClearConsole(20, 10);
                         new Input.Option("Transaction")
-                            .AddKeybind(new Keybind(() =>
+                            .AddKeybind(new(() =>
                             {
                                 this._stage = Stage.Transaction_View;
                                 Util.ClearConsole();
                             }, "View", '1'))
-                            .AddKeybind(new Keybind(() =>
+                            .AddKeybind(new(() =>
                             {
                                 Input.String = string.Empty;
-                                this._tempTransaction = new Transaction();
+                                this._tempTransaction = new();
                                 this._tempTransactionState = 0;
                                 this._stage = Stage.Transaction_Add;
                             }, "Add", '2'))
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Delete, "Delete", '3'))
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Transaction_Edit, "Edit", '4'))
+                            .AddKeybind(new(() => this._stage = Stage.Transaction_Delete, "Delete", '3'))
+                            .AddKeybind(new(() => this._stage = Stage.Transaction_Edit, "Edit", '4'))
                             .AddSpacer()
-                            .AddKeybind(new Keybind(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                            .AddKeybind(new(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
                             .Request();
                     }
                     break;
@@ -239,12 +239,12 @@ namespace B.Options.MoneyTracker
                         Util.Print("Total: " + total, 2, linesBefore: 1); // TODO fix total, now innacurately only showing total of transactions on page
                         Util.Print("Use Up/Down to navigate", 2, linesBefore: 1);
                         new Input.Option()
-                            .AddKeybind(new Keybind(() => this.Index++, key: ConsoleKey.DownArrow))
-                            .AddKeybind(new Keybind(() => this.Index--, key: ConsoleKey.UpArrow))
-                            .AddKeybind(new Keybind(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
-                            .AddKeybind(new Keybind(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'))
+                            .AddKeybind(new(() => this.Index++, key: ConsoleKey.DownArrow))
+                            .AddKeybind(new(() => this.Index--, key: ConsoleKey.UpArrow))
+                            .AddKeybind(new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
+                            .AddKeybind(new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'))
                             .AddSpacer()
-                            .AddKeybind(new Keybind(() =>
+                            .AddKeybind(new(() =>
                             {
                                 this.Index = 0;
                                 this._stage = Stage.Transaction;
@@ -348,7 +348,7 @@ namespace B.Options.MoneyTracker
                 account = Util.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name)!;
             else
             {
-                account = new Account(name);
+                account = new(name);
                 account.Save();
             }
 

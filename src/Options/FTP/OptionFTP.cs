@@ -103,7 +103,7 @@ namespace B.Options.FTP
         public OptionFTP()
         {
             Input.String = string.Empty;
-            DirectoryInfo downloadDir = new DirectoryInfo(OptionFTP.DownloadPath);
+            DirectoryInfo downloadDir = new(OptionFTP.DownloadPath);
 
             if (!downloadDir.Exists)
                 downloadDir.Create();
@@ -126,7 +126,7 @@ namespace B.Options.FTP
                         {
                             case ConsoleKey.Enter:
                                 {
-                                    this._client = new SftpClient(OptionFTP.IP, OptionFTP.PORT, OptionFTP.USER, Input.String);
+                                    this._client = new(OptionFTP.IP, OptionFTP.PORT, OptionFTP.USER, Input.String);
                                     Input.String = string.Empty;
 
                                     try
@@ -162,7 +162,7 @@ namespace B.Options.FTP
                         string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}'";
                         Util.Print($"{header,-98}", 1, linesBefore: 1);
                         Util.Print();
-                        Input.Option iob = new Input.Option();
+                        Input.Option iob = new Input.Option().AddKeybind(new(() => this.RefreshFiles(), key: ConsoleKey.F5));
 
                         if (entryAmount > 0)
                         {
@@ -187,11 +187,11 @@ namespace B.Options.FTP
                             SftpFile currentFile = this.CurrentFile;
                             // TODO use backspace to navigate pathing.
                             // TODO use escape to exit immediately.
-                            iob.AddKeybind(new Keybind(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
-                                .AddKeybind(new Keybind(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
-                                .AddKeybind(new Keybind(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
-                                .AddKeybind(new Keybind(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete))
-                                .AddKeybind(new Keybind(() =>
+                            iob.AddKeybind(new(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
+                                .AddKeybind(new(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
+                                .AddKeybind(new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
+                                .AddKeybind(new(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete))
+                                .AddKeybind(new(() =>
                                 {
                                     if (currentFile.IsDirectory)
                                         this.Path += "/" + currentFile.Name;
@@ -202,7 +202,7 @@ namespace B.Options.FTP
                         else
                             Util.Print("Directory empty...", 3);
 
-                        iob.AddKeybind(new Keybind(() =>
+                        iob.AddKeybind(new(() =>
                                 {
                                     if (this.Path != string.Empty)
                                         this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
@@ -221,10 +221,10 @@ namespace B.Options.FTP
                         Util.ClearConsole(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
                         new Input.Option(file.FullName)
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
-                            .AddKeybind(new Keybind(() => this.Delete(file), "Delete", key: ConsoleKey.Delete))
+                            .AddKeybind(new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
+                            .AddKeybind(new(() => this.Delete(file), "Delete", key: ConsoleKey.Delete))
                             .AddSpacer()
-                            .AddKeybind(new Keybind(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape))
+                            .AddKeybind(new(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape))
                             .Request();
                         Util.ClearConsole();
                     }

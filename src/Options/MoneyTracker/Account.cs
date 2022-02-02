@@ -6,7 +6,7 @@ namespace B.Options.MoneyTracker
     public sealed class Account
     {
         public string FilePath => OptionMoneyTracker.DirectoryPath + this.Name;
-        public Utils.List<Transaction> Transactions = new Utils.List<Transaction>();
+        public Utils.List<Transaction> Transactions = new();
         public string Name = string.Empty;
         public int Decimals
         {

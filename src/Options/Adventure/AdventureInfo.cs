@@ -26,7 +26,7 @@ namespace B.Options.Adventure
             set => this._speed = Util.Clamp(value, 1, 25);
         }
 
-        public Vector2 Position = new Vector2();
+        public Vector2 Position = new();
         public int Coins = 0;
 
         private int _speed = 1;

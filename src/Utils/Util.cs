@@ -12,7 +12,7 @@ namespace B.Utils
 
         public static readonly Random Random = new Random();
 
-        public static ConsoleKeyInfo LastInput { get; private set; }
+        public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
 
         public static void WaitForInput() => Console.ReadKey(true);
 

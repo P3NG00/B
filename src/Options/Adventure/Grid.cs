@@ -8,9 +8,9 @@ namespace B.Options.Adventure
         public readonly int Width;
         public readonly int Height;
 
-        private readonly Dict<Vector2, Action> _interactionDict = new Dict<Vector2, Action>();
-        private readonly Dict<Vector2, Pair<int, Vector2>> _doorDict = new Dict<Vector2, Pair<int, Vector2>>();
-        private readonly Utils.List<Vector2> _coinList = new Utils.List<Vector2>();
+        private readonly Dict<Vector2, Action> _interactionDict = new();
+        private readonly Dict<Vector2, Pair<int, Vector2>> _doorDict = new();
+        private readonly Utils.List<Vector2> _coinList = new();
         private readonly Tile[][] _tileGrid;
 
         // Private Initialization Cache
@@ -46,7 +46,7 @@ namespace B.Options.Adventure
                             tileType = tile.TileType;
 
                             if (tileType == Tile.TileTypes.Coin)
-                                this._coinList.Add(new Vector2(x, y));
+                                this._coinList.Add(new(x, y));
                             else if (tileType == Tile.TileTypes.Interactable)
                                 this._initInteractables++;
                             else if (tileType == Tile.TileTypes.Door)

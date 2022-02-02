@@ -16,10 +16,10 @@ namespace B
         public static void Main() => new Program().Start();
 
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
-        public static ProgramSettings Settings { get; private set; } = new ProgramSettings();
+        public static ProgramSettings Settings { get; private set; } = new();
 
         // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
-        private readonly Dict<string, Type> _optionDict = new Dict<string, Type>(
+        private readonly Dict<string, Type> _optionDict = new(
             new("Adventure!", typeof(OptionAdventure)),
             new("FTP", typeof(OptionFTP)),
             new("Money Tracker", typeof(OptionMoneyTracker)),
@@ -90,16 +90,16 @@ namespace B
                     if (Program.Settings.DebugMode)
                         Util.Print("DEBUG ON", 4, linesBefore: 1);
 
-                    Input.Option iob = new Input.Option("B's");
+                    Input.Option iob = new("B's");
 
                     for (int i = 0; i < this._optionDict.Length; i++)
                     {
                         Pair<string, Type> optionEntry = this._optionDict[i];
-                        iob.AddKeybind(new Keybind(() => this._option = (Activator.CreateInstance(optionEntry.Item2!) as Option)!, optionEntry.Item1!, (char)('1' + i)));
+                        iob.AddKeybind(new(() => this._option = (Activator.CreateInstance(optionEntry.Item2!) as Option)!, optionEntry.Item1!, (char)('1' + i)));
                     }
 
                     iob.AddSpacer()
-                        .AddKeybind(new Keybind(() => this._running = false, "Quit", key: ConsoleKey.Escape))
+                        .AddKeybind(new(() => this._running = false, "Quit", key: ConsoleKey.Escape))
                         .Request();
                 }
 
@@ -118,8 +118,8 @@ namespace B
                         {
                             Util.ClearConsole(15, 6);
                             new Input.Option("Delete Data?")
-                                .AddKeybind(new Keybind(() => Directory.Delete(Program.DataPath, true), "Yes", key: ConsoleKey.Enter))
-                                .AddKeybind(new Keybind(null!, "No", key: ConsoleKey.Escape))
+                                .AddKeybind(new(() => Directory.Delete(Program.DataPath, true), "Yes", key: ConsoleKey.Enter))
+                                .AddKeybind(new(null!, "No", key: ConsoleKey.Escape))
                                 .Request();
                         }
                         break;

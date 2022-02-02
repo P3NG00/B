@@ -5,7 +5,7 @@ namespace B.Options.Debug
 {
     public sealed class OptionDebug : Option
     {
-        private static readonly Vector2 _size = new Vector2(40, 20);
+        private static readonly Vector2 _size = new(40, 20);
 
         public override void Loop()
         {
@@ -14,10 +14,10 @@ namespace B.Options.Debug
             Util.Print($"Height: {OptionDebug._size.y}");
 
             new Input.Option()
-                .AddKeybind(new Keybind(() => OptionDebug._size.x++, keyChar: '8', key: ConsoleKey.RightArrow))
-                .AddKeybind(new Keybind(() => OptionDebug._size.x--, keyChar: '2', key: ConsoleKey.LeftArrow))
-                .AddKeybind(new Keybind(() => OptionDebug._size.y++, keyChar: '6', key: ConsoleKey.DownArrow))
-                .AddKeybind(new Keybind(() => OptionDebug._size.y--, keyChar: '4', key: ConsoleKey.UpArrow))
+                .AddKeybind(new(() => OptionDebug._size.x++, keyChar: '8', key: ConsoleKey.RightArrow))
+                .AddKeybind(new(() => OptionDebug._size.x--, keyChar: '2', key: ConsoleKey.LeftArrow))
+                .AddKeybind(new(() => OptionDebug._size.y++, keyChar: '6', key: ConsoleKey.DownArrow))
+                .AddKeybind(new(() => OptionDebug._size.y--, keyChar: '4', key: ConsoleKey.UpArrow))
                 .Request();
         }
     }
