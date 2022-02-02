@@ -51,7 +51,11 @@ namespace B
 
             // Load program settings
             if (File.Exists(ProgramSettings.Path))
-                Program.Settings = Util.Deserialize<ProgramSettings>(ProgramSettings.Path);
+            {
+                // If settings can't be loaded, just handle excepion.
+                // Settings are already initialized to default values.
+                try { Program.Settings = Util.Deserialize<ProgramSettings>(ProgramSettings.Path); } catch (Exception) { }
+            }
 
             // Set console colors
             this.UpdateColors();
@@ -84,7 +88,7 @@ namespace B
                     Util.ClearConsole(20, consoleHeight);
 
                     if (Program.Settings.DebugMode)
-                        Util.Print($"DEBUG ON : {DateTime.Now.Millisecond}", 4, linesBefore: 1);
+                        Util.Print("DEBUG ON", 4, linesBefore: 1);
 
                     Input.Option iob = new Input.Option("B's");
 

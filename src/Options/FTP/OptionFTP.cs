@@ -32,23 +32,6 @@ namespace B.Options.FTP
                 };
                 return sa[s.Length % sa.Length];
             },
-            // Crazy Scroll
-            s =>
-            {
-                string[] sa =
-                {
-                    "    ~    ",
-                    "   ~     ",
-                    "     ~   ",
-                    "  ~      ",
-                    "      ~  ",
-                    " ~       ",
-                    "       ~ ",
-                    "~        ",
-                    "        ~",
-                };
-                return sa[s.Length % sa.Length];
-            },
             // Star Scroll
             s =>
             {
@@ -62,11 +45,25 @@ namespace B.Options.FTP
             {
                 char[] ca = new char[9];
                 Array.Fill(ca, ' ');
-                ca[s.Length % ca.Length] = Util.RandomFromList("!?@#$%&*+=~XO§®¡©█■".ToCharArray());
+                ca[s.Length % ca.Length] = Util.RandomFrom("!?@#$%&*+=~XO§®¡©█■".ToCharArray());
+                return new string(ca);
+            },
+            // Bar Fill
+            s =>
+            {
+                char[] ca = new char[9];
+                int fillDepth = s.Length % (ca.Length + 1);
+                for (int i = 0; i < ca.Length; i++)
+                {
+                    if (i < fillDepth)
+                        ca[i] = '#';
+                    else
+                        ca[i] = '-';
+                }
                 return new string(ca);
             },
         };
-        private static Func<string, string> _scrambler = null!;
+        private static Func<string, string> _scrambler = Util.RandomFrom(OptionFTP._scramblers);
 
         private SftpClient _client = null!;
         private IEnumerable<SftpFile> _files = null!;
@@ -106,7 +103,6 @@ namespace B.Options.FTP
         public OptionFTP()
         {
             Input.String = string.Empty;
-            OptionFTP._scrambler = Util.RandomFromList(OptionFTP._scramblers);
             DirectoryInfo downloadDir = new DirectoryInfo(OptionFTP.DownloadPath);
 
             if (!downloadDir.Exists)
@@ -292,7 +288,9 @@ namespace B.Options.FTP
 
         public override void Quit()
         {
-            this._client.Disconnect();
+            if (this._client != null && this._client.IsConnected)
+                this._client.Disconnect();
+
             base.Quit();
         }
     }
