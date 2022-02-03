@@ -52,21 +52,23 @@ namespace B.Options.Adventure
 
                 case Stage.Game:
                     {
-                        Console.SetCursorPosition(0, 0);
+                        Util.ResetTextCursor();
                         Grid currentGrid = OptionAdventure.CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;
 
                         if (Program.Settings.DebugMode)
                         {
                             // Extra spaces are added to the end to clear leftover text
-                            Util.Print($"{currentGrid,-7}", 1, linesBefore: 1);
-                            Util.Print($"Pos: {OptionAdventure.Info.Position,-8}", 1);
+                            Util.PrintLine();
+                            Util.PrintLine($" {currentGrid,-7}");
+                            Util.PrintLine($" Pos: {OptionAdventure.Info.Position,-8}");
                             consoleHeight += 3;
                         }
 
                         Util.SetConsoleSize(currentGrid.RealWidth + 8, consoleHeight);
                         string borderHorizontal = Util.StringOf(OptionAdventure.CHAR_BORDER_HORIZONTAL, currentGrid.Width);
-                        Util.Print($"{OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}", 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine($"  {OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
                         Vector2 pos;
                         string s;
 
@@ -86,18 +88,21 @@ namespace B.Options.Adventure
                                     s += currentGrid.GetTile(pos).Chars;
                             }
 
-                            Util.Print(s + OptionAdventure.CHAR_BORDER_VERTICAL, 2);
+                            Util.PrintLine($"  {s + OptionAdventure.CHAR_BORDER_VERTICAL}");
                         }
 
-                        Util.Print($"{OptionAdventure.CHAR_CORNER_B}{borderHorizontal}{OptionAdventure.CHAR_CORNER_A}", 2);
-                        Util.Print($"> {OptionAdventure.Message}", 3, linesBefore: 1);
+                        Util.PrintLine($"  {OptionAdventure.CHAR_CORNER_B}{borderHorizontal}{OptionAdventure.CHAR_CORNER_A}");
+                        Util.PrintLine();
+                        Util.PrintLine($"   > {OptionAdventure.Message}");
                         OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
                         string format = "{0,9}: {1,-5}";
-                        Util.Print(string.Format(format, "Coins", OptionAdventure.Info.Coins), linesBefore: 1);
-                        Util.Print(string.Format(format, "Speed", OptionAdventure.Info.Speed));
-                        Util.Print("Move) W A S D", 6, linesBefore: 1);
-                        Util.Print("Interact) Space", 2);
-                        Util.Print("Speed) + -", 5);
+                        Util.PrintLine();
+                        Util.PrintLine(string.Format(format, "Coins", OptionAdventure.Info.Coins));
+                        Util.PrintLine(string.Format(format, "Speed", OptionAdventure.Info.Speed));
+                        Util.PrintLine();
+                        Util.PrintLine("      Move) W A S D");
+                        Util.PrintLine("  Interact) Space");
+                        Util.PrintLine("     Speed) + -");
                         new Input.Option()
                             .AddKeybind(new(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
                             .AddKeybind(new(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))

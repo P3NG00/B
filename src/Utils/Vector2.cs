@@ -14,13 +14,19 @@ namespace B.Utils
 
         public Vector2() : this(0) { }
 
-        public Vector2(int xy) : this(xy, xy) { }
+        public Vector2(int square) : this(square, square) { }
 
         public Vector2(int x, int y)
         {
             this.x = x;
             this.y = y;
         }
+
+        public static Vector2 Min(Vector2 vecA, Vector2 vecB) => new(Math.Min(vecA.x, vecB.x), Math.Min(vecA.y, vecB.y));
+
+        public static Vector2 Max(Vector2 vecA, Vector2 vecB) => new(Math.Max(vecA.x, vecB.x), Math.Max(vecA.y, vecB.y));
+
+        public static Vector2 Clamp(Vector2 vec, Vector2 min, Vector2 max) => new(Util.Clamp(vec.x, min.x, max.x), Util.Clamp(vec.y, min.y, max.y));
 
         public override int GetHashCode() => (this.x * this.y).GetHashCode();
 

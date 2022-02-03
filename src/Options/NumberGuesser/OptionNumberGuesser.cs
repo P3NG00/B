@@ -12,6 +12,7 @@ namespace B.Options.NumberGuesser
             "Right on!",
             "Perfect!",
             "Correct!",
+            "Nice one!",
         };
 
         private Stage _stage = Stage.MainMenu;
@@ -44,16 +45,18 @@ namespace B.Options.NumberGuesser
                         string guessMessage = "Between 0 - " + this._numMax;
                         int? guess = Input.Int;
                         bool won = guess.HasValue && guess.Value == this._numRandom;
-                        int consoleHeight = 7;
+                        int consoleHeight = 5;
 
                         if (Program.Settings.DebugMode)
                         {
-                            Util.Print($"Number: {this._numRandom}", 1, linesBefore: 1);
+                            Util.PrintLine();
+                            Util.PrintLine($" Number: {this._numRandom}");
                             consoleHeight += 2;
                         }
 
                         Util.ClearConsole(20, consoleHeight);
-                        Util.Print(Input.String, 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine($"  {Input.String}");
 
                         if (guess == null)
                             guessMessage = "...";
@@ -64,7 +67,8 @@ namespace B.Options.NumberGuesser
                         else
                             guessMessage = OptionNumberGuesser._winMessages[Util.Random.Next(0, OptionNumberGuesser._winMessages.Length)];
 
-                        Util.Print(guessMessage, 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine($"  {guessMessage}");
 
                         if (won)
                         {
@@ -73,7 +77,8 @@ namespace B.Options.NumberGuesser
                         }
                         else
                         {
-                            Util.Print("Enter a Number!", 1, linesBefore: 1);
+                            Util.PrintLine();
+                            Util.PrintLine(" Enter a Number!");
 
                             if (Input.Request(OptionNumberGuesser.GUESS_LENGTH) == ConsoleKey.Escape)
                                 this._stage = Stage.MainMenu;
@@ -99,8 +104,10 @@ namespace B.Options.NumberGuesser
                 case Stage.Settings_MaxNumber:
                     {
                         Util.ClearConsole(20, 5);
-                        Util.Print($"Max - {Input.String}", 2, linesBefore: 1);
-                        Util.Print("Enter Max Number", 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine($"  Max - {Input.String}");
+                        Util.PrintLine();
+                        Util.PrintLine("  Enter Max Number");
                         ConsoleKey key = Input.Request(OptionNumberGuesser.GUESS_LENGTH);
 
                         if (key == ConsoleKey.Enter)

@@ -5,23 +5,21 @@ namespace B.Utils
 {
     public static class Util
     {
-        public const char NULL_CHAR = default(char);
-        public const string NULL_STRING = "";
         public const int MAX_CHARS_DECIMAL = 27;
         public const int MAX_CONSOLE_HEIGHT = 66;
 
-        public static readonly Random Random = new Random();
-
         public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
+
+        public static Random Random => new Random();
 
         public static void WaitForInput() => Console.ReadKey(true);
 
         public static ConsoleKeyInfo GetInput() => Util.LastInput = Console.ReadKey(true);
 
-        public static void WaitForKey(ConsoleKey key, bool displayMessage = true, int offsetLeft = 0)
+        public static void WaitForKey(ConsoleKey key)
         {
-            if (displayMessage)
-                Util.Print($"Press {key} to continue...", offsetLeft, linesBefore: 1);
+            Util.PrintLine();
+            Util.PrintLine($"Press {key} to continue...");
 
             while (true)
                 if (Util.GetInput().Key == key)
@@ -42,23 +40,55 @@ namespace B.Utils
 
         public static T RandomFrom<T>(params T[] list) => list[Util.Random.Next(list.Length)];
 
-        public static void Print(object? message = null, int offsetLeft = 0, bool newLine = true, int linesBefore = 0)
+        public static void Print(string message, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
         {
-            for (int i = 0; i < linesBefore; i++)
-                Console.WriteLine();
+            // Cache old color values
+            ConsoleColor? oldColorText = null;
+            ConsoleColor? oldColorBackground = null;
 
-            string messageStr = message?.ToString() ?? string.Empty;
-            messageStr = string.Format("{0," + (messageStr.Length + offsetLeft).ToString() + "}", messageStr);
+            // Override colors if specified
+            if (colorText.HasValue)
+            {
+                oldColorText = Console.ForegroundColor;
+                Console.ForegroundColor = colorText.Value;
+            }
 
-            if (newLine)
-                Console.WriteLine(messageStr);
-            else
-                Console.Write(messageStr);
+            if (colorBackground.HasValue)
+            {
+                oldColorBackground = Console.BackgroundColor;
+                Console.BackgroundColor = colorBackground.Value;
+            }
+
+            // Print message
+            Console.Write(message);
+
+            // Restore old color values if overriden
+            if (oldColorText.HasValue)
+                Console.ForegroundColor = oldColorText.Value;
+
+            if (oldColorBackground.HasValue)
+                Console.BackgroundColor = oldColorBackground.Value;
         }
+
+        public static void PrintLine(string? message = null, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
+        {
+            if (message != null)
+                Util.Print(message, colorText, colorBackground);
+
+            Console.WriteLine();
+        }
+
+        public static void PrintLines(int lines)
+        {
+            for (int i = 0; i < lines; i++)
+                Console.WriteLine();
+        }
+
+        public static void PrintSpaces(int spaces) => Console.Write(string.Empty.PadLeft(spaces));
 
         public static void SetConsoleSize(int width, int height)
         {
-            // This can only be called on Windows
+            // This can only be called on Windows // TODO shouldn't matter, but needs testing on other types of consoles
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Console.SetWindowSize(width, height);
@@ -75,6 +105,8 @@ namespace B.Utils
             if (width != 0 && height != 0)
                 Util.SetConsoleSize(width, height);
         }
+
+        public static void ResetTextCursor() => Console.SetCursorPosition(0, 0);
 
         public static void ToggleBool(ref bool b) => b = !b;
 

@@ -23,7 +23,7 @@ namespace B.Utils
             int index = 0;
 
             for (int i = 0; i < this._pairs.Length; i++)
-                if (!this._pairs[i].Item1!.Equals(t))
+                if (!this._pairs[i].ItemLeft!.Equals(t))
                     newPairs[index++] = this._pairs[i];
 
             this._pairs = newPairs;
@@ -32,7 +32,7 @@ namespace B.Utils
         public bool ContainsKey(T t)
         {
             foreach (Pair<T, V> pair in this._pairs)
-                if (pair.Item1!.Equals(t))
+                if (pair.ItemLeft!.Equals(t))
                     return true;
 
             return false;
@@ -40,8 +40,8 @@ namespace B.Utils
 
         public V this[T t]
         {
-            get => this._pairs[this.GetIndex(t)].Item2!;
-            set => this._pairs[this.GetIndex(t)].Item2 = value;
+            get => this._pairs[this.GetIndex(t)].ItemRight!;
+            set => this._pairs[this.GetIndex(t)].ItemRight = value;
         }
 
         public Pair<T, V> this[int index] => this._pairs[index];
@@ -49,7 +49,7 @@ namespace B.Utils
         private int GetIndex(T t)
         {
             for (int i = 0; i < this._pairs.Length; i++)
-                if (this._pairs[i].Item1!.Equals(t))
+                if (this._pairs[i].ItemLeft!.Equals(t))
                     return i;
 
             throw new ArgumentException("Key not found");

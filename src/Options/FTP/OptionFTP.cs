@@ -63,8 +63,8 @@ namespace B.Options.FTP
                 return new string(ca);
             },
         };
-        private static Func<string, string> _scrambler = Util.RandomFrom(OptionFTP._scramblers);
 
+        private Func<string, string> _scrambler;
         private SftpClient _client = null!;
         private IEnumerable<SftpFile> _files = null!;
         private Stage _stage = Stage.Login;
@@ -103,6 +103,7 @@ namespace B.Options.FTP
         public OptionFTP()
         {
             Input.String = string.Empty;
+            this._scrambler = Util.RandomFrom(OptionFTP._scramblers);
             DirectoryInfo downloadDir = new(OptionFTP.DownloadPath);
 
             if (!downloadDir.Exists)
@@ -117,10 +118,11 @@ namespace B.Options.FTP
                     {
                         int consoleWidth = 16;
                         Util.ClearConsole(consoleWidth, 5);
-                        Util.Print("Login", 5, linesBefore: 1);
-                        string scrambled = OptionFTP._scrambler(Input.String);
+                        Util.PrintLine();
+                        Util.PrintLine("     Login");
+                        string scrambled = this._scrambler(Input.String);
                         int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
-                        Util.Print(string.Format("{0," + textDepth + "}", scrambled));
+                        Util.PrintLine(string.Format("{0," + textDepth + "}", scrambled));
 
                         switch (Input.Request(OptionFTP.MAX_LENGTH_PASSWORD))
                         {
@@ -137,12 +139,12 @@ namespace B.Options.FTP
                                     }
                                     catch (SshAuthenticationException)
                                     {
-                                        Util.Print("Wrong password");
+                                        Util.PrintLine("Wrong password");
                                         Util.WaitForInput();
                                     }
                                     catch (SocketException)
                                     {
-                                        Util.Print("Can't connect", 1);
+                                        Util.PrintLine(" Can't connect");
                                         Util.WaitForInput();
                                     }
                                 }
@@ -155,13 +157,15 @@ namespace B.Options.FTP
 
                 case Stage.Navigate:
                     {
+                        // TODO account for newly acquired Program.WINDOW_SIZE_MAX variable when displaying size of list
                         int entryAmount = this._files.Count();
                         int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 13;
                         Util.SetConsoleSize(OptionFTP.WIDTH, consoleHeight);
-                        Console.SetCursorPosition(0, 0);
+                        Util.ResetTextCursor();
                         string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}'";
-                        Util.Print($"{header,-98}", 1, linesBefore: 1);
-                        Util.Print();
+                        Util.PrintLine();
+                        Util.PrintLine($" {header,-98}");
+                        Util.PrintLine();
                         Input.Option iob = new();
 
                         if (entryAmount > 0)
@@ -178,12 +182,13 @@ namespace B.Options.FTP
                                     fileName += "/";
 
                                 if (i == this.Index)
-                                    Util.Print($"> {fileName}", 1);
+                                    Util.PrintLine($" > {fileName}");
                                 else
-                                    Util.Print(string.Format("{0,-" + (fileName.Length + 1) + "}", fileName), 2);
+                                    Util.PrintLine(string.Format("  {0,-" + (fileName.Length + 1) + "}", fileName));
                             }
 
-                            Util.Print("Use Up/Down Arrow to navigate.", 1, linesBefore: 1);
+                            Util.PrintLine();
+                            Util.PrintLine(" Use Up/Down Arrow to navigate.");
                             SftpFile currentFile = this.CurrentFile;
                             iob.AddKeybind(new(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
                                 .AddKeybind(new(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
@@ -198,7 +203,7 @@ namespace B.Options.FTP
                                 }, "Select", key: ConsoleKey.Enter));
                         }
                         else
-                            Util.Print("Directory empty...", 3);
+                            Util.PrintLine("   Directory empty...");
 
                         iob.AddKeybind(new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5))
                             .AddKeybind(new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace))
@@ -224,9 +229,11 @@ namespace B.Options.FTP
                 case Stage.Download:
                     {
                         Util.ClearConsole(OptionFTP.WIDTH, 5);
-                        Util.Print("Downloading...", 1, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine(" Downloading...");
                         SftpFile file = this.CurrentFile;
-                        Util.Print(file.FullName, 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine($"  {file.FullName}");
                         // May hang while downloading files
                         this.Download(file);
                         Util.ClearConsole();

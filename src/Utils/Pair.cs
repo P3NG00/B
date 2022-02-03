@@ -1,15 +1,15 @@
 namespace B.Utils
 {
     [Serializable]
-    public class Pair<T1, T2>
+    public class Pair<L, R>
     {
-        public T1? Item1;
-        public T2? Item2;
+        public L? ItemLeft;
+        public R? ItemRight;
 
-        public Pair(T1 item1, T2 item2)
+        public Pair(L itemLeft, R itemRight)
         {
-            this.Item1 = item1;
-            this.Item2 = item2;
+            this.ItemLeft = itemLeft;
+            this.ItemRight = itemRight;
         }
     }
 }

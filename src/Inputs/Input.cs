@@ -26,9 +26,9 @@ namespace B.Inputs
         public sealed class Option
         {
             private readonly Utils.List<Keybind> _keybinds = new Utils.List<Keybind>();
-            private readonly string _message;
+            private readonly string? _message;
 
-            public Option(string message = Util.NULL_STRING) => this._message = message;
+            public Option(string? message = null) => this._message = message;
 
             public Option AddKeybind(Keybind keybind)
             {
@@ -38,13 +38,18 @@ namespace B.Inputs
 
             public Option AddSpacer() => this.AddKeybind(Keybind.NULL);
 
+            // TODO create AddExitKeybind() method for consistent exit keybinds (take in instance of option for quitting. if instance is null, exit program?) (+ silent mode w no console output) (+ bool for adding spacer before exit bind)
+
             public void Request()
             {
-                if (this._message != string.Empty)
-                    Util.Print(this._message, 2, linesBefore: 1);
+                bool printLine = false;
 
-                bool printLine = true;
-                string s;
+                if (this._message is not null)
+                {
+                    Util.PrintLine();
+                    Util.Print($"  {this._message}");
+                    printLine = true;
+                }
 
                 foreach (Keybind keybind in this._keybinds)
                 {
@@ -52,34 +57,48 @@ namespace B.Inputs
                     // If keybind description is null, don't display option
                     if (keybind != Keybind.NULL)
                     {
-                        if (keybind.Description != string.Empty)
+                        if (keybind.Description is not null)
                         {
-                            s = keybind.KeyChar == Util.NULL_CHAR ? keybind.Key.ToString() : keybind.KeyChar.ToString();
+                            string s = keybind.KeyChar is null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString();
 
                             if (printLine)
                             {
                                 printLine = false;
-                                Util.Print();
+                                Util.PrintLine();
                             }
 
-                            Util.Print($"{s}) {keybind.Description}", 1);
+                            Util.PrintLine();
+                            Util.Print($" {s}) {keybind.Description}");
                         }
                     }
                     else if (!printLine)
                         printLine = true;
                 }
 
+                Util.PrintLine();
                 ConsoleKeyInfo inputKeyInfo = Util.GetInput();
 
                 foreach (Keybind keybind in this._keybinds)
                 {
-                    if (keybind != null && keybind != Keybind.NULL && keybind.Action != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar != Util.NULL_CHAR && keybind.KeyChar == inputKeyInfo.KeyChar)))
+                    if (keybind != null && keybind != Keybind.NULL && keybind.Action != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar.HasValue && keybind.KeyChar == inputKeyInfo.KeyChar)))
                     {
                         keybind.Action!.Invoke();
                         break;
                     }
                 }
             }
+        }
+
+        public sealed class Scroll
+        {
+            private readonly string? _message;
+
+            public Scroll(string? message = null)
+            {
+                this._message = message;
+            }
+
+            // TODO
         }
     }
 }

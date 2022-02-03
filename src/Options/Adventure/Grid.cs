@@ -88,8 +88,8 @@ namespace B.Options.Adventure
                 if (tileType == Tile.TileTypes.Door && this._doorDict.ContainsKey(pos))
                 {
                     Pair<int, Vector2> gridIdAndPos = this._doorDict[pos];
-                    OptionAdventure.Info.GridID = gridIdAndPos.Item1;
-                    OptionAdventure.Info.Position = gridIdAndPos.Item2 ?? Vector2.Zero;
+                    OptionAdventure.Info.GridID = gridIdAndPos.ItemLeft;
+                    OptionAdventure.Info.Position = gridIdAndPos.ItemRight ?? Vector2.Zero;
                 }
             }
             else

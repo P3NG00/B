@@ -9,6 +9,8 @@ namespace B.Utils
 
         public int Length => this.Items.Length;
 
+        public List(params T[] items) => this.Items = items;
+
         public void Add(T t)
         {
             T[] newItems = new T[this.Items.Length + 1];

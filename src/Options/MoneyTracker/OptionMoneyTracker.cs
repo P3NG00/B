@@ -73,8 +73,9 @@ namespace B.Options.MoneyTracker
                         if (this._selectedAccount != null)
                         {
                             Util.ClearConsole(24, 12);
-                            Util.Print("Selected Account:", 3, linesBefore: 1);
-                            Util.Print(this._selectedAccount.Name, 2);
+                            Util.PrintLine();
+                            Util.PrintLine("   Selected Account:");
+                            Util.PrintLine($"  {this._selectedAccount.Name}");
                         }
                         else
                             Util.ClearConsole(24, 9);
@@ -92,7 +93,8 @@ namespace B.Options.MoneyTracker
                 case Stage.Account_Create:
                     {
                         Util.ClearConsole(42, 5);
-                        Util.Print($"New Account Name: {Input.String}", 2, false, 1);
+                        Util.PrintLine();
+                        Util.Print($"  New Account Name: {Input.String}");
                         ConsoleKey key = Input.Request(20);
 
                         if (key == ConsoleKey.Enter)
@@ -105,12 +107,16 @@ namespace B.Options.MoneyTracker
                                 {
                                     Account account = this.AddAccount(new FileInfo(filePath).Name);
                                     this._selectedAccount = account;
-                                    Util.Print($"\"{Input.String}\" created!", 2, linesBefore: 2);
+                                    Util.PrintLines(2);
+                                    Util.PrintLine($"  \"{Input.String}\" created!");
                                     Input.String = string.Empty;
                                     this._stage = Stage.Account;
                                 }
                                 else
-                                    Util.Print("Name already taken!", 4, linesBefore: 2);
+                                {
+                                    Util.PrintLines(2);
+                                    Util.PrintLine("    Name already taken!");
+                                }
 
                                 Util.WaitForInput();
                             }
@@ -218,8 +224,8 @@ namespace B.Options.MoneyTracker
                         int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8;
                         int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 11;
                         Util.SetConsoleSize(consoleWidth, consoleHeight);
-                        Console.SetCursorPosition(0, 0);
-                        Util.Print();
+                        Util.ResetTextCursor();
+                        Util.PrintLine();
                         decimal total = 0m;
                         int startIndex = this.Index - (this.Index % OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE);
                         int endIndex = Math.Min(startIndex + OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE, this._selectedAccount.Transactions.Length);
@@ -231,13 +237,15 @@ namespace B.Options.MoneyTracker
                             string message = string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf("0", this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description);
 
                             if (i == this.Index)
-                                Util.Print($"> {message}", 1);
+                                Util.PrintLine($" > {message}");
                             else
-                                Util.Print($"{message} ", 2);
+                                Util.PrintLine($"  {message} ");
                         }
 
-                        Util.Print("Total: " + total, 2, linesBefore: 1); // TODO fix total, now innacurately only showing total of transactions on page
-                        Util.Print("Use Up/Down to navigate", 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine($"  Total: {total}"); // TODO fix total, now innacurately only showing total of transactions on page
+                        Util.PrintLine();
+                        Util.PrintLine("  Use Up/Down to navigate");
                         new Input.Option()
                             .AddKeybind(new(() => this.Index++, key: ConsoleKey.DownArrow))
                             .AddKeybind(new(() => this.Index--, key: ConsoleKey.UpArrow))
@@ -256,12 +264,13 @@ namespace B.Options.MoneyTracker
                 case Stage.Transaction_Add:
                     {
                         Util.ClearConsole(Util.MAX_CHARS_DECIMAL + 4, 7);
-                        Util.Print("Amount", 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine("  Amount");
                         ConsoleKey key;
 
                         if (this._tempTransactionState == 0)
                         {
-                            Util.Print(Input.String, 2, false);
+                            Util.Print($"  {Input.String}");
                             key = Input.Request(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
@@ -285,9 +294,10 @@ namespace B.Options.MoneyTracker
                         }
                         else
                         {
-                            Util.Print(this._tempTransaction!.Amount, 2);
-                            Util.Print("Description:", 2, linesBefore: 1);
-                            Util.Print(Input.String, 2, false);
+                            Util.PrintLine($"  {this._tempTransaction!.Amount}");
+                            Util.PrintLine();
+                            Util.PrintLine("  Description:");
+                            Util.Print($"  {Input.String}");
                             key = Input.Request(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
@@ -315,7 +325,8 @@ namespace B.Options.MoneyTracker
                 case Stage.Transaction_Delete:
                     {
                         Util.ClearConsole(31, this._selectedAccount!.Transactions.Length + 4);
-                        Util.Print("Delete", 2, linesBefore: 1);
+                        Util.PrintLine();
+                        Util.PrintLine("  Delete");
                         // this._selectedAccount.PrintTransactions(); // TODO
 
                         Util.WaitForInput();
