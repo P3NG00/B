@@ -12,7 +12,7 @@ namespace B.Options.FTP
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int MAX_LIST_ENTRIES = 50;
         private const int WIDTH = 140;
-        private const string IP = "***REMOVED***"; // TODO store IP's in serializable Profiles
+        private const string IP = "***REMOVED***";
         private const int PORT = 22;
         private const string USER = "***REMOVED***";
 
@@ -156,13 +156,13 @@ namespace B.Options.FTP
                 case Stage.Navigate:
                     {
                         int entryAmount = this._files.Count();
-                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 11;
+                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 13;
                         Util.SetConsoleSize(OptionFTP.WIDTH, consoleHeight);
                         Console.SetCursorPosition(0, 0);
                         string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}'";
                         Util.Print($"{header,-98}", 1, linesBefore: 1);
                         Util.Print();
-                        Input.Option iob = new Input.Option().AddKeybind(new(() => this.RefreshFiles(), key: ConsoleKey.F5));
+                        Input.Option iob = new();
 
                         if (entryAmount > 0)
                         {
@@ -185,8 +185,6 @@ namespace B.Options.FTP
 
                             Util.Print("Use Up/Down Arrow to navigate.", 1, linesBefore: 1);
                             SftpFile currentFile = this.CurrentFile;
-                            // TODO use backspace to navigate pathing.
-                            // TODO use escape to exit immediately.
                             iob.AddKeybind(new(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
                                 .AddKeybind(new(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
                                 .AddKeybind(new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
@@ -202,17 +200,10 @@ namespace B.Options.FTP
                         else
                             Util.Print("Directory empty...", 3);
 
-                        iob.AddKeybind(new(() =>
-                                {
-                                    if (this.Path != string.Empty)
-                                        this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
-                                    else
-                                    {
-                                        this._client.Disconnect();
-                                        this.Quit();
-                                    }
-                                }, "Back", key: ConsoleKey.Escape))
-                                .Request();
+                        iob.AddKeybind(new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5))
+                            .AddKeybind(new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace))
+                            .AddKeybind(new(() => this.Quit(), "Exit", key: ConsoleKey.Escape))
+                            .Request();
                     }
                     break;
 
@@ -276,6 +267,12 @@ namespace B.Options.FTP
         {
             this._client.Delete(file.FullName);
             this.RefreshFiles();
+        }
+
+        private void PreviousDirectory()
+        {
+            if (this.Path != string.Empty)
+                this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
         }
 
         private enum Stage

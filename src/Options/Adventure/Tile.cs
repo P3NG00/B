@@ -21,7 +21,9 @@ namespace B.Options.Adventure
 
         public Tile(string chars, TileTypes tileType)
         {
-            if (chars.Length != 2) { throw new ArgumentException("chars.Length != 2"); }
+            if (chars.Length != 2)
+                throw new ArgumentException("chars.Length != 2");
+
             this.Chars = chars;
             this.TileType = tileType;
         }
