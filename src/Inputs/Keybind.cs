@@ -1,4 +1,4 @@
-namespace B.Utils
+namespace B.Inputs
 {
     public sealed class Keybind
     {

@@ -1,4 +1,4 @@
-namespace B.Utils
+namespace B
 {
     public sealed class ProgramSettings
     {
