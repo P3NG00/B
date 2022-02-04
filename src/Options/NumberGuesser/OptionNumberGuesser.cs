@@ -27,15 +27,15 @@ namespace B.Options.NumberGuesser
                     {
                         Util.ClearConsole(20, 8);
                         new Input.Option("Number Guesser")
-                            .AddKeybind(new(() =>
+                            .Add(() =>
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;
                                 Input.String = string.Empty;
                                 this._stage = Stage.Game;
-                            }, "New Game", '1'))
+                            }, "New Game", '1')
                             .AddSpacer()
-                            .AddKeybind(new(() => this._stage = Stage.Settings, "Settings", '9'))
-                            .AddKeybind(new(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                            .Add(() => this._stage = Stage.Settings, "Settings", '9')
+                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -90,13 +90,13 @@ namespace B.Options.NumberGuesser
                     {
                         Util.ClearConsole(20, 7);
                         new Input.Option("Settings")
-                            .AddKeybind(new(() =>
+                            .Add(() =>
                             {
                                 Input.String = this._numMax.ToString();
                                 this._stage = Stage.Settings_MaxNumber;
-                            }, "Max Number", '1'))
+                            }, "Max Number", '1')
                             .AddSpacer()
-                            .AddKeybind(new(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;

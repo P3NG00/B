@@ -57,13 +57,13 @@ namespace B.Options.MoneyTracker
 
                         Util.ClearConsole(20, consoleHeight);
                         Input.Option iob = new Input.Option("Money Tracker")
-                            .AddKeybind(new(() => this._stage = Stage.Account, "Account", '1'));
+                            .Add(() => this._stage = Stage.Account, "Account", '1');
 
                         if (selected)
-                            iob.AddKeybind(new(() => this._stage = Stage.Transaction, "Transaction", '2'));
+                            iob.Add(() => this._stage = Stage.Transaction, "Transaction", '2');
 
                         iob.AddSpacer()
-                            .AddKeybind(new(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -81,11 +81,11 @@ namespace B.Options.MoneyTracker
                             Util.ClearConsole(24, 9);
 
                         new Input.Option("Account")
-                            .AddKeybind(new(() => this._stage = Stage.Account_Create, "Create", '1'))
-                            .AddKeybind(new(() => this._stage = Stage.Account_Select, "Select", '2'))
-                            .AddKeybind(new(() => this._stage = Stage.Account_Remove, "Remove", '3'))
+                            .Add(() => this._stage = Stage.Account_Create, "Create", '1')
+                            .Add(() => this._stage = Stage.Account_Select, "Select", '2')
+                            .Add(() => this._stage = Stage.Account_Remove, "Remove", '3')
                             .AddSpacer()
-                            .AddKeybind(new(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -145,17 +145,17 @@ namespace B.Options.MoneyTracker
                             for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = this._accounts[i];
-                                iob.AddKeybind(new(() =>
+                                iob.Add(() =>
                                 {
                                     this._selectedAccount = account;
                                     this._stage = Stage.Account;
-                                }, account.Name, keyChar: (char)('1' + i)));
+                                }, account.Name, keyChar: (char)('1' + i));
                             }
 
                             iob.AddSpacer();
                         }
 
-                        iob.AddKeybind(new(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
+                        iob.Add(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -176,7 +176,7 @@ namespace B.Options.MoneyTracker
                             for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = this._accounts[i];
-                                iob.AddKeybind(new(() =>
+                                iob.Add(() =>
                                 {
                                     if (this._selectedAccount == account)
                                         this._selectedAccount = null;
@@ -184,13 +184,13 @@ namespace B.Options.MoneyTracker
                                     this._accounts.Remove(account);
                                     account.Delete();
                                     this._stage = Stage.Account;
-                                }, account.Name, keyChar: (char)('1' + i)));
+                                }, account.Name, keyChar: (char)('1' + i));
                             }
 
                             iob.AddSpacer();
                         }
 
-                        iob.AddKeybind(new(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape))
+                        iob.Add(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -199,22 +199,22 @@ namespace B.Options.MoneyTracker
                     {
                         Util.ClearConsole(20, 10);
                         new Input.Option("Transaction")
-                            .AddKeybind(new(() =>
+                            .Add(() =>
                             {
                                 this._stage = Stage.Transaction_View;
                                 Util.ClearConsole();
-                            }, "View", '1'))
-                            .AddKeybind(new(() =>
+                            }, "View", '1')
+                            .Add(() =>
                             {
                                 Input.String = string.Empty;
                                 this._tempTransaction = new();
                                 this._tempTransactionState = 0;
                                 this._stage = Stage.Transaction_Add;
-                            }, "Add", '2'))
-                            .AddKeybind(new(() => this._stage = Stage.Transaction_Delete, "Delete", '3'))
-                            .AddKeybind(new(() => this._stage = Stage.Transaction_Edit, "Edit", '4'))
+                            }, "Add", '2')
+                            .Add(() => this._stage = Stage.Transaction_Delete, "Delete", '3')
+                            .Add(() => this._stage = Stage.Transaction_Edit, "Edit", '4')
                             .AddSpacer()
-                            .AddKeybind(new(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape))
+                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -247,16 +247,16 @@ namespace B.Options.MoneyTracker
                         Util.PrintLine();
                         Util.PrintLine("  Use Up/Down to navigate");
                         new Input.Option()
-                            .AddKeybind(new(() => this.Index++, key: ConsoleKey.DownArrow))
-                            .AddKeybind(new(() => this.Index--, key: ConsoleKey.UpArrow))
-                            .AddKeybind(new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'))
-                            .AddKeybind(new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'))
+                            .Add(() => this.Index++, key: ConsoleKey.DownArrow)
+                            .Add(() => this.Index--, key: ConsoleKey.UpArrow)
+                            .Add(() => this._selectedAccount.Decimals++, "Increase Decimals", '+')
+                            .Add(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-')
                             .AddSpacer()
-                            .AddKeybind(new(() =>
+                            .Add(() =>
                             {
                                 this.Index = 0;
                                 this._stage = Stage.Transaction;
-                            }, "Back", key: ConsoleKey.Escape))
+                            }, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;

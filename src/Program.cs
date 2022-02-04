@@ -11,18 +11,17 @@ using B.Utils;
 
 namespace B
 {
-    public class Program
+    public class Program : Option
     {
-        public static readonly Vector2 WINDOW_SIZE_MIN = new(15, 1);
-        public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max;
-        private static Vector2? _window_size_max = null;
-
         // Code entry point
         // TODO allow for arguments to enter specific things using shortcuts
         public static int Main() => new Program().Start();
 
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static ProgramSettings Settings { get; private set; } = new();
+        public static readonly Vector2 WINDOW_SIZE_MIN = new(15, 1);
+        public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max;
+        private static Vector2? _window_size_max = null;
 
         // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
         private readonly Dict<string, Type> _optionDict = new(
@@ -33,7 +32,6 @@ namespace B
             new("Number Guesser", typeof(OptionNumberGuesser)));
 
         private Option? _option = null;
-        private bool _running = true;
 
         private int Start()
         {
@@ -46,7 +44,7 @@ namespace B
             }
 
             // Program loop
-            while (this._running)
+            while (this.Running)
             {
                 try { this.Loop(); }
                 catch (Exception e) { this.HandleException(e); }
@@ -71,7 +69,7 @@ namespace B
             Console.Title = "B";
 
             // Console input ctrl+c override
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (Util.IsRunningOnWindows)
                 Console.TreatControlCAsInput = true;
 
             // Load program settings
@@ -86,7 +84,7 @@ namespace B
             this.UpdateColors();
 
             // Find max size of console window by increasing the size until it throws an error.
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (Util.IsRunningOnWindows)
             {
                 Vector2 size = new Vector2(Program.WINDOW_SIZE_MIN.x, Program.WINDOW_SIZE_MIN.y);
 
@@ -118,7 +116,7 @@ namespace B
             // TODO add thread with sole purpose of animating the cursor position into different corners of the screen. only allow animating when not printing (may need static variable in Util like Util.IsPrinting that will need to be updated before and after code is done printing so the aniimation can run).
         }
 
-        private void Loop()
+        public override void Loop()
         {
             // If directory doesn't exist, create it and add hidden attribute
             if (!Directory.Exists(Program.DataPath))
@@ -152,15 +150,15 @@ namespace B
                 for (i = 0; i < this._optionDict.Length; i++)
                 {
                     Pair<string, Type> optionEntry = this._optionDict[i];
-                    iob.AddKeybind(new(() => this._option = (Activator.CreateInstance(optionEntry.ItemRight!) as Option)!, optionEntry.ItemLeft!, (char)('1' + i)));
+                    iob.Add(() => this._option = (Activator.CreateInstance(optionEntry.ItemRight!) as Option)!, optionEntry.ItemLeft!, (char)('1' + i));
                 }
 
                 if (Program.Settings.DebugMode)
                     iob.AddSpacer()
-                        .AddKeybind(new(() => this._option = new OptionDebug(), "Debug", (char)('1' + ++i)));
+                        .Add(() => this._option = new OptionDebug(), "Debug", (char)('1' + ++i));
 
                 iob.AddSpacer()
-                    .AddKeybind(new(() => this._running = false, "Quit", key: ConsoleKey.Escape))
+                    .Add(() => this.Quit(), "Quit", key: ConsoleKey.Escape)
                     .Request();
             }
 
@@ -179,8 +177,8 @@ namespace B
                     {
                         Util.ClearConsole(15, 6);
                         new Input.Option("Delete Data?")
-                            .AddKeybind(new(() => Directory.Delete(Program.DataPath, true), "Yes", key: ConsoleKey.Enter))
-                            .AddKeybind(new(null!, "No", key: ConsoleKey.Escape))
+                            .Add(() => Directory.Delete(Program.DataPath, true), "Yes", key: ConsoleKey.Enter)
+                            .Add(null!, "No", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -196,7 +194,7 @@ namespace B
             }
         }
 
-        private void Save() => Util.Serialize(ProgramSettings.Path, Program.Settings);
+        public override void Save() => Util.Serialize(ProgramSettings.Path, Program.Settings);
 
         private void UpdateColors()
         {

@@ -2,8 +2,6 @@ namespace B.Inputs
 {
     public sealed class Keybind
     {
-        public static readonly Keybind NULL = new(null!);
-
         public readonly ConsoleKey Key;
         public readonly char? KeyChar;
         public readonly string? Description;

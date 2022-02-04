@@ -190,24 +190,24 @@ namespace B.Options.FTP
                             Util.PrintLine();
                             Util.PrintLine(" Use Up/Down Arrow to navigate.");
                             SftpFile currentFile = this.CurrentFile;
-                            iob.AddKeybind(new(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow))
-                                .AddKeybind(new(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow))
-                                .AddKeybind(new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
-                                .AddKeybind(new(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete))
-                                .AddKeybind(new(() =>
+                            iob.Add(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow)
+                                .Add(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow)
+                                .Add(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown)
+                                .Add(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete)
+                                .Add(() =>
                                 {
                                     if (currentFile.IsDirectory)
                                         this.Path += "/" + currentFile.Name;
                                     else
                                         this._stage = Stage.FileInteract;
-                                }, "Select", key: ConsoleKey.Enter));
+                                }, "Select", key: ConsoleKey.Enter);
                         }
                         else
                             Util.PrintLine("   Directory empty...");
 
-                        iob.AddKeybind(new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5))
-                            .AddKeybind(new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace))
-                            .AddKeybind(new(() => this.Quit(), "Exit", key: ConsoleKey.Escape))
+                        iob.Add(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5)
+                            .Add(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace)
+                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -217,10 +217,10 @@ namespace B.Options.FTP
                         Util.ClearConsole(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
                         new Input.Option(file.FullName)
-                            .AddKeybind(new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown))
-                            .AddKeybind(new(() => this.Delete(file), "Delete", key: ConsoleKey.Delete))
+                            .Add(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown)
+                            .Add(() => this.Delete(file), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
-                            .AddKeybind(new(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape))
+                            .Add(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape)
                             .Request();
                         Util.ClearConsole();
                     }

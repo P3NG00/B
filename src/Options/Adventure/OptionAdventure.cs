@@ -36,16 +36,19 @@ namespace B.Options.Adventure
                     {
                         int consoleHeight = 7;
                         bool fileExists = File.Exists(this._filePath);
-                        if (fileExists) consoleHeight++;
-                        Util.ClearConsole(20, consoleHeight);
-                        Input.Option iob = new Input.Option("Adventure")
-                            .AddKeybind(new(() => this.InitGame(true), "New Game", '1'));
 
                         if (fileExists)
-                            iob.AddKeybind(new(() => this.InitGame(false), "Continue", '2'));
+                            consoleHeight++;
+
+                        Util.ClearConsole(20, consoleHeight);
+                        Input.Option iob = new Input.Option("Adventure")
+                            .Add(() => this.InitGame(true), "New Game", '1');
+
+                        if (fileExists)
+                            iob.Add(() => this.InitGame(false), "Continue", '2');
 
                         iob.AddSpacer()
-                            .AddKeybind(new(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -69,16 +72,14 @@ namespace B.Options.Adventure
                         string borderHorizontal = Util.StringOf(OptionAdventure.CHAR_BORDER_HORIZONTAL, currentGrid.Width);
                         Util.PrintLine();
                         Util.PrintLine($"  {OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
-                        Vector2 pos;
-                        string s;
 
                         for (int y = currentGrid.Height - 1; y >= 0; y--)
                         {
-                            s = CHAR_BORDER_VERTICAL;
+                            string s = CHAR_BORDER_VERTICAL;
 
                             for (int x = 0; x < currentGrid.Width; x++)
                             {
-                                pos = new(x, y);
+                                Vector2 pos = new(x, y);
 
                                 if (pos == OptionAdventure.Info.Position)
                                     s += OptionAdventure.CHAR_PLAYER;
@@ -95,8 +96,8 @@ namespace B.Options.Adventure
                         Util.PrintLine();
                         Util.PrintLine($"   > {OptionAdventure.Message}");
                         OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
-                        string format = "{0,9}: {1,-5}";
                         Util.PrintLine();
+                        string format = "{0,9}: {1,-5}";
                         Util.PrintLine(string.Format(format, "Coins", OptionAdventure.Info.Coins));
                         Util.PrintLine(string.Format(format, "Speed", OptionAdventure.Info.Speed));
                         Util.PrintLine();
@@ -104,21 +105,21 @@ namespace B.Options.Adventure
                         Util.PrintLine("  Interact) Space");
                         Util.PrintLine("     Speed) + -");
                         new Input.Option()
-                            .AddKeybind(new(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8))
-                            .AddKeybind(new(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4))
-                            .AddKeybind(new(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2))
-                            .AddKeybind(new(() => this.MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6))
-                            .AddKeybind(new(() => this.Interact(Direction.Up), key: ConsoleKey.UpArrow))
-                            .AddKeybind(new(() => this.Interact(Direction.Left), key: ConsoleKey.LeftArrow))
-                            .AddKeybind(new(() => this.Interact(Direction.Down), key: ConsoleKey.DownArrow))
-                            .AddKeybind(new(() => this.Interact(Direction.Right), key: ConsoleKey.RightArrow))
-                            .AddKeybind(new(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add))
-                            .AddKeybind(new(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract))
-                            .AddKeybind(new(() =>
+                            .Add(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
+                            .Add(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
+                            .Add(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2)
+                            .Add(() => this.MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6)
+                            .Add(() => this.Interact(Direction.Up), key: ConsoleKey.UpArrow)
+                            .Add(() => this.Interact(Direction.Left), key: ConsoleKey.LeftArrow)
+                            .Add(() => this.Interact(Direction.Down), key: ConsoleKey.DownArrow)
+                            .Add(() => this.Interact(Direction.Right), key: ConsoleKey.RightArrow)
+                            .Add(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add)
+                            .Add(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract)
+                            .Add(() =>
                             {
                                 this.Save();
                                 this._stage = Stage.MainMenu;
-                            }, "Quit", key: ConsoleKey.Escape))
+                            }, "Quit", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -144,22 +145,22 @@ namespace B.Options.Adventure
 
         private void MovePlayer(Direction direction)
         {
-            Vector2 newPos;
-            Tile tile;
             bool stop = false;
 
             for (int i = 0; i < OptionAdventure.Info.Speed && !stop; i++)
             {
-                newPos = OptionAdventure.Info.Position + (Vector2)direction;
+                Vector2 newPos = OptionAdventure.Info.Position + (Vector2)direction;
                 Grid currentGrid = OptionAdventure.CurrentGrid;
 
                 if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
                 {
-                    tile = currentGrid.GetTile(newPos);
+                    Tile tile = currentGrid.GetTile(newPos);
                     currentGrid.MoveTo(newPos);
                     Tile.TileTypes tileType = tile.TileType;
                     stop = tileType.StopsMovement() || tileType == Tile.TileTypes.Door;
-                    if (!stop) OptionAdventure.Info.Position = newPos;
+
+                    if (!stop)
+                        OptionAdventure.Info.Position = newPos;
                 }
             }
         }
@@ -175,7 +176,7 @@ namespace B.Options.Adventure
             // 'i' | TILE_INTERACTABLE
 
             // Initialize Grid Array
-            _grids = new Grid[3];
+            OptionAdventure._grids = new Grid[3];
 
             // Grid 0
             string[] sa = Grid.CreateGrid(new(15));
@@ -213,7 +214,8 @@ namespace B.Options.Adventure
             OptionAdventure._grids[1].AddDoor(new(8, 13), new(2, new(1, 4)));
 
             // Seal Grids
-            foreach (Grid grid in OptionAdventure._grids) grid.Seal();
+            foreach (Grid grid in OptionAdventure._grids)
+                grid.Seal();
         }
 
         private enum Stage

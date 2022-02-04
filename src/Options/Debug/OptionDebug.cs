@@ -17,10 +17,10 @@ namespace B.Options.Debug
                     {
                         Util.ClearConsole(20, 8);
                         new Input.Option("DEBUG")
-                            .AddKeybind(new(() => this._stage = Stage.WindowSize, "Window Size", '1'))
-                            .AddKeybind(new(() => this._stage = Stage.Color, "Color", '2'))
+                            .Add(() => this._stage = Stage.WindowSize, "Window Size", '1')
+                            .Add(() => this._stage = Stage.Color, "Color", '2')
                             .AddSpacer()
-                            .AddKeybind(new(() => this.Quit(), "Back", key: ConsoleKey.Escape))
+                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -37,11 +37,11 @@ namespace B.Options.Debug
                         Util.PrintLine($"Height: {this._size.y}");
 
                         new Input.Option()
-                            .AddKeybind(new(() => this._size.x++, keyChar: '8', key: ConsoleKey.RightArrow))
-                            .AddKeybind(new(() => this._size.x--, keyChar: '2', key: ConsoleKey.LeftArrow))
-                            .AddKeybind(new(() => this._size.y++, keyChar: '6', key: ConsoleKey.DownArrow))
-                            .AddKeybind(new(() => this._size.y--, keyChar: '4', key: ConsoleKey.UpArrow))
-                            .AddKeybind(new(() => this._stage = Stage.MainMenu, key: ConsoleKey.Escape))
+                            .Add(() => this._size.x++, keyChar: '8', key: ConsoleKey.RightArrow)
+                            .Add(() => this._size.x--, keyChar: '2', key: ConsoleKey.LeftArrow)
+                            .Add(() => this._size.y++, keyChar: '6', key: ConsoleKey.DownArrow)
+                            .Add(() => this._size.y--, keyChar: '4', key: ConsoleKey.UpArrow)
+                            .Add(() => this._stage = Stage.MainMenu, key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;

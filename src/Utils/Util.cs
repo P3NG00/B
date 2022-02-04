@@ -8,6 +8,7 @@ namespace B.Utils
         public const int MAX_CHARS_DECIMAL = 27;
         public const int MAX_CONSOLE_HEIGHT = 66;
 
+        public static readonly bool IsRunningOnWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
 
         public static Random Random => new Random();
@@ -89,7 +90,7 @@ namespace B.Utils
         public static void SetConsoleSize(int width, int height)
         {
             // This can only be called on Windows // TODO shouldn't matter, but needs testing on other types of consoles
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (Util.IsRunningOnWindows)
             {
                 Console.SetWindowSize(width, height);
                 Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
