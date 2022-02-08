@@ -13,6 +13,8 @@ namespace B.Options.Adventure
         private readonly Utils.List<Vector2> _coinList = new();
         private readonly Tile[][] _tileGrid;
 
+        // TODO add variable to allow for different visual grid outline styles
+
         // Private Initialization Cache
         private readonly int _initInteractables = 0;
         private readonly int _initDoors = 0;
@@ -46,7 +48,7 @@ namespace B.Options.Adventure
                             tileType = tile.TileType;
 
                             if (tileType == Tile.TileTypes.Coin)
-                                this._coinList.Add(new(x, y));
+                                this._coinList.Add(new Vector2(x, y));
                             else if (tileType == Tile.TileTypes.Interactable)
                                 this._initInteractables++;
                             else if (tileType == Tile.TileTypes.Door)
@@ -146,7 +148,10 @@ namespace B.Options.Adventure
         {
             string[] sa = new string[dimensions.y];
             string s = Util.StringOf(" ", dimensions.x);
-            for (int i = 0; i < sa.Length; i++) sa[i] = s;
+
+            for (int i = 0; i < sa.Length; i++)
+                sa[i] = s;
+
             return sa;
         }
     }

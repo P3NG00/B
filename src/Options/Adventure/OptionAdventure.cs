@@ -23,7 +23,7 @@ namespace B.Options.Adventure
         public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
         private static Grid[] _grids = new Grid[0];
 
-        private readonly string _filePath = Program.DataPath + "adventureInfo";
+        private static readonly string FilePath = Program.DataPath + "adventureInfo";
         private Stage _stage = Stage.MainMenu;
 
         static OptionAdventure() => OptionAdventure.InitializeGrids();
@@ -35,7 +35,7 @@ namespace B.Options.Adventure
                 case Stage.MainMenu:
                     {
                         int consoleHeight = 7;
-                        bool fileExists = File.Exists(this._filePath);
+                        bool fileExists = File.Exists(OptionAdventure.FilePath);
 
                         if (fileExists)
                             consoleHeight++;
@@ -47,8 +47,7 @@ namespace B.Options.Adventure
                         if (fileExists)
                             iob.Add(() => this.InitGame(false), "Continue", '2');
 
-                        iob.AddSpacer()
-                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
+                        iob.AddExit(this)
                             .Request();
                     }
                     break;
@@ -126,7 +125,7 @@ namespace B.Options.Adventure
             }
         }
 
-        public sealed override void Save() => Util.Serialize(this._filePath, OptionAdventure.Info);
+        public sealed override void Save() => Util.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
 
         private void InitGame(bool newGame)
         {
@@ -137,7 +136,7 @@ namespace B.Options.Adventure
                 OptionAdventure.Info.Position = new(currentGrid.Width / 2, currentGrid.Height / 2);
             }
             else
-                OptionAdventure.Info = Util.Deserialize<AdventureInfo>(this._filePath)!;
+                OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
             Util.ClearConsole();
             this._stage = Stage.Game;

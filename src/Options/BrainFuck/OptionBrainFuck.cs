@@ -1,3 +1,6 @@
+using B.Inputs;
+using B.Utils;
+
 namespace B.Options.BrainFuck
 {
     public sealed class OptionBrainFuck : Option
@@ -13,16 +16,26 @@ namespace B.Options.BrainFuck
 
         */
 
-        public OptionBrainFuck()
-        {
-        }
-
         public override void Loop()
         {
             switch (this._stage)
             {
                 case Stage.MainMenu:
                     {
+                        Util.ClearConsole(20, 7);
+                        new Input.Option("BrainFuck")
+                            .Add(() => this._stage = Stage.Create, "Create", '1')
+                            .AddExit(this)
+                            .Request();
+                    }
+                    break;
+
+                case Stage.Create:
+                    {
+                        Util.ClearConsole(20, 10);
+                        new Input.Option("Create")
+                            // TODO
+                            .Request();
                     }
                     break;
             }
@@ -31,6 +44,7 @@ namespace B.Options.BrainFuck
         private enum Stage
         {
             MainMenu,
+            Create,
         }
     }
 }

@@ -1,9 +1,9 @@
 using B.Inputs;
 using B.Utils;
 
-namespace B.Options.Debug
+namespace B.Options.Settings
 {
-    public sealed class OptionDebug : Option
+    public sealed class OptionSettings : Option
     {
         private Vector2 _size = new(40, 20);
 
@@ -15,12 +15,15 @@ namespace B.Options.Debug
             {
                 case Stage.MainMenu:
                     {
-                        Util.ClearConsole(20, 8);
-                        new Input.Option("DEBUG")
+                        Util.ClearConsole(35, 10);
+                        Util.PrintLine();
+                        Util.PrintLine("  Settings");
+                        Util.PrintLine();
+                        Util.PrintLine($" Detected Max Size: {Program.WINDOW_SIZE_MAX}");
+                        new Input.Option()
                             .Add(() => this._stage = Stage.WindowSize, "Window Size", '1')
                             .Add(() => this._stage = Stage.Color, "Color", '2')
-                            .AddSpacer()
-                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
+                            .AddExit(this)
                             .Request();
                     }
                     break;
@@ -48,11 +51,17 @@ namespace B.Options.Debug
 
                 case Stage.Color:
                     {
-                        // TODO implement color options
-                        // Input Scroll selection using Enum.GetValues<ConsoleColor>()
-                        // use two keybinds, one for each: foreground, background
-                        // when keybind is pressed, appropriate color from index is set to fore/back ground
-                        this._stage = Stage.MainMenu;
+                        Util.ClearConsole(32, 26);
+                        Util.PrintLine();
+                        Util.PrintLine("  Colors");
+                        Util.PrintLine();
+                        ConsoleColor[] colors = Enum.GetValues<ConsoleColor>();
+                        Input.RequestScroll(colors,
+                            color => color.ToString(),
+                            colors.Length,
+                            new(() => Console.BackgroundColor = colors[Input.ScrollIndex], "Set Background", '1'),
+                            new(() => Console.ForegroundColor = colors[Input.ScrollIndex], "Set Foreground", '2'),
+                            new(() => this._stage = Stage.MainMenu, "Exit", key: ConsoleKey.Escape));
                     }
                     break;
             }

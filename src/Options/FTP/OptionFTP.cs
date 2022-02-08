@@ -66,7 +66,7 @@ namespace B.Options.FTP
 
         private Func<string, string> _scrambler;
         private SftpClient _client = null!;
-        private IEnumerable<SftpFile> _files = null!;
+        private SftpFile[] _files = null!;
         private Stage _stage = Stage.Login;
         private string Path
         {
@@ -79,26 +79,7 @@ namespace B.Options.FTP
         }
         private string _path = string.Empty;
 
-        private SftpFile CurrentFile => this._files.ElementAt(this.Index);
-        private int Index
-        {
-            get => this._index;
-            set
-            {
-                // Get last value
-                int lastValue = this._index % OptionFTP.MAX_LIST_ENTRIES;
-                // Update value
-                this._index = Util.Clamp(value, 0, this._files.Count() - 1);
-                // Get new value
-                int newValue = this._index % OptionFTP.MAX_LIST_ENTRIES;
-
-                // If crossing into new page, clear console
-                int oneLess = OptionFTP.MAX_LIST_ENTRIES - 1;
-                if ((lastValue == oneLess && newValue == 0) || (lastValue == 0 && newValue == oneLess))
-                    Util.ClearConsole();
-            }
-        }
-        private int _index = 0;
+        private SftpFile CurrentFile => this._files[Input.ScrollIndex];
 
         public OptionFTP()
         {
@@ -158,57 +139,38 @@ namespace B.Options.FTP
                 case Stage.Navigate:
                     {
                         // TODO account for newly acquired Program.WINDOW_SIZE_MAX variable when displaying size of list
-                        int entryAmount = this._files.Count();
+                        int entryAmount = this._files.Length;
                         int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 13;
                         Util.SetConsoleSize(OptionFTP.WIDTH, consoleHeight);
                         Util.ResetTextCursor();
-                        string header = $"index: ({this.Index + 1} / {entryAmount}) | path > '{this.Path}'";
+                        string header = $"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{this.Path}'";
                         Util.PrintLine();
                         Util.PrintLine($" {header,-98}");
                         Util.PrintLine();
-                        Input.Option iob = new();
-
-                        if (entryAmount > 0)
-                        {
-                            int startIndex = this.Index - (this.Index % OptionFTP.MAX_LIST_ENTRIES);
-                            int endIndex = Math.Min(startIndex + OptionFTP.MAX_LIST_ENTRIES, entryAmount);
-
-                            for (int i = startIndex; i < endIndex; i++)
+                        SftpFile currentFile = this.CurrentFile;
+                        Input.RequestScroll(this._files,
+                            file =>
                             {
-                                SftpFile file = this._files.ElementAt(i);
-                                string fileName = file.Name;
+                                string s = file.Name;
 
                                 if (file.IsDirectory)
-                                    fileName += "/";
+                                    s += "/";
 
-                                if (i == this.Index)
-                                    Util.PrintLine($" > {fileName}");
+                                return s;
+                            },
+                            OptionFTP.MAX_LIST_ENTRIES,
+                            new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown),
+                            new(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete),
+                            new(() =>
+                            {
+                                if (currentFile.IsDirectory)
+                                    this.Path += "/" + currentFile.Name;
                                 else
-                                    Util.PrintLine(string.Format("  {0,-" + (fileName.Length + 1) + "}", fileName));
-                            }
-
-                            Util.PrintLine();
-                            Util.PrintLine(" Use Up/Down Arrow to navigate.");
-                            SftpFile currentFile = this.CurrentFile;
-                            iob.Add(() => this.Index--, keyChar: '8', key: ConsoleKey.UpArrow)
-                                .Add(() => this.Index++, keyChar: '2', key: ConsoleKey.DownArrow)
-                                .Add(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown)
-                                .Add(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete)
-                                .Add(() =>
-                                {
-                                    if (currentFile.IsDirectory)
-                                        this.Path += "/" + currentFile.Name;
-                                    else
-                                        this._stage = Stage.FileInteract;
-                                }, "Select", key: ConsoleKey.Enter);
-                        }
-                        else
-                            Util.PrintLine("   Directory empty...");
-
-                        iob.Add(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5)
-                            .Add(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace)
-                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
-                            .Request();
+                                    this._stage = Stage.FileInteract;
+                            }, "Select", key: ConsoleKey.Enter),
+                            new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5),
+                            new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace),
+                            new(() => this.Quit(), "Exit", key: ConsoleKey.Escape));
                     }
                     break;
 
@@ -245,8 +207,8 @@ namespace B.Options.FTP
 
         private void RefreshFiles()
         {
-            this._files = this._client.ListDirectory(this.Path).OrderBy(x => !x.IsDirectory);
-            this.Index = 0;
+            this._files = this._client.ListDirectory(this.Path).OrderBy(x => !x.IsDirectory).ToArray();
+            Input.ScrollIndex = 0;
             Util.ClearConsole();
         }
 

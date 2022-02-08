@@ -14,25 +14,6 @@ namespace B.Options.MoneyTracker
         private Transaction? _tempTransaction;
         private byte _tempTransactionState = 0;
         private Stage _stage = Stage.MainMenu;
-        private int Index
-        {
-            get => this._index;
-            set
-            {
-                // Get last value
-                int lastValue = this._index % OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE;
-                // Update value
-                this._index = Util.Clamp(value, 0, this._selectedAccount!.Transactions.Length - 1);
-                // Get new value
-                int newValue = this._index % OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE;
-                // If crossing into new page, clear console
-                int oneLess = OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE - 1;
-
-                if ((lastValue == oneLess && newValue == 0) || (lastValue == 0 && newValue == oneLess))
-                    Util.ClearConsole();
-            }
-        }
-        private int _index = 0;
 
         public OptionMoneyTracker()
         {
@@ -62,8 +43,7 @@ namespace B.Options.MoneyTracker
                         if (selected)
                             iob.Add(() => this._stage = Stage.Transaction, "Transaction", '2');
 
-                        iob.AddSpacer()
-                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
+                        iob.AddExit(this)
                             .Request();
                     }
                     break;
@@ -202,6 +182,7 @@ namespace B.Options.MoneyTracker
                             .Add(() =>
                             {
                                 this._stage = Stage.Transaction_View;
+                                Input.ScrollIndex = 0;
                                 Util.ClearConsole();
                             }, "View", '1')
                             .Add(() =>
@@ -222,42 +203,16 @@ namespace B.Options.MoneyTracker
                 case Stage.Transaction_View:
                     {
                         int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8;
-                        int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 11;
+                        int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 8;
                         Util.SetConsoleSize(consoleWidth, consoleHeight);
                         Util.ResetTextCursor();
                         Util.PrintLine();
-                        decimal total = 0m;
-                        int startIndex = this.Index - (this.Index % OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE);
-                        int endIndex = Math.Min(startIndex + OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE, this._selectedAccount.Transactions.Length);
-
-                        for (int i = startIndex; i < endIndex; i++)
-                        {
-                            Transaction transaction = this._selectedAccount.Transactions[i];
-                            total += transaction.Amount;
-                            string message = string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf("0", this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description);
-
-                            if (i == this.Index)
-                                Util.PrintLine($" > {message}");
-                            else
-                                Util.PrintLine($"  {message} ");
-                        }
-
-                        Util.PrintLine();
-                        Util.PrintLine($"  Total: {total}"); // TODO fix total, now innacurately only showing total of transactions on page
-                        Util.PrintLine();
-                        Util.PrintLine("  Use Up/Down to navigate");
-                        new Input.Option()
-                            .Add(() => this.Index++, key: ConsoleKey.DownArrow)
-                            .Add(() => this.Index--, key: ConsoleKey.UpArrow)
-                            .Add(() => this._selectedAccount.Decimals++, "Increase Decimals", '+')
-                            .Add(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-')
-                            .AddSpacer()
-                            .Add(() =>
-                            {
-                                this.Index = 0;
-                                this._stage = Stage.Transaction;
-                            }, "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        Input.RequestScroll(this._selectedAccount.Transactions.Items,
+                            transaction => string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf("0", this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
+                            OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
+                            new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'),
+                            new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'),
+                            new(() => this._stage = Stage.Transaction, "Back", key: ConsoleKey.Escape));
                     }
                     break;
 

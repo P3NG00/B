@@ -35,7 +35,7 @@ namespace B.Options.NumberGuesser
                             }, "New Game", '1')
                             .AddSpacer()
                             .Add(() => this._stage = Stage.Settings, "Settings", '9')
-                            .Add(() => this.Quit(), "Exit", key: ConsoleKey.Escape)
+                            .AddExit(this, false)
                             .Request();
                     }
                     break;

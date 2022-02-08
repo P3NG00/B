@@ -9,13 +9,16 @@ namespace B.Utils
 
         public int Length => this.Items.Length;
 
+        // Needs parameterless constructor for serialization
+        public List() { }
+
         public List(params T[] items) => this.Items = items;
 
-        public void Add(T t)
+        public void Add(params T[] t)
         {
-            T[] newItems = new T[this.Items.Length + 1];
+            T[] newItems = new T[this.Items.Length + t.Length];
             Array.Copy(this.Items, newItems, this.Items.Length);
-            newItems[this.Items.Length] = t!;
+            Array.Copy(t, 0, newItems, this.Items.Length, t.Length);
             this.Items = newItems;
         }
 

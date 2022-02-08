@@ -3,10 +3,10 @@ using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
 using B.Options.BrainFuck;
-using B.Options.Debug;
 using B.Options.FTP;
 using B.Options.MoneyTracker;
 using B.Options.NumberGuesser;
+using B.Options.Settings;
 using B.Utils;
 
 namespace B
@@ -20,7 +20,7 @@ namespace B
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static ProgramSettings Settings { get; private set; } = new();
         public static readonly Vector2 WINDOW_SIZE_MIN = new(15, 1);
-        public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max;
+        public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max; // TODO test references when values is null
         private static Vector2? _window_size_max = null;
 
         // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
@@ -29,7 +29,8 @@ namespace B
             new("BrainFuck", typeof(OptionBrainFuck)),
             new("FTP", typeof(OptionFTP)),
             new("Money Tracker", typeof(OptionMoneyTracker)),
-            new("Number Guesser", typeof(OptionNumberGuesser)));
+            new("Number Guesser", typeof(OptionNumberGuesser)),
+            new("Settings", typeof(OptionSettings)));
 
         private Option? _option = null;
 
@@ -69,7 +70,7 @@ namespace B
             Console.Title = "B";
 
             // Console input ctrl+c override
-            if (Util.IsRunningOnWindows)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Console.TreatControlCAsInput = true;
 
             // Load program settings
@@ -84,7 +85,7 @@ namespace B
             this.UpdateColors();
 
             // Find max size of console window by increasing the size until it throws an error.
-            if (Util.IsRunningOnWindows)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Vector2 size = new Vector2(Program.WINDOW_SIZE_MIN.x, Program.WINDOW_SIZE_MIN.y);
 
@@ -134,7 +135,7 @@ namespace B
                 int consoleHeight = this._optionDict.Length + 6;
 
                 if (Program.Settings.DebugMode)
-                    consoleHeight += 4;
+                    consoleHeight += 2;
 
                 Util.ClearConsole(24, consoleHeight);
 
@@ -152,10 +153,6 @@ namespace B
                     Pair<string, Type> optionEntry = this._optionDict[i];
                     iob.Add(() => this._option = (Activator.CreateInstance(optionEntry.ItemRight!) as Option)!, optionEntry.ItemLeft!, (char)('1' + i));
                 }
-
-                if (Program.Settings.DebugMode)
-                    iob.AddSpacer()
-                        .Add(() => this._option = new OptionDebug(), "Debug", (char)('1' + ++i));
 
                 iob.AddSpacer()
                     .Add(() => this.Quit(), "Quit", key: ConsoleKey.Escape)
@@ -206,7 +203,17 @@ namespace B
         {
             // Go back to main menu if exception was caught
             this._option = null;
-            Util.SetConsoleSize(140, 30);
+            Vector2? consoleSize = Program.WINDOW_SIZE_MAX;
+
+            try
+            {
+                if (consoleSize is not null)
+                    Util.ClearConsole(consoleSize.x, consoleSize.y);
+                else
+                    Util.ClearConsole(150, 50);
+            }
+            catch (Exception) { }
+
             Util.PrintLine();
             Util.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);
             Util.PrintLine();
