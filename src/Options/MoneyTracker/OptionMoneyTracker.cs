@@ -21,7 +21,7 @@ namespace B.Options.MoneyTracker
                 Directory.CreateDirectory(OptionMoneyTracker.DirectoryPath);
 
             foreach (string filePath in Directory.GetFiles(OptionMoneyTracker.DirectoryPath))
-                this.AddAccount(new FileInfo(filePath).Name, true);
+                this.AddAccount(Path.GetFileNameWithoutExtension(filePath), true);
         }
 
         public sealed override void Loop()
@@ -75,7 +75,7 @@ namespace B.Options.MoneyTracker
                         Util.ClearConsole(42, 5);
                         Util.PrintLine();
                         Util.Print($"  New Account Name: {Input.String}");
-                        ConsoleKey key = Input.Request(20);
+                        ConsoleKey key = Input.RequestLine(20);
 
                         if (key == ConsoleKey.Enter)
                         {
@@ -85,7 +85,7 @@ namespace B.Options.MoneyTracker
 
                                 if (!File.Exists(filePath))
                                 {
-                                    Account account = this.AddAccount(new FileInfo(filePath).Name);
+                                    Account account = this.AddAccount(Path.GetFileNameWithoutExtension(filePath));
                                     this._selectedAccount = account;
                                     Util.PrintLines(2);
                                     Util.PrintLine($"  \"{Input.String}\" created!");
@@ -182,7 +182,6 @@ namespace B.Options.MoneyTracker
                             .Add(() =>
                             {
                                 this._stage = Stage.Transaction_View;
-                                Input.ScrollIndex = 0;
                                 Util.ClearConsole();
                             }, "View", '1')
                             .Add(() =>
@@ -206,13 +205,16 @@ namespace B.Options.MoneyTracker
                         int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 8;
                         Util.SetConsoleSize(consoleWidth, consoleHeight);
                         Util.ResetTextCursor();
-                        Util.PrintLine();
                         Input.RequestScroll(this._selectedAccount.Transactions.Items,
                             transaction => string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf("0", this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
                             OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
                             new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'),
                             new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'),
-                            new(() => this._stage = Stage.Transaction, "Back", key: ConsoleKey.Escape));
+                            new(() =>
+                            {
+                                Input.ScrollIndex = 0;
+                                this._stage = Stage.Transaction;
+                            }, "Back", key: ConsoleKey.Escape));
                     }
                     break;
 
@@ -226,7 +228,7 @@ namespace B.Options.MoneyTracker
                         if (this._tempTransactionState == 0)
                         {
                             Util.Print($"  {Input.String}");
-                            key = Input.Request(Util.MAX_CHARS_DECIMAL);
+                            key = Input.RequestLine(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
                             {
@@ -253,7 +255,7 @@ namespace B.Options.MoneyTracker
                             Util.PrintLine();
                             Util.PrintLine("  Description:");
                             Util.Print($"  {Input.String}");
-                            key = Input.Request(Util.MAX_CHARS_DECIMAL);
+                            key = Input.RequestLine(Util.MAX_CHARS_DECIMAL);
 
                             if (key == ConsoleKey.Enter)
                             {

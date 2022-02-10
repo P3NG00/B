@@ -54,14 +54,17 @@ namespace B.Options.Settings
                         Util.ClearConsole(32, 26);
                         Util.PrintLine();
                         Util.PrintLine("  Colors");
-                        Util.PrintLine();
                         ConsoleColor[] colors = Enum.GetValues<ConsoleColor>();
                         Input.RequestScroll(colors,
                             color => color.ToString(),
                             colors.Length,
                             new(() => Console.BackgroundColor = colors[Input.ScrollIndex], "Set Background", '1'),
                             new(() => Console.ForegroundColor = colors[Input.ScrollIndex], "Set Foreground", '2'),
-                            new(() => this._stage = Stage.MainMenu, "Exit", key: ConsoleKey.Escape));
+                            new(() =>
+                            {
+                                Input.ScrollIndex = 0;
+                                this._stage = Stage.MainMenu;
+                            }, "Exit", key: ConsoleKey.Escape));
                     }
                     break;
             }

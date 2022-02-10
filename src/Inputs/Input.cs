@@ -9,7 +9,7 @@ namespace B.Inputs
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
         public static int ScrollIndex = 0;
 
-        public static ConsoleKey Request(int maxLength)
+        public static ConsoleKey RequestLine(int maxLength)
         {
             ConsoleKeyInfo keyInfo = Util.GetInput();
 
@@ -21,40 +21,54 @@ namespace B.Inputs
             return keyInfo.Key;
         }
 
-        public static ConsoleKey RequestScroll<T>(T[] items, Func<T, string> getText, int? maxEntriesPerPage = null, params Keybind[] extraKeybinds)
+        public static ConsoleKey RequestScroll<T>(T[] items, Func<T, string> getText, int? maxEntriesPerPage = null, Keybind exitKeybind = null!, params Keybind[] extraKeybinds)
         {
-            int maxEntries = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
-            int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntries);
-            int endIndex = Math.Min(startIndex + maxEntries, items.Length);
-
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                string text = getText(items[i]);
-
-                if (i == Input.ScrollIndex)
-                    Util.PrintLine($" > {text}");
-                else
-                    Util.PrintLine(string.Format("  {0,-" + (text.Length + 1) + "}", text));
-            }
-
             Util.PrintLine();
-            Util.PrintLine(" Use Up/Down Arrow to navigate.");
-            int lastPageIndex = Input.ScrollIndex % maxEntries;
-            new Input.Option()
-                .Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
-                .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow)
-                .Add(extraKeybinds)
-                .Request();
+            int maxEntries = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
+            Input.Option iob = new();
 
-            // Fix value
-            Input.ScrollIndex = Util.Clamp(Input.ScrollIndex, 0, items.Length - 1);
-            // Get new value
-            int newPageIndex = Input.ScrollIndex % maxEntries;
-            // If crossing into new page, clear console
-            int oneLessThanMax = maxEntries - 1;
+            if (maxEntries > 0)
+            {
+                int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntries);
+                int endIndex = Math.Min(startIndex + maxEntries, items.Length);
 
-            if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
-                Util.ClearConsole();
+                for (int i = startIndex; i < endIndex; i++)
+                {
+                    string text = getText(items[i]);
+
+                    if (i == Input.ScrollIndex)
+                        Util.PrintLine($" > {text}");
+                    else
+                        Util.PrintLine(string.Format("  {0,-" + (text.Length + 1) + "}", text));
+                }
+
+                Util.PrintLine();
+                Util.PrintLine(" Use Up/Down Arrow to navigate.");
+                // Get page index before it's modified
+                int lastPageIndex = Input.ScrollIndex % maxEntries;
+                iob.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
+                    .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow)
+                    .Add(extraKeybinds)
+                    .AddSpacer()
+                    .Add(exitKeybind)
+                    .Request();
+
+                // Fix value
+                Input.ScrollIndex = Util.Clamp(Input.ScrollIndex, 0, items.Length - 1);
+                // Get new value
+                int newPageIndex = Input.ScrollIndex % maxEntries;
+                // If crossing into new page, clear console
+                int oneLessThanMax = maxEntries - 1;
+
+                if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
+                    Util.ClearConsole();
+            }
+            else
+            {
+                Util.PrintLine("  No entries.");
+                iob.Add(exitKeybind)
+                    .Request();
+            }
 
             return Util.LastInput.Key;
         }

@@ -80,7 +80,7 @@ namespace B.Options.NumberGuesser
                             Util.PrintLine();
                             Util.PrintLine(" Enter a Number!");
 
-                            if (Input.Request(OptionNumberGuesser.GUESS_LENGTH) == ConsoleKey.Escape)
+                            if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH) == ConsoleKey.Escape)
                                 this._stage = Stage.MainMenu;
                         }
                     }
@@ -108,7 +108,7 @@ namespace B.Options.NumberGuesser
                         Util.PrintLine($"  Max - {Input.String}");
                         Util.PrintLine();
                         Util.PrintLine("  Enter Max Number");
-                        ConsoleKey key = Input.Request(OptionNumberGuesser.GUESS_LENGTH);
+                        ConsoleKey key = Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH);
 
                         if (key == ConsoleKey.Enter)
                         {

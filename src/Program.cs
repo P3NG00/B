@@ -93,9 +93,9 @@ namespace B
                 {
                     while (true)
                     {
-                        Console.SetWindowSize(size.x + 1, Program.WINDOW_SIZE_MIN.y);
+                        Console.SetWindowSize(size.x + 2, Program.WINDOW_SIZE_MIN.y);
                         // If above statement doesn't throw an exception, increment maxWidth
-                        size.x++;
+                        size.x += 2;
                     }
                 }
                 catch (ArgumentOutOfRangeException) { }
@@ -146,16 +146,14 @@ namespace B
                 }
 
                 Input.Option iob = new("B's");
-                int i;
 
-                for (i = 0; i < this._optionDict.Length; i++)
+                for (int i = 0; i < this._optionDict.Length; i++)
                 {
                     Pair<string, Type> optionEntry = this._optionDict[i];
                     iob.Add(() => this._option = (Activator.CreateInstance(optionEntry.ItemRight!) as Option)!, optionEntry.ItemLeft!, (char)('1' + i));
                 }
 
-                iob.AddSpacer()
-                    .Add(() => this.Quit(), "Quit", key: ConsoleKey.Escape)
+                iob.AddExit(this)
                     .Request();
             }
 
@@ -203,16 +201,19 @@ namespace B
         {
             // Go back to main menu if exception was caught
             this._option = null;
-            Vector2? consoleSize = Program.WINDOW_SIZE_MAX;
+            Vector2? maxConsoleSize = Program.WINDOW_SIZE_MAX;
 
             try
             {
-                if (consoleSize is not null)
-                    Util.ClearConsole(consoleSize.x, consoleSize.y);
+                if (maxConsoleSize is not null)
+                    Util.ClearConsole(maxConsoleSize.x, maxConsoleSize.y);
                 else
                     Util.ClearConsole(150, 50);
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                Util.ClearConsole(150, 50);
+            }
 
             Util.PrintLine();
             Util.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);

@@ -105,7 +105,7 @@ namespace B.Options.FTP
                         int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
                         Util.PrintLine(string.Format("{0," + textDepth + "}", scrambled));
 
-                        switch (Input.Request(OptionFTP.MAX_LENGTH_PASSWORD))
+                        switch (Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD))
                         {
                             case ConsoleKey.Enter:
                                 {
@@ -131,6 +131,8 @@ namespace B.Options.FTP
                                 }
                                 break;
 
+                            case ConsoleKey.Delete: Input.String = string.Empty; break;
+
                             case ConsoleKey.Escape: this.Quit(); break;
                         }
                     }
@@ -140,13 +142,12 @@ namespace B.Options.FTP
                     {
                         // TODO account for newly acquired Program.WINDOW_SIZE_MAX variable when displaying size of list
                         int entryAmount = this._files.Length;
-                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 13;
+                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 14;
                         Util.SetConsoleSize(OptionFTP.WIDTH, consoleHeight);
                         Util.ResetTextCursor();
                         string header = $"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{this.Path}'";
                         Util.PrintLine();
                         Util.PrintLine($" {header,-98}");
-                        Util.PrintLine();
                         SftpFile currentFile = this.CurrentFile;
                         Input.RequestScroll(this._files,
                             file =>
@@ -159,6 +160,11 @@ namespace B.Options.FTP
                                 return s;
                             },
                             OptionFTP.MAX_LIST_ENTRIES,
+                            new(() =>
+                            {
+                                Input.ScrollIndex = 0;
+                                this.Quit();
+                            }, "Exit", key: ConsoleKey.Escape),
                             new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown),
                             new(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete),
                             new(() =>
@@ -169,8 +175,7 @@ namespace B.Options.FTP
                                     this._stage = Stage.FileInteract;
                             }, "Select", key: ConsoleKey.Enter),
                             new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5),
-                            new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace),
-                            new(() => this.Quit(), "Exit", key: ConsoleKey.Escape));
+                            new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
                     }
                     break;
 
@@ -234,7 +239,19 @@ namespace B.Options.FTP
 
         private void Delete(SftpFile file)
         {
-            this._client.Delete(file.FullName);
+            try
+            {
+                this._client.Delete(file.FullName);
+            }
+            catch (SshException)
+            {
+                Util.ClearConsole(21, 6);
+                Util.PrintLines(2);
+                Util.PrintLine("       Error:");
+                Util.PrintLine("  Can't delete file");
+                Util.WaitForInput();
+            }
+
             this.RefreshFiles();
         }
 
