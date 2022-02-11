@@ -121,12 +121,12 @@ namespace B.Options.FTP
                                     catch (SshAuthenticationException)
                                     {
                                         Util.PrintLine("Wrong password");
-                                        Util.WaitForInput();
+                                        Util.GetKey();
                                     }
                                     catch (SocketException)
                                     {
                                         Util.PrintLine(" Can't connect");
-                                        Util.WaitForInput();
+                                        Util.GetKey();
                                     }
                                 }
                                 break;
@@ -183,7 +183,7 @@ namespace B.Options.FTP
                     {
                         Util.ClearConsole(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
-                        new Input.Option(file.FullName)
+                        new Input.Option($"{file.FullName} | {file.Attributes.Size} bytes")
                             .Add(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown)
                             .Add(() => this.Delete(file), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
@@ -198,8 +198,8 @@ namespace B.Options.FTP
                         Util.ClearConsole(OptionFTP.WIDTH, 5);
                         Util.PrintLine();
                         Util.PrintLine(" Downloading...");
-                        SftpFile file = this.CurrentFile;
                         Util.PrintLine();
+                        SftpFile file = this.CurrentFile;
                         Util.PrintLine($"  {file.FullName}");
                         // May hang while downloading files
                         this.Download(file);
@@ -220,10 +220,8 @@ namespace B.Options.FTP
         private void Download(SftpFile file)
         {
             if (file.IsDirectory)
-            {
                 foreach (SftpFile subFile in this._client.ListDirectory(file.FullName))
                     this.Download(subFile);
-            }
             else
             {
                 string path = OptionFTP.DownloadPath + file.FullName.Substring(1);
@@ -239,17 +237,14 @@ namespace B.Options.FTP
 
         private void Delete(SftpFile file)
         {
-            try
-            {
-                this._client.Delete(file.FullName);
-            }
+            try { this._client.Delete(file.FullName); }
             catch (SshException)
             {
                 Util.ClearConsole(21, 6);
                 Util.PrintLines(2);
                 Util.PrintLine("       Error:");
                 Util.PrintLine("  Can't delete file");
-                Util.WaitForInput();
+                Util.GetKey();
             }
 
             this.RefreshFiles();

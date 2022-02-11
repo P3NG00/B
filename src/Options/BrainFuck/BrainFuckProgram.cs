@@ -33,7 +33,13 @@ namespace B.Options.BrainFuck
                 case '.': output += (char)memory[memoryIndex]; break;
 
                 // Input Current Cell Value from User
-                case ',': memory[memoryIndex] = (byte)Util.GetInput().KeyChar; break;
+                case ',':
+                    {
+                        Util.ClearConsole(50, 25); // TODO make size adjustable
+                        Console.WriteLine(output);
+                        memory[memoryIndex] = (byte)Util.GetKey().KeyChar;
+                    }
+                    break;
 
                 // Loop Begin Bracket
                 case '[':

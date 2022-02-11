@@ -5,6 +5,13 @@ namespace B
         public static string Path => Program.DataPath + "settings";
 
         public bool DebugMode = false;
-        public bool DarkMode = false;
+        public ConsoleColor ColorBackground = ConsoleColor.White;
+        public ConsoleColor ColorText = ConsoleColor.Black;
+
+        public void UpdateColors()
+        {
+            Console.BackgroundColor = this.ColorBackground;
+            Console.ForegroundColor = this.ColorText;
+        }
     }
 }

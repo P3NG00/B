@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 
@@ -12,9 +13,7 @@ namespace B.Utils
 
         public static Random Random => new Random();
 
-        public static void WaitForInput() => Console.ReadKey(true);
-
-        public static ConsoleKeyInfo GetInput() => Util.LastInput = Console.ReadKey(true);
+        public static ConsoleKeyInfo GetKey() => Util.LastInput = Console.ReadKey(true);
 
         public static void WaitForKey(ConsoleKey key)
         {
@@ -22,7 +21,7 @@ namespace B.Utils
             Util.PrintLine($"Press {key} to continue...");
 
             while (true)
-                if (Util.GetInput().Key == key)
+                if (Util.GetKey().Key == key)
                     break;
         }
 
@@ -98,6 +97,8 @@ namespace B.Utils
             }
         }
 
+        public static void SetConsoleSize(Vector2 size) => Util.SetConsoleSize(size.x, size.y);
+
         public static void ClearConsole(int width = 0, int height = 0)
         {
             Console.Clear();
@@ -105,6 +106,8 @@ namespace B.Utils
             if (width != 0 && height != 0)
                 Util.SetConsoleSize(width, height);
         }
+
+        public static void ClearConsole(Vector2 size) => Util.ClearConsole(size.x, size.y);
 
         public static void ResetTextCursor() => Console.SetCursorPosition(0, 0);
 

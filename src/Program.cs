@@ -14,13 +14,13 @@ namespace B
     public class Program : Option
     {
         // Code entry point
-        // TODO allow for arguments to enter specific things using shortcuts
         public static int Main() => new Program().Start();
 
+        // Program Variables
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static ProgramSettings Settings { get; private set; } = new();
         public static readonly Vector2 WINDOW_SIZE_MIN = new(15, 1);
-        public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max; // TODO test references when values is null
+        public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max;
         private static Vector2? _window_size_max = null;
 
         // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
@@ -29,8 +29,7 @@ namespace B
             new("BrainFuck", typeof(OptionBrainFuck)),
             new("FTP", typeof(OptionFTP)),
             new("Money Tracker", typeof(OptionMoneyTracker)),
-            new("Number Guesser", typeof(OptionNumberGuesser)),
-            new("Settings", typeof(OptionSettings)));
+            new("Number Guesser", typeof(OptionNumberGuesser)));
 
         private Option? _option = null;
 
@@ -76,18 +75,19 @@ namespace B
             // Load program settings
             if (File.Exists(ProgramSettings.Path))
             {
-                // If settings can't be loaded, just handle excepion.
+                // If settings can't be loaded, just handle exception.
                 // Settings are already initialized to default values.
-                try { Program.Settings = Util.Deserialize<ProgramSettings>(ProgramSettings.Path); } catch (Exception) { }
+                try { Program.Settings = Util.Deserialize<ProgramSettings>(ProgramSettings.Path); }
+                catch (Exception) { }
             }
 
             // Set console colors
-            this.UpdateColors();
+            Program.Settings.UpdateColors();
 
             // Find max size of console window by increasing the size until it throws an error.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Vector2 size = new Vector2(Program.WINDOW_SIZE_MIN.x, Program.WINDOW_SIZE_MIN.y);
+                Vector2 size = Program.WINDOW_SIZE_MIN.Copy();
 
                 try
                 {
@@ -114,7 +114,7 @@ namespace B
                 Program._window_size_max = size;
             }
 
-            // TODO add thread with sole purpose of animating the cursor position into different corners of the screen. only allow animating when not printing (may need static variable in Util like Util.IsPrinting that will need to be updated before and after code is done printing so the aniimation can run).
+            // TODO add thread with sole purpose of animating the cursor position into different corners of the screen. only allow animating when not printing (may need static variable in Util like Util.IsPrinting that will need to be updated before and after code is done printing so the animation can run).
         }
 
         public override void Loop()
@@ -132,19 +132,7 @@ namespace B
             else
             {
                 // Display main menu options
-                int consoleHeight = this._optionDict.Length + 6;
-
-                if (Program.Settings.DebugMode)
-                    consoleHeight += 2;
-
-                Util.ClearConsole(24, consoleHeight);
-
-                if (Program.Settings.DebugMode)
-                {
-                    Util.PrintLine();
-                    Util.PrintLine("    DEBUG ON");
-                }
-
+                Util.ClearConsole(24, this._optionDict.Length + 7);
                 Input.Option iob = new("B's");
 
                 for (int i = 0; i < this._optionDict.Length; i++)
@@ -153,49 +141,21 @@ namespace B
                     iob.Add(() => this._option = (Activator.CreateInstance(optionEntry.ItemRight!) as Option)!, optionEntry.ItemLeft!, (char)('1' + i));
                 }
 
-                iob.AddExit(this)
+                iob.AddSpacer()
+                    .Add(() => this._option = Activator.CreateInstance<OptionSettings>(), "Settings", '9')
+                    .AddExit(this, false)
                     .Request();
             }
 
-            switch (Util.LastInput.Key)
+            if (Util.LastInput.Key == ConsoleKey.F12)
             {
-                // Toggle black and white colors
-                case ConsoleKey.F10:
-                    {
-                        Util.ToggleBool(ref Program.Settings.DarkMode);
-                        this.UpdateColors();
-                    }
-                    break;
-
-                // Key to delete saved data
-                case ConsoleKey.F11:
-                    {
-                        Util.ClearConsole(15, 6);
-                        new Input.Option("Delete Data?")
-                            .Add(() => Directory.Delete(Program.DataPath, true), "Yes", key: ConsoleKey.Enter)
-                            .Add(null!, "No", key: ConsoleKey.Escape)
-                            .Request();
-                    }
-                    break;
-
-                // Key to toggle debug mode
-                case ConsoleKey.F12:
-                    {
-                        Util.ToggleBool(ref Program.Settings.DebugMode);
-                        // Toggling Debug mode clears console to avoid artifacts
-                        Util.ClearConsole();
-                    }
-                    break;
+                Util.ToggleBool(ref Program.Settings.DebugMode);
+                // Toggling Debug mode clears console to avoid leftover characters
+                Util.ClearConsole();
             }
         }
 
         public override void Save() => Util.Serialize(ProgramSettings.Path, Program.Settings);
-
-        private void UpdateColors()
-        {
-            Console.BackgroundColor = Program.Settings.DarkMode ? ConsoleColor.Black : ConsoleColor.White;
-            Console.ForegroundColor = Program.Settings.DarkMode ? ConsoleColor.White : ConsoleColor.Black;
-        }
 
         private void HandleException(Exception e)
         {
@@ -206,7 +166,7 @@ namespace B
             try
             {
                 if (maxConsoleSize is not null)
-                    Util.ClearConsole(maxConsoleSize.x, maxConsoleSize.y);
+                    Util.ClearConsole(maxConsoleSize);
                 else
                     Util.ClearConsole(150, 50);
             }

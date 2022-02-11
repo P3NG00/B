@@ -15,6 +15,8 @@ namespace B.Options.NumberGuesser
             "Nice one!",
         };
 
+        // TODO add save/load settings. Keep last "Max Guess Num" and "Use Decimals"
+
         private Stage _stage = Stage.MainMenu;
         private int _numMax = 100;
         private int _numRandom;
@@ -45,7 +47,7 @@ namespace B.Options.NumberGuesser
                         string guessMessage = "Between 0 - " + this._numMax;
                         int? guess = Input.Int;
                         bool won = guess.HasValue && guess.Value == this._numRandom;
-                        int consoleHeight = 5;
+                        int consoleHeight = 7;
 
                         if (Program.Settings.DebugMode)
                         {
@@ -72,7 +74,7 @@ namespace B.Options.NumberGuesser
 
                         if (won)
                         {
-                            Util.WaitForInput();
+                            Util.GetKey();
                             this._stage = Stage.MainMenu;
                         }
                         else

@@ -17,16 +17,19 @@ namespace B.Options.Adventure
         public const string CHAR_CORNER_B = @"\\";
         public const string MESSAGE_EMPTY = "...";
 
+        public static readonly string FilePath = Program.DataPath + "adventure";
+
         public static string Message = OptionAdventure.MESSAGE_EMPTY;
         public static AdventureInfo Info = new();
 
         public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
         private static Grid[] _grids = new Grid[0];
 
-        private static readonly string FilePath = Program.DataPath + "adventureInfo";
         private Stage _stage = Stage.MainMenu;
 
         static OptionAdventure() => OptionAdventure.InitializeGrids();
+
+        // TODO implement some color printing (examples: tiles, player, coins, doors, border, text, etc.)
 
         public sealed override void Loop()
         {

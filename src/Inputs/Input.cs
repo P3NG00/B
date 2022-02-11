@@ -11,7 +11,7 @@ namespace B.Inputs
 
         public static ConsoleKey RequestLine(int maxLength)
         {
-            ConsoleKeyInfo keyInfo = Util.GetInput();
+            ConsoleKeyInfo keyInfo = Util.GetKey();
 
             if (keyInfo.Key == ConsoleKey.Backspace)
                 Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
@@ -35,21 +35,25 @@ namespace B.Inputs
                 for (int i = startIndex; i < endIndex; i++)
                 {
                     string text = getText(items[i]);
-
-                    if (i == Input.ScrollIndex)
-                        Util.PrintLine($" > {text}");
-                    else
-                        Util.PrintLine(string.Format("  {0,-" + (text.Length + 1) + "}", text));
+                    Util.PrintLine(Input.ScrollIndex == i ? $" > {text}" : string.Format("  {0,-" + (text.Length + 1) + "}", text));
                 }
 
                 Util.PrintLine();
                 Util.PrintLine(" Use Up/Down Arrow to navigate.");
+                bool hasExtraKeybinds = extraKeybinds != null && extraKeybinds.Length != 0;
+
+                if (hasExtraKeybinds)
+                    Util.PrintLine();
+
                 // Get page index before it's modified
                 int lastPageIndex = Input.ScrollIndex % maxEntries;
                 iob.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
-                    .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow)
-                    .Add(extraKeybinds)
-                    .AddSpacer()
+                    .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
+
+                if (hasExtraKeybinds)
+                    iob.Add(extraKeybinds!);
+
+                iob.AddSpacer()
                     .Add(exitKeybind)
                     .Request();
 
@@ -110,12 +114,13 @@ namespace B.Inputs
             // This is because the method uses Util.GetInput() which will log the pressed key and return it.
             public void Request()
             {
+                // Print out input options
                 bool printLine = false;
 
                 if (this._message is not null)
                 {
                     Util.PrintLine();
-                    Util.Print($"  {this._message}");
+                    Util.PrintLine($"  {this._message}");
                     printLine = true;
                 }
 
@@ -133,17 +138,16 @@ namespace B.Inputs
                                 Util.PrintLine();
                             }
 
-                            Util.PrintLine();
-                            Util.Print($" {(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
+                            Util.PrintLine($" {(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
                         }
                     }
                     else if (!printLine)
                         printLine = true;
                 }
 
-                Util.PrintLine();
-                ConsoleKeyInfo inputKeyInfo = Util.GetInput();
+                ConsoleKeyInfo inputKeyInfo = Util.GetKey();
 
+                // Activate function for pressed keybind
                 foreach (Keybind keybind in this._keybinds)
                 {
                     if (keybind != null && keybind.Action != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar.HasValue && keybind.KeyChar == inputKeyInfo.KeyChar)))

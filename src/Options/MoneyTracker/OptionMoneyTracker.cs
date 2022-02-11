@@ -60,6 +60,9 @@ namespace B.Options.MoneyTracker
                         else
                             Util.ClearConsole(24, 9);
 
+                        // TODO if account is not selected, show Create, Select, and Remove
+                        // TODO if account is selected, show Create Transaction, View Transactions (in view, add interaction to Transactions in RequestScroll)
+
                         new Input.Option("Account")
                             .Add(() => this._stage = Stage.Account_Create, "Create", '1')
                             .Add(() => this._stage = Stage.Account_Select, "Select", '2')
@@ -98,7 +101,7 @@ namespace B.Options.MoneyTracker
                                     Util.PrintLine("    Name already taken!");
                                 }
 
-                                Util.WaitForInput();
+                                Util.GetKey();
                             }
                         }
                         else if (key == ConsoleKey.Escape)
@@ -118,6 +121,7 @@ namespace B.Options.MoneyTracker
                             consoleHeight += amountAccounts + 1;
 
                         Util.ClearConsole(27, consoleHeight);
+                        Util.PrintLine();
                         Input.Option iob = new();
 
                         if (amountAccounts > 0)
@@ -202,19 +206,19 @@ namespace B.Options.MoneyTracker
                 case Stage.Transaction_View:
                     {
                         int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8;
-                        int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 8;
+                        int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9;
                         Util.SetConsoleSize(consoleWidth, consoleHeight);
                         Util.ResetTextCursor();
                         Input.RequestScroll(this._selectedAccount.Transactions.Items,
                             transaction => string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf("0", this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
                             OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
-                            new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'),
-                            new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'),
                             new(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 this._stage = Stage.Transaction;
-                            }, "Back", key: ConsoleKey.Escape));
+                            }, "Back", key: ConsoleKey.Escape),
+                            new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'),
+                            new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'));
                     }
                     break;
 
@@ -286,7 +290,7 @@ namespace B.Options.MoneyTracker
                         Util.PrintLine("  Delete");
                         // this._selectedAccount.PrintTransactions(); // TODO
 
-                        Util.WaitForInput();
+                        Util.GetKey();
                         // TODO add keybinds to delete a transaction
                         this._stage = Stage.Transaction;
                     }
