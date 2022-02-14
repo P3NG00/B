@@ -17,7 +17,6 @@ namespace B.Options.NumberGuesser
 
         // TODO add save/load settings. Keep last "Max Guess Num" and "Use Decimals"
 
-        private Stages _stage = Stages.MainMenu;
         private int _numMax = 100;
         private int _numRandom;
 
@@ -25,7 +24,7 @@ namespace B.Options.NumberGuesser
 
         public override void Loop()
         {
-            switch (this._stage)
+            switch (this.Stage)
             {
                 case Stages.MainMenu:
                     {
@@ -35,10 +34,10 @@ namespace B.Options.NumberGuesser
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;
                                 Input.String = string.Empty;
-                                this._stage = Stages.Game;
+                                this.Stage = Stages.Game;
                             }, "New Game", '1')
                             .AddSpacer()
-                            .Add(() => this._stage = Stages.Settings, "Settings", '9')
+                            .Add(() => this.Stage = Stages.Settings, "Settings", '9')
                             .AddExit(this, false)
                             .Request();
                     }
@@ -77,7 +76,7 @@ namespace B.Options.NumberGuesser
                         if (won)
                         {
                             Util.GetKey();
-                            this._stage = Stages.MainMenu;
+                            this.Stage = Stages.MainMenu;
                         }
                         else
                         {
@@ -85,7 +84,7 @@ namespace B.Options.NumberGuesser
                             Util.PrintLine(" Enter a Number!");
 
                             if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH) == ConsoleKey.Escape)
-                                this._stage = Stages.MainMenu;
+                                this.Stage = Stages.MainMenu;
                         }
                     }
                     break;
@@ -97,10 +96,10 @@ namespace B.Options.NumberGuesser
                             .Add(() =>
                             {
                                 Input.String = this._numMax.ToString();
-                                this._stage = Stages.Settings_MaxNumber;
+                                this.Stage = Stages.Settings_MaxNumber;
                             }, "Max Number", '1')
                             .AddSpacer()
-                            .Add(() => this._stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this.Stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -121,11 +120,11 @@ namespace B.Options.NumberGuesser
                             if (numMax.HasValue)
                             {
                                 this._numMax = Math.Max(1, numMax.Value);
-                                this._stage = Stages.Settings;
+                                this.Stage = Stages.Settings;
                             }
                         }
                         else if (key == ConsoleKey.Escape)
-                            this._stage = Stages.Settings;
+                            this.Stage = Stages.Settings;
                     }
                     break;
             }

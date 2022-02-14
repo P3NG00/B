@@ -25,8 +25,6 @@ namespace B.Options.Adventure
         public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
         private static Grid[] _grids = new Grid[0];
 
-        private Stages _stage = Stages.MainMenu;
-
         static OptionAdventure() => OptionAdventure.InitializeGrids();
 
         public OptionAdventure() : base(Stages.MainMenu) { }
@@ -35,7 +33,7 @@ namespace B.Options.Adventure
 
         public override void Loop()
         {
-            switch (this._stage)
+            switch (this.Stage)
             {
                 case Stages.MainMenu:
                     {
@@ -122,7 +120,7 @@ namespace B.Options.Adventure
                             .Add(() =>
                             {
                                 this.Save();
-                                this._stage = Stages.MainMenu;
+                                this.Stage = Stages.MainMenu;
                             }, "Quit", key: ConsoleKey.Escape)
                             .Request();
                     }
@@ -142,7 +140,7 @@ namespace B.Options.Adventure
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
             Util.ClearConsole();
-            this._stage = Stages.Game;
+            this.Stage = Stages.Game;
         }
 
         private void MovePlayer(Direction direction)

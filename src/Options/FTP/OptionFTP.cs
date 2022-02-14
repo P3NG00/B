@@ -67,7 +67,6 @@ namespace B.Options.FTP
         private Func<string, string> _scrambler;
         private SftpClient _client = null!;
         private SftpFile[] _files = null!;
-        private Stages _stage = Stages.Login;
         private string Path
         {
             get => this._path;
@@ -93,7 +92,7 @@ namespace B.Options.FTP
 
         public override void Loop()
         {
-            switch (this._stage)
+            switch (this.Stage)
             {
                 case Stages.Login:
                     {
@@ -116,7 +115,7 @@ namespace B.Options.FTP
                                     {
                                         this._client.Connect();
                                         this.RefreshFiles();
-                                        this._stage = Stages.Navigate;
+                                        this.Stage = Stages.Navigate;
                                     }
                                     catch (SshAuthenticationException)
                                     {
@@ -168,14 +167,14 @@ namespace B.Options.FTP
                                 this.Quit();
                             }, "Exit", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
-                                new(() => this._stage = Stages.Download, "Download", key: ConsoleKey.PageDown),
+                                new(() => this.Stage = Stages.Download, "Download", key: ConsoleKey.PageDown),
                                 new(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete),
                                 new(() =>
                                 {
                                     if (currentFile.IsDirectory)
                                         this.Path += "/" + currentFile.Name;
                                     else
-                                        this._stage = Stages.FileInteract;
+                                        this.Stage = Stages.FileInteract;
                                 }, "Select", key: ConsoleKey.Enter),
                                 new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5),
                                 new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace)});
@@ -187,10 +186,10 @@ namespace B.Options.FTP
                         Util.ClearConsole(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
                         new Input.Option($"{file.FullName} | {file.Attributes.Size} bytes")
-                            .Add(() => this._stage = Stages.Download, "Download", key: ConsoleKey.PageDown)
+                            .Add(() => this.Stage = Stages.Download, "Download", key: ConsoleKey.PageDown)
                             .Add(() => this.Delete(file), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
-                            .Add(() => this._stage = Stages.Navigate, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this.Stage = Stages.Navigate, "Back", key: ConsoleKey.Escape)
                             .Request();
                         Util.ClearConsole();
                     }
@@ -207,7 +206,7 @@ namespace B.Options.FTP
                         // May hang while downloading files
                         this.Download(file);
                         Util.ClearConsole();
-                        this._stage = Stages.Navigate;
+                        this.Stage = Stages.Navigate;
                     }
                     break;
             }
