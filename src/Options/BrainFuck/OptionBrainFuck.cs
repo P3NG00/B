@@ -3,27 +3,31 @@ using B.Utils;
 
 namespace B.Options.BrainFuck
 {
-    public sealed class OptionBrainFuck : Option
+    public sealed class OptionBrainFuck : Option<OptionBrainFuck.Stages>
     {
         private const string FILE_EXTENSION = "*bf";
+        private const int MAX_MEMORY_VIEW_LENGTH = 20;
+        private static byte[] MEMORY_VIEW_REMOVE => new byte[] { 7, 8, 9, 10, 13 };
 
         public static readonly string DirectoryPath = Program.DataPath + @"brainfuck\";
 
-        public BrainFuckProgram CurrentProgram => this._programs[Input.ScrollIndex];
-
         private readonly Utils.List<BrainFuckProgram> _programs = new();
-        private Stage _stage = Stage.MainMenu;
+        private BrainFuckProgram _currentProgram = null!;
 
         // Memory Cells for BrainFuck Program.
-        private readonly byte[] _memory = new byte[30000];
+        private readonly byte[] _memory = new byte[short.MaxValue];
         // BrainFuck Program Output
         private string _output = string.Empty;
+        // Current Instruction Index
+        private uint _instructionIndex = 0;
         // Current Cell Index
-        private byte _memoryIndex = 0;
+        private uint _memoryIndex = 0;
         // Depth of Bracket Loops
         private uint _bracketDepth = 0;
+        // Total Step Counter
+        private uint _stepCounter = 0;
 
-        public OptionBrainFuck()
+        public OptionBrainFuck() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(OptionBrainFuck.DirectoryPath))
                 Directory.CreateDirectory(OptionBrainFuck.DirectoryPath);
@@ -34,77 +38,133 @@ namespace B.Options.BrainFuck
 
         public override void Loop()
         {
-            switch (this._stage)
+            switch (this.Stage)
             {
-                case Stage.MainMenu:
+                case Stages.MainMenu:
                     {
                         Util.ClearConsole(20, 7);
                         new Input.Option("BrainFuck")
-                            .Add(() => this._stage = Stage.List, "List", '1')
+                            .Add(() => this.Stage = Stages.List, "List", '1')
                             .AddExit(this)
                             .Request();
                     }
                     break;
 
-                case Stage.List:
+                case Stages.List:
                     {
                         Util.ClearConsole(40, 8 + this._programs.Length);
-                        Input.RequestScroll(this._programs.Items, program => program.Title, null,
-                            new(() =>
+                        Util.PrintLine();
+                        Input.RequestScroll(
+                            items: this._programs.Items,
+                            getText: program => program.Title,
+                            exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this._stage = Stage.MainMenu;
+                                this.Stage = Stages.MainMenu;
                             }, "Back", key: ConsoleKey.Escape),
-                            new Keybind(() =>
+                            extraKeybinds: new Keybind(() =>
                             {
+                                this._currentProgram = this._programs[Input.ScrollIndex];
                                 Array.Fill(this._memory, (byte)0);
                                 this._output = string.Empty;
+                                this._instructionIndex = 0;
                                 this._memoryIndex = 0;
                                 this._bracketDepth = 0;
-                                this._stage = Stage.Run;
+                                this._stepCounter = 0;
+                                this.Stage = Stages.Run;
                             }, "Run", key: ConsoleKey.Enter));
                     }
                     break;
 
-                case Stage.Run:
+                case Stages.Run:
                     {
-                        int totalSteps = 0;
-                        BrainFuckProgram program = this.CurrentProgram;
-                        Util.ClearConsole(50, 25);
-
-                        for (uint i = 0; i < program.Instructions.Length; i++)
+                        if (this._instructionIndex < this._currentProgram.Instructions.Length)
                         {
                             if (Program.Settings.DebugMode)
                             {
-                                Util.ClearConsole(50, 25);
-                                // TODO test Step Through Instructions
-                                Util.PrintLine("DEBUG BELOW");
+                                int consoleWidth = 50;
+                                Util.ClearConsole(consoleWidth, 25);
+                                Util.PrintLine(this._output);
+                                Util.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
+                                Util.PrintLine("  DEBUG ON | OUTPUT ABOVE LINE");
                                 Util.PrintLine($"Memory Index: {this._memoryIndex}");
-                                Util.PrintLine($"Instruction Index: {i}");
+                                Util.PrintLine($"Instruction Index: {this._instructionIndex}");
                                 Util.PrintLine($"Bracket Depth: {this._bracketDepth}");
-                                Util.PrintLine($"Total Steps: {totalSteps}");
-                                Util.GetKey(); // TODO allow backing out into Stage.List
-                                // TODO allow memory viewing
+                                Util.PrintLine($"Total Steps: {this._stepCounter}");
+
+                                switch (Util.GetKey().Key)
+                                {
+                                    case ConsoleKey.F1:
+                                        {
+                                            Util.ClearConsole();
+                                            this.Stage = Stages.MemoryView;
+                                        }; break;
+
+                                    case ConsoleKey.Escape: this.Stage = Stages.List; break;
+                                }
                             }
 
-                            program.HandleStep(in this._memory, ref this._memoryIndex, ref i, ref this._bracketDepth, ref this._output);
-                            totalSteps++;
+                            // Program will run step if Memory View is not pressed in Debug Mode
+                            // so that the memory can be viewed from the current step.
+                            if (this.Stage != Stages.MemoryView)
+                                this.HandleStep();
                         }
+                        else
+                        {
+                            Util.ClearConsole(50, 25);
+                            Util.PrintLine();
+                            Util.PrintLine(this._output);
+                            Util.WaitForKey(ConsoleKey.F1);
+                            Input.ScrollIndex = 0;
+                            this.Stage = Stages.List;
+                        }
+                    }
+                    break;
 
-                        Util.PrintLine();
-                        Util.PrintLine(this._output);
-                        Util.WaitForKey(ConsoleKey.F1);
-                        this._stage = Stage.List;
+                case Stages.MemoryView:
+                    {
+                        if (this._instructionIndex < this._currentProgram.Instructions.Length)
+                        {
+                            int consoleWidth = 20;
+                            Util.SetConsoleSize(consoleWidth, 29);
+                            Util.ResetTextCursor();
+                            Util.PrintLine();
+                            Util.PrintLine("  Memory View");
+                            Util.PrintLine();
+                            string format = "{0,-6}{1,-6}{2,-2}";
+                            Util.PrintLine($"   {string.Format(format, "byte", "char", "hex")}");
+                            Util.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
+                            Input.ScrollIndex = (int)this._memoryIndex;
+                            Input.RequestScroll(
+                                items: this._memory,
+                                getText: b => string.Format(format, b, OptionBrainFuck.MEMORY_VIEW_REMOVE.Contains(b) ? ' ' : (char)b, $"{b,2:X}"),
+                                maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
+                                scrollType: Input.ScrollType.Side,
+                                navigationKeybinds: false,
+                                extraKeybinds: new Keybind[] {
+                                    new(() => this.HandleStep(), "Step", key: ConsoleKey.Spacebar),
+                                    new(() => this.Stage = Stages.Run, "Back", key: ConsoleKey.F1)});
+                        }
+                        else
+                            this.Stage = Stages.Run;
                     }
                     break;
             }
         }
 
-        private enum Stage
+        private void HandleStep()
+        {
+            this._currentProgram.HandleStep(in this._memory, ref this._memoryIndex, ref this._instructionIndex, ref this._bracketDepth, ref this._output);
+            this._instructionIndex++;
+            this._stepCounter++;
+        }
+
+        public enum Stages
         {
             MainMenu,
             List,
             Run,
+            MemoryView,
         }
     }
 }

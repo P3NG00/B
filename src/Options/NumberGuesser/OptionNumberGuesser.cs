@@ -3,7 +3,7 @@ using B.Utils;
 
 namespace B.Options.NumberGuesser
 {
-    public sealed class OptionNumberGuesser : Option
+    public sealed class OptionNumberGuesser : Option<OptionNumberGuesser.Stages>
     {
         private const int GUESS_LENGTH = 9;
 
@@ -17,15 +17,17 @@ namespace B.Options.NumberGuesser
 
         // TODO add save/load settings. Keep last "Max Guess Num" and "Use Decimals"
 
-        private Stage _stage = Stage.MainMenu;
+        private Stages _stage = Stages.MainMenu;
         private int _numMax = 100;
         private int _numRandom;
 
-        public sealed override void Loop()
+        public OptionNumberGuesser() : base(Stages.MainMenu) { }
+
+        public override void Loop()
         {
             switch (this._stage)
             {
-                case Stage.MainMenu:
+                case Stages.MainMenu:
                     {
                         Util.ClearConsole(20, 8);
                         new Input.Option("Number Guesser")
@@ -33,16 +35,16 @@ namespace B.Options.NumberGuesser
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;
                                 Input.String = string.Empty;
-                                this._stage = Stage.Game;
+                                this._stage = Stages.Game;
                             }, "New Game", '1')
                             .AddSpacer()
-                            .Add(() => this._stage = Stage.Settings, "Settings", '9')
+                            .Add(() => this._stage = Stages.Settings, "Settings", '9')
                             .AddExit(this, false)
                             .Request();
                     }
                     break;
 
-                case Stage.Game:
+                case Stages.Game:
                     {
                         string guessMessage = "Between 0 - " + this._numMax;
                         int? guess = Input.Int;
@@ -75,7 +77,7 @@ namespace B.Options.NumberGuesser
                         if (won)
                         {
                             Util.GetKey();
-                            this._stage = Stage.MainMenu;
+                            this._stage = Stages.MainMenu;
                         }
                         else
                         {
@@ -83,27 +85,27 @@ namespace B.Options.NumberGuesser
                             Util.PrintLine(" Enter a Number!");
 
                             if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH) == ConsoleKey.Escape)
-                                this._stage = Stage.MainMenu;
+                                this._stage = Stages.MainMenu;
                         }
                     }
                     break;
 
-                case Stage.Settings:
+                case Stages.Settings:
                     {
                         Util.ClearConsole(20, 7);
                         new Input.Option("Settings")
                             .Add(() =>
                             {
                                 Input.String = this._numMax.ToString();
-                                this._stage = Stage.Settings_MaxNumber;
+                                this._stage = Stages.Settings_MaxNumber;
                             }, "Max Number", '1')
                             .AddSpacer()
-                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this._stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stage.Settings_MaxNumber:
+                case Stages.Settings_MaxNumber:
                     {
                         Util.ClearConsole(20, 5);
                         Util.PrintLine();
@@ -119,17 +121,17 @@ namespace B.Options.NumberGuesser
                             if (numMax.HasValue)
                             {
                                 this._numMax = Math.Max(1, numMax.Value);
-                                this._stage = Stage.Settings;
+                                this._stage = Stages.Settings;
                             }
                         }
                         else if (key == ConsoleKey.Escape)
-                            this._stage = Stage.Settings;
+                            this._stage = Stages.Settings;
                     }
                     break;
             }
         }
 
-        private enum Stage
+        public enum Stages
         {
             MainMenu,
             Game,

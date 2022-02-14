@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp;
 
 namespace B.Options.FTP
 {
-    public sealed class OptionFTP : Option
+    public sealed class OptionFTP : Option<OptionFTP.Stages>
     {
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int MAX_LIST_ENTRIES = 50;
@@ -67,7 +67,7 @@ namespace B.Options.FTP
         private Func<string, string> _scrambler;
         private SftpClient _client = null!;
         private SftpFile[] _files = null!;
-        private Stage _stage = Stage.Login;
+        private Stages _stage = Stages.Login;
         private string Path
         {
             get => this._path;
@@ -81,7 +81,7 @@ namespace B.Options.FTP
 
         private SftpFile CurrentFile => this._files[Input.ScrollIndex];
 
-        public OptionFTP()
+        public OptionFTP() : base(Stages.Login)
         {
             Input.String = string.Empty;
             this._scrambler = Util.RandomFrom(OptionFTP._scramblers);
@@ -95,7 +95,7 @@ namespace B.Options.FTP
         {
             switch (this._stage)
             {
-                case Stage.Login:
+                case Stages.Login:
                     {
                         int consoleWidth = 16;
                         Util.ClearConsole(consoleWidth, 5);
@@ -116,7 +116,7 @@ namespace B.Options.FTP
                                     {
                                         this._client.Connect();
                                         this.RefreshFiles();
-                                        this._stage = Stage.Navigate;
+                                        this._stage = Stages.Navigate;
                                     }
                                     catch (SshAuthenticationException)
                                     {
@@ -138,7 +138,7 @@ namespace B.Options.FTP
                     }
                     break;
 
-                case Stage.Navigate:
+                case Stages.Navigate:
                     {
                         // TODO account for newly acquired Program.WINDOW_SIZE_MAX variable when displaying size of list
                         int entryAmount = this._files.Length;
@@ -148,9 +148,11 @@ namespace B.Options.FTP
                         string header = $"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{this.Path}'";
                         Util.PrintLine();
                         Util.PrintLine($" {header,-98}");
+                        Util.PrintLine();
                         SftpFile currentFile = this.CurrentFile;
-                        Input.RequestScroll(this._files,
-                            file =>
+                        Input.RequestScroll(
+                            items: this._files,
+                            getText: file =>
                             {
                                 string s = file.Name;
 
@@ -159,41 +161,42 @@ namespace B.Options.FTP
 
                                 return s;
                             },
-                            OptionFTP.MAX_LIST_ENTRIES,
-                            new(() =>
+                            maxEntriesPerPage: OptionFTP.MAX_LIST_ENTRIES,
+                            exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 this.Quit();
                             }, "Exit", key: ConsoleKey.Escape),
-                            new(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown),
-                            new(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete),
-                            new(() =>
-                            {
-                                if (currentFile.IsDirectory)
-                                    this.Path += "/" + currentFile.Name;
-                                else
-                                    this._stage = Stage.FileInteract;
-                            }, "Select", key: ConsoleKey.Enter),
-                            new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5),
-                            new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
+                            extraKeybinds: new Keybind[] {
+                                new(() => this._stage = Stages.Download, "Download", key: ConsoleKey.PageDown),
+                                new(() => this.Delete(currentFile), "Delete", key: ConsoleKey.Delete),
+                                new(() =>
+                                {
+                                    if (currentFile.IsDirectory)
+                                        this.Path += "/" + currentFile.Name;
+                                    else
+                                        this._stage = Stages.FileInteract;
+                                }, "Select", key: ConsoleKey.Enter),
+                                new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5),
+                                new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace)});
                     }
                     break;
 
-                case Stage.FileInteract:
+                case Stages.FileInteract:
                     {
                         Util.ClearConsole(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
                         new Input.Option($"{file.FullName} | {file.Attributes.Size} bytes")
-                            .Add(() => this._stage = Stage.Download, "Download", key: ConsoleKey.PageDown)
+                            .Add(() => this._stage = Stages.Download, "Download", key: ConsoleKey.PageDown)
                             .Add(() => this.Delete(file), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
-                            .Add(() => this._stage = Stage.Navigate, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this._stage = Stages.Navigate, "Back", key: ConsoleKey.Escape)
                             .Request();
                         Util.ClearConsole();
                     }
                     break;
 
-                case Stage.Download:
+                case Stages.Download:
                     {
                         Util.ClearConsole(OptionFTP.WIDTH, 5);
                         Util.PrintLine();
@@ -204,7 +207,7 @@ namespace B.Options.FTP
                         // May hang while downloading files
                         this.Download(file);
                         Util.ClearConsole();
-                        this._stage = Stage.Navigate;
+                        this._stage = Stages.Navigate;
                     }
                     break;
             }
@@ -256,7 +259,7 @@ namespace B.Options.FTP
                 this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
         }
 
-        private enum Stage
+        public enum Stages
         {
             Login,
             Navigate,

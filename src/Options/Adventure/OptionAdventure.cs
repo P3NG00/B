@@ -3,7 +3,7 @@ using B.Utils;
 
 namespace B.Options.Adventure
 {
-    public sealed class OptionAdventure : Option
+    public sealed class OptionAdventure : Option<OptionAdventure.Stages>
     {
         public const string CHAR_EMPTY = "  ";
         public const string CHAR_PLAYER = "()";
@@ -25,17 +25,19 @@ namespace B.Options.Adventure
         public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
         private static Grid[] _grids = new Grid[0];
 
-        private Stage _stage = Stage.MainMenu;
+        private Stages _stage = Stages.MainMenu;
 
         static OptionAdventure() => OptionAdventure.InitializeGrids();
 
+        public OptionAdventure() : base(Stages.MainMenu) { }
+
         // TODO implement some color printing (examples: tiles, player, coins, doors, border, text, etc.)
 
-        public sealed override void Loop()
+        public override void Loop()
         {
             switch (this._stage)
             {
-                case Stage.MainMenu:
+                case Stages.MainMenu:
                     {
                         int consoleHeight = 7;
                         bool fileExists = File.Exists(OptionAdventure.FilePath);
@@ -55,7 +57,7 @@ namespace B.Options.Adventure
                     }
                     break;
 
-                case Stage.Game:
+                case Stages.Game:
                     {
                         Util.ResetTextCursor();
                         Grid currentGrid = OptionAdventure.CurrentGrid;
@@ -120,15 +122,13 @@ namespace B.Options.Adventure
                             .Add(() =>
                             {
                                 this.Save();
-                                this._stage = Stage.MainMenu;
+                                this._stage = Stages.MainMenu;
                             }, "Quit", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
             }
         }
-
-        public sealed override void Save() => Util.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
 
         private void InitGame(bool newGame)
         {
@@ -142,7 +142,7 @@ namespace B.Options.Adventure
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
             Util.ClearConsole();
-            this._stage = Stage.Game;
+            this._stage = Stages.Game;
         }
 
         private void MovePlayer(Direction direction)
@@ -220,7 +220,9 @@ namespace B.Options.Adventure
                 grid.Seal();
         }
 
-        private enum Stage
+        public override void Save() => Util.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
+
+        public enum Stages
         {
             MainMenu,
             Game,

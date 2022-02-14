@@ -7,13 +7,16 @@ namespace B.Options.BrainFuck
         public readonly string Title;
         public readonly char[] Instructions;
 
-        public BrainFuckProgram(string title, string filePath)
+        public BrainFuckProgram(string title, string fullFilePath)
         {
             this.Title = title;
-            this.Instructions = File.ReadAllText(filePath).Replace(" ", string.Empty).ReplaceLineEndings(string.Empty).ToCharArray();
+            this.Instructions = File.ReadAllText(fullFilePath)
+                                    .Replace(" ", string.Empty)
+                                    .ReplaceLineEndings(string.Empty)
+                                    .ToCharArray();
         }
 
-        public void HandleStep(in byte[] memory, ref byte memoryIndex, ref uint instructionIndex, ref uint bracketDepth, ref string output)
+        public void HandleStep(in byte[] memory, ref uint memoryIndex, ref uint instructionIndex, ref uint bracketDepth, ref string output)
         {
             switch (this.Instructions[instructionIndex])
             {

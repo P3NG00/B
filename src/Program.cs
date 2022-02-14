@@ -11,27 +11,27 @@ using B.Utils;
 
 namespace B
 {
-    public class Program : Option
+    public class Program
     {
         // Code entry point
         public static int Main() => new Program().Start();
 
-        // Program Variables
+        // Program Info
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static ProgramSettings Settings { get; private set; } = new();
         public static readonly Vector2 WINDOW_SIZE_MIN = new(15, 1);
         public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max;
         private static Vector2? _window_size_max = null;
 
-        // NEW OPTIONS ONLY NEED TO BE REGISTERED HERE
-        private readonly Dict<string, Type> _optionDict = new(
+        // Private Variables
+        private readonly Dict<string, Type> _options = new(
             new("Adventure!", typeof(OptionAdventure)),
             new("BrainFuck", typeof(OptionBrainFuck)),
             new("FTP", typeof(OptionFTP)),
             new("Money Tracker", typeof(OptionMoneyTracker)),
             new("Number Guesser", typeof(OptionNumberGuesser)));
-
-        private Option? _option = null;
+        private IOption _option = null!;
+        private bool _running = true;
 
         private int Start()
         {
@@ -44,20 +44,15 @@ namespace B
             }
 
             // Program loop
-            while (this.Running)
+            while (this._running)
             {
                 try { this.Loop(); }
                 catch (Exception e) { this.HandleException(e); }
             }
 
             // Save before exiting
-            try { this.Save(); }
-            catch (Exception e)
-            {
-                this.HandleException(e);
-                // Return 1 to indicate failure saving data
-                return 1;
-            }
+            try { Util.Serialize(ProgramSettings.Path, Program.Settings); }
+            catch (Exception e) { this.HandleException(e); }
 
             // If reached, return nothing
             return 0;
@@ -117,7 +112,7 @@ namespace B
             // TODO add thread with sole purpose of animating the cursor position into different corners of the screen. only allow animating when not printing (may need static variable in Util like Util.IsPrinting that will need to be updated before and after code is done printing so the animation can run).
         }
 
-        public override void Loop()
+        public void Loop()
         {
             // If directory doesn't exist, create it and add hidden attribute
             if (!Directory.Exists(Program.DataPath))
@@ -127,23 +122,23 @@ namespace B
             }
 
             // If option is running, execute option code
-            if (this._option != null && this._option.Running)
+            if (this._option != null && this._option.IsRunning())
                 this._option.Loop();
             else
             {
                 // Display main menu options
-                Util.ClearConsole(24, this._optionDict.Length + 7);
+                Util.ClearConsole(24, this._options.Length + 7);
                 Input.Option iob = new("B's");
 
-                for (int i = 0; i < this._optionDict.Length; i++)
+                for (int i = 0; i < this._options.Length; i++)
                 {
-                    Pair<string, Type> optionEntry = this._optionDict[i];
-                    iob.Add(() => this._option = (Activator.CreateInstance(optionEntry.ItemRight!) as Option)!, optionEntry.ItemLeft!, (char)('1' + i));
+                    Pair<string, Type> optionEntry = this._options[i];
+                    iob.Add(() => this._option = (IOption)Activator.CreateInstance(optionEntry.ItemRight)!, optionEntry.ItemLeft, (char)('1' + i));
                 }
 
                 iob.AddSpacer()
                     .Add(() => this._option = Activator.CreateInstance<OptionSettings>(), "Settings", '9')
-                    .AddExit(this, false)
+                    .Add(() => this._running = false, "Quit", key: ConsoleKey.Escape)
                     .Request();
             }
 
@@ -155,12 +150,10 @@ namespace B
             }
         }
 
-        public override void Save() => Util.Serialize(ProgramSettings.Path, Program.Settings);
-
         private void HandleException(Exception e)
         {
             // Go back to main menu if exception was caught
-            this._option = null;
+            this._option = null!;
             Vector2? maxConsoleSize = Program.WINDOW_SIZE_MAX;
 
             try

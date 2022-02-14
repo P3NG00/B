@@ -6,7 +6,7 @@ namespace B.Options.Settings
         public readonly ConsoleColor ColorText;
         public readonly ConsoleColor ColorBG;
 
-        // TODO add different colors for Titles, Selected Scroll Index, etc.
+        // TODO add different colors for Input Option Titles, Selected Scroll Index, etc.
 
         public ColorTheme(string title, ConsoleColor colorText, ConsoleColor colorBG)
         {

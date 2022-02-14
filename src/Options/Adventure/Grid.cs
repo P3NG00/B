@@ -147,7 +147,7 @@ namespace B.Options.Adventure
         public static string[] CreateGrid(Vector2 dimensions)
         {
             string[] sa = new string[dimensions.y];
-            string s = Util.StringOf(" ", dimensions.x);
+            string s = Util.StringOf(' ', dimensions.x);
 
             for (int i = 0; i < sa.Length; i++)
                 sa[i] = s;

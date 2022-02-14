@@ -1,13 +1,21 @@
+using B.Options;
 using B.Utils;
 
 namespace B.Inputs
 {
     static class Input
     {
-        public static string String = string.Empty;
+        public static int ScrollIndex;
+        public static string String;
+
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
-        public static int ScrollIndex = 0;
+
+        static Input()
+        {
+            Input.ScrollIndex = 0;
+            Input.String = string.Empty;
+        }
 
         public static ConsoleKey RequestLine(int maxLength)
         {
@@ -21,9 +29,15 @@ namespace B.Inputs
             return keyInfo.Key;
         }
 
-        public static ConsoleKey RequestScroll<T>(T[] items, Func<T, string> getText, int? maxEntriesPerPage = null, Keybind exitKeybind = null!, params Keybind[] extraKeybinds)
+        public static ConsoleKey RequestScroll<T>(
+            T[] items,
+            Func<T, string> getText,
+            int? maxEntriesPerPage = null,
+            ScrollType scrollType = ScrollType.Indent,
+            bool navigationKeybinds = true,
+            Keybind exitKeybind = null!,
+            params Keybind[] extraKeybinds)
         {
-            Util.PrintLine();
             int maxEntries = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
             Input.Option iob = new();
 
@@ -35,11 +49,27 @@ namespace B.Inputs
                 for (int i = startIndex; i < endIndex; i++)
                 {
                     string text = getText(items[i]);
-                    Util.PrintLine(Input.ScrollIndex == i ? $" > {text}" : string.Format("  {0,-" + (text.Length + 1) + "}", text));
+                    bool isIndex = Input.ScrollIndex == i;
+                    string output;
+
+                    // TODO test
+                    switch (scrollType)
+                    {
+                        case ScrollType.Side: output = isIndex ? $" > {text}" : $"   {text}"; break;
+
+                        // ScrollType.Indent (default)
+                        default: output = isIndex ? $" > {text}" : string.Format("  {0,-" + (text.Length + 1) + "}", text); break;
+                    }
+
+                    Util.PrintLine(output);
                 }
 
-                Util.PrintLine();
-                Util.PrintLine(" Use Up/Down Arrow to navigate.");
+                if (navigationKeybinds)
+                {
+                    Util.PrintLine();
+                    Util.PrintLine(" Use Up/Down Arrow to navigate.");
+                }
+
                 bool hasExtraKeybinds = extraKeybinds != null && extraKeybinds.Length != 0;
 
                 if (hasExtraKeybinds)
@@ -47,8 +77,10 @@ namespace B.Inputs
 
                 // Get page index before it's modified
                 int lastPageIndex = Input.ScrollIndex % maxEntries;
-                iob.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
-                    .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
+
+                if (navigationKeybinds)
+                    iob.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
+                        .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
 
                 if (hasExtraKeybinds)
                     iob.Add(extraKeybinds!);
@@ -57,13 +89,11 @@ namespace B.Inputs
                     .Add(exitKeybind)
                     .Request();
 
-                // Fix value
                 Input.ScrollIndex = Util.Clamp(Input.ScrollIndex, 0, items.Length - 1);
-                // Get new value
                 int newPageIndex = Input.ScrollIndex % maxEntries;
-                // If crossing into new page, clear console
                 int oneLessThanMax = maxEntries - 1;
 
+                // If crossing into new page, clear console
                 if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
                     Util.ClearConsole();
             }
@@ -102,9 +132,9 @@ namespace B.Inputs
                 return this;
             }
 
-            public Option AddExit(Options.Option option, bool spacer = true)
+            public Option AddExit(IOption option, bool addSpacerBefore = true)
             {
-                if (spacer)
+                if (addSpacerBefore)
                     this.AddSpacer();
 
                 return this.Add(() => option.Quit(), "Exit", key: ConsoleKey.Escape);
@@ -157,6 +187,12 @@ namespace B.Inputs
                     }
                 }
             }
+        }
+
+        public enum ScrollType
+        {
+            Indent,
+            Side,
         }
     }
 }

@@ -3,7 +3,7 @@ using B.Utils;
 
 namespace B.Options.MoneyTracker
 {
-    public sealed class OptionMoneyTracker : Option
+    public sealed class OptionMoneyTracker : Option<OptionMoneyTracker.Stages>
     {
         private const int MAX_TRANSACTIONS_PER_PAGE = 50;
 
@@ -13,9 +13,9 @@ namespace B.Options.MoneyTracker
         private Account? _selectedAccount;
         private Transaction? _tempTransaction;
         private byte _tempTransactionState = 0;
-        private Stage _stage = Stage.MainMenu;
+        private Stages _stage = Stages.MainMenu;
 
-        public OptionMoneyTracker()
+        public OptionMoneyTracker() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(OptionMoneyTracker.DirectoryPath))
                 Directory.CreateDirectory(OptionMoneyTracker.DirectoryPath);
@@ -24,11 +24,11 @@ namespace B.Options.MoneyTracker
                 this.AddAccount(Path.GetFileNameWithoutExtension(filePath), true);
         }
 
-        public sealed override void Loop()
+        public override void Loop()
         {
             switch (this._stage)
             {
-                case Stage.MainMenu:
+                case Stages.MainMenu:
                     {
                         int consoleHeight = 7;
                         bool selected = this._selectedAccount != null;
@@ -38,17 +38,17 @@ namespace B.Options.MoneyTracker
 
                         Util.ClearConsole(20, consoleHeight);
                         Input.Option iob = new Input.Option("Money Tracker")
-                            .Add(() => this._stage = Stage.Account, "Account", '1');
+                            .Add(() => this._stage = Stages.Account, "Account", '1');
 
                         if (selected)
-                            iob.Add(() => this._stage = Stage.Transaction, "Transaction", '2');
+                            iob.Add(() => this._stage = Stages.Transaction, "Transaction", '2');
 
                         iob.AddExit(this)
                             .Request();
                     }
                     break;
 
-                case Stage.Account:
+                case Stages.Account:
                     {
                         if (this._selectedAccount != null)
                         {
@@ -64,16 +64,16 @@ namespace B.Options.MoneyTracker
                         // TODO if account is selected, show Create Transaction, View Transactions (in view, add interaction to Transactions in RequestScroll)
 
                         new Input.Option("Account")
-                            .Add(() => this._stage = Stage.Account_Create, "Create", '1')
-                            .Add(() => this._stage = Stage.Account_Select, "Select", '2')
-                            .Add(() => this._stage = Stage.Account_Remove, "Remove", '3')
+                            .Add(() => this._stage = Stages.Account_Create, "Create", '1')
+                            .Add(() => this._stage = Stages.Account_Select, "Select", '2')
+                            .Add(() => this._stage = Stages.Account_Remove, "Remove", '3')
                             .AddSpacer()
-                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this._stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stage.Account_Create:
+                case Stages.Account_Create:
                     {
                         Util.ClearConsole(42, 5);
                         Util.PrintLine();
@@ -93,7 +93,7 @@ namespace B.Options.MoneyTracker
                                     Util.PrintLines(2);
                                     Util.PrintLine($"  \"{Input.String}\" created!");
                                     Input.String = string.Empty;
-                                    this._stage = Stage.Account;
+                                    this._stage = Stages.Account;
                                 }
                                 else
                                 {
@@ -107,12 +107,12 @@ namespace B.Options.MoneyTracker
                         else if (key == ConsoleKey.Escape)
                         {
                             Input.String = string.Empty;
-                            this._stage = Stage.Account;
+                            this._stage = Stages.Account;
                         }
                     }
                     break;
 
-                case Stage.Account_Select:
+                case Stages.Account_Select:
                     {
                         int consoleHeight = 3;
                         int amountAccounts = this._accounts.Length;
@@ -132,19 +132,19 @@ namespace B.Options.MoneyTracker
                                 iob.Add(() =>
                                 {
                                     this._selectedAccount = account;
-                                    this._stage = Stage.Account;
+                                    this._stage = Stages.Account;
                                 }, account.Name, keyChar: (char)('1' + i));
                             }
 
                             iob.AddSpacer();
                         }
 
-                        iob.Add(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape)
+                        iob.Add(() => this._stage = Stages.Account, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stage.Account_Remove:
+                case Stages.Account_Remove:
                     {
                         int consoleHeight = 5;
                         int amountAccounts = this._accounts.Length;
@@ -167,25 +167,25 @@ namespace B.Options.MoneyTracker
 
                                     this._accounts.Remove(account);
                                     account.Delete();
-                                    this._stage = Stage.Account;
+                                    this._stage = Stages.Account;
                                 }, account.Name, keyChar: (char)('1' + i));
                             }
 
                             iob.AddSpacer();
                         }
 
-                        iob.Add(() => this._stage = Stage.Account, "Back", key: ConsoleKey.Escape)
+                        iob.Add(() => this._stage = Stages.Account, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stage.Transaction:
+                case Stages.Transaction:
                     {
                         Util.ClearConsole(20, 10);
                         new Input.Option("Transaction")
                             .Add(() =>
                             {
-                                this._stage = Stage.Transaction_View;
+                                this._stage = Stages.Transaction_View;
                                 Util.ClearConsole();
                             }, "View", '1')
                             .Add(() =>
@@ -193,36 +193,39 @@ namespace B.Options.MoneyTracker
                                 Input.String = string.Empty;
                                 this._tempTransaction = new();
                                 this._tempTransactionState = 0;
-                                this._stage = Stage.Transaction_Add;
+                                this._stage = Stages.Transaction_Add;
                             }, "Add", '2')
-                            .Add(() => this._stage = Stage.Transaction_Delete, "Delete", '3')
-                            .Add(() => this._stage = Stage.Transaction_Edit, "Edit", '4')
+                            .Add(() => this._stage = Stages.Transaction_Delete, "Delete", '3')
+                            .Add(() => this._stage = Stages.Transaction_Edit, "Edit", '4')
                             .AddSpacer()
-                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this._stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stage.Transaction_View:
+                case Stages.Transaction_View:
                     {
                         int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8;
                         int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9;
                         Util.SetConsoleSize(consoleWidth, consoleHeight);
                         Util.ResetTextCursor();
-                        Input.RequestScroll(this._selectedAccount.Transactions.Items,
-                            transaction => string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf("0", this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
-                            OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
-                            new(() =>
+                        Util.PrintLine();
+                        Input.RequestScroll(
+                            items: this._selectedAccount.Transactions.Items,
+                            getText: transaction => string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf('0', this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
+                            maxEntriesPerPage: OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
+                            exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this._stage = Stage.Transaction;
+                                this._stage = Stages.Transaction;
                             }, "Back", key: ConsoleKey.Escape),
-                            new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'),
-                            new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-'));
+                            extraKeybinds: new Keybind[] {
+                                new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'),
+                                new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-')});
                     }
                     break;
 
-                case Stage.Transaction_Add:
+                case Stages.Transaction_Add:
                     {
                         Util.ClearConsole(Util.MAX_CHARS_DECIMAL + 4, 7);
                         Util.PrintLine();
@@ -250,7 +253,7 @@ namespace B.Options.MoneyTracker
                                 this._tempTransaction = null;
                                 this._tempTransactionState = 0;
                                 Input.String = string.Empty;
-                                this._stage = Stage.Transaction;
+                                this._stage = Stages.Transaction;
                             }
                         }
                         else
@@ -270,7 +273,7 @@ namespace B.Options.MoneyTracker
                                     this._tempTransaction = null;
                                     this._tempTransactionState = 0;
                                     Input.String = string.Empty;
-                                    this._stage = Stage.Transaction;
+                                    this._stage = Stages.Transaction;
                                 }
                             }
                             else if (key == ConsoleKey.Escape)
@@ -283,7 +286,7 @@ namespace B.Options.MoneyTracker
                     }
                     break;
 
-                case Stage.Transaction_Delete:
+                case Stages.Transaction_Delete:
                     {
                         Util.ClearConsole(31, this._selectedAccount!.Transactions.Length + 4);
                         Util.PrintLine();
@@ -292,24 +295,18 @@ namespace B.Options.MoneyTracker
 
                         Util.GetKey();
                         // TODO add keybinds to delete a transaction
-                        this._stage = Stage.Transaction;
+                        this._stage = Stages.Transaction;
                     }
                     break;
 
-                case Stage.Transaction_Edit:
+                case Stages.Transaction_Edit:
                     {
                         Util.ClearConsole();
-                        this._stage = Stage.Transaction;
+                        this._stage = Stages.Transaction;
                         // TODO
                     }
                     break;
             }
-        }
-
-        public sealed override void Save()
-        {
-            foreach (Account account in this._accounts)
-                account.Save();
         }
 
         private Account AddAccount(string name, bool deserialize = false)
@@ -328,7 +325,19 @@ namespace B.Options.MoneyTracker
             return account;
         }
 
-        private enum Stage
+        public override void Save()
+        {
+            foreach (Account account in this._accounts)
+                account.Save();
+        }
+
+        public override void Quit()
+        {
+            this.Save();
+            base.Quit();
+        }
+
+        public enum Stages
         {
             MainMenu,
             Account,
@@ -340,12 +349,6 @@ namespace B.Options.MoneyTracker
             Transaction_Add,
             Transaction_Delete,
             Transaction_Edit,
-        }
-
-        public override void Quit()
-        {
-            this.Save();
-            base.Quit();
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 
@@ -36,6 +35,8 @@ namespace B.Utils
 
             return s;
         }
+
+        public static string StringOf(char c, int length) => Util.StringOf(c.ToString(), length);
 
         public static T RandomFrom<T>(params T[] list) => list[Util.Random.Next(list.Length)];
 

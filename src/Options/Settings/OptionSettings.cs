@@ -6,7 +6,7 @@ using B.Utils;
 
 namespace B.Options.Settings
 {
-    public sealed class OptionSettings : Option
+    public sealed class OptionSettings : Option<OptionSettings.Stages>
     {
         private readonly ColorTheme[] _colorThemes =
         {
@@ -24,19 +24,20 @@ namespace B.Options.Settings
         };
 
         private Vector2 _size = new(40, 20);
-        private Stage _stage = Stage.MainMenu;
+
+        public OptionSettings() : base(Stages.MainMenu) { }
 
         public override void Loop()
         {
-            switch (this._stage)
+            switch (this.Stage)
             {
-                case Stage.MainMenu:
+                case Stages.MainMenu:
                     {
                         Util.ClearConsole(35, 11);
                         new Input.Option("Settings")
-                            .Add(() => this._stage = Stage.Color, "Color", '1')
-                            .Add(() => this._stage = Stage.WindowSize, "Window Size", '2')
-                            .Add(() => this._stage = Stage.DeleteData, "Delete Data", '3')
+                            .Add(() => this.Stage = Stages.Color, "Color", '1')
+                            .Add(() => this.Stage = Stages.WindowSize, "Window Size", '2')
+                            .Add(() => this.Stage = Stages.DeleteData, "Delete Data", '3')
                             .AddSpacer()
                             .Add(null!, $"Debug Mode - {Program.Settings.DebugMode}", key: ConsoleKey.F12)
                             .AddExit(this)
@@ -44,7 +45,7 @@ namespace B.Options.Settings
                     }
                     break;
 
-                case Stage.WindowSize:
+                case Stages.WindowSize:
                     {
                         this._size = Program.WINDOW_SIZE_MAX is not null ?
                             Vector2.Clamp(this._size, Program.WINDOW_SIZE_MIN, Program.WINDOW_SIZE_MAX) :
@@ -58,24 +59,24 @@ namespace B.Options.Settings
                             .Add(() => this._size.x--, keyChar: '2', key: ConsoleKey.LeftArrow)
                             .Add(() => this._size.y++, keyChar: '6', key: ConsoleKey.DownArrow)
                             .Add(() => this._size.y--, keyChar: '4', key: ConsoleKey.UpArrow)
-                            .Add(() => this._stage = Stage.MainMenu, key: ConsoleKey.Escape)
+                            .Add(() => this.Stage = Stages.MainMenu, key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stage.Color:
+                case Stages.Color:
                     {
                         Util.ClearConsole(20, 8);
                         new Input.Option("Color")
-                            .Add(() => this._stage = Stage.Color_Theme, "Themes", '1')
-                            .Add(() => this._stage = Stage.Color_Custom, "Customize", '2')
+                            .Add(() => this.Stage = Stages.Color_Theme, "Themes", '1')
+                            .Add(() => this.Stage = Stages.Color_Custom, "Customize", '2')
                             .AddSpacer()
-                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this.Stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stage.Color_Theme:
+                case Stages.Color_Theme:
                     {
                         ColorTheme theme = this._colorThemes[Input.ScrollIndex];
                         Program.Settings.ColorBackground = theme.ColorBG;
@@ -84,36 +85,41 @@ namespace B.Options.Settings
                         Util.ClearConsole(32, this._colorThemes.Length + 8);
                         Util.PrintLine();
                         Util.PrintLine("  Color Themes");
-                        Input.RequestScroll(this._colorThemes, theme => theme.Title, null,
-                            new(() =>
+                        Util.PrintLine();
+                        Input.RequestScroll(
+                            items: this._colorThemes,
+                            getText: theme => theme.Title,
+                            exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this._stage = Stage.Color;
+                                this.Stage = Stages.Color;
                             }, "Back", key: ConsoleKey.Escape));
                     }
                     break;
 
-                case Stage.Color_Custom:
+                case Stages.Color_Custom:
                     {
                         Program.Settings.UpdateColors();
                         Util.ClearConsole(32, 27);
                         Util.PrintLine();
                         Util.PrintLine("  Colors");
+                        Util.PrintLine();
                         ConsoleColor[] colors = Enum.GetValues<ConsoleColor>();
-                        Input.RequestScroll(colors,
-                            color => color.ToString(),
-                            null,
-                            new(() =>
+                        Input.RequestScroll(
+                            items: colors,
+                            getText: color => color.ToString(),
+                            exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this._stage = Stage.Color;
+                                this.Stage = Stages.Color;
                             }, "Exit", key: ConsoleKey.Escape),
-                            new(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
-                            new(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2'));
+                            extraKeybinds: new Keybind[] {
+                                new(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
+                                new(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2')});
                     }
                     break;
 
-                case Stage.DeleteData:
+                case Stages.DeleteData:
                     {
                         Util.ClearConsole(20, 10);
                         new Input.Option("Delete Data") // TODO Adventure, BrainFuck, Money Tracker
@@ -122,7 +128,7 @@ namespace B.Options.Settings
                             .Add(() => this.AskDelete("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true)), "Money Tracker", '3')
                             .Add(() => this.AskDelete("Settings", () => File.Delete(ProgramSettings.Path)), "Settings", '4')
                             .AddSpacer()
-                            .Add(() => this._stage = Stage.MainMenu, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this.Stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -139,7 +145,7 @@ namespace B.Options.Settings
                 .Request();
         }
 
-        private enum Stage
+        public enum Stages
         {
             MainMenu,
             WindowSize,
