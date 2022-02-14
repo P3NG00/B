@@ -11,7 +11,7 @@ using B.Utils;
 
 namespace B
 {
-    public class Program
+    public sealed class Program
     {
         // Code entry point
         public static int Main() => new Program().Start();

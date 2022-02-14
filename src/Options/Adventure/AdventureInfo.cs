@@ -3,7 +3,7 @@ using B.Utils;
 namespace B.Options.Adventure
 {
     [Serializable]
-    public class AdventureInfo
+    public sealed class AdventureInfo
     {
         // TODO keep track of Tuple<gridId (int), coinPos (vector2)>
 

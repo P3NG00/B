@@ -1,7 +1,7 @@
 namespace B.Utils
 {
     [Serializable]
-    public class Pair<L, R>
+    public sealed class Pair<L, R>
     {
         public L ItemLeft;
         public R ItemRight;
