@@ -122,7 +122,7 @@ namespace B.Options.Settings
                 case Stages.DeleteData:
                     {
                         Util.ClearConsole(20, 10);
-                        new Input.Option("Delete Data") // TODO Adventure, BrainFuck, Money Tracker
+                        new Input.Option("Delete Data")
                             .Add(() => this.AskDelete("Adventure", () => File.Delete(OptionAdventure.FilePath)), "Adventure", '1')
                             .Add(() => this.AskDelete("BrainFuck", () => Directory.Delete(OptionBrainFuck.DirectoryPath, true)), "BrainFuck", '2')
                             .Add(() => this.AskDelete("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true)), "Money Tracker", '3')

@@ -40,7 +40,7 @@ namespace B.Utils
 
         public static T RandomFrom<T>(params T[] list) => list[Util.Random.Next(list.Length)];
 
-        public static void Print(string message, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
+        public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
         {
             // Cache old color values
             ConsoleColor? oldColorText = null;
@@ -70,7 +70,7 @@ namespace B.Utils
                 Console.BackgroundColor = oldColorBackground.Value;
         }
 
-        public static void PrintLine(string? message = null, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
+        public static void PrintLine(object message = null!, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
         {
             if (message != null)
                 Util.Print(message, colorText, colorBackground);

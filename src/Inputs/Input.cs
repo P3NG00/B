@@ -41,7 +41,7 @@ namespace B.Inputs
             int maxEntries = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
             Input.Option iob = new();
 
-            if (maxEntries > 0)
+            if (maxEntries > 0 && items.Length > 0)
             {
                 int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntries);
                 int endIndex = Math.Min(startIndex + maxEntries, items.Length);
@@ -100,6 +100,7 @@ namespace B.Inputs
             else
             {
                 Util.PrintLine("  No entries.");
+                Util.PrintLine();
                 iob.Add(exitKeybind)
                     .Request();
             }
