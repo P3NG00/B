@@ -68,7 +68,7 @@ namespace B.Options.NumberGuesser
                         else if (guess > this._numRandom)
                             guessMessage = "TOO HIGH!!!";
                         else
-                            guessMessage = OptionNumberGuesser._winMessages[Util.Random.Next(0, OptionNumberGuesser._winMessages.Length)];
+                            guessMessage = Util.RandomFrom(OptionNumberGuesser._winMessages);
 
                         Util.PrintLine();
                         Util.PrintLine($"  {guessMessage}");

@@ -19,9 +19,10 @@ namespace B
         // Program Info
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static ProgramSettings Settings { get; private set; } = new();
+        public static readonly Vector2 WINDOW_SIZE_ERROR = new(150, 50);
         public static readonly Vector2 WINDOW_SIZE_MIN = new(15, 1);
-        public static Vector2? WINDOW_SIZE_MAX => Program._window_size_max;
-        private static Vector2? _window_size_max = null;
+        public static Vector2? WINDOW_SIZE_MAX => Program._windowSizeMax;
+        private static Vector2? _windowSizeMax = null;
 
         // Private Variables
         private readonly Dict<string, Type> _options = new(
@@ -106,7 +107,7 @@ namespace B
                 }
                 catch (ArgumentOutOfRangeException) { }
 
-                Program._window_size_max = size;
+                Program._windowSizeMax = size;
             }
 
             // TODO add thread with sole purpose of animating the cursor position into different corners of the screen. only allow animating when not printing (may need static variable in Util like Util.IsPrinting that will need to be updated before and after code is done printing so the animation can run).
@@ -152,21 +153,12 @@ namespace B
 
         private void HandleException(Exception e)
         {
-            // Go back to main menu if exception was caught
-            this._option = null!;
-            Vector2? maxConsoleSize = Program.WINDOW_SIZE_MAX;
-
             try
             {
-                if (maxConsoleSize is not null)
-                    Util.ClearConsole(maxConsoleSize);
-                else
-                    Util.ClearConsole(150, 50);
+                Vector2? maxConsoleSize = Program.WINDOW_SIZE_MAX;
+                Util.ClearConsole(maxConsoleSize is not null ? maxConsoleSize : Program.WINDOW_SIZE_ERROR);
             }
-            catch (Exception)
-            {
-                Util.ClearConsole(150, 50);
-            }
+            catch (Exception) { Util.ClearConsole(Program.WINDOW_SIZE_ERROR); }
 
             Util.PrintLine();
             Util.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);
@@ -174,6 +166,7 @@ namespace B
             Util.PrintLine($"  {e.ToString()}", colorText: ConsoleColor.White, colorBackground: ConsoleColor.Black);
             Util.WaitForKey(ConsoleKey.F1);
             Util.ClearConsole();
+            this._option = null!;
         }
     }
 }
