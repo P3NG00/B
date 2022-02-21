@@ -114,7 +114,9 @@ namespace B.Utils
                 Console.WriteLine();
         }
 
-        public static void PrintSpaces(int spaces) => Util.Print(string.Empty.PadLeft(spaces));
+        public static void PrintSpaces(int spaces) => Util.Print(Util.Spaces(spaces));
+
+        public static string Spaces(int spaces) => string.Empty.PadLeft(spaces);
 
         public static void SetConsoleSize(int width, int height)
         {
