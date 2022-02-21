@@ -1,10 +1,13 @@
+using B.Utils;
+
 namespace B
 {
     public sealed class ProgramSettings
     {
         public static string Path => Program.DataPath + "settings";
 
-        public bool DebugMode = false;
+        public Togglable DebugMode = new();
+        public Togglable Censor = new();
         public ConsoleColor ColorBackground = ConsoleColor.White;
         public ConsoleColor ColorText = ConsoleColor.Black;
 

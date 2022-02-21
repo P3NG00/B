@@ -8,8 +8,8 @@ namespace B.Utils
         public T[] Items = new T[0];
 
         public int Length => this.Items.Length;
+        public bool IsEmpty => this.Length == 0;
 
-        // Needs parameterless constructor for serialization
         public List() { }
 
         public List(params T[] items) => this.Items = items;
@@ -46,6 +46,16 @@ namespace B.Utils
                     return true;
 
             return false;
+        }
+
+        public List<U> GetSubList<U>(Func<T, U> getValue)
+        {
+            List<U> list = new List<U>();
+
+            foreach (T item in this.Items)
+                list.Add(getValue(item));
+
+            return list;
         }
 
         public IEnumerator GetEnumerator() => this.Items.GetEnumerator();

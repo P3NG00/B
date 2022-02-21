@@ -43,8 +43,8 @@ namespace B.Options.Adventure
                         if (fileExists)
                             consoleHeight++;
 
-                        Util.ClearConsole(20, consoleHeight);
-                        Input.Option iob = new Input.Option("Adventure")
+                        Util.ClearAndSetSize(20, consoleHeight);
+                        Input.Choice iob = new Input.Choice("Adventure")
                             .Add(() => this.InitGame(true), "New Game", '1');
 
                         if (fileExists)
@@ -61,7 +61,7 @@ namespace B.Options.Adventure
                         Grid currentGrid = OptionAdventure.CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;
 
-                        if (Program.Settings.DebugMode)
+                        if (Program.Settings.DebugMode.Active)
                         {
                             // Extra spaces are added to the end to clear leftover text
                             Util.PrintLine();
@@ -106,7 +106,7 @@ namespace B.Options.Adventure
                         Util.PrintLine("      Move) W A S D");
                         Util.PrintLine("  Interact) Space");
                         Util.PrintLine("     Speed) + -");
-                        new Input.Option()
+                        new Input.Choice()
                             .Add(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
                             .Add(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
                             .Add(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2)
@@ -139,7 +139,7 @@ namespace B.Options.Adventure
             else
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
-            Util.ClearConsole();
+            Util.Clear();
             this.Stage = Stages.Game;
         }
 

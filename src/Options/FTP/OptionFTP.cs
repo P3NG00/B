@@ -97,14 +97,14 @@ namespace B.Options.FTP
                 case Stages.Login:
                     {
                         int consoleWidth = 16;
-                        Util.ClearConsole(consoleWidth, 5);
+                        Util.ClearAndSetSize(consoleWidth, 5);
                         Util.PrintLine();
                         Util.PrintLine("     Login");
                         string scrambled = this._scrambler(Input.String.Length);
                         int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
                         Util.PrintLine(string.Format("{0," + textDepth + "}", scrambled));
 
-                        switch (Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD))
+                        switch (Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD).Key)
                         {
                             case ConsoleKey.Enter:
                                 {
@@ -186,15 +186,15 @@ namespace B.Options.FTP
                 case Stages.FileInteract:
                     {
                         this._lastStage = this.Stage;
-                        Util.ClearConsole(OptionFTP.WIDTH, 8);
+                        Util.ClearAndSetSize(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
-                        new Input.Option($"{file.FullName} | {file.Attributes.Size} bytes")
+                        new Input.Choice($"{file.FullName} | {file.Attributes.Size} bytes")
                             .Add(() => this.Stage = Stages.Download, "Download", key: ConsoleKey.PageDown)
                             .Add(() => this.Stage = Stages.Delete, "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
                             .Add(() => this.Stage = Stages.Navigate, "Back", key: ConsoleKey.Escape)
                             .Request();
-                        Util.ClearConsole();
+                        Util.Clear();
                     }
                     break;
 
@@ -202,18 +202,18 @@ namespace B.Options.FTP
                     {
                         // May hang while downloading files
                         this.Download(this.CurrentFile);
-                        Util.ClearConsole();
+                        Util.Clear();
                         this.Stage = this._lastStage;
                     }
                     break;
 
                 case Stages.Delete:
                     {
-                        Util.ClearConsole(OptionFTP.WIDTH, 9);
+                        Util.ClearAndSetSize(OptionFTP.WIDTH, 9);
                         Util.PrintLine();
                         SftpFile currentFile = this.CurrentFile;
                         Util.PrintLine($"  {currentFile.FullName}");
-                        new Input.Option("Are you sure you want to delete this file?")
+                        new Input.Choice("Are you sure you want to delete this file?")
                             .Add(() => this.Delete(currentFile), "yes", key: ConsoleKey.Enter)
                             .AddSpacer()
                             .Add(null!, "NO", key: ConsoleKey.Escape)
@@ -228,7 +228,7 @@ namespace B.Options.FTP
         {
             this._files = this._client.ListDirectory(this.Path).OrderBy(x => !x.IsDirectory).ToArray();
             Input.ScrollIndex = 0;
-            Util.ClearConsole();
+            Util.Clear();
         }
 
         private void Download(SftpFile file)
@@ -247,7 +247,7 @@ namespace B.Options.FTP
                 using (Stream stream = File.Open(path, FileMode.Create))
                     this._client.DownloadFile(file.FullName, stream, l =>
                     {
-                        Util.ClearConsole(OptionFTP.WIDTH, 7);
+                        Util.ClearAndSetSize(OptionFTP.WIDTH, 7);
                         Util.PrintLine();
                         Util.PrintLine(" Downloading...");
                         Util.PrintLine();
@@ -263,7 +263,7 @@ namespace B.Options.FTP
             try { this._client.Delete(file.FullName); }
             catch (SshException)
             {
-                Util.ClearConsole(21, 6);
+                Util.ClearAndSetSize(21, 6);
                 Util.PrintLines(2);
                 Util.PrintLine("       Error:");
                 Util.PrintLine("  Can't delete file");

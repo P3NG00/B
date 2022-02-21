@@ -9,7 +9,7 @@ namespace B.Options.Adventure
         public readonly int Height;
 
         private readonly Dict<Vector2, Action> _interactionDict = new();
-        private readonly Dict<Vector2, Pair<int, Vector2>> _doorDict = new();
+        private readonly Dict<Vector2, (int, Vector2)> _doorDict = new();
         private readonly Utils.List<Vector2> _coinList = new();
         private readonly Tile[][] _tileGrid;
 
@@ -76,7 +76,7 @@ namespace B.Options.Adventure
 
         public void AddInteraction(Vector2 pos, Action action) => this.AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, this._interactionDict);
 
-        public void AddDoor(Vector2 pos, Pair<int, Vector2> gridIdAndPos) => this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorDict);
+        public void AddDoor(Vector2 pos, (int, Vector2) gridIdAndPos) => this.AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, this._doorDict);
 
         public void MoveTo(Vector2 pos)
         {
@@ -89,9 +89,9 @@ namespace B.Options.Adventure
 
                 if (tileType == Tile.TileTypes.Door && this._doorDict.ContainsKey(pos))
                 {
-                    Pair<int, Vector2> gridIdAndPos = this._doorDict[pos];
-                    OptionAdventure.Info.GridID = gridIdAndPos.ItemLeft;
-                    OptionAdventure.Info.Position = gridIdAndPos.ItemRight ?? Vector2.Zero;
+                    (int, Vector2) gridIdAndPos = this._doorDict[pos];
+                    OptionAdventure.Info.GridID = gridIdAndPos.Item1;
+                    OptionAdventure.Info.Position = gridIdAndPos.Item2 ?? Vector2.Zero;
                 }
             }
             else

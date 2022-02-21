@@ -28,8 +28,8 @@ namespace B.Options.NumberGuesser
             {
                 case Stages.MainMenu:
                     {
-                        Util.ClearConsole(20, 8);
-                        new Input.Option("Number Guesser")
+                        Util.ClearAndSetSize(20, 8);
+                        new Input.Choice("Number Guesser")
                             .Add(() =>
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;
@@ -50,14 +50,14 @@ namespace B.Options.NumberGuesser
                         bool won = guess.HasValue && guess.Value == this._numRandom;
                         int consoleHeight = 7;
 
-                        if (Program.Settings.DebugMode)
+                        if (Program.Settings.DebugMode.Active)
                         {
                             Util.PrintLine();
                             Util.PrintLine($" Number: {this._numRandom}");
                             consoleHeight += 2;
                         }
 
-                        Util.ClearConsole(20, consoleHeight);
+                        Util.ClearAndSetSize(20, consoleHeight);
                         Util.PrintLine();
                         Util.PrintLine($"  {Input.String}");
 
@@ -83,7 +83,7 @@ namespace B.Options.NumberGuesser
                             Util.PrintLine();
                             Util.PrintLine(" Enter a Number!");
 
-                            if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH) == ConsoleKey.Escape)
+                            if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH).Key == ConsoleKey.Escape)
                                 this.Stage = Stages.MainMenu;
                         }
                     }
@@ -91,8 +91,8 @@ namespace B.Options.NumberGuesser
 
                 case Stages.Settings:
                     {
-                        Util.ClearConsole(20, 7);
-                        new Input.Option("Settings")
+                        Util.ClearAndSetSize(20, 7);
+                        new Input.Choice("Settings")
                             .Add(() =>
                             {
                                 Input.String = this._numMax.ToString();
@@ -106,12 +106,12 @@ namespace B.Options.NumberGuesser
 
                 case Stages.Settings_MaxNumber:
                     {
-                        Util.ClearConsole(20, 5);
+                        Util.ClearAndSetSize(20, 5);
                         Util.PrintLine();
                         Util.PrintLine($"  Max - {Input.String}");
                         Util.PrintLine();
                         Util.PrintLine("  Enter Max Number");
-                        ConsoleKey key = Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH);
+                        ConsoleKey key = Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH).Key;
 
                         if (key == ConsoleKey.Enter)
                         {

@@ -10,6 +10,7 @@ namespace B.Options.BrainFuck
         private static byte[] MEMORY_VIEW_REMOVE => new byte[] { 7, 8, 9, 10, 13 };
 
         public static readonly string DirectoryPath = Program.DataPath + @"brainfuck\";
+        public static string Title => Program.Settings.Censor.Active ? "BrainF**k" : "BrainFuck";
 
         private readonly Utils.List<BrainFuckProgram> _programs = new();
         private BrainFuckProgram _currentProgram = null!;
@@ -42,8 +43,8 @@ namespace B.Options.BrainFuck
             {
                 case Stages.MainMenu:
                     {
-                        Util.ClearConsole(20, 7);
-                        new Input.Option("BrainFuck")
+                        Util.ClearAndSetSize(20, 7);
+                        new Input.Choice(OptionBrainFuck.Title)
                             .Add(() => this.Stage = Stages.List, "List", '1')
                             .AddExit(this)
                             .Request();
@@ -52,11 +53,11 @@ namespace B.Options.BrainFuck
 
                 case Stages.List:
                     {
-                        Util.ClearConsole(40, 8 + this._programs.Length);
-                        Util.PrintLine();
+                        Util.ClearAndSetSize(40, 10 + this._programs.Length);
                         Input.RequestScroll(
                             items: this._programs.Items,
                             getText: program => program.Title,
+                            title: $"{OptionBrainFuck.Title} Programs",
                             exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
@@ -80,10 +81,10 @@ namespace B.Options.BrainFuck
                     {
                         if (this._instructionIndex < this._currentProgram.Instructions.Length)
                         {
-                            if (Program.Settings.DebugMode)
+                            if (Program.Settings.DebugMode.Active)
                             {
                                 int consoleWidth = 50;
-                                Util.ClearConsole(consoleWidth, 25);
+                                Util.ClearAndSetSize(consoleWidth, 25);
                                 Util.PrintLine(this._output);
                                 Util.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
                                 Util.PrintLine("  DEBUG ON | OUTPUT ABOVE LINE");
@@ -96,7 +97,7 @@ namespace B.Options.BrainFuck
                                 {
                                     case ConsoleKey.F1:
                                         {
-                                            Util.ClearConsole();
+                                            Util.Clear();
                                             this.Stage = Stages.MemoryView;
                                         }; break;
 
@@ -111,7 +112,7 @@ namespace B.Options.BrainFuck
                         }
                         else
                         {
-                            Util.ClearConsole(50, 25);
+                            Util.ClearAndSetSize(50, 25);
                             Util.PrintLine();
                             Util.PrintLine(this._output);
                             Util.WaitForKey(ConsoleKey.F1);

@@ -17,7 +17,7 @@ namespace B.Inputs
             Input.String = string.Empty;
         }
 
-        public static ConsoleKey RequestLine(int maxLength)
+        public static ConsoleKeyInfo RequestLine(int maxLength)
         {
             ConsoleKeyInfo keyInfo = Util.GetKey();
 
@@ -26,12 +26,15 @@ namespace B.Inputs
             else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape && Input.String.Length < maxLength)
                 Input.String += keyInfo.KeyChar;
 
-            return keyInfo.Key;
+            return keyInfo;
         }
 
-        public static ConsoleKey RequestScroll<T>(
+        public static ConsoleKeyInfo RequestScroll<T>(
             T[] items,
             Func<T, string> getText,
+            Func<T, ConsoleColor?> getTextColor = null!,
+            Func<T, ConsoleColor?> getBackgroundColor = null!,
+            string title = null!,
             int? maxEntriesPerPage = null,
             ScrollType scrollType = ScrollType.Indent,
             bool navigationKeybinds = true,
@@ -39,29 +42,49 @@ namespace B.Inputs
             params Keybind[] extraKeybinds)
         {
             int maxEntries = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
-            Input.Option iob = new();
+            Input.Choice iob = new();
+            ConsoleKeyInfo keyInfo;
 
             if (maxEntries > 0 && items.Length > 0)
             {
+                if (title != null)
+                {
+                    Util.PrintLine();
+                    Util.PrintLine($"  {title}");
+                    Util.PrintLine();
+                }
+
                 int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntries);
                 int endIndex = Math.Min(startIndex + maxEntries, items.Length);
 
                 for (int i = startIndex; i < endIndex; i++)
                 {
-                    string text = getText(items[i]);
                     bool isIndex = Input.ScrollIndex == i;
-                    string output;
+                    string preface;
 
-                    // TODO test
                     switch (scrollType)
                     {
-                        case ScrollType.Side: output = isIndex ? $" > {text}" : $"   {text}"; break;
+                        case ScrollType.Side: preface = isIndex ? $" > " : "   "; break;
 
                         // ScrollType.Indent (default)
-                        default: output = isIndex ? $" > {text}" : string.Format("  {0,-" + (text.Length + 1) + "}", text); break;
+                        default: preface = isIndex ? $" > " : "  "; break;
                     }
 
-                    Util.PrintLine(output);
+                    Util.Print(preface);
+                    T item = items[i];
+                    string text = getText(item);
+                    string output = string.Format("{0,-" + (text.Length + 1) + "}", text);
+                    ConsoleColor? colorText = null;
+                    ConsoleColor? colorBackground = null;
+
+                    if (getTextColor != null)
+                        colorText = getTextColor(item);
+
+                    if (getBackgroundColor != null)
+                        colorBackground = getBackgroundColor(item);
+
+                    Util.Print(output, colorText, colorBackground);
+                    Util.PrintLine();
                 }
 
                 if (navigationKeybinds)
@@ -85,7 +108,7 @@ namespace B.Inputs
                 if (hasExtraKeybinds)
                     iob.Add(extraKeybinds!);
 
-                iob.AddSpacer()
+                keyInfo = iob.AddSpacer()
                     .Add(exitKeybind)
                     .Request();
 
@@ -95,45 +118,45 @@ namespace B.Inputs
 
                 // If crossing into new page, clear console
                 if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
-                    Util.ClearConsole();
+                    Util.Clear();
             }
             else
             {
                 Util.PrintLine("  No entries.");
                 Util.PrintLine();
-                iob.Add(exitKeybind)
+                keyInfo = iob.Add(exitKeybind)
                     .Request();
             }
 
-            return Util.LastInput.Key;
+            return keyInfo;
         }
 
-        public sealed class Option
+        public sealed class Choice
         {
             private readonly Utils.List<Keybind> _keybinds = new Utils.List<Keybind>();
             private readonly string? _message;
 
-            public Option(string? message = null) => this._message = message;
+            public Choice(string? message = null) => this._message = message;
 
-            public Option Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey))
+            public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey))
             {
                 this._keybinds.Add(new Keybind(action, description, keyChar, key));
                 return this;
             }
 
-            public Option Add(params Keybind[] keybinds)
+            public Choice Add(params Keybind[] keybinds)
             {
                 this._keybinds.Add(keybinds);
                 return this;
             }
 
-            public Option AddSpacer()
+            public Choice AddSpacer()
             {
                 this._keybinds.Add(new Keybind[] { null! });
                 return this;
             }
 
-            public Option AddExit(IOption option, bool addSpacerBefore = true)
+            public Choice AddExit(IOption option, bool addSpacerBefore = true)
             {
                 if (addSpacerBefore)
                     this.AddSpacer();
@@ -141,9 +164,7 @@ namespace B.Inputs
                 return this.Add(() => option.Quit(), "Exit", key: ConsoleKey.Escape);
             }
 
-            // Input Option Requests log the last pressed key in Util.LastInput.
-            // This is because the method uses Util.GetInput() which will log the pressed key and return it.
-            public void Request()
+            public ConsoleKeyInfo Request()
             {
                 // Print out input options
                 bool printLine = false;
@@ -176,17 +197,19 @@ namespace B.Inputs
                         printLine = true;
                 }
 
-                ConsoleKeyInfo inputKeyInfo = Util.GetKey();
+                ConsoleKeyInfo keyInfo = Util.GetKey();
 
                 // Activate function for pressed keybind
                 foreach (Keybind keybind in this._keybinds)
                 {
-                    if (keybind != null && keybind.Action != null && (keybind.Key == inputKeyInfo.Key || (keybind.KeyChar.HasValue && keybind.KeyChar == inputKeyInfo.KeyChar)))
+                    if (keybind != null && keybind.Action != null && (keybind.Key == keyInfo.Key || (keybind.KeyChar.HasValue && keybind.KeyChar == keyInfo.KeyChar)))
                     {
                         keybind.Action!.Invoke();
                         break;
                     }
                 }
+
+                return keyInfo;
             }
         }
 

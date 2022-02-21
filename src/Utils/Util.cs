@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 
 namespace B.Utils
@@ -6,18 +5,30 @@ namespace B.Utils
     public static class Util
     {
         public const int MAX_CHARS_DECIMAL = 27;
-        public const int MAX_CONSOLE_HEIGHT = 66;
-
-        public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
 
         public static Random Random => new Random();
 
-        public static ConsoleKeyInfo GetKey() => Util.LastInput = Console.ReadKey(true);
-
-        public static void WaitForKey(ConsoleKey key)
+        public static ConsoleKeyInfo GetKey()
         {
-            Util.PrintLine();
-            Util.PrintLine($"Press {key} to continue...");
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+
+            if (keyInfo.Key == ConsoleKey.F12)
+            {
+                Program.Settings.DebugMode.Toggle();
+                // Toggling Debug mode clears console to avoid leftover characters
+                Util.Clear();
+            }
+
+            return keyInfo;
+        }
+
+        public static void WaitForKey(ConsoleKey key, bool silent = false)
+        {
+            if (!silent)
+            {
+                Util.PrintLine();
+                Util.PrintLine($"Press {key} to continue...");
+            }
 
             while (true)
                 if (Util.GetKey().Key == key)
@@ -84,12 +95,12 @@ namespace B.Utils
                 Console.WriteLine();
         }
 
-        public static void PrintSpaces(int spaces) => Console.Write(string.Empty.PadLeft(spaces));
+        public static void PrintSpaces(int spaces) => Util.Print(string.Empty.PadLeft(spaces));
 
         public static void SetConsoleSize(int width, int height)
         {
             // This can only be called on Windows // TODO shouldn't matter, but needs testing on other types of consoles
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (OperatingSystem.IsWindows())
             {
                 Console.SetWindowSize(width, height);
                 Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
@@ -100,17 +111,35 @@ namespace B.Utils
 
         public static void SetConsoleSize(Vector2 size) => Util.SetConsoleSize(size.x, size.y);
 
-        public static void ClearConsole(int width = 0, int height = 0)
+        public static void Clear() => Console.Clear();
+
+        public static void ClearAndSetSize(int width, int height)
         {
             Console.Clear();
+            Vector2? maxWindow = Program.WINDOW_SIZE_MAX;
+
+            if (maxWindow is not null)
+                Util.SetConsoleSize(
+                    Math.Clamp(width, Program.WINDOW_SIZE_MIN.x, maxWindow.x),
+                    Math.Clamp(height, Program.WINDOW_SIZE_MIN.y, maxWindow.y));
+            else
+                Util.SetConsoleSize(
+                    Math.Max(width, Program.WINDOW_SIZE_MIN.x),
+                    Math.Max(height, Program.WINDOW_SIZE_MIN.y));
+
+            // TODO remove below code
 
             if (width != 0 && height != 0)
                 Util.SetConsoleSize(width, height);
         }
 
-        public static void ClearConsole(Vector2 size) => Util.ClearConsole(size.x, size.y);
+        public static void ClearAndSetSize(Vector2 size) => Util.ClearAndSetSize(size.x, size.y);
 
-        public static void ResetTextCursor() => Console.SetCursorPosition(0, 0);
+        public static void SetTextCursorPosition(int? x = null, int? y = null) => Console.SetCursorPosition(x ?? Console.CursorLeft, y ?? Console.CursorTop);
+
+        public static void SetTextCursorPosition(Vector2 position) => Util.SetTextCursorPosition(position.x, position.y);
+
+        public static void ResetTextCursor() => Util.SetTextCursorPosition(Vector2.Zero);
 
         public static void ToggleBool(ref bool b) => b = !b;
 

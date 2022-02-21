@@ -38,7 +38,7 @@ namespace B.Options.BrainFuck
                 // Input Current Cell Value from User
                 case ',':
                     {
-                        Util.ClearConsole(50, 25); // TODO make size adjustable
+                        Util.ClearAndSetSize(50, 25); // TODO make size adjustable
                         Console.WriteLine(output);
                         memory[memoryIndex] = (byte)Util.GetKey().KeyChar;
                     }
