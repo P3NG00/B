@@ -5,7 +5,7 @@ namespace B.Options.Adventure
     [Serializable]
     public sealed class AdventureInfo
     {
-        // TODO keep track of Tuple<gridId (int), coinPos (vector2)>
+        // TODO keep track of Tuple<gridId (int), coinPos (vector2)> to fix coin respawn on reload game
 
         public int GridID
         {

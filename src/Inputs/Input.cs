@@ -5,17 +5,11 @@ namespace B.Inputs
 {
     static class Input
     {
-        public static int ScrollIndex;
-        public static string String;
+        public static int ScrollIndex = 0;
+        public static string String = string.Empty;
 
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
-
-        static Input()
-        {
-            Input.ScrollIndex = 0;
-            Input.String = string.Empty;
-        }
 
         public static ConsoleKeyInfo RequestLine(int maxLength)
         {
@@ -122,6 +116,7 @@ namespace B.Inputs
             }
             else
             {
+                Util.PrintLine();
                 Util.PrintLine("  No entries.");
                 Util.PrintLine();
                 keyInfo = iob.Add(exitKeybind)

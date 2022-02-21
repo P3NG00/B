@@ -10,9 +10,8 @@ namespace B.Options.MoneyTracker
         public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
 
         private readonly Utils.List<Account> _accounts = new();
-        private Account? _selectedAccount;
         private Transaction? _tempTransaction;
-        private byte _tempTransactionState = 0; // TODO remove. create different enum for each state
+        private Account? _selectedAccount;
 
         public OptionMoneyTracker() : base(Stages.MainMenu)
         {
@@ -58,9 +57,6 @@ namespace B.Options.MoneyTracker
                         }
                         else
                             Util.ClearAndSetSize(24, 9);
-
-                        // TODO if account is not selected, show Create, Select, and Remove
-                        // TODO if account is selected, show Create Transaction, View Transactions (in view, add interaction to Transactions in RequestScroll)
 
                         new Input.Choice("Account")
                             .Add(() => this.Stage = Stages.Account_Create, "Create", '1')
@@ -191,8 +187,7 @@ namespace B.Options.MoneyTracker
                             {
                                 Input.String = string.Empty;
                                 this._tempTransaction = new();
-                                this._tempTransactionState = 0;
-                                this.Stage = Stages.Transaction_Add;
+                                this.Stage = Stages.Transaction_Add_Amount;
                             }, "Add", '2')
                             .Add(() => this.Stage = Stages.Transaction_Delete, "Delete", '3')
                             .Add(() => this.Stage = Stages.Transaction_Edit, "Edit", '4')
@@ -204,9 +199,9 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Transaction_View:
                     {
-                        int consoleWidth = (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 8;
-                        int consoleHeight = Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9;
-                        Util.SetConsoleSize(consoleWidth, consoleHeight);
+                        Util.SetConsoleSize(
+                            (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 9,
+                            Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
                         Util.ResetTextCursor();
                         Util.PrintLine();
                         Input.RequestScroll(
@@ -224,75 +219,18 @@ namespace B.Options.MoneyTracker
                     }
                     break;
 
-                case Stages.Transaction_Add:
-                    {
-                        Util.ClearAndSetSize(Util.MAX_CHARS_DECIMAL + 4, 7);
-                        Util.PrintLine();
-                        Util.PrintLine("  Amount");
-                        ConsoleKey key;
+                case Stages.Transaction_Add_Amount: this.ShowTransactionStage(); break;
 
-                        if (this._tempTransactionState == 0)
-                        {
-                            Util.Print($"  {Input.String}");
-                            key = Input.RequestLine(Util.MAX_CHARS_DECIMAL).Key;
-
-                            if (key == ConsoleKey.Enter)
-                            {
-                                decimal? amount = Input.Decimal;
-
-                                if (amount.HasValue)
-                                {
-                                    this._tempTransaction!.Amount = amount.Value;
-                                    Input.String = this._tempTransaction.Description;
-                                    this._tempTransactionState = 1;
-                                }
-                            }
-                            else if (key == ConsoleKey.Escape)
-                            {
-                                this._tempTransaction = null;
-                                this._tempTransactionState = 0;
-                                Input.String = string.Empty;
-                                this.Stage = Stages.Transaction;
-                            }
-                        }
-                        else
-                        {
-                            Util.PrintLine($"  {this._tempTransaction!.Amount}");
-                            Util.PrintLine();
-                            Util.PrintLine("  Description:");
-                            Util.Print($"  {Input.String}");
-                            key = Input.RequestLine(Util.MAX_CHARS_DECIMAL).Key;
-
-                            if (key == ConsoleKey.Enter)
-                            {
-                                if (Input.String.Length > 0)
-                                {
-                                    this._tempTransaction.Description = Input.String;
-                                    this._selectedAccount!.Transactions.Add(this._tempTransaction);
-                                    this._tempTransaction = null;
-                                    this._tempTransactionState = 0;
-                                    Input.String = string.Empty;
-                                    this.Stage = Stages.Transaction;
-                                }
-                            }
-                            else if (key == ConsoleKey.Escape)
-                            {
-                                this._tempTransaction.Description = Input.String;
-                                Input.String = this._tempTransaction.Amount.ToString();
-                                this._tempTransactionState = 0;
-                            }
-                        }
-                    }
-                    break;
+                case Stages.Transaction_Add_Description: this.ShowTransactionStage(); break;
 
                 case Stages.Transaction_Delete:
                     {
                         Util.ClearAndSetSize(31, this._selectedAccount!.Transactions.Length + 4);
-                        Util.PrintLine();
-                        Util.PrintLine("  Delete");
+                        // Util.PrintLine();
+                        // Util.PrintLine("  Delete");
                         // this._selectedAccount.PrintTransactions(); // TODO
 
-                        Util.GetKey();
+                        // Util.GetKey();
                         // TODO add keybinds to delete a transaction
                         this.Stage = Stages.Transaction;
                     }
@@ -324,6 +262,69 @@ namespace B.Options.MoneyTracker
             return account;
         }
 
+        private void ShowTransactionStage()
+        {
+            Util.ClearAndSetSize(4 + Util.MAX_CHARS_DECIMAL, 7);
+            Util.PrintLine();
+            Util.PrintLine("  Amount:");
+            ConsoleKey key;
+
+            // _tempTransactionState key
+            // 0: Amount
+            // 1: Description
+
+
+            if (this.Stage == Stages.Transaction_Add_Amount)
+            {
+                Util.Print($"  {Input.String}");
+                key = Input.RequestLine(Util.MAX_CHARS_DECIMAL).Key;
+
+                if (key == ConsoleKey.Enter)
+                {
+                    decimal? amount = Input.Decimal;
+
+                    if (amount.HasValue)
+                    {
+                        this._tempTransaction!.Amount = amount.Value;
+                        Input.String = this._tempTransaction.Description;
+                        this.Stage = Stages.Transaction_Add_Description;
+                    }
+                }
+                else if (key == ConsoleKey.Escape)
+                {
+                    this._tempTransaction = null;
+                    Input.String = string.Empty;
+                    this.Stage = Stages.Transaction;
+                }
+            }
+            else
+            {
+                Util.PrintLine($"  {this._tempTransaction!.Amount}");
+                Util.PrintLine();
+                Util.PrintLine("  Description:");
+                Util.Print($"  {Input.String}");
+                key = Input.RequestLine(Util.MAX_CHARS_DECIMAL).Key;
+
+                if (key == ConsoleKey.Enter)
+                {
+                    if (Input.String.Length > 0)
+                    {
+                        this._tempTransaction.Description = Input.String.Trim();
+                        this._selectedAccount!.Transactions.Add(this._tempTransaction);
+                        this._tempTransaction = null;
+                        Input.String = string.Empty;
+                        this.Stage = Stages.Transaction;
+                    }
+                }
+                else if (key == ConsoleKey.Escape)
+                {
+                    this._tempTransaction.Description = Input.String;
+                    Input.String = this._tempTransaction.Amount.ToString();
+                    this.Stage = Stages.Transaction_Add_Amount;
+                }
+            }
+        }
+
         public override void Save()
         {
             foreach (Account account in this._accounts)
@@ -345,7 +346,8 @@ namespace B.Options.MoneyTracker
             Account_Remove,
             Transaction,
             Transaction_View,
-            Transaction_Add,
+            Transaction_Add_Amount,
+            Transaction_Add_Description,
             Transaction_Delete,
             Transaction_Edit,
         }

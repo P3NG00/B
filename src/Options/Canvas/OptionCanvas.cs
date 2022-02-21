@@ -53,13 +53,11 @@ namespace B.Options.Canvas
                             }, "Create", '1');
 
                         if (!this._canvases.IsEmpty)
-                        {
                             iob.Add(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 this.Stage = Stages.List;
                             }, "List", '2');
-                        }
 
                         iob.AddExit(this)
                             .Request();

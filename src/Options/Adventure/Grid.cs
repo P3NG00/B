@@ -13,8 +13,6 @@ namespace B.Options.Adventure
         private readonly Utils.List<Vector2> _coinList = new();
         private readonly Tile[][] _tileGrid;
 
-        // TODO add variable to allow for different visual grid outline styles
-
         // Private Initialization Cache
         private readonly int _initInteractables = 0;
         private readonly int _initDoors = 0;

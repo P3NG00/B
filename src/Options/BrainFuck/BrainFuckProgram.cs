@@ -38,8 +38,11 @@ namespace B.Options.BrainFuck
                 // Input Current Cell Value from User
                 case ',':
                     {
-                        Util.ClearAndSetSize(50, 25); // TODO make size adjustable
-                        Console.WriteLine(output);
+                        Util.ClearAndSetSize(30, 10);
+                        Util.PrintLine();
+                        Util.PrintLine($" Output: {output}");
+                        Util.PrintLine();
+                        Util.Print(" Press Input Key...");
                         memory[memoryIndex] = (byte)Util.GetKey().KeyChar;
                     }
                     break;

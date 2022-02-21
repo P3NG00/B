@@ -118,7 +118,7 @@ namespace B.Utils
 
         public static void SetConsoleSize(int width, int height)
         {
-            // This can only be called on Windows // TODO shouldn't matter, but needs testing on other types of consoles
+            // This can only be called on Windows
             if (OperatingSystem.IsWindows())
             {
                 Console.SetWindowSize(width, height);
@@ -145,11 +145,6 @@ namespace B.Utils
                 Util.SetConsoleSize(
                     Math.Max(width, Program.WINDOW_SIZE_MIN.x),
                     Math.Max(height, Program.WINDOW_SIZE_MIN.y));
-
-            // TODO remove below code
-
-            if (width != 0 && height != 0)
-                Util.SetConsoleSize(width, height);
         }
 
         public static void ClearAndSetSize(Vector2 size) => Util.ClearAndSetSize(size.x, size.y);

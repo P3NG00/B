@@ -15,8 +15,6 @@ namespace B.Options.NumberGuesser
             "Nice one!",
         };
 
-        // TODO add save/load settings. Keep last "Max Guess Num" and "Use Decimals"
-
         private int _numMax = 100;
         private int _numRandom;
 

@@ -1,0 +1,32 @@
+
+Keybinds:
+
+Allow for key modifier (Shift, Ctrl, Alt) by using ConsoleKeyInfo in place of ConsoleKey.
+Allow for multiple keys using the same bind by allowing an array of KeyChars or Keys.
+
+
+
+Adventure Grid:
+
+Allow variable in Grid initialization to allow for different visual grid borders. (probably an enum)
+
+
+
+Number Guesser:
+
+Store last 'Max Number' setting.
+
+
+
+Color Themes:
+
+Add more color variations for things like Input Option Titles, Selected Scroll Index, etc.
+
+
+
+General:
+
+Program needs testing with different types of systems.
+    Examples:
+        Smaller displays
+        Different OS types
