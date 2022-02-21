@@ -137,8 +137,9 @@ namespace B.Utils
         public static void ClearAndSetSize(int width, int height)
         {
             Console.Clear();
-            Math.Clamp(width, Program.WINDOW_SIZE_MIN.x, Program.WINDOW_SIZE_MAX.x);
-            Math.Clamp(height, Program.WINDOW_SIZE_MIN.y, Program.WINDOW_SIZE_MAX.y);
+            Util.SetConsoleSize(
+                Math.Clamp(width, Program.WINDOW_MIN.x, Program.WINDOW_MAX.x),
+                Math.Clamp(height, Program.WINDOW_MIN.y, Program.WINDOW_MAX.y));
         }
 
         public static void ClearAndSetSize(Vector2 size) => Util.ClearAndSetSize(size.x, size.y);

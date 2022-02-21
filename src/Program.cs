@@ -17,13 +17,12 @@ namespace B
         public static int Main() => new Program().Start();
 
         // Program Info
-        public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static ProgramSettings Settings { get; private set; } = new();
-        public static Vector2 WINDOW_SIZE_MIN => new(20, 10);
-        public static Vector2 WINDOW_SIZE_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
+        public static Vector2 WINDOW_MIN => new(20, 10);
+        public static Vector2 WINDOW_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
+        public static string DataPath => Environment.CurrentDirectory + @"\data\";
 
         // Private Variables
-
         private readonly (Type, Func<string>)[] _options = new (Type, Func<string>)[] {
             new (typeof(OptionAdventure), () => "Adventure!"),
             new (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
@@ -116,7 +115,7 @@ namespace B
 
         private void HandleException(Exception e)
         {
-            Util.ClearAndSetSize(Program.WINDOW_SIZE_MAX);
+            Util.ClearAndSetSize(Program.WINDOW_MAX);
             Util.PrintLine();
             Util.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);
             Util.PrintLine();

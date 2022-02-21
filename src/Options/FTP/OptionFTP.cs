@@ -141,7 +141,7 @@ namespace B.Options.FTP
                     {
                         this._lastStage = this.Stage;
                         int entryAmount = this._files.Length;
-                        int adjustedMaxEntries = Math.Min(Program.WINDOW_SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
+                        int adjustedMaxEntries = Math.Min(Program.WINDOW_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
                         Util.SetConsoleSize(OptionFTP.WIDTH, consoleHeight);
                         Util.ResetTextCursor();
