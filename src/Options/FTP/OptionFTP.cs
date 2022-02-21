@@ -140,9 +140,9 @@ namespace B.Options.FTP
                 case Stages.Navigate:
                     {
                         this._lastStage = this.Stage;
-                        // TODO account for newly acquired Program.WINDOW_SIZE_MAX variable when displaying size of list
                         int entryAmount = this._files.Length;
-                        int consoleHeight = Math.Min(entryAmount, OptionFTP.MAX_LIST_ENTRIES) + 14;
+                        int adjustedMaxEntries = Math.Min(Program.WINDOW_SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
+                        int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
                         Util.SetConsoleSize(OptionFTP.WIDTH, consoleHeight);
                         Util.ResetTextCursor();
                         string header = $"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{this.Path}'";
@@ -160,7 +160,7 @@ namespace B.Options.FTP
 
                                 return s;
                             },
-                            maxEntriesPerPage: OptionFTP.MAX_LIST_ENTRIES,
+                            maxEntriesPerPage: adjustedMaxEntries,
                             exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;

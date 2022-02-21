@@ -8,6 +8,7 @@ namespace B.Inputs
         public readonly Action Action;
 
         // TODO change from ConsoleKey to ConsoleKeyInfo OR add ConsoleKeyModifiers
+        // TODO add multiple ConsoleKey/keychar functionality
         public Keybind(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey))
         {
             this.KeyChar = keyChar;

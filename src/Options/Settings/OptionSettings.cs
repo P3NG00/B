@@ -98,10 +98,12 @@ namespace B.Options.Settings
                     {
                         Program.Settings.UpdateColors();
                         Util.ClearAndSetSize(32, 27);
-                        ConsoleColor[] colors = Enum.GetValues<ConsoleColor>();
+                        ConsoleColor[] colors = Util.OrderedConsoleColors;
                         Input.RequestScroll(
                             items: colors,
-                            getText: color => color.ToString(),
+                            getText: c => $" {c.ToString(),-12}",
+                            getTextColor: c => c,
+                            getBackgroundColor: c => c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Gray,
                             title: "Colors",
                             exitKeybind: new(() =>
                             {

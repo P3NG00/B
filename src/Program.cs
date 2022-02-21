@@ -24,13 +24,13 @@ namespace B
 
         // Private Variables
 
-        private readonly Dict<Type, Func<string>> _options = new(
-            new(typeof(OptionAdventure), () => "Adventure!"),
-            new(typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
-            new(typeof(OptionCanvas), () => "Canvas"),
-            new(typeof(OptionFTP), () => "FTP"),
-            new(typeof(OptionMoneyTracker), () => "Money Tracker"),
-            new(typeof(OptionNumberGuesser), () => "Number Guesser"));
+        private readonly (Type, Func<string>)[] _options = new (Type, Func<string>)[] {
+            new (typeof(OptionAdventure), () => "Adventure!"),
+            new (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
+            new (typeof(OptionCanvas), () => "Canvas"),
+            new (typeof(OptionFTP), () => "FTP"),
+            new (typeof(OptionMoneyTracker), () => "Money Tracker"),
+            new (typeof(OptionNumberGuesser), () => "Number Guesser")};
         private IOption _option = null!;
         private bool _running = true;
 

@@ -83,7 +83,7 @@ namespace B.Options.Canvas
 
                         void SetCanvasAndChangeStage(Stages stage)
                         {
-                            this.SetCanvasToIndex();
+                            this._canvas = this._canvases[Input.ScrollIndex];
                             this.Stage = stage;
                         }
                     }
@@ -198,11 +198,11 @@ namespace B.Options.Canvas
                         Util.PrintLine();
                         Util.PrintLine("  Color Select");
                         Util.PrintLine();
-                        ConsoleColor[] colors = Enum.GetValues<ConsoleColor>();
+                        ConsoleColor[] colors = Util.OrderedConsoleColors;
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",
-                            getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : null,
+                            getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
                             getBackgroundColor: c => c,
                             scrollType: Input.ScrollType.Side,
                             exitKeybind: new Keybind(() => this.Stage = Stages.Edit, "Back", key: ConsoleKey.Escape),
@@ -219,8 +219,6 @@ namespace B.Options.Canvas
         }
 
         public override void Save() => Util.Serialize(this._canvas.FilePath, this._canvas);
-
-        private void SetCanvasToIndex() => this._canvas = this._canvases[Input.ScrollIndex];
 
         private void ShowCreationStage(CreationStage stage)
         {
