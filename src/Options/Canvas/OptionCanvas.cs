@@ -82,6 +82,7 @@ namespace B.Options.Canvas
                         void SetCanvasAndChangeStage(Stages stage)
                         {
                             this._canvas = this._canvases[Input.ScrollIndex];
+                            Input.ScrollIndex = 0;
                             this.Stage = stage;
                         }
                     }
