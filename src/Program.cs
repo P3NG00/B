@@ -1,4 +1,5 @@
-﻿using B.Inputs;
+﻿using System.Runtime.InteropServices;
+using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
 using B.Options.BrainFuck;
@@ -60,6 +61,27 @@ namespace B
 
         private void Initialize()
         {
+            // Make window unable to be resized
+            IntPtr handle = Program.GetConsoleWindow();
+            IntPtr sysMenu = Program.GetSystemMenu(handle, false);
+
+            if (handle != IntPtr.Zero)
+            {
+                int wFlags = 0x00000000;
+
+                // Disable drag resizing
+                Program.DeleteMenu(sysMenu, 0xF000, wFlags);
+
+                // Disable window 'x' close button
+                Program.DeleteMenu(sysMenu, 0xF060, wFlags);
+
+                // Disable minimize button
+                Program.DeleteMenu(sysMenu, 0xF020, wFlags);
+
+                // Disable maximize button
+                Program.DeleteMenu(sysMenu, 0xF030, wFlags);
+            }
+
             // Set console window title
             Console.Title = "B";
 
@@ -124,5 +146,14 @@ namespace B
             Window.Clear();
             this._option = null!;
         }
+
+        [DllImport("user32.dll")]
+        public static extern int DeleteMenu(IntPtr hMenu, int nPosition, int wFlags);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+
+        [DllImport("kernel32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetConsoleWindow();
     }
 }
