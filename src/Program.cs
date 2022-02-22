@@ -61,26 +61,19 @@ namespace B
 
         private void Initialize()
         {
-            // Make window unable to be resized
-            IntPtr handle = Program.GetConsoleWindow();
-            IntPtr sysMenu = Program.GetSystemMenu(handle, false);
+            // Disable drag resizing
+            this.DeleteWindowMenu(0xF000);
 
-            if (handle != IntPtr.Zero)
-            {
-                int wFlags = 0x00000000;
+            // Disable window 'x' close button
+            this.DeleteWindowMenu(0xF060);
 
-                // Disable drag resizing
-                Program.DeleteMenu(sysMenu, 0xF000, wFlags);
+            // Disable minimize button
+            this.DeleteWindowMenu(0xF020);
 
-                // Disable window 'x' close button
-                Program.DeleteMenu(sysMenu, 0xF060, wFlags);
+            // Disable maximize button
+            this.DeleteWindowMenu(0xF030);
 
-                // Disable minimize button
-                Program.DeleteMenu(sysMenu, 0xF020, wFlags);
-
-                // Disable maximize button
-                Program.DeleteMenu(sysMenu, 0xF030, wFlags);
-            }
+            Console.Beep();
 
             // Set console window title
             Console.Title = "B";
@@ -145,6 +138,14 @@ namespace B
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
             this._option = null!;
+        }
+
+        private void DeleteWindowMenu(int nPosition)
+        {
+            IntPtr handle = Program.GetConsoleWindow();
+
+            if (handle != IntPtr.Zero)
+                Program.DeleteMenu(Program.GetSystemMenu(handle, false), nPosition, 0x00000000);
         }
 
         [DllImport("user32.dll")]
