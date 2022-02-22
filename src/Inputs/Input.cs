@@ -35,11 +35,11 @@ namespace B.Inputs
             Keybind exitKeybind = null!,                        // Exit keybind (seperate because spacer is added before this keybind)
             params Keybind[] extraKeybinds)                     // Extra keybinds
         {
-            int maxEntries = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
+            int maxEntriesAdjusted = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
             Input.Choice iob = new();
             ConsoleKeyInfo keyInfo;
 
-            if (maxEntries > 0 && items.Length > 0)
+            if (maxEntriesAdjusted > 0 && items.Length > 0)
             {
                 if (title != null)
                 {
@@ -48,8 +48,8 @@ namespace B.Inputs
                     Util.PrintLine();
                 }
 
-                int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntries);
-                int endIndex = Math.Min(startIndex + maxEntries, items.Length);
+                int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntriesAdjusted);
+                int endIndex = Math.Min(startIndex + maxEntriesAdjusted, items.Length);
 
                 for (int i = startIndex; i < endIndex; i++)
                 {
@@ -84,7 +84,7 @@ namespace B.Inputs
                 if (navigationKeybinds)
                 {
                     Util.PrintLine();
-                    Util.PrintLine(" Use Up/Down Arrow to navigate.");
+                    Util.PrintLine(" Use Up/Down to navigate.");
                 }
 
                 bool hasExtraKeybinds = extraKeybinds != null && extraKeybinds.Length != 0;
@@ -93,11 +93,21 @@ namespace B.Inputs
                     Util.PrintLine();
 
                 // Get page index before it's modified
-                int lastPageIndex = Input.ScrollIndex % maxEntries;
+                int lastPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
 
                 if (navigationKeybinds)
                     iob.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
-                        .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
+                        .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow)
+                        .Add(() =>
+                        {
+                            Input.ScrollIndex += maxEntriesAdjusted;
+                            Util.Clear();
+                        }, key: ConsoleKey.RightArrow)
+                        .Add(() =>
+                        {
+                            Input.ScrollIndex -= maxEntriesAdjusted;
+                            Util.Clear();
+                        }, key: ConsoleKey.LeftArrow);
 
                 if (hasExtraKeybinds)
                     iob.Add(extraKeybinds!);
@@ -107,8 +117,8 @@ namespace B.Inputs
                     .Request();
 
                 Input.ScrollIndex = Util.Clamp(Input.ScrollIndex, 0, items.Length - 1);
-                int newPageIndex = Input.ScrollIndex % maxEntries;
-                int oneLessThanMax = maxEntries - 1;
+                int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
+                int oneLessThanMax = maxEntriesAdjusted - 1;
 
                 // If crossing into new page, clear console
                 if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
