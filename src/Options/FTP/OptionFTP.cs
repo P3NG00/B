@@ -10,7 +10,7 @@ namespace B.Options.FTP
     public sealed class OptionFTP : Option<OptionFTP.Stages>
     {
         private const int MAX_LENGTH_PASSWORD = 50;
-        private const int MAX_LIST_ENTRIES = 50;
+        private const int MAX_LIST_ENTRIES = 40;
         private const int WIDTH = 140;
         private const string IP = "***REMOVED***";
         private const int PORT = 22;
