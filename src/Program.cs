@@ -18,7 +18,7 @@ namespace B
 
         // Program Info
         public static ProgramSettings Settings { get; private set; } = new();
-        public static Vector2 WINDOW_MIN => new(20, 10);
+        public static Vector2 WINDOW_MIN => new(16, 2);
         public static Vector2 WINDOW_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
 
