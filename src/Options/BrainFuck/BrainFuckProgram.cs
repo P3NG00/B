@@ -1,3 +1,4 @@
+using B.Inputs;
 using B.Utils;
 
 namespace B.Options.BrainFuck
@@ -38,12 +39,12 @@ namespace B.Options.BrainFuck
                 // Input Current Cell Value from User
                 case ',':
                     {
-                        Util.ClearAndSetSize(30, 10);
-                        Util.PrintLine();
-                        Util.PrintLine($" Output: {output}");
-                        Util.PrintLine();
-                        Util.Print(" Press Input Key...");
-                        memory[memoryIndex] = (byte)Util.GetKey().KeyChar;
+                        Window.ClearAndSetSize(30, 10);
+                        Window.PrintLine();
+                        Window.PrintLine($" Output: {output}");
+                        Window.PrintLine();
+                        Window.Print(" Press Input Key...");
+                        memory[memoryIndex] = (byte)Input.Get().KeyChar;
                     }
                     break;
 

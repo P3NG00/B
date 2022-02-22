@@ -43,7 +43,7 @@ namespace B.Options.Adventure
                         if (fileExists)
                             consoleHeight++;
 
-                        Util.ClearAndSetSize(20, consoleHeight);
+                        Window.ClearAndSetSize(20, consoleHeight);
                         Input.Choice iob = new Input.Choice("Adventure")
                             .Add(() => this.InitGame(true), "New Game", '1');
 
@@ -57,23 +57,23 @@ namespace B.Options.Adventure
 
                 case Stages.Game:
                     {
-                        Util.ResetTextCursor();
+                        Cursor.Reset();
                         Grid currentGrid = OptionAdventure.CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;
 
                         if (Program.Settings.DebugMode.Active)
                         {
                             // Extra spaces are added to the end to clear leftover text
-                            Util.PrintLine();
-                            Util.PrintLine($" {currentGrid,-7}");
-                            Util.PrintLine($" Pos: {OptionAdventure.Info.Position,-8}");
+                            Window.PrintLine();
+                            Window.PrintLine($" {currentGrid,-7}");
+                            Window.PrintLine($" Pos: {OptionAdventure.Info.Position,-8}");
                             consoleHeight += 3;
                         }
 
-                        Util.SetConsoleSize(currentGrid.RealWidth + 8, consoleHeight);
+                        Window.SetSize(currentGrid.RealWidth + 8, consoleHeight);
                         string borderHorizontal = Util.StringOf(OptionAdventure.CHAR_BORDER_HORIZONTAL, currentGrid.Width);
-                        Util.PrintLine();
-                        Util.PrintLine($"  {OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
+                        Window.PrintLine();
+                        Window.PrintLine($"  {OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
 
                         for (int y = currentGrid.Height - 1; y >= 0; y--)
                         {
@@ -91,21 +91,21 @@ namespace B.Options.Adventure
                                     s += currentGrid.GetTile(pos).Chars;
                             }
 
-                            Util.PrintLine($"  {s + OptionAdventure.CHAR_BORDER_VERTICAL}");
+                            Window.PrintLine($"  {s + OptionAdventure.CHAR_BORDER_VERTICAL}");
                         }
 
-                        Util.PrintLine($"  {OptionAdventure.CHAR_CORNER_B}{borderHorizontal}{OptionAdventure.CHAR_CORNER_A}");
-                        Util.PrintLine();
-                        Util.PrintLine($"   > {OptionAdventure.Message}");
+                        Window.PrintLine($"  {OptionAdventure.CHAR_CORNER_B}{borderHorizontal}{OptionAdventure.CHAR_CORNER_A}");
+                        Window.PrintLine();
+                        Window.PrintLine($"   > {OptionAdventure.Message}");
                         OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
-                        Util.PrintLine();
+                        Window.PrintLine();
                         string format = "{0,9}: {1,-5}";
-                        Util.PrintLine(string.Format(format, "Coins", OptionAdventure.Info.Coins));
-                        Util.PrintLine(string.Format(format, "Speed", OptionAdventure.Info.Speed));
-                        Util.PrintLine();
-                        Util.PrintLine("      Move) W A S D");
-                        Util.PrintLine("  Interact) Space");
-                        Util.PrintLine("     Speed) + -");
+                        Window.PrintLine(string.Format(format, "Coins", OptionAdventure.Info.Coins));
+                        Window.PrintLine(string.Format(format, "Speed", OptionAdventure.Info.Speed));
+                        Window.PrintLine();
+                        Window.PrintLine("      Move) W A S D");
+                        Window.PrintLine("  Interact) Space");
+                        Window.PrintLine("     Speed) + -");
                         new Input.Choice()
                             .Add(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
                             .Add(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
@@ -139,7 +139,7 @@ namespace B.Options.Adventure
             else
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
-            Util.Clear();
+            Window.Clear();
             this.Stage = Stages.Game;
         }
 

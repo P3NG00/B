@@ -43,7 +43,7 @@ namespace B.Options.BrainFuck
             {
                 case Stages.MainMenu:
                     {
-                        Util.ClearAndSetSize(20, 7);
+                        Window.ClearAndSetSize(20, 7);
                         new Input.Choice(OptionBrainFuck.Title)
                             .Add(() => this.Stage = Stages.List, "List", '1')
                             .AddExit(this)
@@ -53,7 +53,7 @@ namespace B.Options.BrainFuck
 
                 case Stages.List:
                     {
-                        Util.ClearAndSetSize(40, 10 + this._programs.Length);
+                        Window.ClearAndSetSize(40, 10 + this._programs.Length);
                         Input.RequestScroll(
                             items: this._programs.Items,
                             getText: program => program.Title,
@@ -84,20 +84,20 @@ namespace B.Options.BrainFuck
                             if (Program.Settings.DebugMode.Active)
                             {
                                 int consoleWidth = 50;
-                                Util.ClearAndSetSize(consoleWidth, 25);
-                                Util.PrintLine(this._output);
-                                Util.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
-                                Util.PrintLine("  DEBUG ON | OUTPUT ABOVE LINE");
-                                Util.PrintLine($"Memory Index: {this._memoryIndex}");
-                                Util.PrintLine($"Instruction Index: {this._instructionIndex}");
-                                Util.PrintLine($"Bracket Depth: {this._bracketDepth}");
-                                Util.PrintLine($"Total Steps: {this._stepCounter}");
+                                Window.ClearAndSetSize(consoleWidth, 25);
+                                Window.PrintLine(this._output);
+                                Window.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
+                                Window.PrintLine("  DEBUG ON | OUTPUT ABOVE LINE");
+                                Window.PrintLine($"Memory Index: {this._memoryIndex}");
+                                Window.PrintLine($"Instruction Index: {this._instructionIndex}");
+                                Window.PrintLine($"Bracket Depth: {this._bracketDepth}");
+                                Window.PrintLine($"Total Steps: {this._stepCounter}");
 
-                                switch (Util.GetKey().Key)
+                                switch (Input.Get().Key)
                                 {
                                     case ConsoleKey.F1:
                                         {
-                                            Util.Clear();
+                                            Window.Clear();
                                             this.Stage = Stages.MemoryView;
                                         }; break;
 
@@ -112,10 +112,10 @@ namespace B.Options.BrainFuck
                         }
                         else
                         {
-                            Util.ClearAndSetSize(50, 25);
-                            Util.PrintLine();
-                            Util.PrintLine(this._output);
-                            Util.WaitForKey(ConsoleKey.F1);
+                            Window.ClearAndSetSize(50, 25);
+                            Window.PrintLine();
+                            Window.PrintLine(this._output);
+                            Input.WaitFor(ConsoleKey.F1);
                             Input.ScrollIndex = 0;
                             this.Stage = Stages.List;
                         }
@@ -127,14 +127,14 @@ namespace B.Options.BrainFuck
                         if (this._instructionIndex < this._currentProgram.Instructions.Length)
                         {
                             int consoleWidth = 20;
-                            Util.SetConsoleSize(consoleWidth, 29);
-                            Util.ResetTextCursor();
-                            Util.PrintLine();
-                            Util.PrintLine("  Memory View");
-                            Util.PrintLine();
+                            Window.SetSize(consoleWidth, 29);
+                            Cursor.Reset();
+                            Window.PrintLine();
+                            Window.PrintLine("  Memory View");
+                            Window.PrintLine();
                             string format = "{0,-6}{1,-6}{2,-2}";
-                            Util.PrintLine($"   {string.Format(format, "byte", "char", "hex")}");
-                            Util.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
+                            Window.PrintLine($"   {string.Format(format, "byte", "char", "hex")}");
+                            Window.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
                             Input.ScrollIndex = (int)this._memoryIndex;
                             Input.RequestScroll(
                                 items: this._memory,

@@ -33,7 +33,7 @@ namespace B.Options.Settings
             {
                 case Stages.MainMenu:
                     {
-                        Util.ClearAndSetSize(35, 12);
+                        Window.ClearAndSetSize(35, 12);
                         new Input.Choice("Settings")
                             .Add(() => this.Stage = Stages.Color, "Color", '1')
                             .Add(() => this.Stage = Stages.WindowSize, "Window Size", '2')
@@ -49,9 +49,9 @@ namespace B.Options.Settings
                 case Stages.WindowSize:
                     {
                         this._size = Vector2.Clamp(this._size, Program.WINDOW_MIN, Program.WINDOW_MAX);
-                        Util.ClearAndSetSize(this._size);
-                        Util.PrintLine($"Detected Max Size: {Program.WINDOW_MAX}");
-                        Util.Print($"Current Size: {this._size}");
+                        Window.ClearAndSetSize(this._size);
+                        Window.PrintLine($"Detected Max Size: {Program.WINDOW_MAX}");
+                        Window.Print($"Current Size: {this._size}");
 
                         new Input.Choice()
                             .Add(() => this._size.x++, keyChar: '8', key: ConsoleKey.RightArrow)
@@ -65,7 +65,7 @@ namespace B.Options.Settings
 
                 case Stages.Color:
                     {
-                        Util.ClearAndSetSize(20, 8);
+                        Window.ClearAndSetSize(20, 8);
                         new Input.Choice("Color")
                             .Add(() => this.Stage = Stages.Color_Theme, "Themes", '1')
                             .Add(() => this.Stage = Stages.Color_Custom, "Customize", '2')
@@ -81,7 +81,7 @@ namespace B.Options.Settings
                         Program.Settings.ColorBackground = theme.ColorBG;
                         Program.Settings.ColorText = theme.ColorText;
                         Program.Settings.UpdateColors();
-                        Util.ClearAndSetSize(32, this._colorThemes.Length + 8);
+                        Window.ClearAndSetSize(32, this._colorThemes.Length + 8);
                         Input.RequestScroll(
                             items: this._colorThemes,
                             getText: theme => theme.Title,
@@ -97,7 +97,7 @@ namespace B.Options.Settings
                 case Stages.Color_Custom:
                     {
                         Program.Settings.UpdateColors();
-                        Util.ClearAndSetSize(32, 27);
+                        Window.ClearAndSetSize(32, 27);
                         ConsoleColor[] colors = Util.OrderedConsoleColors;
                         Input.RequestScroll(
                             items: colors,
@@ -118,7 +118,7 @@ namespace B.Options.Settings
 
                 case Stages.DeleteData:
                     {
-                        Util.ClearAndSetSize(20, 10);
+                        Window.ClearAndSetSize(20, 10);
                         new Input.Choice("Delete Data")
                             .Add(() => this.AskDelete("Adventure", () => File.Delete(OptionAdventure.FilePath)), "Adventure", '1')
                             .Add(() => this.AskDelete("BrainFuck", () => Directory.Delete(OptionBrainFuck.DirectoryPath, true)), "BrainFuck", '2')
@@ -134,7 +134,7 @@ namespace B.Options.Settings
 
         private void AskDelete(string title, Action deleteAction)
         {
-            Util.ClearAndSetSize(30, 7);
+            Window.ClearAndSetSize(30, 7);
             new Input.Choice($"Delete {title} Data?")
                 .Add(null!, "NO", key: ConsoleKey.Escape)
                 .AddSpacer()

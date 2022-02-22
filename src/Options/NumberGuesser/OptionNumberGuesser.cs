@@ -26,7 +26,7 @@ namespace B.Options.NumberGuesser
             {
                 case Stages.MainMenu:
                     {
-                        Util.ClearAndSetSize(20, 8);
+                        Window.ClearAndSetSize(20, 8);
                         new Input.Choice("Number Guesser")
                             .Add(() =>
                             {
@@ -50,14 +50,14 @@ namespace B.Options.NumberGuesser
 
                         if (Program.Settings.DebugMode.Active)
                         {
-                            Util.PrintLine();
-                            Util.PrintLine($" Number: {this._numRandom}");
+                            Window.PrintLine();
+                            Window.PrintLine($" Number: {this._numRandom}");
                             consoleHeight += 2;
                         }
 
-                        Util.ClearAndSetSize(20, consoleHeight);
-                        Util.PrintLine();
-                        Util.PrintLine($"  {Input.String}");
+                        Window.ClearAndSetSize(20, consoleHeight);
+                        Window.PrintLine();
+                        Window.PrintLine($"  {Input.String}");
 
                         if (guess == null)
                             guessMessage = "...";
@@ -68,18 +68,18 @@ namespace B.Options.NumberGuesser
                         else
                             guessMessage = Util.RandomFrom(OptionNumberGuesser._winMessages);
 
-                        Util.PrintLine();
-                        Util.PrintLine($"  {guessMessage}");
+                        Window.PrintLine();
+                        Window.PrintLine($"  {guessMessage}");
 
                         if (won)
                         {
-                            Util.GetKey();
+                            Input.Get();
                             this.Stage = Stages.MainMenu;
                         }
                         else
                         {
-                            Util.PrintLine();
-                            Util.PrintLine(" Enter a Number!");
+                            Window.PrintLine();
+                            Window.PrintLine(" Enter a Number!");
 
                             if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH).Key == ConsoleKey.Escape)
                                 this.Stage = Stages.MainMenu;
@@ -89,7 +89,7 @@ namespace B.Options.NumberGuesser
 
                 case Stages.Settings:
                     {
-                        Util.ClearAndSetSize(20, 7);
+                        Window.ClearAndSetSize(20, 7);
                         new Input.Choice("Settings")
                             .Add(() =>
                             {
@@ -104,11 +104,11 @@ namespace B.Options.NumberGuesser
 
                 case Stages.Settings_MaxNumber:
                     {
-                        Util.ClearAndSetSize(20, 5);
-                        Util.PrintLine();
-                        Util.PrintLine($"  Max - {Input.String}");
-                        Util.PrintLine();
-                        Util.PrintLine("  Enter Max Number");
+                        Window.ClearAndSetSize(20, 5);
+                        Window.PrintLine();
+                        Window.PrintLine($"  Max - {Input.String}");
+                        Window.PrintLine();
+                        Window.PrintLine("  Enter Max Number");
                         ConsoleKey key = Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH).Key;
 
                         if (key == ConsoleKey.Enter)

@@ -11,9 +11,36 @@ namespace B.Inputs
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
 
+        public static ConsoleKeyInfo Get()
+        {
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+
+            if (keyInfo.Key == ConsoleKey.F12)
+            {
+                Program.Settings.DebugMode.Toggle();
+                // Toggling Debug mode clears console to avoid leftover characters
+                Window.Clear();
+            }
+
+            return keyInfo;
+        }
+
+        public static void WaitFor(ConsoleKey key, bool silent = false)
+        {
+            if (!silent)
+            {
+                Window.PrintLine();
+                Window.PrintLine($"Press {key} to continue...");
+            }
+
+            while (true)
+                if (Input.Get().Key == key)
+                    break;
+        }
+
         public static ConsoleKeyInfo RequestLine(int maxLength)
         {
-            ConsoleKeyInfo keyInfo = Util.GetKey();
+            ConsoleKeyInfo keyInfo = Input.Get();
 
             if (keyInfo.Key == ConsoleKey.Backspace)
                 Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
@@ -43,9 +70,9 @@ namespace B.Inputs
             {
                 if (title != null)
                 {
-                    Util.PrintLine();
-                    Util.PrintLine($"  {title}");
-                    Util.PrintLine();
+                    Window.PrintLine();
+                    Window.PrintLine($"  {title}");
+                    Window.PrintLine();
                 }
 
                 int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntriesAdjusted);
@@ -64,7 +91,7 @@ namespace B.Inputs
                         default: preface = isIndex ? $" > " : "  "; break;
                     }
 
-                    Util.Print(preface);
+                    Window.Print(preface);
                     T item = items[i];
                     string text = getText(item);
                     string output = string.Format("{0,-" + (text.Length + 1) + "}", text);
@@ -77,20 +104,20 @@ namespace B.Inputs
                     if (getBackgroundColor != null)
                         colorBackground = getBackgroundColor(item);
 
-                    Util.Print(output, colorText, colorBackground);
-                    Util.PrintLine();
+                    Window.Print(output, colorText, colorBackground);
+                    Window.PrintLine();
                 }
 
                 if (navigationKeybinds)
                 {
-                    Util.PrintLine();
-                    Util.PrintLine(" Use Up/Down to navigate.");
+                    Window.PrintLine();
+                    Window.PrintLine(" Use Up/Down to navigate.");
                 }
 
                 bool hasExtraKeybinds = extraKeybinds != null && extraKeybinds.Length != 0;
 
                 if (hasExtraKeybinds)
-                    Util.PrintLine();
+                    Window.PrintLine();
 
                 // Get page index before it's modified
                 int lastPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
@@ -101,12 +128,12 @@ namespace B.Inputs
                         .Add(() =>
                         {
                             Input.ScrollIndex += maxEntriesAdjusted;
-                            Util.Clear();
+                            Window.Clear();
                         }, key: ConsoleKey.RightArrow)
                         .Add(() =>
                         {
                             Input.ScrollIndex -= maxEntriesAdjusted;
-                            Util.Clear();
+                            Window.Clear();
                         }, key: ConsoleKey.LeftArrow);
 
                 if (hasExtraKeybinds)
@@ -122,13 +149,13 @@ namespace B.Inputs
 
                 // If crossing into new page, clear console
                 if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
-                    Util.Clear();
+                    Window.Clear();
             }
             else
             {
-                Util.PrintLine();
-                Util.PrintLine("  No entries.");
-                Util.PrintLine();
+                Window.PrintLine();
+                Window.PrintLine("  No entries.");
+                Window.PrintLine();
                 keyInfo = iob.Add(exitKeybind)
                     .Request();
             }
@@ -176,8 +203,8 @@ namespace B.Inputs
 
                 if (this._message is not null)
                 {
-                    Util.PrintLine();
-                    Util.PrintLine($"  {this._message}");
+                    Window.PrintLine();
+                    Window.PrintLine($"  {this._message}");
                     printLine = true;
                 }
 
@@ -192,17 +219,17 @@ namespace B.Inputs
                             if (printLine)
                             {
                                 printLine = false;
-                                Util.PrintLine();
+                                Window.PrintLine();
                             }
 
-                            Util.PrintLine($" {(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
+                            Window.PrintLine($" {(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
                         }
                     }
                     else if (!printLine)
                         printLine = true;
                 }
 
-                ConsoleKeyInfo keyInfo = Util.GetKey();
+                ConsoleKeyInfo keyInfo = Input.Get();
 
                 // Activate function for pressed keybind
                 foreach (Keybind keybind in this._keybinds)

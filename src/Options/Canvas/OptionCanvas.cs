@@ -41,12 +41,12 @@ namespace B.Options.Canvas
                         if (!this._canvases.IsEmpty)
                             consoleHeight++;
 
-                        Util.ClearAndSetSize(20, consoleHeight);
+                        Window.ClearAndSetSize(20, consoleHeight);
 
                         Input.Choice iob = new Input.Choice("Canvas")
                             .Add(() =>
                             {
-                                Util.Clear();
+                                Window.Clear();
                                 this._canvas = new();
                                 Input.String = string.Empty;
                                 this.Stage = Stages.Create_Name;
@@ -66,7 +66,7 @@ namespace B.Options.Canvas
 
                 case Stages.List:
                     {
-                        Util.ClearAndSetSize(32, this._canvases.Length + 10);
+                        Window.ClearAndSetSize(32, this._canvases.Length + 10);
                         Input.RequestScroll(
                             items: this._canvases.Items,
                             getText: canvas => canvas.Title,
@@ -90,7 +90,7 @@ namespace B.Options.Canvas
 
                 case Stages.Delete:
                     {
-                        Util.ClearAndSetSize(39, 7);
+                        Window.ClearAndSetSize(39, 7);
                         new Input.Choice($"Delete '{this._canvas.Title}'?")
                             .Add(() =>
                             {
@@ -110,7 +110,7 @@ namespace B.Options.Canvas
                 case Stages.View:
                     {
                         this._canvas.Draw();
-                        Util.WaitForKey(ConsoleKey.Escape, true);
+                        Input.WaitFor(ConsoleKey.Escape, true);
                         this.Stage = Stages.List;
                     }
                     break;
@@ -132,10 +132,10 @@ namespace B.Options.Canvas
                             this._canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
                         }
 
-                        Util.ResetTextCursor();
-                        Util.PrintLine($" Color: {this._color,-10}");
-                        Util.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
-                        Util.SetTextCursorPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        Cursor.Reset();
+                        Window.PrintLine($" Color: {this._color,-10}");
+                        Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
+                        Cursor.SetPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         new Input.Choice()
                             .Add(() => Move(Direction.Up), key: ConsoleKey.UpArrow)
                             .Add(() => Move(Direction.Down), key: ConsoleKey.DownArrow)
@@ -174,13 +174,13 @@ namespace B.Options.Canvas
                             }
 
                             this._pos = Vector2.Clamp(this._pos, Vector2.Zero, this._canvas.Size - Vector2.One);
-                            Util.SetTextCursorPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                            Cursor.SetPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         }
 
                         void Paint()
                         {
                             this._canvas.Color(this._pos) = this._color;
-                            Util.Print(' ', colorBackground: this._color);
+                            Window.Print(' ', colorBackground: this._color);
                         }
 
                         void PaintDirection(Direction direction)
@@ -193,10 +193,10 @@ namespace B.Options.Canvas
 
                 case Stages.ColorSelect:
                     {
-                        Util.ClearAndSetSize(32, 26);
-                        Util.PrintLine();
-                        Util.PrintLine("  Color Select");
-                        Util.PrintLine();
+                        Window.ClearAndSetSize(32, 26);
+                        Window.PrintLine();
+                        Window.PrintLine("  Color Select");
+                        Window.PrintLine();
                         ConsoleColor[] colors = Util.OrderedConsoleColors;
                         Input.RequestScroll(
                             items: colors,
@@ -221,26 +221,26 @@ namespace B.Options.Canvas
 
         private void ShowCreationStage(CreationStage stage)
         {
-            Util.ClearAndSetSize(35, 8);
-            Util.PrintLine();
-            Util.PrintLine("  New Canvas");
-            Util.PrintLine();
+            Window.ClearAndSetSize(35, 8);
+            Window.PrintLine();
+            Window.PrintLine("  New Canvas");
+            Window.PrintLine();
 
             if (stage == 0)
-                Util.Print($"  Name: {Input.String}");
+                Window.Print($"  Name: {Input.String}");
             else
             {
-                Util.PrintLine($"  Name: {this._canvas.Title}");
-                Util.PrintLine();
+                Window.PrintLine($"  Name: {this._canvas.Title}");
+                Window.PrintLine();
             }
 
             if (stage == CreationStage.Height)
-                Util.Print($"  Height: {Input.String}");
+                Window.Print($"  Height: {Input.String}");
             else if (stage == CreationStage.Width)
-                Util.PrintLine($"  Height: {this._canvas.Colors.Length}");
+                Window.PrintLine($"  Height: {this._canvas.Colors.Length}");
 
             if (stage == CreationStage.Width)
-                Util.Print($"  Width: {Input.String}");
+                Window.Print($"  Width: {Input.String}");
 
             switch (Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH).Key)
             {
@@ -286,7 +286,7 @@ namespace B.Options.Canvas
                                         }
 
                                         Input.String = string.Empty;
-                                        Util.Clear();
+                                        Window.Clear();
                                         this.Stage = Stages.Edit;
                                     }
                                 }

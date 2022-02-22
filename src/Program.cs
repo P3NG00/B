@@ -97,7 +97,7 @@ namespace B
             else
             {
                 // Display main menu options
-                Util.ClearAndSetSize(24, this._options.Length + 7);
+                Window.ClearAndSetSize(24, this._options.Length + 7);
                 Input.Choice iob = new("B's");
 
                 for (int i = 0; i < this._options.Length; i++)
@@ -115,13 +115,13 @@ namespace B
 
         private void HandleException(Exception e)
         {
-            Util.ClearAndSetSize(Program.WINDOW_MAX);
-            Util.PrintLine();
-            Util.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);
-            Util.PrintLine();
-            Util.PrintLine($"  {e.ToString()}", colorText: ConsoleColor.White, colorBackground: ConsoleColor.Black);
-            Util.WaitForKey(ConsoleKey.F1);
-            Util.Clear();
+            Window.ClearAndSetSize(Program.WINDOW_MAX);
+            Window.PrintLine();
+            Window.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);
+            Window.PrintLine();
+            Window.PrintLine($"  {e.ToString()}", colorText: ConsoleColor.White, colorBackground: ConsoleColor.Black);
+            Input.WaitFor(ConsoleKey.F1);
+            Window.Clear();
             this._option = null!;
         }
     }

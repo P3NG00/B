@@ -34,7 +34,7 @@ namespace B.Options.MoneyTracker
                         if (selected)
                             consoleHeight++;
 
-                        Util.ClearAndSetSize(20, consoleHeight);
+                        Window.ClearAndSetSize(20, consoleHeight);
                         Input.Choice iob = new Input.Choice("Money Tracker")
                             .Add(() => this.Stage = Stages.Account, "Account", '1');
 
@@ -50,13 +50,13 @@ namespace B.Options.MoneyTracker
                     {
                         if (this._selectedAccount != null)
                         {
-                            Util.ClearAndSetSize(24, 12);
-                            Util.PrintLine();
-                            Util.PrintLine("   Selected Account:");
-                            Util.PrintLine($"  {this._selectedAccount.Name}");
+                            Window.ClearAndSetSize(24, 12);
+                            Window.PrintLine();
+                            Window.PrintLine("   Selected Account:");
+                            Window.PrintLine($"  {this._selectedAccount.Name}");
                         }
                         else
-                            Util.ClearAndSetSize(24, 9);
+                            Window.ClearAndSetSize(24, 9);
 
                         new Input.Choice("Account")
                             .Add(() => this.Stage = Stages.Account_Create, "Create", '1')
@@ -70,9 +70,9 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Account_Create:
                     {
-                        Util.ClearAndSetSize(42, 5);
-                        Util.PrintLine();
-                        Util.Print($"  New Account Name: {Input.String}");
+                        Window.ClearAndSetSize(42, 5);
+                        Window.PrintLine();
+                        Window.Print($"  New Account Name: {Input.String}");
                         ConsoleKey key = Input.RequestLine(20).Key;
 
                         if (key == ConsoleKey.Enter)
@@ -85,18 +85,18 @@ namespace B.Options.MoneyTracker
                                 {
                                     Account account = this.AddAccount(Path.GetFileNameWithoutExtension(filePath));
                                     this._selectedAccount = account;
-                                    Util.PrintLines(2);
-                                    Util.PrintLine($"  \"{Input.String}\" created!");
+                                    Window.PrintLines(2);
+                                    Window.PrintLine($"  \"{Input.String}\" created!");
                                     Input.String = string.Empty;
                                     this.Stage = Stages.Account;
                                 }
                                 else
                                 {
-                                    Util.PrintLines(2);
-                                    Util.PrintLine("    Name already taken!");
+                                    Window.PrintLines(2);
+                                    Window.PrintLine("    Name already taken!");
                                 }
 
-                                Util.GetKey();
+                                Input.Get();
                             }
                         }
                         else if (key == ConsoleKey.Escape)
@@ -115,8 +115,8 @@ namespace B.Options.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Util.ClearAndSetSize(27, consoleHeight);
-                        Util.PrintLine();
+                        Window.ClearAndSetSize(27, consoleHeight);
+                        Window.PrintLine();
                         Input.Choice iob = new();
 
                         if (amountAccounts > 0)
@@ -147,7 +147,7 @@ namespace B.Options.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Util.ClearAndSetSize(27, consoleHeight);
+                        Window.ClearAndSetSize(27, consoleHeight);
                         Input.Choice iob = new("Remove Account");
 
                         if (amountAccounts > 0)
@@ -176,12 +176,12 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Transaction:
                     {
-                        Util.ClearAndSetSize(20, 10);
+                        Window.ClearAndSetSize(20, 10);
                         new Input.Choice("Transaction")
                             .Add(() =>
                             {
                                 this.Stage = Stages.Transaction_View;
-                                Util.Clear();
+                                Window.Clear();
                             }, "View", '1')
                             .Add(() =>
                             {
@@ -199,11 +199,11 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Transaction_View:
                     {
-                        Util.SetConsoleSize(
+                        Window.SetSize(
                             (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 9,
                             Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
-                        Util.ResetTextCursor();
-                        Util.PrintLine();
+                        Cursor.Reset();
+                        Window.PrintLine();
                         Input.RequestScroll(
                             items: this._selectedAccount.Transactions.Items,
                             getText: transaction => string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf('0', this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
@@ -225,7 +225,7 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Transaction_Delete:
                     {
-                        Util.ClearAndSetSize(31, this._selectedAccount!.Transactions.Length + 4);
+                        Window.ClearAndSetSize(31, this._selectedAccount!.Transactions.Length + 4);
                         // Util.PrintLine();
                         // Util.PrintLine("  Delete");
                         // this._selectedAccount.PrintTransactions(); // TODO
@@ -238,7 +238,7 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Transaction_Edit:
                     {
-                        Util.Clear();
+                        Window.Clear();
                         this.Stage = Stages.Transaction;
                         // TODO
                     }
@@ -264,9 +264,9 @@ namespace B.Options.MoneyTracker
 
         private void ShowTransactionStage()
         {
-            Util.ClearAndSetSize(4 + Util.MAX_CHARS_DECIMAL, 7);
-            Util.PrintLine();
-            Util.PrintLine("  Amount:");
+            Window.ClearAndSetSize(4 + Util.MAX_CHARS_DECIMAL, 7);
+            Window.PrintLine();
+            Window.PrintLine("  Amount:");
             ConsoleKey key;
 
             // _tempTransactionState key
@@ -276,7 +276,7 @@ namespace B.Options.MoneyTracker
 
             if (this.Stage == Stages.Transaction_Add_Amount)
             {
-                Util.Print($"  {Input.String}");
+                Window.Print($"  {Input.String}");
                 key = Input.RequestLine(Util.MAX_CHARS_DECIMAL).Key;
 
                 if (key == ConsoleKey.Enter)
@@ -299,10 +299,10 @@ namespace B.Options.MoneyTracker
             }
             else
             {
-                Util.PrintLine($"  {this._tempTransaction!.Amount}");
-                Util.PrintLine();
-                Util.PrintLine("  Description:");
-                Util.Print($"  {Input.String}");
+                Window.PrintLine($"  {this._tempTransaction!.Amount}");
+                Window.PrintLine();
+                Window.PrintLine("  Description:");
+                Window.Print($"  {Input.String}");
                 key = Input.RequestLine(Util.MAX_CHARS_DECIMAL).Key;
 
                 if (key == ConsoleKey.Enter)

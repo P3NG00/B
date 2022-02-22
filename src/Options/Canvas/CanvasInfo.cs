@@ -22,7 +22,7 @@ namespace B.Options.Canvas
             if (offset is not null)
                 windowSize += offset;
 
-            Util.ClearAndSetSize(windowSize);
+            Window.ClearAndSetSize(windowSize);
 
             for (int y = 0; y < this.Size.y; y++)
             {
@@ -33,12 +33,12 @@ namespace B.Options.Canvas
                     if (offset is not null)
                         newPos += offset;
 
-                    Util.SetTextCursorPosition(newPos);
-                    Util.Print(' ', colorBackground: this.Color(x, y));
+                    Cursor.SetPosition(newPos);
+                    Window.Print(' ', colorBackground: this.Color(x, y));
                 }
             }
 
-            Util.ResetTextCursor();
+            Cursor.Reset();
         }
     }
 }
