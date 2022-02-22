@@ -24,16 +24,16 @@ namespace B.Inputs
         }
 
         public static ConsoleKeyInfo RequestScroll<T>(
-            T[] items,
-            Func<T, string> getText,
-            Func<T, ConsoleColor?> getTextColor = null!,
-            Func<T, ConsoleColor?> getBackgroundColor = null!,
-            string title = null!,
-            int? maxEntriesPerPage = null,
-            ScrollType scrollType = ScrollType.Indent,
-            bool navigationKeybinds = true,
-            Keybind exitKeybind = null!,
-            params Keybind[] extraKeybinds)
+            T[] items,                                          // Items to scroll through
+            Func<T, string> getText,                            // Function to get text from item
+            Func<T, ConsoleColor?> getTextColor = null!,        // Function to get text color from item
+            Func<T, ConsoleColor?> getBackgroundColor = null!,  // Function to get background color from item
+            string title = null!,                               // Scroll title
+            int? maxEntriesPerPage = null,                      // Max entries to display per page
+            ScrollType scrollType = ScrollType.Indent,          // Scroll type
+            bool navigationKeybinds = true,                     // Whether to add scroll navigation keybinds
+            Keybind exitKeybind = null!,                        // Exit keybind (seperate because spacer is added before this keybind)
+            params Keybind[] extraKeybinds)                     // Extra keybinds
         {
             int maxEntries = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
             Input.Choice iob = new();
