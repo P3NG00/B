@@ -169,8 +169,8 @@ namespace B.Options.Canvas
                                 case Direction.Up: this._pos.y--; break;
                                 case Direction.Down: this._pos.y++; break;
                                 case Direction.Left: this._pos.x--; break;
-                                // default: Direction.Right
-                                default: this._pos.x++; break;
+                                case Direction.Right: this._pos.x++; break;
+                                default: break;
                             }
 
                             this._pos = Vector2.Clamp(this._pos, Vector2.Zero, this._canvas.Size - Vector2.One);
