@@ -54,7 +54,8 @@ namespace B.Utils
                 case Direction.Up: return Vector2.Up;
                 case Direction.Left: return Vector2.Left;
                 case Direction.Down: return Vector2.Down;
-                default: return Vector2.Right;
+                case Direction.Right: return Vector2.Right;
+                default: return Vector2.Zero;
             }
         }
     }
