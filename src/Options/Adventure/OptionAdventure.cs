@@ -70,7 +70,7 @@ namespace B.Options.Adventure
                             consoleHeight += 3;
                         }
 
-                        Window.SetSize(currentGrid.RealWidth + 8, consoleHeight);
+                        Window.Size = (currentGrid.RealWidth + 8, consoleHeight);
                         string borderHorizontal = Util.StringOf(OptionAdventure.CHAR_BORDER_HORIZONTAL, currentGrid.Width);
                         Window.PrintLine();
                         Window.PrintLine($"  {OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");

@@ -143,7 +143,7 @@ namespace B.Options.FTP
                         int entryAmount = this._files.Length;
                         int adjustedMaxEntries = Math.Min(Program.WINDOW_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
-                        Window.SetSize(OptionFTP.WIDTH, consoleHeight);
+                        Window.Size = (OptionFTP.WIDTH, consoleHeight);
                         Cursor.Reset();
                         Window.PrintLine();
                         Window.PrintLine($" {$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{this.Path}'",-98}");

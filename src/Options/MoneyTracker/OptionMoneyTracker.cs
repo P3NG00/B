@@ -199,7 +199,7 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Transaction_View:
                     {
-                        Window.SetSize(
+                        Window.Size = new(
                             (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 9,
                             Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
                         Cursor.Reset();

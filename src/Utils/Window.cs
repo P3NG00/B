@@ -2,6 +2,24 @@ namespace B.Utils
 {
     public static class Window
     {
+        public static (int, int) Size
+        {
+            get => new(Console.WindowWidth, Console.WindowHeight);
+            set
+            {
+                // This can only be called on Windows
+                if (OperatingSystem.IsWindows())
+                {
+                    int width = value.Item1;
+                    int height = value.Item2;
+                    Console.SetWindowSize(width, height);
+                    Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
+                    // This is called twice to fix the scrollbar from showing
+                    Console.SetWindowSize(width, height);
+                }
+            }
+        }
+
         public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
         {
             // Cache old color values
@@ -48,28 +66,12 @@ namespace B.Utils
 
         public static void PrintSpaces(int spaces) => Window.Print(Util.Spaces(spaces));
 
-        public static void SetSize(int width, int height)
-        {
-            // This can only be called on Windows
-            if (OperatingSystem.IsWindows())
-            {
-                Console.SetWindowSize(width, height);
-                Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
-                // This is called twice to fix the scrollbar from showing
-                Console.SetWindowSize(width, height);
-            }
-        }
-
-        public static void SetSize(Vector2 size) => Window.SetSize(size.x, size.y);
-
         public static void Clear() => Console.Clear();
 
         public static void ClearAndSetSize(int width, int height)
         {
             Console.Clear();
-            Window.SetSize(
-                Math.Clamp(width, Program.WINDOW_MIN.x, Program.WINDOW_MAX.x),
-                Math.Clamp(height, Program.WINDOW_MIN.y, Program.WINDOW_MAX.y));
+            Window.Size = new(Math.Clamp(width, Program.WINDOW_MIN.x, Program.WINDOW_MAX.x), Math.Clamp(height, Program.WINDOW_MIN.y, Program.WINDOW_MAX.y));
         }
 
         public static void ClearAndSetSize(Vector2 size) => Window.ClearAndSetSize(size.x, size.y);

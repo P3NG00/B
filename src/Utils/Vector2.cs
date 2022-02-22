@@ -13,6 +13,9 @@ namespace B.Utils
         public int x;
         public int y;
 
+        public Vector2 Copy() => new(this.x, this.y);
+        public (int, int) Tuple => (this.x, this.y);
+
         public Vector2() : this(0) { }
 
         public Vector2(int square) : this(square, square) { }
@@ -23,7 +26,7 @@ namespace B.Utils
             this.y = y;
         }
 
-        public Vector2 Copy() => new(this.x, this.y);
+        public Vector2((int, int) tuple) : this(tuple.Item1, tuple.Item2) { }
 
         public sealed override string ToString() => $"({this.x}, {this.y})";
 
@@ -40,6 +43,8 @@ namespace B.Utils
         public static Vector2 operator +(Vector2 vecA, Vector2 vecB) => new Vector2(vecA.x + vecB.x, vecA.y + vecB.y);
 
         public static Vector2 operator -(Vector2 vecA, Vector2 vecB) => new Vector2(vecA.x - vecB.x, vecA.y - vecB.y);
+
+        public static Vector2 operator *(Vector2 vecA, Vector2 vecB) => new Vector2(vecA.x * vecB.x, vecA.y * vecB.y);
 
         public static Vector2 operator *(Vector2 vec, int scale) => new(vec.x * scale, vec.y * scale);
 

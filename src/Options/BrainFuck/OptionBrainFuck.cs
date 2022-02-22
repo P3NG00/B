@@ -127,7 +127,7 @@ namespace B.Options.BrainFuck
                         if (this._instructionIndex < this._currentProgram.Instructions.Length)
                         {
                             int consoleWidth = 20;
-                            Window.SetSize(consoleWidth, 29);
+                            Window.Size = (consoleWidth, 29);
                             Cursor.Reset();
                             Window.PrintLine();
                             Window.PrintLine("  Memory View");
