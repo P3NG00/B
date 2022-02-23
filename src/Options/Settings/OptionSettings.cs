@@ -121,12 +121,19 @@ namespace B.Options.Settings
                         Window.ClearAndSetSize(20, 10);
                         new Input.Choice("Delete Data")
                             .Add(() => this.AskDelete("Adventure", () => File.Delete(OptionAdventure.FilePath)), "Adventure", '1')
-                            .Add(() => this.AskDelete("BrainFuck", () => Directory.Delete(OptionBrainFuck.DirectoryPath, true)), "BrainFuck", '2')
+                            .Add(() => this.AskDelete(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true)), OptionBrainFuck.Title, '2')
                             .Add(() => this.AskDelete("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true)), "Money Tracker", '3')
                             .Add(() => this.AskDelete("Settings", () => File.Delete(ProgramSettings.Path)), "Settings", '4')
                             .AddSpacer()
                             .Add(() => this.Stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
+                    }
+                    break;
+
+                case Stages.KeyPress:
+                    {
+                        Window.ClearAndSetSize(20, 10);
+                        ConsoleKeyInfo keyInfo = Input.Get();
                     }
                     break;
             }
@@ -150,6 +157,7 @@ namespace B.Options.Settings
             Color_Theme,
             Color_Custom,
             DeleteData,
+            KeyPress,
         }
     }
 }
