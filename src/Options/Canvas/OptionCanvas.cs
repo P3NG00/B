@@ -19,6 +19,7 @@ namespace B.Options.Canvas
         private Utils.List<CanvasInfo> _canvases = new();
         private CanvasInfo _canvas = null!;
         private ConsoleColor _color = ConsoleColor.Black;
+        private Vector2 _brush = Vector2.One; // TODO use as 'brush size' (this will paint the size at the cursor from the top left towards the bottom right)
         private Vector2 _pos = Vector2.Zero;
 
         public OptionCanvas() : base(Stages.MainMenu)
@@ -133,19 +134,33 @@ namespace B.Options.Canvas
                         }
 
                         Cursor.Reset();
-                        Window.PrintLine($" Color: {this._color,-10}");
+                        Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {this._brush} | Color: {this._color}"));
                         Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
                         Cursor.SetPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         new Input.Choice()
+                            // Move in Direction
                             .Add(() => Move(Direction.Up), key: ConsoleKey.UpArrow)
                             .Add(() => Move(Direction.Down), key: ConsoleKey.DownArrow)
                             .Add(() => Move(Direction.Left), key: ConsoleKey.LeftArrow)
                             .Add(() => Move(Direction.Right), key: ConsoleKey.RightArrow)
-                            .Add(() => Paint(), key: ConsoleKey.Spacebar)
+                            // Paint in Direction
                             .Add(() => PaintDirection(Direction.Up), keyChar: '8')
                             .Add(() => PaintDirection(Direction.Down), keyChar: '2')
                             .Add(() => PaintDirection(Direction.Left), keyChar: '4')
                             .Add(() => PaintDirection(Direction.Right), keyChar: '6')
+                            // Paint
+                            .Add(() => Paint(), key: ConsoleKey.Spacebar)
+                            .Add(() => this._brush.y--, key: ConsoleKey.UpArrow, control: true)
+                            .Add(() => this._brush.y++, key: ConsoleKey.DownArrow, control: true)
+                            .Add(() => this._brush.x--, key: ConsoleKey.LeftArrow, control: true)
+                            .Add(() => this._brush.x++, key: ConsoleKey.RightArrow, control: true)
+                            // Color Select
+                            .Add(() =>
+                            {
+                                this._lastConsoleWindow = new(0, 0, 0, 0);
+                                this.Stage = Stages.ColorSelect;
+                            }, key: ConsoleKey.F1)
+                            // Exit
                             .Add(() =>
                             {
                                 if (!this._canvases.Contains(this._canvas))
@@ -155,12 +170,15 @@ namespace B.Options.Canvas
                                 this._lastConsoleWindow = new(0, 0, 0, 0);
                                 this.Stage = Stages.MainMenu;
                             }, key: ConsoleKey.Escape)
-                            .Add(() =>
-                            {
-                                this._lastConsoleWindow = new(0, 0, 0, 0);
-                                this.Stage = Stages.ColorSelect;
-                            }, key: ConsoleKey.F1)
                             .Request();
+
+                        Vector2 maxCanvasPos = this._canvas.Size - Vector2.One;
+                        // Fix cursor position
+                        this._pos = Vector2.Clamp(this._pos, Vector2.Zero, maxCanvasPos);
+                        // Set cursor position
+                        Cursor.SetPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        // Fix brush size
+                        this._brush = Vector2.Clamp(this._brush, Vector2.One, maxCanvasPos);
 
                         void Move(Direction direction)
                         {
@@ -172,15 +190,20 @@ namespace B.Options.Canvas
                                 case Direction.Right: this._pos.x++; break;
                                 default: break;
                             }
-
-                            this._pos = Vector2.Clamp(this._pos, Vector2.Zero, this._canvas.Size - Vector2.One);
-                            Cursor.SetPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         }
 
                         void Paint()
                         {
-                            this._canvas.Color(this._pos) = this._color;
-                            Window.Print(' ', colorBackground: this._color);
+                            for (int y = 0; y < this._brush.y; y++)
+                            {
+                                for (int x = 0; x < this._brush.x; x++)
+                                {
+                                    Vector2 pos = this._pos + new Vector2(x, y);
+                                    this._canvas.Color(pos) = this._color;
+                                    Cursor.SetPosition(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                                    Window.Print(' ', colorBackground: this._color);
+                                }
+                            }
                         }
 
                         void PaintDirection(Direction direction)

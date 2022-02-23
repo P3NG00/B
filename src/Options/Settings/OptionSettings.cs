@@ -121,13 +121,23 @@ namespace B.Options.Settings
                     {
                         Window.ClearAndSetSize(20, 10);
                         new Input.Choice("Delete Data")
-                            .Add(() => this.AskDelete("Adventure", () => File.Delete(OptionAdventure.FilePath)), "Adventure", '1')
-                            .Add(() => this.AskDelete(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true)), OptionBrainFuck.Title, '2')
-                            .Add(() => this.AskDelete("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true)), "Money Tracker", '3')
-                            .Add(() => this.AskDelete("Settings", () => File.Delete(ProgramSettings.Path)), "Settings", '4')
+                            .Add(CreateDeleteKeybind("Adventure", () => File.Delete(OptionAdventure.FilePath), '1'))
+                            .Add(CreateDeleteKeybind(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true), '2'))
+                            .Add(CreateDeleteKeybind("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), '3'))
+                            .Add(CreateDeleteKeybind("Settings", () => File.Delete(ProgramSettings.Path), '4'))
                             .AddSpacer()
                             .Add(() => this.Stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
                             .Request();
+
+                        Keybind CreateDeleteKeybind(string title, Action deleteAction, char num) => new Keybind(() =>
+                        {
+                            Window.ClearAndSetSize(30, 7);
+                            new Input.Choice($"Delete {title} Data?")
+                                .Add(null!, "NO", key: ConsoleKey.Escape)
+                                .AddSpacer()
+                                .Add(deleteAction, "yes", key: ConsoleKey.Enter)
+                                .Request();
+                        }, title, num);
                     }
                     break;
 
