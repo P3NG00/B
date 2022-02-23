@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
@@ -72,8 +72,6 @@ namespace B
 
             // Disable maximize button
             this.DeleteWindowMenu(0xF030);
-
-            Console.Beep();
 
             // Set console window title
             Console.Title = "B";
