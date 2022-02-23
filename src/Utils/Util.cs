@@ -6,6 +6,7 @@ namespace B.Utils
     {
         public const int MAX_CHARS_DECIMAL = 27;
 
+        public static Byte[] FormatBytes => new byte[] { 7, 8, 9, 10, 13 };
         public static Random Random => new Random();
 
         public static ConsoleColor[] OrderedConsoleColors => new ConsoleColor[] {
@@ -26,6 +27,10 @@ namespace B.Utils
             ConsoleColor.DarkRed,
             ConsoleColor.Red
         };
+
+        public static char Unformat(byte b) => Util.FormatBytes.Contains((byte)b) ? ' ' : (char)b;
+
+        public static char Unformat(char c) => Util.Unformat((byte)c);
 
         public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
 

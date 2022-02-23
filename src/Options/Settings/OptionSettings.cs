@@ -33,11 +33,12 @@ namespace B.Options.Settings
             {
                 case Stages.MainMenu:
                     {
-                        Window.ClearAndSetSize(35, 12);
+                        Window.ClearAndSetSize(35, 13);
                         new Input.Choice("Settings")
                             .Add(() => this.Stage = Stages.Color, "Color", '1')
                             .Add(() => this.Stage = Stages.WindowSize, "Window Size", '2')
-                            .Add(() => this.Stage = Stages.DeleteData, "Delete Data", '3')
+                            .Add(() => this.Stage = Stages.KeyPress, "Key Press", '3')
+                            .Add(() => this.Stage = Stages.DeleteData, "Delete Data", '4')
                             .AddSpacer()
                             .Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F11)
                             .Add(null!, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12)
@@ -132,8 +133,22 @@ namespace B.Options.Settings
 
                 case Stages.KeyPress:
                     {
-                        Window.ClearAndSetSize(20, 10);
-                        ConsoleKeyInfo keyInfo = Input.Get();
+                        Window.ClearAndSetSize(35, 12);
+                        Window.PrintLine();
+                        Window.PrintLine(" Last Pressed");
+                        Window.PrintLine();
+                        ConsoleKeyInfo lastInput = Input.LastInput;
+                        Window.PrintLine($" Key: {lastInput.Key}");
+                        Window.PrintLine($" Key Num: {(int)lastInput.Key}");
+                        Window.PrintLine($" Key Char: {Util.Unformat(lastInput.KeyChar)}");
+                        Window.PrintLine($" Key Char Num: {(int)lastInput.KeyChar}");
+                        Window.PrintLine($" Modifiers: {lastInput.Modifiers}");
+                        Window.PrintLine($" Control: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Control)}");
+                        Window.PrintLine($" Shift: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Shift)}");
+                        Window.PrintLine($" Alt: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Alt)}");
+
+                        if (Input.Get().Key == ConsoleKey.Escape)
+                            this.Stage = Stages.MainMenu;
                     }
                     break;
             }

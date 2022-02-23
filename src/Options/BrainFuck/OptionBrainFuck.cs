@@ -7,7 +7,6 @@ namespace B.Options.BrainFuck
     {
         private const string FILE_EXTENSION = "*bf";
         private const int MAX_MEMORY_VIEW_LENGTH = 20;
-        private static byte[] MEMORY_VIEW_REMOVE => new byte[] { 7, 8, 9, 10, 13 };
 
         public static readonly string DirectoryPath = Program.DataPath + @"brainfuck\";
         public static string Title => Program.Settings.Censor.Active ? "BrainF**k" : "BrainFuck";
@@ -126,19 +125,24 @@ namespace B.Options.BrainFuck
                     {
                         if (this._instructionIndex < this._currentProgram.Instructions.Length)
                         {
+                            // TODO add to bottom/top of window, display the instructions with the current instruction highlighted and centered
+
                             int consoleWidth = 20;
                             Window.Size = (consoleWidth, 29);
                             Cursor.Reset();
                             Window.PrintLine();
                             Window.PrintLine("  Memory View");
                             Window.PrintLine();
+                            // Column 1 - Byte
+                            // Column 2 - Char
+                            // Column 3 - Hex
                             string format = "{0,-6}{1,-6}{2,-2}";
                             Window.PrintLine($"   {string.Format(format, "byte", "char", "hex")}");
                             Window.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
                             Input.ScrollIndex = (int)this._memoryIndex;
                             Input.RequestScroll(
                                 items: this._memory,
-                                getText: b => string.Format(format, b, OptionBrainFuck.MEMORY_VIEW_REMOVE.Contains(b) ? ' ' : (char)b, $"{b,2:X}"),
+                                getText: b => string.Format(format, b, Util.Unformat(b), $"{b,2:X}"),
                                 maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
                                 scrollType: Input.ScrollType.Side,
                                 navigationKeybinds: false,

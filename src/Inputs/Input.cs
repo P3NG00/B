@@ -11,18 +11,20 @@ namespace B.Inputs
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
 
+        public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
+
         public static ConsoleKeyInfo Get()
         {
-            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+            Input.LastInput = Console.ReadKey(true);
 
-            if (keyInfo.Key == ConsoleKey.F12)
+            if (Input.LastInput.Key == ConsoleKey.F12)
             {
                 Program.Settings.DebugMode.Toggle();
                 // Toggling Debug mode clears console to avoid leftover characters
                 Window.Clear();
             }
 
-            return keyInfo;
+            return Input.LastInput;
         }
 
         public static void WaitFor(ConsoleKey key, bool silent = false)
@@ -170,9 +172,9 @@ namespace B.Inputs
 
             public Choice(string? message = null) => this._message = message;
 
-            public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey))
+            public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false)
             {
-                this._keybinds.Add(new Keybind(action, description, keyChar, key));
+                this._keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
                 return this;
             }
 
@@ -222,7 +224,18 @@ namespace B.Inputs
                                 Window.PrintLine();
                             }
 
-                            Window.PrintLine($" {(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
+                            string preface = string.Empty;
+
+                            if (keybind.Control)
+                                preface += "Ctrl+";
+
+                            if (keybind.Shift)
+                                preface += "Shift+";
+
+                            if (keybind.Alt)
+                                preface += "Alt+";
+
+                            Window.PrintLine($" {preface}{(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
                         }
                     }
                     else if (!printLine)
@@ -234,7 +247,7 @@ namespace B.Inputs
                 // Activate function for pressed keybind
                 foreach (Keybind keybind in this._keybinds)
                 {
-                    if (keybind != null && keybind.Action != null && (keybind.Key == keyInfo.Key || (keybind.KeyChar.HasValue && keybind.KeyChar == keyInfo.KeyChar)))
+                    if (keybind != null && keybind.IsValid(keyInfo))
                     {
                         keybind.Action!.Invoke();
                         break;
