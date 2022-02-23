@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
@@ -12,7 +12,7 @@ using B.Utils;
 
 namespace B
 {
-    public sealed class Program
+    public sealed class Program : Option<Program.Stages>
     {
         // Code entry point
         public static int Main() => new Program().Start();
@@ -32,7 +32,8 @@ namespace B
             new (typeof(OptionMoneyTracker), () => "Money Tracker"),
             new (typeof(OptionNumberGuesser), () => "Number Guesser")};
         private IOption _option = null!;
-        private bool _running = true;
+
+        public Program() : base(Stages.MainMenu) { }
 
         private int Start()
         {
@@ -45,7 +46,7 @@ namespace B
             }
 
             // Program loop
-            while (this._running)
+            while (this.IsRunning())
             {
                 try { this.Loop(); }
                 catch (Exception e) { this.HandleException(e); }
@@ -95,7 +96,7 @@ namespace B
             // TODO add thread with sole purpose of animating the cursor position into different corners of the screen. only allow animating when not printing (may need static variable in Util like Util.IsPrinting that will need to be updated before and after code is done printing so the animation can run).
         }
 
-        public void Loop()
+        public override void Loop()
         {
             // If directory doesn't exist, create it and add hidden attribute
             if (!Directory.Exists(Program.DataPath))
@@ -104,25 +105,35 @@ namespace B
                 mainDirectory.Attributes = FileAttributes.Hidden;
             }
 
-            // If option is running, execute option code
-            if (this._option != null && this._option.IsRunning())
-                this._option.Loop();
-            else
+            switch (this.Stage)
             {
-                // Display main menu options
-                Window.ClearAndSetSize(24, this._options.Length + 7);
-                Input.Choice iob = new("B's");
+                case Stages.MainMenu:
+                    {
+                        // Display main menu options
+                        Window.ClearAndSetSize(24, this._options.Length + 7);
+                        Input.Choice iob = new("B's");
 
-                for (int i = 0; i < this._options.Length; i++)
-                {
-                    var optionEntry = this._options[i];
-                    iob.Add(() => this._option = (IOption)Activator.CreateInstance(optionEntry.Item1)!, optionEntry.Item2(), (char)('1' + i));
-                }
+                        for (int i = 0; i < this._options.Length; i++)
+                        {
+                            var optionEntry = this._options[i];
+                            iob.Add(() => this._option = (IOption)Activator.CreateInstance(optionEntry.Item1)!, optionEntry.Item2(), (char)('1' + i));
+                        }
 
-                iob.AddSpacer()
-                    .Add(() => this._option = Activator.CreateInstance<OptionSettings>(), "Settings", '9')
-                    .Add(() => this._running = false, "Quit", key: ConsoleKey.Escape)
-                    .Request();
+                        iob.AddSpacer()
+                            .Add(() => this._option = Activator.CreateInstance<OptionSettings>(), "Settings", '9')
+                            .AddExit(this, false)
+                            .Request();
+                    }
+                    break;
+
+                case Stages.Option:
+                    {
+                        if (this._option != null && this._option.IsRunning())
+                            this._option.Loop();
+                        else
+                            this.Stage = Stages.MainMenu;
+                    }
+                    break;
             }
         }
 
@@ -136,6 +147,12 @@ namespace B
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
             this._option = null!;
+        }
+
+        public enum Stages
+        {
+            MainMenu,
+            Option,
         }
 
         private void DeleteWindowMenu(int nPosition)
