@@ -120,7 +120,7 @@ namespace B.Options.Adventure
                             .Add(() =>
                             {
                                 this.Save();
-                                this.Stage = Stages.MainMenu;
+                                this.SetStage(Stages.MainMenu);
                             }, "Quit", key: ConsoleKey.Escape)
                             .Request();
                     }
@@ -140,7 +140,7 @@ namespace B.Options.Adventure
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
             Window.Clear();
-            this.Stage = Stages.Game;
+            this.SetStage(Stages.Game);
         }
 
         private void MovePlayer(Direction direction)

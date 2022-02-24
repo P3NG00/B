@@ -32,10 +32,10 @@ namespace B.Options.NumberGuesser
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;
                                 Input.String = string.Empty;
-                                this.Stage = Stages.Game;
+                                this.SetStage(Stages.Game);
                             }, "New Game", '1')
                             .AddSpacer()
-                            .Add(() => this.Stage = Stages.Settings, "Settings", '9')
+                            .Add(() => this.SetStage(Stages.Settings), "Settings", '9')
                             .AddExit(this, false)
                             .Request();
                     }
@@ -74,7 +74,7 @@ namespace B.Options.NumberGuesser
                         if (won)
                         {
                             Input.Get();
-                            this.Stage = Stages.MainMenu;
+                            this.SetStage(Stages.MainMenu);
                         }
                         else
                         {
@@ -82,7 +82,7 @@ namespace B.Options.NumberGuesser
                             Window.PrintLine(" Enter a Number!");
 
                             if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH).Key == ConsoleKey.Escape)
-                                this.Stage = Stages.MainMenu;
+                                this.SetStage(Stages.MainMenu);
                         }
                     }
                     break;
@@ -94,10 +94,10 @@ namespace B.Options.NumberGuesser
                             .Add(() =>
                             {
                                 Input.String = this._numMax.ToString();
-                                this.Stage = Stages.Settings_MaxNumber;
+                                this.SetStage(Stages.Settings_MaxNumber);
                             }, "Max Number", '1')
                             .AddSpacer()
-                            .Add(() => this.Stage = Stages.MainMenu, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this.SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -118,11 +118,11 @@ namespace B.Options.NumberGuesser
                             if (numMax.HasValue)
                             {
                                 this._numMax = Math.Max(1, numMax.Value);
-                                this.Stage = Stages.Settings;
+                                this.SetStage(Stages.Settings);
                             }
                         }
                         else if (key == ConsoleKey.Escape)
-                            this.Stage = Stages.Settings;
+                            this.SetStage(Stages.Settings);
                     }
                     break;
             }

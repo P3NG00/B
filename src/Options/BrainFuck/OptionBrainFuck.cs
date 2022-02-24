@@ -44,7 +44,7 @@ namespace B.Options.BrainFuck
                     {
                         Window.ClearAndSetSize(20, 7);
                         new Input.Choice(OptionBrainFuck.Title)
-                            .Add(() => this.Stage = Stages.List, "List", '1')
+                            .Add(() => this.SetStage(Stages.List), "List", '1')
                             .AddExit(this)
                             .Request();
                     }
@@ -60,7 +60,7 @@ namespace B.Options.BrainFuck
                             exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this.Stage = Stages.MainMenu;
+                                this.SetStage(Stages.MainMenu);
                             }, "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind(() =>
                             {
@@ -71,7 +71,7 @@ namespace B.Options.BrainFuck
                                 this._memoryIndex = 0;
                                 this._bracketDepth = 0;
                                 this._stepCounter = 0;
-                                this.Stage = Stages.Run;
+                                this.SetStage(Stages.Run);
                             }, "Run", key: ConsoleKey.Enter));
                     }
                     break;
@@ -97,10 +97,10 @@ namespace B.Options.BrainFuck
                                     case ConsoleKey.F1:
                                         {
                                             Window.Clear();
-                                            this.Stage = Stages.MemoryView;
+                                            this.SetStage(Stages.MemoryView);
                                         }; break;
 
-                                    case ConsoleKey.Escape: this.Stage = Stages.List; break;
+                                    case ConsoleKey.Escape: this.SetStage(Stages.List); break;
                                 }
                             }
 
@@ -116,7 +116,7 @@ namespace B.Options.BrainFuck
                             Window.PrintLine(this._output);
                             Input.WaitFor(ConsoleKey.F1);
                             Input.ScrollIndex = 0;
-                            this.Stage = Stages.List;
+                            this.SetStage(Stages.List);
                         }
                     }
                     break;
@@ -148,10 +148,10 @@ namespace B.Options.BrainFuck
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {
                                     new(() => this.HandleStep(), "Step", key: ConsoleKey.Spacebar),
-                                    new(() => this.Stage = Stages.Run, "Back", key: ConsoleKey.F1)});
+                                    new(() => this.SetStage(Stages.Run), "Back", key: ConsoleKey.F1)});
                         }
                         else
-                            this.Stage = Stages.Run;
+                            this.SetStage(Stages.Run);
                     }
                     break;
             }

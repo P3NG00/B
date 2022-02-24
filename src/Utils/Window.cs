@@ -2,6 +2,9 @@ namespace B.Utils
 {
     public static class Window
     {
+        public static Vector2 SIZE_MIN => new(16, 2);
+        public static Vector2 SIZE_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
+
         public static (int, int) Size
         {
             get => new(Console.WindowWidth, Console.WindowHeight);
@@ -71,7 +74,7 @@ namespace B.Utils
         public static void ClearAndSetSize(int width, int height)
         {
             Console.Clear();
-            Window.Size = new(Math.Clamp(width, Program.WINDOW_MIN.x, Program.WINDOW_MAX.x), Math.Clamp(height, Program.WINDOW_MIN.y, Program.WINDOW_MAX.y));
+            Window.Size = new(Math.Clamp(width, Window.SIZE_MIN.x, Window.SIZE_MAX.x), Math.Clamp(height, Window.SIZE_MIN.y, Window.SIZE_MAX.y));
         }
 
         public static void ClearAndSetSize(Vector2 size) => Window.ClearAndSetSize(size.x, size.y);

@@ -2,10 +2,12 @@ namespace B.Options
 {
     public abstract class Option<T> : IOption where T : Enum
     {
-        protected T Stage;
+        protected T Stage { get; private set; }
         private bool _running = true;
 
         public Option(T defaultStage) => this.Stage = defaultStage;
+
+        protected void SetStage(T stage) => this.Stage = stage;
 
         public abstract void Loop();
 

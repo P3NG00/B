@@ -115,7 +115,7 @@ namespace B.Options.FTP
                                     {
                                         this._client.Connect();
                                         this.RefreshFiles();
-                                        this.Stage = Stages.Navigate;
+                                        this.SetStage(Stages.Navigate);
                                     }
                                     catch (SshAuthenticationException)
                                     {
@@ -141,7 +141,7 @@ namespace B.Options.FTP
                     {
                         this._lastStage = this.Stage;
                         int entryAmount = this._files.Length;
-                        int adjustedMaxEntries = Math.Min(Program.WINDOW_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
+                        int adjustedMaxEntries = Math.Min(Window.SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
                         Window.Size = (OptionFTP.WIDTH, consoleHeight);
                         Cursor.Reset();
@@ -171,8 +171,8 @@ namespace B.Options.FTP
                                     this.PreviousDirectory();
                             }, "Exit", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
-                                new(() => this.Stage = Stages.Download, "Download", key: ConsoleKey.PageDown),
-                                new(() => this.Stage = Stages.Delete, "Delete", key: ConsoleKey.Delete),
+                                new(() => this.SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown),
+                                new(() => this.SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete),
                                 new(() =>
                                 {
                                     SftpFile currentFile = this.CurrentFile;
@@ -180,7 +180,7 @@ namespace B.Options.FTP
                                     if (currentFile.IsDirectory)
                                         this.Path += "/" + currentFile.Name;
                                     else
-                                        this.Stage = Stages.FileInteract;
+                                        this.SetStage(Stages.FileInteract);
                                 }, "Select", key: ConsoleKey.Enter),
                                 new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5),
                                 new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace)});
@@ -193,10 +193,10 @@ namespace B.Options.FTP
                         Window.ClearAndSetSize(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
                         new Input.Choice($"{file.FullName} | {file.Attributes.Size} bytes")
-                            .Add(() => this.Stage = Stages.Download, "Download", key: ConsoleKey.PageDown)
-                            .Add(() => this.Stage = Stages.Delete, "Delete", key: ConsoleKey.Delete)
+                            .Add(() => this.SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown)
+                            .Add(() => this.SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
-                            .Add(() => this.Stage = Stages.Navigate, "Back", key: ConsoleKey.Escape)
+                            .Add(() => this.SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape)
                             .Request();
                         Window.Clear();
                     }
@@ -207,7 +207,7 @@ namespace B.Options.FTP
                         // May hang while downloading files
                         this.Download(this.CurrentFile);
                         Window.Clear();
-                        this.Stage = this._lastStage;
+                        this.SetStage(this._lastStage);
                     }
                     break;
 
@@ -222,7 +222,7 @@ namespace B.Options.FTP
                             .AddSpacer()
                             .Add(null!, "NO", key: ConsoleKey.Escape)
                             .Request();
-                        this.Stage = Stages.Navigate;
+                        this.SetStage(Stages.Navigate);
                     }
                     break;
             }

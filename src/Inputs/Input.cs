@@ -225,16 +225,9 @@ namespace B.Inputs
                             }
 
                             string preface = string.Empty;
-
-                            if (keybind.Control)
-                                preface += "Ctrl+";
-
-                            if (keybind.Shift)
-                                preface += "Shift+";
-
-                            if (keybind.Alt)
-                                preface += "Alt+";
-
+                            if (keybind.ModifierControl) preface += "Ctrl+";
+                            if (keybind.ModifierShift) preface += "Shift+";
+                            if (keybind.ModifierAlt) preface += "Alt+";
                             Window.PrintLine($" {preface}{(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
                         }
                     }

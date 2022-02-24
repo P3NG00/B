@@ -4,6 +4,7 @@ using B.Options;
 using B.Options.Adventure;
 using B.Options.BrainFuck;
 using B.Options.Canvas;
+using B.Options.ExpressionSolver;
 using B.Options.FTP;
 using B.Options.MoneyTracker;
 using B.Options.NumberGuesser;
@@ -12,15 +13,13 @@ using B.Utils;
 
 namespace B
 {
-    public sealed class Program : Option<Program.Stages>
+    public sealed class Program : Option<Util.NoEnum>
     {
         // Code entry point
         public static int Main() => new Program().Start();
 
         // Program Info
         public static ProgramSettings Settings { get; private set; } = new();
-        public static Vector2 WINDOW_MIN => new(16, 2);
-        public static Vector2 WINDOW_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
 
         // Private Variables
@@ -28,12 +27,13 @@ namespace B
             new (typeof(OptionAdventure), () => "Adventure!"),
             new (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
             new (typeof(OptionCanvas), () => "Canvas"),
+            new (typeof(OptionExpressionSolver), () => "Expression Solver"),
             new (typeof(OptionFTP), () => "FTP"),
             new (typeof(OptionMoneyTracker), () => "Money Tracker"),
             new (typeof(OptionNumberGuesser), () => "Number Guesser")};
         private IOption _option = null!;
 
-        public Program() : base(Stages.MainMenu) { }
+        public Program() : base(default) { }
 
         private int Start()
         {
@@ -92,8 +92,6 @@ namespace B
 
             // Set console colors
             Program.Settings.UpdateColors();
-
-            // TODO add thread with sole purpose of animating the cursor position into different corners of the screen. only allow animating when not printing (may need static variable in Util like Util.IsPrinting that will need to be updated before and after code is done printing so the animation can run).
         }
 
         public override void Loop()
@@ -105,41 +103,32 @@ namespace B
                 mainDirectory.Attributes = FileAttributes.Hidden;
             }
 
-            switch (this.Stage)
+            if (this._option != null && this._option.IsRunning())
+                this._option.Loop();
+            else
             {
-                case Stages.MainMenu:
-                    {
-                        // Display main menu options
-                        Window.ClearAndSetSize(24, this._options.Length + 7);
-                        Input.Choice iob = new("B's");
+                // Display main menu options
+                Window.ClearAndSetSize(24, this._options.Length + 7);
+                Input.Choice iob = new("B's");
 
-                        for (int i = 0; i < this._options.Length; i++)
-                        {
-                            var optionEntry = this._options[i];
-                            iob.Add(() => this._option = (IOption)Activator.CreateInstance(optionEntry.Item1)!, optionEntry.Item2(), (char)('1' + i));
-                        }
+                for (int i = 0; i < this._options.Length; i++)
+                {
+                    (Type, Func<String>) optionEntry = this._options[i];
+                    iob.Add(CreateOptionKeybind(optionEntry.Item1, optionEntry.Item2(), (char)('1' + i)));
+                }
 
-                        iob.AddSpacer()
-                            .Add(() => this._option = Activator.CreateInstance<OptionSettings>(), "Settings", '9')
-                            .AddExit(this, false)
-                            .Request();
-                    }
-                    break;
+                iob.AddSpacer()
+                    .Add(CreateOptionKeybind(typeof(OptionSettings), "Settings", '9'))
+                    .AddExit(this, false)
+                    .Request();
 
-                case Stages.Option:
-                    {
-                        if (this._option != null && this._option.IsRunning())
-                            this._option.Loop();
-                        else
-                            this.Stage = Stages.MainMenu;
-                    }
-                    break;
+                Keybind CreateOptionKeybind(Type optionType, string title, char num) => new Keybind(() => this._option = (IOption)Activator.CreateInstance(optionType)!, title, num);
             }
         }
 
         private void HandleException(Exception e)
         {
-            Window.ClearAndSetSize(Program.WINDOW_MAX);
+            Window.ClearAndSetSize(Window.SIZE_MAX);
             Window.PrintLine();
             Window.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);
             Window.PrintLine();
@@ -147,12 +136,6 @@ namespace B
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
             this._option = null!;
-        }
-
-        public enum Stages
-        {
-            MainMenu,
-            Option,
         }
 
         private void DeleteWindowMenu(int nPosition)

@@ -50,14 +50,14 @@ namespace B.Options.Canvas
                                 Window.Clear();
                                 this._canvas = new();
                                 Input.String = string.Empty;
-                                this.Stage = Stages.Create_Name;
+                                this.SetStage(Stages.Create_Name);
                             }, "Create", '1');
 
                         if (!this._canvases.IsEmpty)
                             iob.Add(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this.Stage = Stages.List;
+                                this.SetStage(Stages.List);
                             }, "List", '2');
 
                         iob.AddExit(this)
@@ -73,7 +73,7 @@ namespace B.Options.Canvas
                             getText: canvas => canvas.Title,
                             title: "Canvases",
                             maxEntriesPerPage: OptionCanvas.MAX_CANVASES_PER_PAGE,
-                            exitKeybind: new(() => this.Stage = Stages.MainMenu, key: ConsoleKey.Escape),
+                            exitKeybind: new(() => this.SetStage(Stages.MainMenu), key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 new(() => SetCanvasAndChangeStage(Stages.View), "View", key: ConsoleKey.Enter),
                                 new(() => SetCanvasAndChangeStage(Stages.Edit), "Edit", key: ConsoleKey.Tab),
@@ -84,7 +84,7 @@ namespace B.Options.Canvas
                         {
                             this._canvas = this._canvases[Input.ScrollIndex];
                             Input.ScrollIndex = 0;
-                            this.Stage = stage;
+                            this.SetStage(stage);
                         }
                     }
                     break;
@@ -99,12 +99,12 @@ namespace B.Options.Canvas
                                 this._canvases.Remove(this._canvas);
 
                                 if (this._canvases.IsEmpty)
-                                    this.Stage = Stages.MainMenu;
+                                    this.SetStage(Stages.MainMenu);
                             }, "yes", key: ConsoleKey.Enter)
                             .AddSpacer()
                             .Add(null!, "NO", key: ConsoleKey.Escape)
                             .Request();
-                        this.Stage = Stages.List;
+                        this.SetStage(Stages.List);
                     }
                     break;
 
@@ -112,7 +112,7 @@ namespace B.Options.Canvas
                     {
                         this._canvas.Draw();
                         Input.WaitFor(ConsoleKey.Escape, true);
-                        this.Stage = Stages.List;
+                        this.SetStage(Stages.List);
                     }
                     break;
 
@@ -158,7 +158,7 @@ namespace B.Options.Canvas
                             .Add(() =>
                             {
                                 this._lastConsoleWindow = new(0, 0, 0, 0);
-                                this.Stage = Stages.ColorSelect;
+                                this.SetStage(Stages.ColorSelect);
                             }, key: ConsoleKey.F1)
                             // Exit
                             .Add(() =>
@@ -168,7 +168,7 @@ namespace B.Options.Canvas
 
                                 this.Save();
                                 this._lastConsoleWindow = new(0, 0, 0, 0);
-                                this.Stage = Stages.MainMenu;
+                                this.SetStage(Stages.MainMenu);
                             }, key: ConsoleKey.Escape)
                             .Request();
 
@@ -227,12 +227,12 @@ namespace B.Options.Canvas
                             getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
                             getBackgroundColor: c => c,
                             scrollType: Input.ScrollType.Side,
-                            exitKeybind: new Keybind(() => this.Stage = Stages.Edit, "Back", key: ConsoleKey.Escape),
+                            exitKeybind: new Keybind(() => this.SetStage(Stages.Edit), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind(() =>
                             {
                                 this._color = colors[Input.ScrollIndex];
                                 Input.ScrollIndex = 0;
-                                this.Stage = Stages.Edit;
+                                this.SetStage(Stages.Edit);
                             }, "Select", key: ConsoleKey.Enter)
                         );
                     }
@@ -277,7 +277,7 @@ namespace B.Options.Canvas
                                     {
                                         this._canvas.Title = Input.String.Trim();
                                         Input.String = string.Empty;
-                                        this.Stage = Stages.Create_Size_Height;
+                                        this.SetStage(Stages.Create_Size_Height);
                                     }
                                 }
                                 break;
@@ -290,7 +290,7 @@ namespace B.Options.Canvas
                                     {
                                         this._canvas.Colors = new ConsoleColor[height.Value][];
                                         Input.String = string.Empty;
-                                        this.Stage = Stages.Create_Size_Width;
+                                        this.SetStage(Stages.Create_Size_Width);
                                     }
                                 }
                                 break;
@@ -310,7 +310,7 @@ namespace B.Options.Canvas
 
                                         Input.String = string.Empty;
                                         Window.Clear();
-                                        this.Stage = Stages.Edit;
+                                        this.SetStage(Stages.Edit);
                                     }
                                 }
                                 break;
@@ -326,21 +326,21 @@ namespace B.Options.Canvas
                                 {
                                     this._canvas = null!;
                                     Input.String = string.Empty;
-                                    this.Stage = Stages.MainMenu;
+                                    this.SetStage(Stages.MainMenu);
                                 }
                                 break;
 
                             case CreationStage.Height:
                                 {
                                     Input.String = this._canvas.Title;
-                                    this.Stage = Stages.Create_Name;
+                                    this.SetStage(Stages.Create_Name);
                                 }
                                 break;
 
                             case CreationStage.Width:
                                 {
                                     Input.String = this._canvas.Colors.Length.ToString();
-                                    this.Stage = Stages.Create_Size_Height;
+                                    this.SetStage(Stages.Create_Size_Height);
                                 }
                                 break;
                         }

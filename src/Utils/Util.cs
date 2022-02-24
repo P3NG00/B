@@ -9,6 +9,8 @@ namespace B.Utils
         public static Byte[] FormatBytes => new byte[] { 7, 8, 9, 10, 13 };
         public static Random Random => new Random();
 
+        public enum NoEnum { }
+
         public static ConsoleColor[] OrderedConsoleColors => new ConsoleColor[] {
             ConsoleColor.White,
             ConsoleColor.Gray,
