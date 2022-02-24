@@ -15,6 +15,9 @@ namespace B
 {
     public sealed class Program : Option<Util.NoEnum>
     {
+        private const string USER32 = "user32.dll";
+        private const string KERNEL32 = "kernel32.dll";
+
         // Code entry point
         public static int Main() => new Program().Start();
 
@@ -62,17 +65,21 @@ namespace B
 
         private void Initialize()
         {
-            // Disable drag resizing
-            this.DeleteWindowMenu(0xF000);
+            // Copied Code to disable some window resizing functionality
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/1aa43c6c-71b9-42d4-aa00-60058a85f0eb/c-console-window-disable-resize?forum=csharpgeneral
+            IntPtr handle = Program.GetConsoleWindow();
 
-            // Disable window 'x' close button
-            this.DeleteWindowMenu(0xF060);
+            if (handle != IntPtr.Zero)
+            {
+                IntPtr sysMenu = Program.GetSystemMenu(handle, false);
 
-            // Disable minimize button
-            this.DeleteWindowMenu(0xF020);
-
-            // Disable maximize button
-            this.DeleteWindowMenu(0xF030);
+                foreach (int sc in new int[] {
+                    0xF000, // SC_SIZE
+                    0xF020, // SC_MINIMIZE
+                    0xF030, // SC_MAXIMIZE
+                    0xF060, // SC_CLOSE
+                }) { Program.DeleteMenu(sysMenu, sc, 0x00000000); }
+            }
 
             // Set console window title
             Console.Title = "B";
@@ -138,21 +145,8 @@ namespace B
             this._option = null!;
         }
 
-        private void DeleteWindowMenu(int nPosition)
-        {
-            IntPtr handle = Program.GetConsoleWindow();
-
-            if (handle != IntPtr.Zero)
-                Program.DeleteMenu(Program.GetSystemMenu(handle, false), nPosition, 0x00000000);
-        }
-
-        [DllImport("user32.dll")]
-        public static extern int DeleteMenu(IntPtr hMenu, int nPosition, int wFlags);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
-
-        [DllImport("kernel32.dll", ExactSpelling = true)]
-        private static extern IntPtr GetConsoleWindow();
+        [DllImport(Program.USER32)] public static extern int DeleteMenu(IntPtr hMenu, int nPosition, int wFlags);
+        [DllImport(Program.USER32)] private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        [DllImport(Program.KERNEL32, ExactSpelling = true)] private static extern IntPtr GetConsoleWindow();
     }
 }
