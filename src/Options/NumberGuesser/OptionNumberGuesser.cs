@@ -31,7 +31,7 @@ namespace B.Options.NumberGuesser
                             .Add(() =>
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;
-                                Input.String = string.Empty;
+                                Input.ResetString(); ;
                                 this.SetStage(Stages.Game);
                             }, "New Game", '1')
                             .AddSpacer()
@@ -47,15 +47,19 @@ namespace B.Options.NumberGuesser
                         int? guess = Input.Int;
                         bool won = guess.HasValue && guess.Value == this._numRandom;
                         int consoleHeight = 7;
+                        bool debug = Program.Settings.DebugMode.Active;
 
-                        if (Program.Settings.DebugMode.Active)
+                        if (debug)
+                            consoleHeight += 2;
+
+                        Window.ClearAndSetSize(20, consoleHeight);
+
+                        if (debug)
                         {
                             Window.PrintLine();
                             Window.PrintLine($" Number: {this._numRandom}");
-                            consoleHeight += 2;
                         }
 
-                        Window.ClearAndSetSize(20, consoleHeight);
                         Window.PrintLine();
                         Window.PrintLine($"  {Input.String}");
 
@@ -80,9 +84,7 @@ namespace B.Options.NumberGuesser
                         {
                             Window.PrintLine();
                             Window.PrintLine(" Enter a Number!");
-
-                            if (Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH).Key == ConsoleKey.Escape)
-                                this.SetStage(Stages.MainMenu);
+                            Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, new Keybind(() => this.SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
                         }
                     }
                     break;
@@ -109,20 +111,18 @@ namespace B.Options.NumberGuesser
                         Window.PrintLine($"  Max - {Input.String}");
                         Window.PrintLine();
                         Window.PrintLine("  Enter Max Number");
-                        ConsoleKey key = Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH).Key;
-
-                        if (key == ConsoleKey.Enter)
-                        {
-                            int? numMax = Input.Int;
-
-                            if (numMax.HasValue)
+                        Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH,
+                            new Keybind(() =>
                             {
-                                this._numMax = Math.Max(1, numMax.Value);
-                                this.SetStage(Stages.Settings);
-                            }
-                        }
-                        else if (key == ConsoleKey.Escape)
-                            this.SetStage(Stages.Settings);
+                                int? numMax = Input.Int;
+
+                                if (numMax.HasValue)
+                                {
+                                    this._numMax = Math.Max(1, numMax.Value);
+                                    this.SetStage(Stages.Settings);
+                                }
+                            }, key: ConsoleKey.Enter),
+                            new Keybind(() => this.SetStage(Stages.Settings), key: ConsoleKey.Escape));
                     }
                     break;
             }

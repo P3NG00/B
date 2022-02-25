@@ -82,7 +82,7 @@ namespace B.Options.FTP
         {
             // When FTP is initialized, empty the input string
             // and select a random scrambler to show.
-            Input.String = string.Empty;
+            Input.ResetString(); ;
             this._scrambler = Util.RandomFrom(OptionFTP._scramblers);
 
             // If Download Path doesn't exist, create it.
@@ -103,37 +103,31 @@ namespace B.Options.FTP
                         string scrambled = this._scrambler(Input.String.Length);
                         int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
                         Window.PrintLine(string.Format("{0," + textDepth + "}", scrambled));
+                        Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
+                            new Keybind(() =>
+                            {
+                                this._client = new(OptionFTP.IP, OptionFTP.PORT, OptionFTP.USER, Input.String);
+                                Input.ResetString(); ;
 
-                        switch (Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD).Key)
-                        {
-                            case ConsoleKey.Enter:
+                                try
                                 {
-                                    this._client = new(OptionFTP.IP, OptionFTP.PORT, OptionFTP.USER, Input.String);
-                                    Input.String = string.Empty;
-
-                                    try
-                                    {
-                                        this._client.Connect();
-                                        this.RefreshFiles();
-                                        this.SetStage(Stages.Navigate);
-                                    }
-                                    catch (SshAuthenticationException)
-                                    {
-                                        Window.PrintLine("Wrong password");
-                                        Input.Get();
-                                    }
-                                    catch (SocketException)
-                                    {
-                                        Window.PrintLine(" Can't connect");
-                                        Input.Get();
-                                    }
+                                    this._client.Connect();
+                                    this.RefreshFiles();
+                                    this.SetStage(Stages.Navigate);
                                 }
-                                break;
-
-                            case ConsoleKey.Delete: Input.String = string.Empty; break;
-
-                            case ConsoleKey.Escape: this.Quit(); break;
-                        }
+                                catch (SshAuthenticationException)
+                                {
+                                    Window.PrintLine("Wrong password");
+                                    Input.Get();
+                                }
+                                catch (SocketException)
+                                {
+                                    Window.PrintLine(" Can't connect");
+                                    Input.Get();
+                                }
+                            }, key: ConsoleKey.Enter),
+                            new Keybind(() => Input.ResetString(), key: ConsoleKey.Delete),
+                            new Keybind(() => this.Quit(), key: ConsoleKey.Escape));
                     }
                     break;
 

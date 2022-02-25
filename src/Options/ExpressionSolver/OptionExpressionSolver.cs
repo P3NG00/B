@@ -7,7 +7,7 @@ namespace B.Options.ExpressionSolver
 {
     public sealed class OptionExpressionSolver : Option<OptionExpressionSolver.Stages>
     {
-        public OptionExpressionSolver() : base(Stages.Input) => Input.String = string.Empty;
+        public OptionExpressionSolver() : base(Stages.Input) => Input.ResetString();
 
         public override void Loop()
         {
@@ -15,16 +15,14 @@ namespace B.Options.ExpressionSolver
             {
                 case Stages.Input:
                     {
-                        Window.ClearAndSetSize(60, 20);
+                        int consoleWidth = 60;
+                        Window.ClearAndSetSize(consoleWidth, 20);
                         Window.PrintLine();
                         Window.PrintLine(" Input:");
                         Window.Print($" {Input.String}");
-
-                        switch (Input.RequestLine(Window.SIZE_MAX.x).Key) // TODO change from max window width
-                        {
-                            case ConsoleKey.Escape: this.Quit(); break;
-                            case ConsoleKey.Enter: this.SetStage(Stages.Evaluate); break;
-                        }
+                        Input.RequestLine(consoleWidth - 2,
+                            new Keybind(() => this.SetStage(Stages.Evaluate), key: ConsoleKey.Enter),
+                            new Keybind(() => this.Quit(), key: ConsoleKey.Escape));
                     }
                     break;
 

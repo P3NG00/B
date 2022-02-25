@@ -13,6 +13,8 @@ namespace B.Inputs
 
         public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
 
+        public static void ResetString() => Input.String = string.Empty;
+
         public static ConsoleKeyInfo Get()
         {
             Input.LastInput = Console.ReadKey(true);
@@ -35,12 +37,14 @@ namespace B.Inputs
                 Window.PrintLine($"Press {key} to continue...");
             }
 
-            while (true)
+            bool wait = true;
+
+            while (wait)
                 if (Input.Get().Key == key)
-                    break;
+                    wait = false;
         }
 
-        public static ConsoleKeyInfo RequestLine(int maxLength)
+        public static void RequestLine(int maxLength, params Keybind[] keybinds)
         {
             ConsoleKeyInfo keyInfo = Input.Get();
 
@@ -49,7 +53,14 @@ namespace B.Inputs
             else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape && Input.String.Length < maxLength)
                 Input.String += keyInfo.KeyChar;
 
-            return keyInfo;
+            foreach (Keybind keybind in keybinds)
+            {
+                if (keybind.IsValid(keyInfo))
+                {
+                    keybind.Action();
+                    break;
+                }
+            }
         }
 
         public static ConsoleKeyInfo RequestScroll<T>(

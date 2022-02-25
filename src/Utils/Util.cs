@@ -6,10 +6,8 @@ namespace B.Utils
     {
         public const int MAX_CHARS_DECIMAL = 27;
 
-        public static Byte[] FormatBytes => new byte[] { 7, 8, 9, 10, 13 };
+        public static char[] FormatChars => new char[] { (char)7, (char)8, (char)9, (char)10, (char)13 };
         public static Random Random => new Random();
-
-        public enum NoEnum { }
 
         public static ConsoleColor[] OrderedConsoleColors => new ConsoleColor[] {
             ConsoleColor.White,
@@ -30,9 +28,9 @@ namespace B.Utils
             ConsoleColor.Red
         };
 
-        public static char Unformat(byte b) => Util.FormatBytes.Contains((byte)b) ? ' ' : (char)b;
+        public static char Unformat(char c) => Util.FormatChars.Contains(c) ? ' ' : c;
 
-        public static char Unformat(char c) => Util.Unformat((byte)c);
+        public static char Unformat(byte b) => Util.Unformat((char)b);
 
         public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
 
@@ -65,5 +63,7 @@ namespace B.Utils
             using (FileStream fileStream = File.Open(filePath, FileMode.Open))
                 return (T)new XmlSerializer(typeof(T)).Deserialize(fileStream)!;
         }
+
+        public enum NoEnum { }
     }
 }

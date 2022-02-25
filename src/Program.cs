@@ -27,13 +27,13 @@ namespace B
 
         // Private Variables
         private readonly (Type, Func<string>)[] _options = new (Type, Func<string>)[] {
-            new (typeof(OptionAdventure), () => "Adventure!"),
-            new (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
-            new (typeof(OptionCanvas), () => "Canvas"),
-            new (typeof(OptionExpressionSolver), () => "Expression Solver"),
-            new (typeof(OptionFTP), () => "FTP"),
-            new (typeof(OptionMoneyTracker), () => "Money Tracker"),
-            new (typeof(OptionNumberGuesser), () => "Number Guesser")};
+            new(typeof(OptionAdventure), () => "Adventure!"),
+            new(typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
+            new(typeof(OptionCanvas), () => "Canvas"),
+            new(typeof(OptionExpressionSolver), () => "Expression Solver"),
+            new(typeof(OptionFTP), () => "FTP"),
+            new(typeof(OptionMoneyTracker), () => "Money Tracker"),
+            new(typeof(OptionNumberGuesser), () => "Number Guesser")};
         private IOption _option = null!;
 
         public Program() : base(default) { }
@@ -115,7 +115,7 @@ namespace B
             else
             {
                 // Display main menu options
-                Window.ClearAndSetSize(24, this._options.Length + 7);
+                Window.ClearAndSetSize(22, this._options.Length + 7);
                 Input.Choice iob = new("B's");
 
                 for (int i = 0; i < this._options.Length; i++)

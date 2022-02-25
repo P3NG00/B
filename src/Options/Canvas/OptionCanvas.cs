@@ -49,7 +49,7 @@ namespace B.Options.Canvas
                             {
                                 Window.Clear();
                                 this._canvas = new();
-                                Input.String = string.Empty;
+                                Input.ResetString();
                                 this.SetStage(Stages.Create_Name);
                             }, "Create", '1');
 
@@ -265,88 +265,83 @@ namespace B.Options.Canvas
             if (stage == CreationStage.Width)
                 Window.Print($"  Width: {Input.String}");
 
-            switch (Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH).Key)
-            {
-                case ConsoleKey.Enter:
+            Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH,
+                new Keybind(() =>
+                {
+                    switch (stage)
                     {
-                        switch (stage)
-                        {
-                            case CreationStage.Name:
+                        case CreationStage.Name:
+                            {
+                                if (!string.IsNullOrWhiteSpace(Input.String) && !this._canvases.GetSubList(c => c.Title).Contains(Input.String))
                                 {
-                                    if (!string.IsNullOrWhiteSpace(Input.String) && !this._canvases.GetSubList(c => c.Title).Contains(Input.String))
-                                    {
-                                        this._canvas.Title = Input.String.Trim();
-                                        Input.String = string.Empty;
-                                        this.SetStage(Stages.Create_Size_Height);
-                                    }
-                                }
-                                break;
-
-                            case CreationStage.Height:
-                                {
-                                    int? height = Input.Int;
-
-                                    if (height.HasValue && height.Value >= OptionCanvas.CANVAS_SIZE_MIN.y)
-                                    {
-                                        this._canvas.Colors = new ConsoleColor[height.Value][];
-                                        Input.String = string.Empty;
-                                        this.SetStage(Stages.Create_Size_Width);
-                                    }
-                                }
-                                break;
-
-                            case CreationStage.Width:
-                                {
-                                    int? width = Input.Int;
-
-                                    if (width.HasValue && width.Value >= OptionCanvas.CANVAS_SIZE_MIN.x)
-                                    {
-                                        for (int i = 0; i < this._canvas.Colors.Length; i++)
-                                        {
-                                            ConsoleColor[] row = new ConsoleColor[width.Value];
-                                            Array.Fill(row, ConsoleColor.White);
-                                            this._canvas.Colors[i] = row;
-                                        }
-
-                                        Input.String = string.Empty;
-                                        Window.Clear();
-                                        this.SetStage(Stages.Edit);
-                                    }
-                                }
-                                break;
-                        }
-                    }
-                    break;
-
-                case ConsoleKey.Escape:
-                    {
-                        switch (stage)
-                        {
-                            case CreationStage.Name:
-                                {
-                                    this._canvas = null!;
-                                    Input.String = string.Empty;
-                                    this.SetStage(Stages.MainMenu);
-                                }
-                                break;
-
-                            case CreationStage.Height:
-                                {
-                                    Input.String = this._canvas.Title;
-                                    this.SetStage(Stages.Create_Name);
-                                }
-                                break;
-
-                            case CreationStage.Width:
-                                {
-                                    Input.String = this._canvas.Colors.Length.ToString();
+                                    this._canvas.Title = Input.String.Trim();
+                                    Input.ResetString(); ;
                                     this.SetStage(Stages.Create_Size_Height);
                                 }
-                                break;
-                        }
+                            }
+                            break;
+
+                        case CreationStage.Height:
+                            {
+                                int? height = Input.Int;
+
+                                if (height.HasValue && height.Value >= OptionCanvas.CANVAS_SIZE_MIN.y)
+                                {
+                                    this._canvas.Colors = new ConsoleColor[height.Value][];
+                                    Input.ResetString(); ;
+                                    this.SetStage(Stages.Create_Size_Width);
+                                }
+                            }
+                            break;
+
+                        case CreationStage.Width:
+                            {
+                                int? width = Input.Int;
+
+                                if (width.HasValue && width.Value >= OptionCanvas.CANVAS_SIZE_MIN.x)
+                                {
+                                    for (int i = 0; i < this._canvas.Colors.Length; i++)
+                                    {
+                                        ConsoleColor[] row = new ConsoleColor[width.Value];
+                                        Array.Fill(row, ConsoleColor.White);
+                                        this._canvas.Colors[i] = row;
+                                    }
+
+                                    Input.ResetString(); ;
+                                    Window.Clear();
+                                    this.SetStage(Stages.Edit);
+                                }
+                            }
+                            break;
                     }
-                    break;
-            }
+                }, key: ConsoleKey.Enter),
+                new Keybind(() =>
+                {
+                    switch (stage)
+                    {
+                        case CreationStage.Name:
+                            {
+                                this._canvas = null!;
+                                Input.ResetString(); ;
+                                this.SetStage(Stages.MainMenu);
+                            }
+                            break;
+
+                        case CreationStage.Height:
+                            {
+                                Input.String = this._canvas.Title;
+                                this.SetStage(Stages.Create_Name);
+                            }
+                            break;
+
+                        case CreationStage.Width:
+                            {
+                                Input.String = this._canvas.Colors.Length.ToString();
+                                this.SetStage(Stages.Create_Size_Height);
+                            }
+                            break;
+                    }
+                }, key: ConsoleKey.Escape));
         }
 
         private enum CreationStage
