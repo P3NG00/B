@@ -19,7 +19,7 @@ namespace B.Options.Canvas
         private Utils.List<CanvasInfo> _canvases = new();
         private CanvasInfo _canvas = null!;
         private ConsoleColor _color = ConsoleColor.Black;
-        private Vector2 _brush = Vector2.One; // TODO use as 'brush size' (this will paint the size at the cursor from the top left towards the bottom right)
+        private Vector2 _brush = Vector2.One;
         private Vector2 _pos = Vector2.Zero;
 
         public OptionCanvas() : base(Stages.MainMenu)
@@ -136,7 +136,7 @@ namespace B.Options.Canvas
                         Cursor.Reset();
                         Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {this._brush} | Color: {this._color}"));
                         Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
-                        Cursor.SetPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        Cursor.Position = this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
                         new Input.Choice()
                             // Move in Direction
                             .Add(() => Move(Direction.Up), key: ConsoleKey.UpArrow)
@@ -176,7 +176,7 @@ namespace B.Options.Canvas
                         // Fix cursor position
                         this._pos = Vector2.Clamp(this._pos, Vector2.Zero, maxCanvasPos);
                         // Set cursor position
-                        Cursor.SetPosition(this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        Cursor.Position = this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
                         // Fix brush size
                         this._brush = Vector2.Clamp(this._brush, Vector2.One, maxCanvasPos);
 
@@ -200,7 +200,7 @@ namespace B.Options.Canvas
                                 {
                                     Vector2 pos = this._pos + new Vector2(x, y);
                                     this._canvas.Color(pos) = this._color;
-                                    Cursor.SetPosition(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                                    Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
                                     Window.Print(' ', colorBackground: this._color);
                                 }
                             }
