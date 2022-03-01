@@ -17,6 +17,8 @@ namespace B.Options.Adventure
         public const string CHAR_CORNER_B = @"\\";
         public const string MESSAGE_EMPTY = "...";
 
+        public const string Title = "Adventure!";
+
         public static readonly string FilePath = Program.DataPath + "adventure";
 
         public static string Message = OptionAdventure.MESSAGE_EMPTY;
@@ -24,6 +26,12 @@ namespace B.Options.Adventure
 
         public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
         private static Grid[] _grids = new Grid[0];
+
+        private Vector2 PlayerPosition
+        {
+            get => OptionAdventure.Info.Position;
+            set => OptionAdventure.Info.Position = value;
+        }
 
         static OptionAdventure() => OptionAdventure.InitializeGrids();
 
@@ -44,7 +52,7 @@ namespace B.Options.Adventure
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice iob = new Input.Choice("Adventure")
+                        Input.Choice iob = new Input.Choice(OptionAdventure.Title)
                             .Add(() => this.InitGame(true), "New Game", '1');
 
                         if (fileExists)
@@ -66,7 +74,7 @@ namespace B.Options.Adventure
                             // Extra spaces are added to the end to clear leftover text
                             Window.PrintLine();
                             Window.PrintLine($" {currentGrid,-7}");
-                            Window.PrintLine($" Pos: {OptionAdventure.Info.Position,-8}");
+                            Window.PrintLine($" Pos: {this.PlayerPosition,-8}");
                             consoleHeight += 3;
                         }
 
@@ -83,7 +91,7 @@ namespace B.Options.Adventure
                             {
                                 Vector2 pos = new(x, y);
 
-                                if (pos == OptionAdventure.Info.Position)
+                                if (pos == this.PlayerPosition)
                                     s += OptionAdventure.CHAR_PLAYER;
                                 else if (currentGrid.HasCoinAt(pos))
                                     s += OptionAdventure.CHAR_COIN;
@@ -134,7 +142,7 @@ namespace B.Options.Adventure
             {
                 OptionAdventure.Info = new();
                 Grid currentGrid = OptionAdventure.CurrentGrid;
-                OptionAdventure.Info.Position = new(currentGrid.Width / 2, currentGrid.Height / 2);
+                this.PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
             }
             else
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
@@ -149,7 +157,7 @@ namespace B.Options.Adventure
 
             for (int i = 0; i < OptionAdventure.Info.Speed && !stop; i++)
             {
-                Vector2 newPos = OptionAdventure.Info.Position + (Vector2)direction;
+                Vector2 newPos = this.PlayerPosition + (Vector2)direction;
                 Grid currentGrid = OptionAdventure.CurrentGrid;
 
                 if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
@@ -160,12 +168,12 @@ namespace B.Options.Adventure
                     stop = tileType.StopsMovement() || tileType == Tile.TileTypes.Door;
 
                     if (!stop)
-                        OptionAdventure.Info.Position = newPos;
+                        this.PlayerPosition = newPos;
                 }
             }
         }
 
-        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(OptionAdventure.Info.Position + (Vector2)direction);
+        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(this.PlayerPosition + (Vector2)direction);
 
         public static void InitializeGrids()
         {
@@ -213,7 +221,7 @@ namespace B.Options.Adventure
             OptionAdventure._grids[0].AddDoor(new(14, 7), new(1, new(8)));
             OptionAdventure._grids[1].AddDoor(new(8, 13), new(2, new(1, 4)));
 
-            // Seal Grids
+            // Seal Grids (meant for checking if all doors and interactions are implemented)
             foreach (Grid grid in OptionAdventure._grids)
                 grid.Seal();
         }

@@ -33,8 +33,8 @@ namespace B.Options.Canvas
                     if (offset is not null)
                         newPos += offset;
 
-                    Cursor.Position = newPos;
-                    Window.Print(' ', colorBackground: this.Color(x, y));
+                    Cursor.SetPosition(newPos);
+                    Window.Print(' ', colorBG: this.Color(x, y));
                 }
             }
 

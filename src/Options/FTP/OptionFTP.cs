@@ -9,12 +9,14 @@ namespace B.Options.FTP
 {
     public sealed class OptionFTP : Option<OptionFTP.Stages>
     {
+        public const string Title = "FTP";
+
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int MAX_LIST_ENTRIES = 40;
         private const int WIDTH = 140;
-        private const string IP = "***REMOVED***";
-        private const int PORT = 22;
-        private const string USER = "***REMOVED***";
+        private const string SERVER_IP = "***REMOVED***";
+        private const string SERVER_USER = "***REMOVED***";
+        private const int SERVER_PORT = 22;
 
         private static string DownloadPath => Environment.CurrentDirectory + @"\download\";
         private static Func<int, string>[] _scramblers = new Func<int, string>[]
@@ -106,7 +108,7 @@ namespace B.Options.FTP
                         Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
                             new Keybind(() =>
                             {
-                                this._client = new(OptionFTP.IP, OptionFTP.PORT, OptionFTP.USER, Input.String);
+                                this._client = new(OptionFTP.SERVER_IP, OptionFTP.SERVER_PORT, OptionFTP.SERVER_USER, Input.String);
                                 Input.ResetString(); ;
 
                                 try
@@ -243,16 +245,13 @@ namespace B.Options.FTP
                     newFileDir.Create();
 
                 using (Stream stream = File.Open(path, FileMode.Create))
-                    this._client.DownloadFile(file.FullName, stream, l =>
-                    {
-                        Window.ClearAndSetSize(OptionFTP.WIDTH, 7);
-                        Window.PrintLine();
-                        Window.PrintLine(" Downloading...");
-                        Window.PrintLine();
-                        Window.PrintLine($"  {file.FullName}");
-                        Window.PrintLine();
-                        Window.PrintLine($"  Bytes downloaded: {l}");
-                    });
+                {
+                    Window.ClearAndSetSize(OptionFTP.WIDTH, 7);
+                    Window.Print("Downloading...", (2, 1));
+                    Window.Print(file.FullName, (2, 3));
+                    Window.Print("Bytes Downloaded", (2, 5));
+                    this._client.DownloadFile(file.FullName, stream, l => Window.Print($"{l,-(OptionFTP.WIDTH - 30)}", (19, 5)));
+                }
             }
         }
 

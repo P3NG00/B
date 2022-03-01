@@ -8,6 +8,8 @@ namespace B.Options.Settings
 {
     public sealed class OptionSettings : Option<OptionSettings.Stages>
     {
+        public const string Title = "Settings";
+
         private readonly ColorTheme[] _colorThemes =
         {
             new("Default", ConsoleColor.Black, ConsoleColor.White),
@@ -34,7 +36,7 @@ namespace B.Options.Settings
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(35, 13);
-                        new Input.Choice("Settings")
+                        new Input.Choice(OptionSettings.Title)
                             .Add(() => this.SetStage(Stages.Color), "Color", '1')
                             .Add(() => this.SetStage(Stages.WindowSize), "Window Size", '2')
                             .Add(() => this.SetStage(Stages.KeyPress), "Key Press", '3')

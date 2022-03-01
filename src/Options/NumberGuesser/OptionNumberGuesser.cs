@@ -5,6 +5,8 @@ namespace B.Options.NumberGuesser
 {
     public sealed class OptionNumberGuesser : Option<OptionNumberGuesser.Stages>
     {
+        public const string Title = "Number Guesser";
+
         private const int GUESS_LENGTH = 9;
 
         private static readonly string[] _winMessages = new string[]
@@ -27,7 +29,7 @@ namespace B.Options.NumberGuesser
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(20, 8);
-                        new Input.Choice("Number Guesser")
+                        new Input.Choice(OptionNumberGuesser.Title)
                             .Add(() =>
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;

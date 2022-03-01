@@ -11,10 +11,11 @@ namespace B.Options.BrainFuck
         public BrainFuckProgram(string title, string fullFilePath)
         {
             this.Title = title;
-            this.Instructions = File.ReadAllText(fullFilePath)
-                                    .Replace(" ", string.Empty)
-                                    .ReplaceLineEndings(string.Empty)
-                                    .ToCharArray();
+            this.Instructions =
+                File.ReadAllText(fullFilePath)
+                    .Replace(" ", string.Empty)
+                    .ReplaceLineEndings(string.Empty)
+                    .ToCharArray();
         }
 
         public void HandleStep(in byte[] memory, ref uint memoryIndex, ref uint instructionIndex, ref uint bracketDepth, ref string output)

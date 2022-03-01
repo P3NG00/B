@@ -144,7 +144,6 @@ namespace B.Options.BrainFuck
                                 items: this._memory,
                                 getText: b => string.Format(format, b, Util.Unformat(b), $"{b,2:X}"),
                                 maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
-                                scrollType: Input.ScrollType.Side,
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {
                                     new(() => this.HandleStep(), "Step", key: ConsoleKey.Spacebar),

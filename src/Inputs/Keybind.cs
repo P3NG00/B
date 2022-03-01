@@ -24,6 +24,22 @@ namespace B.Inputs
             if (alt) this._modifiers |= ConsoleModifiers.Alt;
         }
 
-        public bool IsValid(ConsoleKeyInfo keyInfo) => (this.Key == keyInfo.Key || (this.KeyChar.HasValue && this.KeyChar.Value == keyInfo.KeyChar)) && this.Action != null && this._modifiers == keyInfo.Modifiers;
+        private bool IsValid(ConsoleKeyInfo keyInfo) => (this.Key == keyInfo.Key || (this.KeyChar.HasValue && this.KeyChar.Value == keyInfo.KeyChar)) && this.Action != null && this._modifiers == keyInfo.Modifiers;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Keybind keybind)
+                return this == keybind;
+            else if (obj is ConsoleKeyInfo keyInfo)
+                return this.IsValid(keyInfo);
+            else
+                return false;
+        }
+
+        public override int GetHashCode() => base.GetHashCode();
+
+        public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo) => keybind.IsValid(keyInfo);
+
+        public static bool operator !=(Keybind keybind, ConsoleKeyInfo keyInfo) => !keybind.IsValid(keyInfo);
     }
 }

@@ -44,6 +44,17 @@ namespace B.Inputs
                     wait = false;
         }
 
+        public static void WaitFor(ConsoleKey key, Vector2 position)
+        {
+            Window.Print($"Press {key} to continue...", position);
+
+            bool wait = true;
+
+            while (wait)
+                if (Input.Get().Key == key)
+                    wait = false;
+        }
+
         public static void RequestLine(int maxLength, params Keybind[] keybinds)
         {
             ConsoleKeyInfo keyInfo = Input.Get();
@@ -55,7 +66,7 @@ namespace B.Inputs
 
             foreach (Keybind keybind in keybinds)
             {
-                if (keybind.IsValid(keyInfo))
+                if (keybind == keyInfo)
                 {
                     keybind.Action();
                     break;
@@ -70,7 +81,6 @@ namespace B.Inputs
             Func<T, ConsoleColor?> getBackgroundColor = null!,  // Function to get background color from item
             string title = null!,                               // Scroll title
             int? maxEntriesPerPage = null,                      // Max entries to display per page
-            ScrollType scrollType = ScrollType.Indent,          // Scroll type
             bool navigationKeybinds = true,                     // Whether to add scroll navigation keybinds
             Keybind exitKeybind = null!,                        // Exit keybind (seperate because spacer is added before this keybind)
             params Keybind[] extraKeybinds)                     // Extra keybinds
@@ -93,18 +103,7 @@ namespace B.Inputs
 
                 for (int i = startIndex; i < endIndex; i++)
                 {
-                    bool isIndex = Input.ScrollIndex == i;
-                    string preface;
-
-                    switch (scrollType)
-                    {
-                        case ScrollType.Side: preface = isIndex ? $" > " : "   "; break;
-
-                        // ScrollType.Indent (default)
-                        default: preface = isIndex ? $" > " : "  "; break;
-                    }
-
-                    Window.Print(preface);
+                    Window.Print(Input.ScrollIndex == i ? " > " : "   ");
                     T item = items[i];
                     string text = getText(item);
                     string output = string.Format("{0,-" + (text.Length + 1) + "}", text);
@@ -174,6 +173,22 @@ namespace B.Inputs
             }
 
             return keyInfo;
+        }
+
+        public static ConsoleKeyInfo RequestScroll<T>(
+            T[] items,                                          // Items to scroll through
+            Vector2 position,                                   // Position to begin printing
+            Func<T, string> getText,                            // Function to get text from item
+            Func<T, ConsoleColor?> getTextColor = null!,        // Function to get text color from item
+            Func<T, ConsoleColor?> getBackgroundColor = null!,  // Function to get background color from item
+            string title = null!,                               // Scroll title
+            int? maxEntriesPerPage = null,                      // Max entries to display per page
+            bool navigationKeybinds = true,                     // Whether to add scroll navigation keybinds
+            Keybind exitKeybind = null!,                        // Exit keybind (seperate because spacer is added before this keybind)
+            params Keybind[] extraKeybinds)                     // Extra keybinds
+        {
+            Cursor.SetPosition(position);
+            return Input.RequestScroll(items, getText, getTextColor, getBackgroundColor, title, maxEntriesPerPage, navigationKeybinds, exitKeybind, extraKeybinds);
         }
 
         public sealed class Choice
@@ -251,7 +266,7 @@ namespace B.Inputs
                 // Activate function for pressed keybind
                 foreach (Keybind keybind in this._keybinds)
                 {
-                    if (keybind != null && keybind.IsValid(keyInfo))
+                    if (keybind is not null && keybind == keyInfo)
                     {
                         keybind.Action!.Invoke();
                         break;
@@ -260,8 +275,15 @@ namespace B.Inputs
 
                 return keyInfo;
             }
+
+            public ConsoleKeyInfo Request(Vector2 position)
+            {
+                Cursor.SetPosition(position);
+                return this.Request();
+            }
         }
 
+        [Obsolete("Only two values, replace with bool instead.")] // TODO
         public enum ScrollType
         {
             Indent,

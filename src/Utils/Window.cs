@@ -23,34 +23,28 @@ namespace B.Utils
             }
         }
 
-        public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
-        {
-            // Cache old color values
-            ConsoleColor? oldColorText = null;
-            ConsoleColor? oldColorBackground = null;
+        public static void Print(object message, (int, int) position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null) => Window.Print(message, new Vector2(position), colorText, colorBG);
 
+        public static void Print(object message, Vector2 position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
+        {
+            Cursor.SetPosition(position);
+            Window.Print(message, colorText, colorBG);
+        }
+
+        public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
+        {
             // Override colors if specified
             if (colorText.HasValue)
-            {
-                oldColorText = Console.ForegroundColor;
                 Console.ForegroundColor = colorText.Value;
-            }
 
-            if (colorBackground.HasValue)
-            {
-                oldColorBackground = Console.BackgroundColor;
-                Console.BackgroundColor = colorBackground.Value;
-            }
+            if (colorBG.HasValue)
+                Console.BackgroundColor = colorBG.Value;
 
             // Print message
             Console.Write(message);
 
             // Restore old color values if overriden
-            if (oldColorText.HasValue)
-                Console.ForegroundColor = oldColorText.Value;
-
-            if (oldColorBackground.HasValue)
-                Console.BackgroundColor = oldColorBackground.Value;
+            Program.Settings.UpdateColors();
         }
 
         public static void PrintLine(object message = null!, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
@@ -66,8 +60,6 @@ namespace B.Utils
             for (int i = 0; i < lines; i++)
                 Console.WriteLine();
         }
-
-        public static void PrintSpaces(int spaces) => Window.Print(Util.Spaces(spaces));
 
         public static void Clear() => Console.Clear();
 

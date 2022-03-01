@@ -1,6 +1,7 @@
 ﻿using B.Inputs;
 using B.Options;
 using B.Options.Adventure;
+using B.Options.Backup;
 using B.Options.BrainFuck;
 using B.Options.Canvas;
 using B.Options.ExpressionSolver;
@@ -12,8 +13,10 @@ using B.Utils;
 
 namespace B
 {
-    public sealed class Program : Option<Util.NoEnum>
+    public sealed class Program : Option<Program.Stages>
     {
+        public const string Title = "B";
+
         // Code entry point
         public static int Main()
         {
@@ -26,17 +29,19 @@ namespace B
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
 
         // Private Variables
-        private readonly (Type, Func<string>)[] _options = new (Type, Func<string>)[] {
-            new(typeof(OptionAdventure), () => "Adventure!"),
-            new(typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
-            new(typeof(OptionCanvas), () => "Canvas"),
-            new(typeof(OptionExpressionSolver), () => "Expression Solver"),
-            new(typeof(OptionFTP), () => "FTP"),
-            new(typeof(OptionMoneyTracker), () => "Money Tracker"),
-            new(typeof(OptionNumberGuesser), () => "Number Guesser")};
-        private IOption _option = null!;
+        private static (Type OptionType, Func<string> GetTitle)[] OptionList => new (Type, Func<string>)[] {
+            new(typeof(OptionAdventure),        () => OptionAdventure.Title),
+            new(typeof(OptionBrainFuck),        () => OptionBrainFuck.Title),
+            new(typeof(OptionCanvas),           () => OptionCanvas.Title),
+            new(typeof(OptionExpressionSolver), () => OptionExpressionSolver.Title),
+            new(typeof(OptionFTP),              () => OptionFTP.Title),
+            new(typeof(OptionMoneyTracker),     () => OptionMoneyTracker.Title),
+            new(typeof(OptionNumberGuesser),    () => OptionNumberGuesser.Title),
+            new(typeof(OptionBackup),           () => OptionBackup.Title),
+            new(typeof(OptionSettings),         () => OptionSettings.Title)};
+        private IOption _selectedOption = null!;
 
-        public Program() : base(default) { }
+        public Program() : base(Stages.MainMenu) { }
 
         private int Start()
         {
@@ -69,7 +74,7 @@ namespace B
             External.Initialize();
 
             // Set console window title
-            Console.Title = "B";
+            Console.Title = Program.Title;
 
             // Console input ctrl+c override
             if (OperatingSystem.IsWindows())
@@ -97,39 +102,61 @@ namespace B
                 mainDirectory.Attributes = FileAttributes.Hidden;
             }
 
-            if (this._option != null && this._option.IsRunning())
-                this._option.Loop();
-            else
+            switch (this.Stage)
             {
-                // Display main menu options
-                Window.ClearAndSetSize(22, this._options.Length + 7);
-                Input.Choice iob = new("B's");
+                case Stages.MainMenu:
+                    {
+                        // Display main menu options
+                        Window.ClearAndSetSize(22, Program.OptionList.Length + 6);
+                        Input.Choice iob = new($"{Program.Title}'s");
 
-                for (int i = 0; i < this._options.Length; i++)
-                {
-                    (Type, Func<String>) optionEntry = this._options[i];
-                    iob.Add(CreateOptionKeybind(optionEntry.Item1, optionEntry.Item2(), (char)('1' + i)));
-                }
+                        for (int i = 0; i < Program.OptionList.Length; i++)
+                        {
+                            var optionEntry = Program.OptionList[i];
+                            iob.Add(() =>
+                            {
+                                this._selectedOption = (IOption)Activator.CreateInstance(optionEntry.OptionType)!;
+                                this.SetStage(Stages.Option);
+                            }, optionEntry.GetTitle(), (char)('1' + i));
+                        }
 
-                iob.AddSpacer()
-                    .Add(CreateOptionKeybind(typeof(OptionSettings), "Settings", '9'))
-                    .AddExit(this, false)
-                    .Request();
+                        iob.AddExit(this)
+                            .Request();
+                    }
+                    break;
 
-                Keybind CreateOptionKeybind(Type optionType, string title, char num) => new Keybind(() => this._option = (IOption)Activator.CreateInstance(optionType)!, title, num);
+                case Stages.Option:
+                    {
+                        if (this._selectedOption != null && this._selectedOption.IsRunning())
+                            this._selectedOption.Loop();
+                        else
+                        {
+                            this._selectedOption = null!;
+                            this.SetStage(Stages.MainMenu);
+                        }
+                    }
+                    break;
             }
         }
 
         private void HandleException(Exception e)
         {
             Window.ClearAndSetSize(Window.SIZE_MAX);
-            Window.PrintLine();
-            Window.PrintLine("  An exception was thrown!", colorText: ConsoleColor.Red);
-            Window.PrintLine();
-            Window.PrintLine($"  {e.ToString()}", colorText: ConsoleColor.White, colorBackground: ConsoleColor.Black);
-            Input.WaitFor(ConsoleKey.F1);
+            Window.Print("An exception was thrown!", (2, 1), ConsoleColor.Red);
+            Window.Print(e, (2, 3), ConsoleColor.White, ConsoleColor.Black);
+            Vector2 cursorPos = Cursor.GetPositionVector();
+            cursorPos.x = 2;
+            cursorPos.y += 2;
+            Input.WaitFor(ConsoleKey.F1, cursorPos);
             Window.Clear();
-            this._option = null!;
+            this._selectedOption = null!;
+            this.SetStage(Stages.MainMenu);
+        }
+
+        public enum Stages
+        {
+            MainMenu,
+            Option,
         }
     }
 }

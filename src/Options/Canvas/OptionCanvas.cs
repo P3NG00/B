@@ -5,6 +5,8 @@ namespace B.Options.Canvas
 {
     public sealed class OptionCanvas : Option<OptionCanvas.Stages>
     {
+        public const string Title = "Canvas";
+
         public static Vector2 CANVAS_BORDER_PAD => new(2, 1);
 
         private const int MAX_INPUT_LENGTH = 25;
@@ -15,12 +17,12 @@ namespace B.Options.Canvas
 
         public static readonly string DirectoryPath = Program.DataPath + @"canvas\";
 
-        private (int x, int y, int width, int height) _lastConsoleWindow = new(0, 0, 0, 0);
+        private (int x, int y, int width, int height) _lastConsoleWindow = new(0, 0, 0, 0); // TODO replace with better way to see when screen needs to be fully reprinted
         private Utils.List<CanvasInfo> _canvases = new();
         private CanvasInfo _canvas = null!;
         private ConsoleColor _color = ConsoleColor.Black;
-        private Vector2 _brush = Vector2.One;
-        private Vector2 _pos = Vector2.Zero;
+        private Vector2 BrushSize = Vector2.One;
+        private Vector2 CursorPos = Vector2.Zero;
 
         public OptionCanvas() : base(Stages.MainMenu)
         {
@@ -44,7 +46,7 @@ namespace B.Options.Canvas
 
                         Window.ClearAndSetSize(20, consoleHeight);
 
-                        Input.Choice iob = new Input.Choice("Canvas")
+                        Input.Choice iob = new Input.Choice(OptionCanvas.Title)
                             .Add(() =>
                             {
                                 Window.Clear();
@@ -134,15 +136,15 @@ namespace B.Options.Canvas
                         }
 
                         Cursor.Reset();
-                        Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {this._brush} | Color: {this._color}"));
+                        Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {this.BrushSize} | Color: {this._color}"));
                         Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
-                        Cursor.Position = this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
+                        Cursor.SetPosition(this.CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         new Input.Choice()
                             // Move in Direction
-                            .Add(() => Move(Direction.Up), key: ConsoleKey.UpArrow)
-                            .Add(() => Move(Direction.Down), key: ConsoleKey.DownArrow)
-                            .Add(() => Move(Direction.Left), key: ConsoleKey.LeftArrow)
-                            .Add(() => Move(Direction.Right), key: ConsoleKey.RightArrow)
+                            .Add(() => MoveCursor(Direction.Up), key: ConsoleKey.UpArrow)
+                            .Add(() => MoveCursor(Direction.Down), key: ConsoleKey.DownArrow)
+                            .Add(() => MoveCursor(Direction.Left), key: ConsoleKey.LeftArrow)
+                            .Add(() => MoveCursor(Direction.Right), key: ConsoleKey.RightArrow)
                             // Paint in Direction
                             .Add(() => PaintDirection(Direction.Up), keyChar: '8')
                             .Add(() => PaintDirection(Direction.Down), keyChar: '2')
@@ -150,10 +152,10 @@ namespace B.Options.Canvas
                             .Add(() => PaintDirection(Direction.Right), keyChar: '6')
                             // Paint
                             .Add(() => Paint(), key: ConsoleKey.Spacebar)
-                            .Add(() => this._brush.y--, key: ConsoleKey.UpArrow, control: true)
-                            .Add(() => this._brush.y++, key: ConsoleKey.DownArrow, control: true)
-                            .Add(() => this._brush.x--, key: ConsoleKey.LeftArrow, control: true)
-                            .Add(() => this._brush.x++, key: ConsoleKey.RightArrow, control: true)
+                            .Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, control: true) // TODO use Vector2.Move(Direction)
+                            .Add(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, control: true)
+                            .Add(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, control: true)
+                            .Add(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, control: true)
                             // Color Select
                             .Add(() =>
                             {
@@ -174,42 +176,52 @@ namespace B.Options.Canvas
 
                         Vector2 maxCanvasPos = this._canvas.Size - Vector2.One;
                         // Fix cursor position
-                        this._pos = Vector2.Clamp(this._pos, Vector2.Zero, maxCanvasPos);
+                        this.CursorPos = Vector2.Clamp(this.CursorPos, Vector2.Zero, maxCanvasPos);
                         // Set cursor position
-                        Cursor.Position = this._pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
+                        Cursor.SetPosition(this.CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         // Fix brush size
-                        this._brush = Vector2.Clamp(this._brush, Vector2.One, maxCanvasPos);
-
-                        void Move(Direction direction)
-                        {
-                            switch (direction)
-                            {
-                                case Direction.Up: this._pos.y--; break;
-                                case Direction.Down: this._pos.y++; break;
-                                case Direction.Left: this._pos.x--; break;
-                                case Direction.Right: this._pos.x++; break;
-                                default: break;
-                            }
-                        }
+                        this.BrushSize = Vector2.Clamp(this.BrushSize, Vector2.One, maxCanvasPos);
 
                         void Paint()
                         {
-                            for (int y = 0; y < this._brush.y; y++)
+                            for (int y = 0; y < this.BrushSize.y; y++)
                             {
-                                for (int x = 0; x < this._brush.x; x++)
+                                for (int x = 0; x < this.BrushSize.x; x++)
                                 {
-                                    Vector2 pos = this._pos + new Vector2(x, y);
+                                    Vector2 pos = this.CursorPos + new Vector2(x, y);
                                     this._canvas.Color(pos) = this._color;
-                                    Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
-                                    Window.Print(' ', colorBackground: this._color);
+                                    Cursor.SetPosition(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                                    Window.Print(' ', colorBG: this._color);
                                 }
                             }
+
+                            // TODO test if this is needed. may be necessary to keep cursor in same position
+                            Cursor.SetPosition(this.CursorPos);
                         }
 
                         void PaintDirection(Direction direction)
                         {
-                            Move(direction);
+                            MoveCursor(direction);
                             Paint();
+                        }
+
+                        void ResizeBrush(Direction direction) => MoveVec(ref this.BrushSize, direction);
+
+                        void MoveCursor(Direction direction) => MoveVec(ref this.CursorPos, direction);
+
+                        void MoveVec(ref Vector2 vec, Direction direction)
+                        {
+                            Vector2 dirVec;
+
+                            switch (direction)
+                            {
+                                // Since coordinates start from top-left corner, up and down are flipped to move appropriately.
+                                case Direction.Up: dirVec = Vector2.Down; break; // Move up (y - 1 or Vector2.Down)
+                                case Direction.Down: dirVec = Vector2.Up; break; // Move down (y + 1 or Vector2.Up)
+                                default: dirVec = (Vector2)direction; break;
+                            }
+
+                            vec.Move(dirVec);
                         }
                     }
                     break;
@@ -226,7 +238,6 @@ namespace B.Options.Canvas
                             getText: c => $" {c.ToString(),-12}",
                             getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
                             getBackgroundColor: c => c,
-                            scrollType: Input.ScrollType.Side,
                             exitKeybind: new Keybind(() => this.SetStage(Stages.Edit), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind(() =>
                             {

@@ -7,6 +7,8 @@ namespace B.Options.ExpressionSolver
 {
     public sealed class OptionExpressionSolver : Option<OptionExpressionSolver.Stages>
     {
+        public const string Title = "Expression Solver";
+
         public OptionExpressionSolver() : base(Stages.Input) => Input.ResetString();
 
         public override void Loop()

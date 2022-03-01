@@ -5,6 +5,8 @@ namespace B.Options.MoneyTracker
 {
     public sealed class OptionMoneyTracker : Option<OptionMoneyTracker.Stages>
     {
+        public const string Title = "Money Tracker";
+
         private const int MAX_TRANSACTIONS_PER_PAGE = 50;
 
         public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
@@ -35,7 +37,7 @@ namespace B.Options.MoneyTracker
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice iob = new Input.Choice("Money Tracker")
+                        Input.Choice iob = new Input.Choice(OptionMoneyTracker.Title)
                             .Add(() => this.SetStage(Stages.Account), "Account", '1');
 
                         if (selected)
