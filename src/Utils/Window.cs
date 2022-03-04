@@ -5,25 +5,11 @@ namespace B.Utils
         public static Vector2 SIZE_MIN => new(16, 2);
         public static Vector2 SIZE_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
-        public static (int, int) Size
+        public static void Print(object message, (int, int) position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
-            get => new(Console.WindowWidth, Console.WindowHeight);
-            set
-            {
-                // This can only be called on Windows
-                if (OperatingSystem.IsWindows())
-                {
-                    int width = value.Item1;
-                    int height = value.Item2;
-                    Console.SetWindowSize(width, height);
-                    Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
-                    // This is called twice to fix the scrollbar from showing
-                    Console.SetWindowSize(width, height);
-                }
-            }
+            Cursor.SetPosition(position);
+            Window.Print(message, colorText, colorBG);
         }
-
-        public static void Print(object message, (int, int) position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null) => Window.Print(message, new Vector2(position), colorText, colorBG);
 
         public static void Print(object message, Vector2 position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
@@ -34,11 +20,8 @@ namespace B.Utils
         public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
             // Override colors if specified
-            if (colorText.HasValue)
-                Console.ForegroundColor = colorText.Value;
-
-            if (colorBG.HasValue)
-                Console.BackgroundColor = colorBG.Value;
+            if (colorText.HasValue) Console.ForegroundColor = colorText.Value;
+            if (colorBG.HasValue) Console.BackgroundColor = colorBG.Value;
 
             // Print message
             Console.Write(message);
@@ -61,14 +44,39 @@ namespace B.Utils
                 Console.WriteLine();
         }
 
+        public static void SetSize(int width, int height)
+        {
+            // This can only be called on Windows
+            if (OperatingSystem.IsWindows())
+            {
+                Console.SetWindowSize(width, height);
+                Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
+                Console.SetWindowSize(width, height); // This is called twice to fix the scrollbar from showing
+            }
+        }
+
+        public static void SetSize((int width, int height) size) => Window.SetSize(size.width, size.height);
+
+        public static void SetSize(Vector2 size) => Window.SetSize(size.x, size.y);
+
         public static void Clear() => Console.Clear();
 
         public static void ClearAndSetSize(int width, int height)
         {
-            Console.Clear();
-            Window.Size = new(Math.Clamp(width, Window.SIZE_MIN.x, Window.SIZE_MAX.x), Math.Clamp(height, Window.SIZE_MIN.y, Window.SIZE_MAX.y));
+            Window.Clear();
+            Window.SetSize(width, height);
         }
 
-        public static void ClearAndSetSize(Vector2 size) => Window.ClearAndSetSize(size.x, size.y);
+        public static void ClearAndSetSize((int width, int height) size)
+        {
+            Window.Clear();
+            Window.SetSize(size);
+        }
+
+        public static void ClearAndSetSize(Vector2 size)
+        {
+            Window.Clear();
+            Window.SetSize(size);
+        }
     }
 }

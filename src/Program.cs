@@ -1,14 +1,15 @@
 ﻿using B.Inputs;
 using B.Options;
-using B.Options.Adventure;
-using B.Options.Backup;
-using B.Options.BrainFuck;
-using B.Options.Canvas;
-using B.Options.ExpressionSolver;
-using B.Options.FTP;
-using B.Options.MoneyTracker;
-using B.Options.NumberGuesser;
-using B.Options.Settings;
+using B.Options.Games.Adventure;
+using B.Options.Games.NumberGuesser;
+using B.Options.Games.OptionCheckers;
+using B.Options.Tools.Backup;
+using B.Options.Tools.FTP;
+using B.Options.Tools.MoneyTracker;
+using B.Options.Tools.Settings;
+using B.Options.Toys.BrainFuck;
+using B.Options.Toys.Canvas;
+using B.Options.Toys.ExpressionSolver;
 using B.Utils;
 
 namespace B
@@ -28,17 +29,27 @@ namespace B
         public static ProgramSettings Settings { get; private set; } = new();
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
 
-        // Private Variables
-        private static (Type OptionType, Func<string> GetTitle)[] OptionList => new (Type, Func<string>)[] {
-            new(typeof(OptionAdventure),        () => OptionAdventure.Title),
-            new(typeof(OptionBrainFuck),        () => OptionBrainFuck.Title),
-            new(typeof(OptionCanvas),           () => OptionCanvas.Title),
-            new(typeof(OptionExpressionSolver), () => OptionExpressionSolver.Title),
-            new(typeof(OptionFTP),              () => OptionFTP.Title),
-            new(typeof(OptionMoneyTracker),     () => OptionMoneyTracker.Title),
-            new(typeof(OptionNumberGuesser),    () => OptionNumberGuesser.Title),
-            new(typeof(OptionBackup),           () => OptionBackup.Title),
-            new(typeof(OptionSettings),         () => OptionSettings.Title)};
+        // Option Groups
+        private static (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options)[] OptionGroups => new (string, (Type, Func<string>)[])[]
+        {
+            ("Games", new (Type, Func<string>)[] {
+                (typeof(OptionAdventure), () => OptionAdventure.Title),
+                (typeof(OptionCheckers), () => OptionCheckers.Title),
+                (typeof(OptionNumberGuesser), () => OptionNumberGuesser.Title),
+            }),
+            ("Tools", new (Type, Func<string>)[] {
+                (typeof(OptionFTP), () => OptionFTP.Title),
+                (typeof(OptionMoneyTracker), () => OptionMoneyTracker.Title),
+                (typeof(OptionBackup), () => OptionBackup.Title),
+                (typeof(OptionSettings), () => OptionSettings.Title),
+            }),
+            ("Toys", new (Type, Func<string>)[] {
+                (typeof(OptionCanvas), () => OptionCanvas.Title),
+                (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
+                (typeof(OptionExpressionSolver), () => OptionExpressionSolver.Title),
+            }),
+        };
+        private (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options) _optionGroup;
         private IOption _selectedOption = null!;
 
         public Program() : base(Stages.MainMenu) { }
@@ -107,20 +118,42 @@ namespace B
                 case Stages.MainMenu:
                     {
                         // Display main menu options
-                        Window.ClearAndSetSize(22, Program.OptionList.Length + 6);
+                        Window.ClearAndSetSize(22, Program.OptionGroups.Length + 6);
                         Input.Choice iob = new($"{Program.Title}'s");
 
-                        for (int i = 0; i < Program.OptionList.Length; i++)
+                        for (int i = 0; i < Program.OptionGroups.Length; i++)
                         {
-                            var optionEntry = Program.OptionList[i];
+                            var optionGroup = Program.OptionGroups[i];
                             iob.Add(() =>
                             {
-                                this._selectedOption = (IOption)Activator.CreateInstance(optionEntry.OptionType)!;
-                                this.SetStage(Stages.Option);
-                            }, optionEntry.GetTitle(), (char)('1' + i));
+                                this._optionGroup = optionGroup;
+                                this.SetStage(Stages.Group);
+                            }, optionGroup.GroupTitle, (char)('1' + i));
                         }
 
                         iob.AddExit(this)
+                            .Request();
+                    }
+                    break;
+
+                case Stages.Group:
+                    {
+                        // TODO test
+                        Window.ClearAndSetSize(22, this._optionGroup.Options.Length + 6);
+                        Input.Choice iob = new(this._optionGroup.GroupTitle);
+
+                        for (int i = 0; i < this._optionGroup.Options.Length; i++)
+                        {
+                            var option = this._optionGroup.Options[i];
+                            iob.Add(() =>
+                            {
+                                this._selectedOption = (IOption)Activator.CreateInstance(option.OptionType)!;
+                                this.SetStage(Stages.Option);
+                            }, option.GetTitle(), (char)('1' + i));
+                        }
+
+                        iob.AddSpacer()
+                            .Add(() => this.SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -132,7 +165,7 @@ namespace B
                         else
                         {
                             this._selectedOption = null!;
-                            this.SetStage(Stages.MainMenu);
+                            this.SetStage(Stages.Group);
                         }
                     }
                     break;
@@ -156,6 +189,7 @@ namespace B
         public enum Stages
         {
             MainMenu,
+            Group,
             Option,
         }
     }

@@ -3,7 +3,7 @@ using B.Utils;
 using Z.Expressions;
 using Z.Expressions.Compiler.Shared;
 
-namespace B.Options.ExpressionSolver
+namespace B.Options.Toys.ExpressionSolver
 {
     public sealed class OptionExpressionSolver : Option<OptionExpressionSolver.Stages>
     {

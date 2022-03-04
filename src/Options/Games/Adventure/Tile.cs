@@ -1,6 +1,6 @@
 using B.Utils;
 
-namespace B.Options.Adventure
+namespace B.Options.Games.Adventure
 {
     [Serializable]
     public sealed class Tile

@@ -1,7 +1,7 @@
 using B.Inputs;
 using B.Utils;
 
-namespace B.Options.MoneyTracker
+namespace B.Options.Tools.MoneyTracker
 {
     public sealed class OptionMoneyTracker : Option<OptionMoneyTracker.Stages>
     {
@@ -200,7 +200,7 @@ namespace B.Options.MoneyTracker
 
                 case Stages.Transaction_View:
                     {
-                        Window.Size = new(
+                        Window.SetSize(
                             (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 9,
                             Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
                         Cursor.Reset();

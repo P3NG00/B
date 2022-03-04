@@ -1,7 +1,7 @@
 using B.Inputs;
 using B.Utils;
 
-namespace B.Options.NumberGuesser
+namespace B.Options.Games.NumberGuesser
 {
     public sealed class OptionNumberGuesser : Option<OptionNumberGuesser.Stages>
     {

@@ -282,12 +282,5 @@ namespace B.Inputs
                 return this.Request();
             }
         }
-
-        [Obsolete("Only two values, replace with bool instead.")] // TODO
-        public enum ScrollType
-        {
-            Indent,
-            Side,
-        }
     }
 }

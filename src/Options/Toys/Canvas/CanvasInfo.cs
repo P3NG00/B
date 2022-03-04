@@ -1,6 +1,6 @@
 using B.Utils;
 
-namespace B.Options.Canvas
+namespace B.Options.Toys.Canvas
 {
     [Serializable]
     public sealed class CanvasInfo

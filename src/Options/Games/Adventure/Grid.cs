@@ -1,6 +1,6 @@
 using B.Utils;
 
-namespace B.Options.Adventure
+namespace B.Options.Games.Adventure
 {
     public sealed class Grid
     {

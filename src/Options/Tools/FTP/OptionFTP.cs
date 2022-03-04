@@ -5,7 +5,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 
-namespace B.Options.FTP
+namespace B.Options.Tools.FTP
 {
     public sealed class OptionFTP : Option<OptionFTP.Stages>
     {
@@ -139,7 +139,7 @@ namespace B.Options.FTP
                         int entryAmount = this._files.Length;
                         int adjustedMaxEntries = Math.Min(Window.SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
-                        Window.Size = (OptionFTP.WIDTH, consoleHeight);
+                        Window.SetSize(OptionFTP.WIDTH, consoleHeight);
                         Cursor.Reset();
                         Window.PrintLine();
                         Window.PrintLine($" {$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{this.Path}'",-98}");

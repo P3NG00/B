@@ -1,7 +1,7 @@
 using B.Inputs;
 using B.Utils;
 
-namespace B.Options.Canvas
+namespace B.Options.Toys.Canvas
 {
     public sealed class OptionCanvas : Option<OptionCanvas.Stages>
     {

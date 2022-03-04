@@ -1,7 +1,7 @@
 using B.Inputs;
 using B.Utils;
 
-namespace B.Options.BrainFuck
+namespace B.Options.Toys.BrainFuck
 {
     public sealed class BrainFuckProgram
     {

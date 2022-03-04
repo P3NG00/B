@@ -1,4 +1,4 @@
-namespace B.Options.Settings
+namespace B.Options.Tools.Settings
 {
     public sealed class ColorTheme
     {

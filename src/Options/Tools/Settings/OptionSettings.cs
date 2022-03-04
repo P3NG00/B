@@ -1,10 +1,10 @@
 using B.Inputs;
-using B.Options.Adventure;
-using B.Options.BrainFuck;
-using B.Options.MoneyTracker;
+using B.Options.Games.Adventure;
+using B.Options.Tools.MoneyTracker;
+using B.Options.Toys.BrainFuck;
 using B.Utils;
 
-namespace B.Options.Settings
+namespace B.Options.Tools.Settings
 {
     public sealed class OptionSettings : Option<OptionSettings.Stages>
     {

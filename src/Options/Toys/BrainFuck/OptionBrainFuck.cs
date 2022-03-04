@@ -1,7 +1,7 @@
 using B.Inputs;
 using B.Utils;
 
-namespace B.Options.BrainFuck
+namespace B.Options.Toys.BrainFuck
 {
     public sealed class OptionBrainFuck : Option<OptionBrainFuck.Stages>
     {
@@ -128,7 +128,7 @@ namespace B.Options.BrainFuck
                             // TODO add to bottom/top of window, display the instructions with the current instruction highlighted and centered
 
                             int consoleWidth = 20;
-                            Window.Size = (consoleWidth, 29);
+                            Window.SetSize(consoleWidth, 29);
                             Cursor.Reset();
                             Window.PrintLine();
                             Window.PrintLine("  Memory View");

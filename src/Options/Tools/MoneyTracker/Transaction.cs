@@ -1,4 +1,4 @@
-namespace B.Options.MoneyTracker
+namespace B.Options.Tools.MoneyTracker
 {
     [Serializable]
     public sealed class Transaction
