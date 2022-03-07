@@ -47,7 +47,7 @@ namespace B.Options.Tools.FTP
             {
                 char[] ca = new char[9];
                 Array.Fill(ca, ' ');
-                ca[l % ca.Length] = Util.RandomFrom("!?@#$%&*+=~XO§®¡©█■".ToCharArray());
+                ca[l % ca.Length] = Util.RandomFrom('!', '?', '@', '#', '$', '%', '&', '*', '+', '=', '~', 'X', 'O', '§', '®', '¡', '¿', '©', '█', '■', '"');
                 return new string(ca);
             },
             // Bar Fill
@@ -61,6 +61,12 @@ namespace B.Options.Tools.FTP
 
                 return new string(ca);
             },
+            // Spinner
+            l =>
+            {
+                char[] ca = { '|', '/', '-', '\\' };
+                return Convert.ToString(ca[l % ca.Length]);
+            }
         };
 
         private Func<int, string> _scrambler;

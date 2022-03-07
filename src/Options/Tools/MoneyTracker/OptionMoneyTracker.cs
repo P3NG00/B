@@ -216,7 +216,12 @@ namespace B.Options.Tools.MoneyTracker
                             }, "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 new(() => this._selectedAccount.Decimals++, "Increase Decimals", '+'),
-                                new(() => this._selectedAccount.Decimals--, "Decrease Decimals", '-')});
+                                new(() =>
+                                {
+                                    // Checking before decrementing to avoid underflowing to max value
+                                    if (this._selectedAccount.Decimals != 0)
+                                        this._selectedAccount.Decimals--;
+                                }, "Decrease Decimals", '-')});
                     }
                     break;
 

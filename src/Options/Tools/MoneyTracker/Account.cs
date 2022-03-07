@@ -8,13 +8,13 @@ namespace B.Options.Tools.MoneyTracker
         public string FilePath => OptionMoneyTracker.DirectoryPath + this.Name;
         public Utils.List<Transaction> Transactions = new();
         public string Name = string.Empty;
-        public int Decimals
+        public byte Decimals
         {
             get => this._decimals;
-            set => this._decimals = Util.Clamp(value, 0, Constants.MAX_CHARS_DECIMAL);
+            set => this._decimals = value.Clamp(0, Constants.MAX_CHARS_DECIMAL);
         }
 
-        private int _decimals = 2;
+        private byte _decimals = 2;
 
         // This is here for deserialization.
         // Accounts should be initialized with a name.

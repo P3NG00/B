@@ -23,7 +23,7 @@ namespace B.Options.Games.Adventure
         public int Speed
         {
             get => this._speed;
-            set => this._speed = Util.Clamp(value, 1, 25);
+            set => this._speed = value.Clamp(1, 25);
         }
 
         public Vector2 Position = new();

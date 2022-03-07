@@ -176,11 +176,11 @@ namespace B.Options.Toys.Canvas
 
                         Vector2 maxCanvasPos = this._canvas.Size - Vector2.One;
                         // Fix cursor position
-                        this.CursorPos = Vector2.Clamp(this.CursorPos, Vector2.Zero, maxCanvasPos);
+                        this.CursorPos = this.CursorPos.Clamp(Vector2.Zero, maxCanvasPos);
                         // Set cursor position
                         Cursor.SetPosition(this.CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         // Fix brush size
-                        this.BrushSize = Vector2.Clamp(this.BrushSize, Vector2.One, maxCanvasPos);
+                        this.BrushSize = this.BrushSize.Clamp(Vector2.One, maxCanvasPos);
 
                         void Paint()
                         {

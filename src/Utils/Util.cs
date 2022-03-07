@@ -29,8 +29,6 @@ namespace B.Utils
 
         public static char Unformat(char c) => Util.FormatChars.Contains(c) ? ' ' : c;
 
-        public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
-
         public static string StringOf(string str, int length)
         {
             string s = string.Empty;

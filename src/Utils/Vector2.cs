@@ -1,4 +1,3 @@
-using System.Numerics;
 namespace B.Utils
 {
     [Serializable]
@@ -52,8 +51,6 @@ namespace B.Utils
         public static Vector2 Min(Vector2 vecA, Vector2 vecB) => new(Math.Min(vecA.x, vecB.x), Math.Min(vecA.y, vecB.y));
 
         public static Vector2 Max(Vector2 vecA, Vector2 vecB) => new(Math.Max(vecA.x, vecB.x), Math.Max(vecA.y, vecB.y));
-
-        public static Vector2 Clamp(Vector2 vec, Vector2 min, Vector2 max) => new(Util.Clamp(vec.x, min.x, max.x), Util.Clamp(vec.y, min.y, max.y));
 
         public static Vector2 operator +(Vector2 vecA, Vector2 vecB) => new Vector2(vecA.x + vecB.x, vecA.y + vecB.y);
 

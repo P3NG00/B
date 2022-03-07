@@ -51,7 +51,7 @@ namespace B.Options.Tools.Settings
 
                 case Stages.WindowSize:
                     {
-                        this._size = Vector2.Clamp(this._size, Window.SIZE_MIN, Window.SIZE_MAX);
+                        this._size = this._size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
                         Window.ClearAndSetSize(this._size);
                         Window.PrintLine($"Detected Max Size: {Window.SIZE_MAX}");
                         Window.Print($"Current Size: {this._size}");

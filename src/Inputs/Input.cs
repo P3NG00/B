@@ -144,7 +144,7 @@ namespace B.Inputs
                     .Add(exitKeybind)
                     .Request();
 
-                Input.ScrollIndex = Util.Clamp(Input.ScrollIndex, 0, items.Length - 1);
+                Input.ScrollIndex = Input.ScrollIndex.Clamp(0, items.Length - 1);
                 int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
 
