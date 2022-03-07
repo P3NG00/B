@@ -55,7 +55,7 @@ namespace B.Inputs
                     wait = false;
         }
 
-        public static void RequestLine(int maxLength, params Keybind[] keybinds)
+        public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)
         {
             ConsoleKeyInfo keyInfo = Input.Get();
 

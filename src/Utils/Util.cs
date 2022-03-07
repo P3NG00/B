@@ -4,8 +4,6 @@ namespace B.Utils
 {
     public static class Util
     {
-        public const int MAX_CHARS_DECIMAL = 27;
-
         public static char[] FormatChars => new char[] { (char)7, (char)8, (char)9, (char)10, (char)13 };
         public static Random Random => new Random();
 
@@ -29,8 +27,6 @@ namespace B.Utils
         };
 
         public static char Unformat(char c) => Util.FormatChars.Contains(c) ? ' ' : c;
-
-        public static char Unformat(byte b) => Util.Unformat((char)b);
 
         public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
 
@@ -63,7 +59,5 @@ namespace B.Utils
             using (FileStream fileStream = File.Open(filePath, FileMode.Open))
                 return (T)new XmlSerializer(typeof(T)).Deserialize(fileStream)!;
         }
-
-        public enum NoEnum { }
     }
 }

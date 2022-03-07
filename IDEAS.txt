@@ -38,3 +38,6 @@ Use the Eval package downloaded to create and easy expression calculator.
 Add Multithreading to allow for "Loading Screen" during long loading times.
 
 Add MCBackup Option to make backing up saves from any instance in specified multimc directory?
+
+Utilize Pastel package (use "".Pastel() on strings to change output color).
+Probably keep color value in ColorTheme class, then apply it when printing.

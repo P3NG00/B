@@ -11,7 +11,7 @@ namespace B.Options.Tools.MoneyTracker
         public int Decimals
         {
             get => this._decimals;
-            set => this._decimals = Util.Clamp(value, 0, Util.MAX_CHARS_DECIMAL);
+            set => this._decimals = Util.Clamp(value, 0, Constants.MAX_CHARS_DECIMAL);
         }
 
         private int _decimals = 2;

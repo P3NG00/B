@@ -3,7 +3,6 @@ using B.Options;
 using B.Options.Games.Adventure;
 using B.Options.Games.NumberGuesser;
 using B.Options.Games.OptionCheckers;
-using B.Options.Tools.Backup;
 using B.Options.Tools.FTP;
 using B.Options.Tools.MoneyTracker;
 using B.Options.Tools.Settings;
@@ -19,10 +18,10 @@ namespace B
         public const string Title = "B";
 
         // Code entry point
-        public static int Main()
+        public static void Main()
         {
             Program program = new Program();
-            return program.Start();
+            program.Start();
         }
 
         // Program Info
@@ -37,24 +36,23 @@ namespace B
                 (typeof(OptionCheckers), () => OptionCheckers.Title),
                 (typeof(OptionNumberGuesser), () => OptionNumberGuesser.Title),
             }),
-            ("Tools", new (Type, Func<string>)[] {
-                (typeof(OptionFTP), () => OptionFTP.Title),
-                (typeof(OptionMoneyTracker), () => OptionMoneyTracker.Title),
-                (typeof(OptionBackup), () => OptionBackup.Title),
-                (typeof(OptionSettings), () => OptionSettings.Title),
-            }),
             ("Toys", new (Type, Func<string>)[] {
                 (typeof(OptionCanvas), () => OptionCanvas.Title),
                 (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
                 (typeof(OptionExpressionSolver), () => OptionExpressionSolver.Title),
             }),
+            ("Tools", new (Type, Func<string>)[] {
+                (typeof(OptionFTP), () => OptionFTP.Title),
+                (typeof(OptionMoneyTracker), () => OptionMoneyTracker.Title),
+                (typeof(OptionSettings), () => OptionSettings.Title),
+            }),
         };
         private (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options) _optionGroup;
-        private IOption _selectedOption = null!;
+        private IOption? _selectedOption = null;
 
         public Program() : base(Stages.MainMenu) { }
 
-        private int Start()
+        private void Start()
         {
             // Initialize program
             try { this.Initialize(); }
@@ -74,9 +72,6 @@ namespace B
             // Save before exiting
             try { Util.Serialize(ProgramSettings.Path, Program.Settings); }
             catch (Exception e) { this.HandleException(e); }
-
-            // If reached, return nothing
-            return 0;
         }
 
         private void Initialize()
@@ -110,7 +105,7 @@ namespace B
             if (!Directory.Exists(Program.DataPath))
             {
                 DirectoryInfo mainDirectory = Directory.CreateDirectory(Program.DataPath);
-                mainDirectory.Attributes = FileAttributes.Hidden;
+                mainDirectory.Attributes |= FileAttributes.Hidden;
             }
 
             switch (this.Stage)
@@ -147,7 +142,7 @@ namespace B
                             var option = this._optionGroup.Options[i];
                             iob.Add(() =>
                             {
-                                this._selectedOption = (IOption)Activator.CreateInstance(option.OptionType)!;
+                                this._selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
                                 this.SetStage(Stages.Option);
                             }, option.GetTitle(), (char)('1' + i));
                         }
@@ -160,11 +155,11 @@ namespace B
 
                 case Stages.Option:
                     {
-                        if (this._selectedOption != null && this._selectedOption.IsRunning())
+                        if (this._selectedOption is not null && this._selectedOption.IsRunning())
                             this._selectedOption.Loop();
                         else
                         {
-                            this._selectedOption = null!;
+                            this._selectedOption = null;
                             this.SetStage(Stages.Group);
                         }
                     }
@@ -182,7 +177,7 @@ namespace B
             cursorPos.y += 2;
             Input.WaitFor(ConsoleKey.F1, cursorPos);
             Window.Clear();
-            this._selectedOption = null!;
+            this._selectedOption = null;
             this.SetStage(Stages.MainMenu);
         }
 

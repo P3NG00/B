@@ -142,7 +142,7 @@ namespace B.Options.Toys.BrainFuck
                             Input.ScrollIndex = (int)this._memoryIndex;
                             Input.RequestScroll(
                                 items: this._memory,
-                                getText: b => string.Format(format, b, Util.Unformat(b), $"{b,2:X}"),
+                                getText: b => string.Format(format, b, Util.Unformat((char)b), $"{b,2:X}"),
                                 maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {

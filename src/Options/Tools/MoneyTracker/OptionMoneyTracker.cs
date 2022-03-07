@@ -201,13 +201,13 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Transaction_View:
                     {
                         Window.SetSize(
-                            (Util.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 9,
+                            (Constants.MAX_CHARS_DECIMAL * 2) + this._selectedAccount!.Decimals + 9,
                             Math.Min(this._selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
                         Cursor.Reset();
                         Window.PrintLine();
                         Input.RequestScroll(
                             items: this._selectedAccount.Transactions.Items,
-                            getText: transaction => string.Format("{0," + (Util.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf('0', this._selectedAccount.Decimals) + "} | {1," + Util.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
+                            getText: transaction => string.Format("{0," + (Constants.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf('0', this._selectedAccount.Decimals) + "} | {1," + Constants.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
                             maxEntriesPerPage: OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
                             exitKeybind: new(() =>
                             {
@@ -265,14 +265,14 @@ namespace B.Options.Tools.MoneyTracker
 
         private void ShowTransactionStage()
         {
-            Window.ClearAndSetSize(4 + Util.MAX_CHARS_DECIMAL, 7);
+            Window.ClearAndSetSize(4 + Constants.MAX_CHARS_DECIMAL, 7);
             Window.PrintLine();
             Window.PrintLine("  Amount:");
 
             if (this.Stage == Stages.Transaction_Add_Amount)
             {
                 Window.Print($"  {Input.String}");
-                Input.RequestLine(Util.MAX_CHARS_DECIMAL,
+                Input.RequestLine(Constants.MAX_CHARS_DECIMAL,
                     new Keybind(() =>
                     {
                         decimal? amount = Input.Decimal;
@@ -297,7 +297,7 @@ namespace B.Options.Tools.MoneyTracker
                 Window.PrintLine();
                 Window.PrintLine("  Description:");
                 Window.Print($"  {Input.String}");
-                Input.RequestLine(Util.MAX_CHARS_DECIMAL,
+                Input.RequestLine(Constants.MAX_CHARS_DECIMAL,
                     new Keybind(() =>
                     {
                         if (Input.String.Length > 0)

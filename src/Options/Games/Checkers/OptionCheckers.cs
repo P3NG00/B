@@ -12,7 +12,7 @@ namespace B.Options.Games.OptionCheckers
 
         public override void Loop()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); // TODO REMOVE
 
             switch (this.Stage)
             {
