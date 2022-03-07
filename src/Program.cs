@@ -1,6 +1,8 @@
-﻿using B.Inputs;
+﻿using System.Drawing;
+using B.Inputs;
 using B.Options;
 using B.Options.Games.Adventure;
+using B.Options.Games.Blackjack;
 using B.Options.Games.NumberGuesser;
 using B.Options.Games.OptionCheckers;
 using B.Options.Tools.FTP;
@@ -8,7 +10,6 @@ using B.Options.Tools.MoneyTracker;
 using B.Options.Tools.Settings;
 using B.Options.Toys.BrainFuck;
 using B.Options.Toys.Canvas;
-using B.Options.Toys.ExpressionSolver;
 using B.Utils;
 
 namespace B
@@ -33,13 +34,13 @@ namespace B
         {
             ("Games", new (Type, Func<string>)[] {
                 (typeof(OptionAdventure), () => OptionAdventure.Title),
+                (typeof(OptionBlackjack), () => OptionBlackjack.Title),
                 (typeof(OptionCheckers), () => OptionCheckers.Title),
                 (typeof(OptionNumberGuesser), () => OptionNumberGuesser.Title),
             }),
             ("Toys", new (Type, Func<string>)[] {
                 (typeof(OptionCanvas), () => OptionCanvas.Title),
                 (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
-                (typeof(OptionExpressionSolver), () => OptionExpressionSolver.Title),
             }),
             ("Tools", new (Type, Func<string>)[] {
                 (typeof(OptionFTP), () => OptionFTP.Title),
@@ -66,6 +67,7 @@ namespace B
             while (this.IsRunning())
             {
                 try { this.Loop(); }
+                catch (NotImplementedException e) { this.HandleNotImplementedException(e); }
                 catch (Exception e) { this.HandleException(e); }
             }
 
@@ -169,10 +171,23 @@ namespace B
 
         private void HandleException(Exception e)
         {
-            Window.ClearAndSetSize(Window.SIZE_MAX);
+            Window.ClearAndSetSize(Window.SIZE_MAX / 2);
             Window.Print("An exception was thrown!", (2, 1), ConsoleColor.Red);
             Window.Print(e, (2, 3), ConsoleColor.White, ConsoleColor.Black);
-            Vector2 cursorPos = Cursor.GetPositionVector();
+            Vector2 cursorPos = Cursor.GetPositionVector2();
+            cursorPos.x = 2;
+            cursorPos.y += 2;
+            Input.WaitFor(ConsoleKey.F1, cursorPos);
+            Window.Clear();
+            this._selectedOption = null;
+            this.SetStage(Stages.MainMenu);
+        }
+
+        private void HandleNotImplementedException(NotImplementedException e)
+        {
+            Window.ClearAndSetSize(Window.SIZE_MAX / 2);
+            Window.Print("This feature is not yet implemented.", (2, 1), ConsoleColor.DarkYellow);
+            Vector2 cursorPos = Cursor.GetPositionVector2();
             cursorPos.x = 2;
             cursorPos.y += 2;
             Input.WaitFor(ConsoleKey.F1, cursorPos);

@@ -1,3 +1,4 @@
+using System.Numerics;
 namespace B.Utils
 {
     [Serializable]
@@ -67,6 +68,8 @@ namespace B.Utils
         public static Vector2 operator *(Vector2 vec, (int, int) tuple) => new Vector2(vec.x * tuple.Item1, vec.y * tuple.Item2);
 
         public static Vector2 operator *(Vector2 vec, int scale) => new(vec.x * scale, vec.y * scale);
+
+        public static Vector2 operator /(Vector2 vec, int scale) => new(vec.x / scale, vec.y / scale);
 
         public static bool operator ==(Vector2 vecA, Vector2 vecB) => vecA.x == vecB.x && vecA.y == vecB.y;
 

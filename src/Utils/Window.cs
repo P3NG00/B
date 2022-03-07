@@ -1,40 +1,9 @@
-using System.Drawing;
-using Pastel;
-
 namespace B.Utils
 {
     public static class Window
     {
         public static Vector2 SIZE_MIN => new(16, 2);
         public static Vector2 SIZE_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
-
-        // TODO test
-        public static void PrintP(object message, (int, int) position, Color? colorText = null, Color? colorBG = null)
-        {
-            Cursor.SetPosition(position);
-            Window.PrintP(message, colorText, colorBG);
-        }
-
-        // TODO test
-        public static void PrintP(object message, Vector2 position, Color? colorText = null, Color? colorBG = null)
-        {
-            Cursor.SetPosition(position);
-            Window.PrintP(message, colorText, colorBG);
-        }
-
-        // TODO test
-        public static void PrintP(object message, Color? colorText = null, Color? colorBG = null)
-        {
-            string msg = message.ToString()!;
-
-            if (colorText.HasValue)
-                msg = msg.Pastel(colorText.Value);
-
-            if (colorBG.HasValue)
-                msg = msg.PastelBg(colorBG.Value);
-
-            Console.Write(msg);
-        }
 
         public static void Print(object message, (int, int) position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
