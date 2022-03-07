@@ -1,3 +1,4 @@
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace B.Utils
@@ -51,7 +52,17 @@ namespace B.Utils
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
             using (FileStream fileStream = File.Open(filePath, FileMode.Create))
-                new XmlSerializer(typeof(T)).Serialize(fileStream, objectToWrite);
+            {
+                XmlSerializer serializer = new(typeof(T));
+                XmlSerializerNamespaces namespaces = new();
+                namespaces.Add("", "");
+                XmlWriterSettings settings = new();
+                settings.Indent = true;
+                settings.OmitXmlDeclaration = true;
+
+                using (XmlWriter writer = XmlWriter.Create(fileStream, settings))
+                    serializer.Serialize(writer, objectToWrite, namespaces);
+            }
         }
 
         public static T Deserialize<T>(string filePath)

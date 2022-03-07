@@ -247,10 +247,17 @@ namespace B.Options.Tools.FTP
                 using (Stream stream = File.Open(path, FileMode.Create))
                 {
                     Window.ClearAndSetSize(OptionFTP.WIDTH, 7);
-                    Window.Print("Downloading...", (2, 1));
-                    Window.Print(file.FullName, (2, 3));
-                    Window.Print("Bytes Downloaded", (2, 5));
-                    this._client.DownloadFile(file.FullName, stream, l => Window.Print($"{l,-(OptionFTP.WIDTH - 30)}", (19, 5)));
+                    Cursor.SetPosition(2, 1);
+                    Window.Print("Downloading...");
+                    Cursor.SetPosition(2, 3);
+                    Window.Print(file.FullName);
+                    Cursor.SetPosition(2, 5);
+                    Window.Print("Bytes Downloaded");
+                    this._client.DownloadFile(file.FullName, stream, l =>
+                    {
+                        Cursor.SetPosition(19, 5);
+                        Window.Print($"{l,-(OptionFTP.WIDTH - 30)}");
+                    });
                 }
             }
         }

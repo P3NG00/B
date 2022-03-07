@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using B.Inputs;
+﻿using B.Inputs;
 using B.Options;
 using B.Options.Games.Adventure;
 using B.Options.Games.Blackjack;
@@ -172,12 +171,15 @@ namespace B
         private void HandleException(Exception e)
         {
             Window.ClearAndSetSize(Window.SIZE_MAX / 2);
-            Window.Print("An exception was thrown!", (2, 1), ConsoleColor.Red);
-            Window.Print(e, (2, 3), ConsoleColor.White, ConsoleColor.Black);
+            Cursor.SetPosition(2, 1);
+            Window.Print("An exception was thrown!", ConsoleColor.Red);
+            Cursor.SetPosition(2, 3);
+            Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
             Vector2 cursorPos = Cursor.GetPositionVector2();
             cursorPos.x = 2;
             cursorPos.y += 2;
-            Input.WaitFor(ConsoleKey.F1, cursorPos);
+            Cursor.SetPosition(cursorPos);
+            Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
             this._selectedOption = null;
             this.SetStage(Stages.MainMenu);
@@ -186,11 +188,13 @@ namespace B
         private void HandleNotImplementedException(NotImplementedException e)
         {
             Window.ClearAndSetSize(Window.SIZE_MAX / 2);
-            Window.Print("This feature is not yet implemented.", (2, 1), ConsoleColor.DarkYellow);
+            Cursor.SetPosition(2, 1);
+            Window.Print("This feature is not yet implemented.", ConsoleColor.DarkYellow);
             Vector2 cursorPos = Cursor.GetPositionVector2();
             cursorPos.x = 2;
             cursorPos.y += 2;
-            Input.WaitFor(ConsoleKey.F1, cursorPos);
+            Cursor.SetPosition(cursorPos);
+            Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
             this._selectedOption = null;
             this.SetStage(Stages.MainMenu);

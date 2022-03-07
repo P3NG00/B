@@ -5,18 +5,6 @@ namespace B.Utils
         public static Vector2 SIZE_MIN => new(16, 2);
         public static Vector2 SIZE_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
-        public static void Print(object message, (int, int) position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
-        {
-            Cursor.SetPosition(position);
-            Window.Print(message, colorText, colorBG);
-        }
-
-        public static void Print(object message, Vector2 position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
-        {
-            Cursor.SetPosition(position);
-            Window.Print(message, colorText, colorBG);
-        }
-
         public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
             // Override colors if specified

@@ -1,5 +1,3 @@
-using B.Utils;
-
 namespace B.Options.Games.OptionCheckers
 {
     public sealed class OptionCheckers : Option<OptionCheckers.Stages>
@@ -14,19 +12,18 @@ namespace B.Options.Games.OptionCheckers
         {
             throw new NotImplementedException(); // TODO REMOVE
 
-            switch (this.Stage)
-            {
-                case Stages.MainMenu:
-                    {
-                        Window.ClearAndSetSize(80, 25);
-                    }
-                    break;
+            // switch (this.Stage)
+            // {
+            //     case Stages.MainMenu:
+            //         {
+            //             Window.ClearAndSetSize(80, 25);
+            //         }
+            //         break;
 
-                case Stages.Game:
-                    {
-                    }
-                    break;
-            }
+            //     case Stages.Game:
+            //         {
+            //         }
+            //         break;
         }
 
         public enum Stages

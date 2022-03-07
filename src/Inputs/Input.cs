@@ -33,20 +33,9 @@ namespace B.Inputs
         {
             if (!silent)
             {
-                Window.PrintLine();
+                Window.PrintLine(); // TODO replace with Cursor Position positioning
                 Window.PrintLine($"Press {key} to continue...");
             }
-
-            bool wait = true;
-
-            while (wait)
-                if (Input.Get().Key == key)
-                    wait = false;
-        }
-
-        public static void WaitFor(ConsoleKey key, Vector2 position)
-        {
-            Window.Print($"Press {key} to continue...", position);
 
             bool wait = true;
 
