@@ -35,7 +35,7 @@ namespace B.Options.Toys.Canvas
 
         public override void Loop()
         {
-            switch (this.Stage)
+            switch (Stage)
             {
                 case Stages.MainMenu:
                     {
@@ -50,16 +50,16 @@ namespace B.Options.Toys.Canvas
                             .Add(() =>
                             {
                                 Window.Clear();
-                                this._canvas = new();
+                                _canvas = new();
                                 Input.ResetString();
-                                this.SetStage(Stages.Create_Name);
+                                SetStage(Stages.Create_Name);
                             }, "Create", '1');
 
                         if (!_canvases.IsEmpty())
                             iob.Add(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this.SetStage(Stages.List);
+                                SetStage(Stages.List);
                             }, "List", '2');
 
                         iob.AddExit(this)
@@ -69,13 +69,13 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.List:
                     {
-                        Window.ClearAndSetSize(32, this._canvases.Length + 10);
+                        Window.ClearAndSetSize(32, _canvases.Length + 10);
                         Input.RequestScroll(
-                            items: this._canvases,
+                            items: _canvases,
                             getText: canvas => canvas.Title,
                             title: "Canvases",
                             maxEntriesPerPage: OptionCanvas.MAX_CANVASES_PER_PAGE,
-                            exitKeybind: new(() => this.SetStage(Stages.MainMenu), key: ConsoleKey.Escape),
+                            exitKeybind: new(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 new(() => SetCanvasAndChangeStage(Stages.View), "View", key: ConsoleKey.Enter),
                                 new(() => SetCanvasAndChangeStage(Stages.Edit), "Edit", key: ConsoleKey.Tab),
@@ -84,9 +84,9 @@ namespace B.Options.Toys.Canvas
 
                         void SetCanvasAndChangeStage(Stages stage)
                         {
-                            this._canvas = this._canvases[Input.ScrollIndex];
+                            _canvas = _canvases[Input.ScrollIndex];
                             Input.ScrollIndex = 0;
-                            this.SetStage(stage);
+                            SetStage(stage);
                         }
                     }
                     break;
@@ -94,51 +94,51 @@ namespace B.Options.Toys.Canvas
                 case Stages.Delete:
                     {
                         Window.ClearAndSetSize(39, 7);
-                        Input.CreateChoice($"Delete '{this._canvas.Title}'?")
+                        Input.CreateChoice($"Delete '{_canvas.Title}'?")
                             .Add(() =>
                             {
-                                File.Delete(this._canvas.FilePath);
-                                _canvases = _canvases.Remove(this._canvas);
+                                File.Delete(_canvas.FilePath);
+                                _canvases = _canvases.Remove(_canvas);
 
                                 if (_canvases.IsEmpty())
-                                    this.SetStage(Stages.MainMenu);
+                                    SetStage(Stages.MainMenu);
                             }, "yes", key: ConsoleKey.Enter)
                             .AddSpacer()
                             .Add(null!, "NO", key: ConsoleKey.Escape)
                             .Request();
-                        this.SetStage(Stages.List);
+                        SetStage(Stages.List);
                     }
                     break;
 
                 case Stages.View:
                     {
-                        this._canvas.Draw();
+                        _canvas.Draw();
                         Input.WaitFor(ConsoleKey.Escape, true);
-                        this.SetStage(Stages.List);
+                        SetStage(Stages.List);
                     }
                     break;
 
-                case Stages.Create_Name: this.ShowCreationStage(CreationStage.Name); break;
+                case Stages.Create_Name: ShowCreationStage(CreationStage.Name); break;
 
-                case Stages.Create_Size_Height: this.ShowCreationStage(CreationStage.Height); break;
+                case Stages.Create_Size_Height: ShowCreationStage(CreationStage.Height); break;
 
-                case Stages.Create_Size_Width: this.ShowCreationStage(CreationStage.Width); break;
+                case Stages.Create_Size_Width: ShowCreationStage(CreationStage.Width); break;
 
                 case Stages.Edit:
                     {
                         (int x, int y, int width, int height) consoleWindow = new(Console.WindowLeft, Console.WindowTop, Console.WindowWidth, Console.WindowHeight);
-                        Vector2 windowSize = this._canvas.Size + OptionCanvas.CURSOR_POS_MIN + (OptionCanvas.CANVAS_BORDER_PAD * 2);
+                        Vector2 windowSize = _canvas.Size + OptionCanvas.CURSOR_POS_MIN + (OptionCanvas.CANVAS_BORDER_PAD * 2);
 
-                        if (consoleWindow != this._lastConsoleWindow)
+                        if (consoleWindow != _lastConsoleWindow)
                         {
-                            this._lastConsoleWindow = consoleWindow;
-                            this._canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
+                            _lastConsoleWindow = consoleWindow;
+                            _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
                         }
 
                         Cursor.Reset();
-                        Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {this.BrushSize} | Color: {this._color}"));
+                        Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
                         Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
-                        Cursor.SetPosition(this.CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         Input.CreateChoice()
                             // Move in Direction
                             .Add(() => MoveCursor(Direction.Up), key: ConsoleKey.UpArrow)
@@ -159,44 +159,44 @@ namespace B.Options.Toys.Canvas
                             // Color Select
                             .Add(() =>
                             {
-                                this._lastConsoleWindow = new(0, 0, 0, 0);
-                                this.SetStage(Stages.ColorSelect);
+                                _lastConsoleWindow = new(0, 0, 0, 0);
+                                SetStage(Stages.ColorSelect);
                             }, key: ConsoleKey.F1)
                             // Exit
                             .Add(() =>
                             {
-                                if (!this._canvases.Contains(this._canvas))
-                                    _canvases = _canvases.Add(this._canvas);
+                                if (!_canvases.Contains(_canvas))
+                                    _canvases = _canvases.Add(_canvas);
 
-                                this.Save();
-                                this._lastConsoleWindow = new(0, 0, 0, 0);
-                                this.SetStage(Stages.MainMenu);
+                                Save();
+                                _lastConsoleWindow = new(0, 0, 0, 0);
+                                SetStage(Stages.MainMenu);
                             }, key: ConsoleKey.Escape)
                             .Request();
 
-                        Vector2 maxCanvasPos = this._canvas.Size - Vector2.One;
+                        Vector2 maxCanvasPos = _canvas.Size - Vector2.One;
                         // Fix cursor position
-                        this.CursorPos = this.CursorPos.Clamp(Vector2.Zero, maxCanvasPos);
+                        CursorPos = CursorPos.Clamp(Vector2.Zero, maxCanvasPos);
                         // Set cursor position
-                        Cursor.SetPosition(this.CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         // Fix brush size
-                        this.BrushSize = this.BrushSize.Clamp(Vector2.One, maxCanvasPos);
+                        BrushSize = BrushSize.Clamp(Vector2.One, maxCanvasPos);
 
                         void Paint()
                         {
-                            for (int y = 0; y < this.BrushSize.y; y++)
+                            for (int y = 0; y < BrushSize.y; y++)
                             {
-                                for (int x = 0; x < this.BrushSize.x; x++)
+                                for (int x = 0; x < BrushSize.x; x++)
                                 {
-                                    Vector2 pos = this.CursorPos + new Vector2(x, y);
-                                    this._canvas.Color(pos) = this._color;
+                                    Vector2 pos = CursorPos + new Vector2(x, y);
+                                    _canvas.Color(pos) = _color;
                                     Cursor.SetPosition(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
-                                    Window.Print(' ', colorBG: this._color);
+                                    Window.Print(' ', colorBG: _color);
                                 }
                             }
 
                             // TODO test if this is needed. may be necessary to keep cursor in same position
-                            Cursor.SetPosition(this.CursorPos);
+                            Cursor.SetPosition(CursorPos);
                         }
 
                         void PaintDirection(Direction direction)
@@ -205,9 +205,9 @@ namespace B.Options.Toys.Canvas
                             Paint();
                         }
 
-                        void ResizeBrush(Direction direction) => MoveVec(ref this.BrushSize, direction);
+                        void ResizeBrush(Direction direction) => MoveVec(ref BrushSize, direction);
 
-                        void MoveCursor(Direction direction) => MoveVec(ref this.CursorPos, direction);
+                        void MoveCursor(Direction direction) => MoveVec(ref CursorPos, direction);
 
                         void MoveVec(ref Vector2 vec, Direction direction)
                         {
@@ -237,12 +237,12 @@ namespace B.Options.Toys.Canvas
                             getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
                             getBackgroundColor: c => c,
                             title: "Color Select",
-                            exitKeybind: new Keybind(() => this.SetStage(Stages.Edit), "Back", key: ConsoleKey.Escape),
+                            exitKeybind: new Keybind(() => SetStage(Stages.Edit), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind(() =>
                             {
-                                this._color = colors[Input.ScrollIndex];
+                                _color = colors[Input.ScrollIndex];
                                 Input.ScrollIndex = 0;
-                                this.SetStage(Stages.Edit);
+                                SetStage(Stages.Edit);
                             }, "Select", key: ConsoleKey.Enter)
                         );
                     }
@@ -250,7 +250,7 @@ namespace B.Options.Toys.Canvas
             }
         }
 
-        public override void Save() => Util.Serialize(this._canvas.FilePath, this._canvas);
+        public override void Save() => Util.Serialize(_canvas.FilePath, _canvas);
 
         private void ShowCreationStage(CreationStage stage)
         {
@@ -263,14 +263,14 @@ namespace B.Options.Toys.Canvas
                 Window.Print($"  Name: {Input.String}");
             else
             {
-                Window.PrintLine($"  Name: {this._canvas.Title}");
+                Window.PrintLine($"  Name: {_canvas.Title}");
                 Window.PrintLine();
             }
 
             if (stage == CreationStage.Height)
                 Window.Print($"  Height: {Input.String}");
             else if (stage == CreationStage.Width)
-                Window.PrintLine($"  Height: {this._canvas.Colors.Length}");
+                Window.PrintLine($"  Height: {_canvas.Colors.Length}");
 
             if (stage == CreationStage.Width)
                 Window.Print($"  Width: {Input.String}");
@@ -282,11 +282,11 @@ namespace B.Options.Toys.Canvas
                     {
                         case CreationStage.Name:
                             {
-                                if (!string.IsNullOrWhiteSpace(Input.String) && !this._canvases.FromEach(c => c.Title).Contains(Input.String))
+                                if (!string.IsNullOrWhiteSpace(Input.String) && !_canvases.FromEach(c => c.Title).Contains(Input.String))
                                 {
-                                    this._canvas.Title = Input.String.Trim();
+                                    _canvas.Title = Input.String.Trim();
                                     Input.ResetString(); ;
-                                    this.SetStage(Stages.Create_Size_Height);
+                                    SetStage(Stages.Create_Size_Height);
                                 }
                             }
                             break;
@@ -297,9 +297,9 @@ namespace B.Options.Toys.Canvas
 
                                 if (height.HasValue && height.Value >= OptionCanvas.CANVAS_SIZE_MIN.y)
                                 {
-                                    this._canvas.Colors = new ConsoleColor[height.Value][];
+                                    _canvas.Colors = new ConsoleColor[height.Value][];
                                     Input.ResetString(); ;
-                                    this.SetStage(Stages.Create_Size_Width);
+                                    SetStage(Stages.Create_Size_Width);
                                 }
                             }
                             break;
@@ -310,16 +310,16 @@ namespace B.Options.Toys.Canvas
 
                                 if (width.HasValue && width.Value >= OptionCanvas.CANVAS_SIZE_MIN.x)
                                 {
-                                    for (int i = 0; i < this._canvas.Colors.Length; i++)
+                                    for (int i = 0; i < _canvas.Colors.Length; i++)
                                     {
                                         ConsoleColor[] row = new ConsoleColor[width.Value];
                                         Array.Fill(row, ConsoleColor.White);
-                                        this._canvas.Colors[i] = row;
+                                        _canvas.Colors[i] = row;
                                     }
 
                                     Input.ResetString(); ;
                                     Window.Clear();
-                                    this.SetStage(Stages.Edit);
+                                    SetStage(Stages.Edit);
                                 }
                             }
                             break;
@@ -331,23 +331,23 @@ namespace B.Options.Toys.Canvas
                     {
                         case CreationStage.Name:
                             {
-                                this._canvas = null!;
+                                _canvas = null!;
                                 Input.ResetString(); ;
-                                this.SetStage(Stages.MainMenu);
+                                SetStage(Stages.MainMenu);
                             }
                             break;
 
                         case CreationStage.Height:
                             {
-                                Input.String = this._canvas.Title;
-                                this.SetStage(Stages.Create_Name);
+                                Input.String = _canvas.Title;
+                                SetStage(Stages.Create_Name);
                             }
                             break;
 
                         case CreationStage.Width:
                             {
-                                Input.String = this._canvas.Colors.Length.ToString();
-                                this.SetStage(Stages.Create_Size_Height);
+                                Input.String = _canvas.Colors.Length.ToString();
+                                SetStage(Stages.Create_Size_Height);
                             }
                             break;
                     }

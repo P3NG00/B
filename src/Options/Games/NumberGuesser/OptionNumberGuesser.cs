@@ -24,7 +24,7 @@ namespace B.Options.Games.NumberGuesser
 
         public override void Loop()
         {
-            switch (this.Stage)
+            switch (Stage)
             {
                 case Stages.MainMenu:
                     {
@@ -32,12 +32,12 @@ namespace B.Options.Games.NumberGuesser
                         Input.CreateChoice(OptionNumberGuesser.Title)
                             .Add(() =>
                             {
-                                this._numRandom = Util.Random.Next(this._numMax) + 1;
+                                _numRandom = Util.Random.Next(_numMax) + 1;
                                 Input.ResetString(); ;
-                                this.SetStage(Stages.Game);
+                                SetStage(Stages.Game);
                             }, "New Game", '1')
                             .AddSpacer()
-                            .Add(() => this.SetStage(Stages.Settings), "Settings", '9')
+                            .Add(() => SetStage(Stages.Settings), "Settings", '9')
                             .AddExit(this, false)
                             .Request();
                     }
@@ -45,9 +45,9 @@ namespace B.Options.Games.NumberGuesser
 
                 case Stages.Game:
                     {
-                        string guessMessage = "Between 0 - " + this._numMax;
+                        string guessMessage = "Between 0 - " + _numMax;
                         int? guess = Input.Int;
-                        bool won = guess.HasValue && guess.Value == this._numRandom;
+                        bool won = guess.HasValue && guess.Value == _numRandom;
                         int consoleHeight = 7;
                         bool debug = Program.Settings.DebugMode.Active;
 
@@ -59,7 +59,7 @@ namespace B.Options.Games.NumberGuesser
                         if (debug)
                         {
                             Window.PrintLine();
-                            Window.PrintLine($" Number: {this._numRandom}");
+                            Window.PrintLine($" Number: {_numRandom}");
                         }
 
                         Window.PrintLine();
@@ -67,9 +67,9 @@ namespace B.Options.Games.NumberGuesser
 
                         if (guess == null)
                             guessMessage = "...";
-                        else if (guess < this._numRandom)
+                        else if (guess < _numRandom)
                             guessMessage = "too low...";
-                        else if (guess > this._numRandom)
+                        else if (guess > _numRandom)
                             guessMessage = "TOO HIGH!!!";
                         else
                             guessMessage = OptionNumberGuesser._winMessages.Random();
@@ -80,13 +80,13 @@ namespace B.Options.Games.NumberGuesser
                         if (won)
                         {
                             Input.Get();
-                            this.SetStage(Stages.MainMenu);
+                            SetStage(Stages.MainMenu);
                         }
                         else
                         {
                             Window.PrintLine();
                             Window.PrintLine(" Enter a Number!");
-                            Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, new Keybind(() => this.SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
+                            Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, new Keybind(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
                         }
                     }
                     break;
@@ -97,11 +97,11 @@ namespace B.Options.Games.NumberGuesser
                         Input.CreateChoice("Settings")
                             .Add(() =>
                             {
-                                Input.String = this._numMax.ToString();
-                                this.SetStage(Stages.Settings_MaxNumber);
+                                Input.String = _numMax.ToString();
+                                SetStage(Stages.Settings_MaxNumber);
                             }, "Max Number", '1')
                             .AddSpacer()
-                            .Add(() => this.SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
+                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -120,11 +120,11 @@ namespace B.Options.Games.NumberGuesser
 
                                 if (numMax.HasValue)
                                 {
-                                    this._numMax = Math.Max(1, numMax.Value);
-                                    this.SetStage(Stages.Settings);
+                                    _numMax = Math.Max(1, numMax.Value);
+                                    SetStage(Stages.Settings);
                                 }
                             }, key: ConsoleKey.Enter),
-                            new Keybind(() => this.SetStage(Stages.Settings), key: ConsoleKey.Escape));
+                            new Keybind(() => SetStage(Stages.Settings), key: ConsoleKey.Escape));
                     }
                     break;
             }

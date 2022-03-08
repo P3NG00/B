@@ -41,7 +41,7 @@ namespace B.Options.Games.Adventure
 
         public override void Loop()
         {
-            switch (this.Stage)
+            switch (Stage)
             {
                 case Stages.MainMenu:
                     {
@@ -53,10 +53,10 @@ namespace B.Options.Games.Adventure
 
                         Window.ClearAndSetSize(20, consoleHeight);
                         Input.Choice choice = Input.CreateChoice(OptionAdventure.Title)
-                            .Add(() => this.InitGame(true), "New Game", '1');
+                            .Add(() => InitGame(true), "New Game", '1');
 
                         if (fileExists)
-                            choice.Add(() => this.InitGame(false), "Continue", '2');
+                            choice.Add(() => InitGame(false), "Continue", '2');
 
                         choice.AddExit(this)
                             .Request();
@@ -74,7 +74,7 @@ namespace B.Options.Games.Adventure
                             // Extra spaces are added to the end to clear leftover text
                             Window.PrintLine();
                             Window.PrintLine($" {currentGrid,-7}");
-                            Window.PrintLine($" Pos: {this.PlayerPosition,-8}");
+                            Window.PrintLine($" Pos: {PlayerPosition,-8}");
                             consoleHeight += 3;
                         }
 
@@ -91,7 +91,7 @@ namespace B.Options.Games.Adventure
                             {
                                 Vector2 pos = new(x, y);
 
-                                if (pos == this.PlayerPosition)
+                                if (pos == PlayerPosition)
                                     s += OptionAdventure.CHAR_PLAYER;
                                 else if (currentGrid.HasCoinAt(pos))
                                     s += OptionAdventure.CHAR_COIN;
@@ -115,20 +115,20 @@ namespace B.Options.Games.Adventure
                         Window.PrintLine("  Interact) Space");
                         Window.PrintLine("     Speed) + -");
                         Input.CreateChoice()
-                            .Add(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
-                            .Add(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
-                            .Add(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2)
-                            .Add(() => this.MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6)
-                            .Add(() => this.Interact(Direction.Up), key: ConsoleKey.UpArrow)
-                            .Add(() => this.Interact(Direction.Left), key: ConsoleKey.LeftArrow)
-                            .Add(() => this.Interact(Direction.Down), key: ConsoleKey.DownArrow)
-                            .Add(() => this.Interact(Direction.Right), key: ConsoleKey.RightArrow)
+                            .Add(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
+                            .Add(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
+                            .Add(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2)
+                            .Add(() => MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6)
+                            .Add(() => Interact(Direction.Up), key: ConsoleKey.UpArrow)
+                            .Add(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow)
+                            .Add(() => Interact(Direction.Down), key: ConsoleKey.DownArrow)
+                            .Add(() => Interact(Direction.Right), key: ConsoleKey.RightArrow)
                             .Add(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add)
                             .Add(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract)
                             .Add(() =>
                             {
-                                this.Save();
-                                this.SetStage(Stages.MainMenu);
+                                Save();
+                                SetStage(Stages.MainMenu);
                             }, "Quit", key: ConsoleKey.Escape)
                             .Request();
                     }
@@ -142,13 +142,13 @@ namespace B.Options.Games.Adventure
             {
                 OptionAdventure.Info = new();
                 Grid currentGrid = OptionAdventure.CurrentGrid;
-                this.PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
+                PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
             }
             else
                 OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
             Window.Clear();
-            this.SetStage(Stages.Game);
+            SetStage(Stages.Game);
         }
 
         private void MovePlayer(Direction direction)
@@ -157,7 +157,7 @@ namespace B.Options.Games.Adventure
 
             for (int i = 0; i < OptionAdventure.Info.Speed && !stop; i++)
             {
-                Vector2 newPos = this.PlayerPosition + (Vector2)direction;
+                Vector2 newPos = PlayerPosition + (Vector2)direction;
                 Grid currentGrid = OptionAdventure.CurrentGrid;
 
                 if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
@@ -168,12 +168,12 @@ namespace B.Options.Games.Adventure
                     stop = tileType.StopsMovement() || tileType == Tile.TileTypes.Door;
 
                     if (!stop)
-                        this.PlayerPosition = newPos;
+                        PlayerPosition = newPos;
                 }
             }
         }
 
-        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(this.PlayerPosition + (Vector2)direction);
+        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(PlayerPosition + (Vector2)direction);
 
         public static void InitializeGrids()
         {

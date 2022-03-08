@@ -77,24 +77,24 @@ namespace B.Options.Tools.FTP
         private SftpFile[] _files = null!;
         private string Path
         {
-            get => this._path;
+            get => _path;
             set
             {
-                this._path = value;
-                this.RefreshFiles();
+                _path = value;
+                RefreshFiles();
             }
         }
         private string _path = string.Empty;
         private Stages _lastStage = Stages.Navigate;
 
-        private SftpFile CurrentFile => this._files[Input.ScrollIndex];
+        private SftpFile CurrentFile => _files[Input.ScrollIndex];
 
         public OptionFTP() : base(Stages.Login)
         {
             // When FTP is initialized, empty the input string
             // and select a random scrambler to show.
             Input.ResetString(); ;
-            this._scrambler = OptionFTP._scramblers.Random();
+            _scrambler = OptionFTP._scramblers.Random();
 
             // If Download Path doesn't exist, create it.
             if (Directory.Exists(OptionFTP.DownloadPath))
@@ -103,7 +103,7 @@ namespace B.Options.Tools.FTP
 
         public override void Loop()
         {
-            switch (this.Stage)
+            switch (Stage)
             {
                 case Stages.Login:
                     {
@@ -111,20 +111,20 @@ namespace B.Options.Tools.FTP
                         Window.ClearAndSetSize(consoleWidth, 5);
                         Window.PrintLine();
                         Window.PrintLine("     Login");
-                        string scrambled = this._scrambler(Input.String.Length);
+                        string scrambled = _scrambler(Input.String.Length);
                         int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
                         Window.PrintLine(string.Format("{0," + textDepth + "}", scrambled));
                         Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
                             new Keybind(() =>
                             {
-                                this._client = new(OptionFTP.SERVER_IP, OptionFTP.SERVER_PORT, OptionFTP.SERVER_USER, Input.String);
+                                _client = new(OptionFTP.SERVER_IP, OptionFTP.SERVER_PORT, OptionFTP.SERVER_USER, Input.String);
                                 Input.ResetString(); ;
 
                                 try
                                 {
-                                    this._client.Connect();
-                                    this.RefreshFiles();
-                                    this.SetStage(Stages.Navigate);
+                                    _client.Connect();
+                                    RefreshFiles();
+                                    SetStage(Stages.Navigate);
                                 }
                                 catch (SshAuthenticationException)
                                 {
@@ -138,23 +138,23 @@ namespace B.Options.Tools.FTP
                                 }
                             }, key: ConsoleKey.Enter),
                             new Keybind(() => Input.ResetString(), key: ConsoleKey.Delete),
-                            new Keybind(() => this.Quit(), key: ConsoleKey.Escape));
+                            new Keybind(() => Quit(), key: ConsoleKey.Escape));
                     }
                     break;
 
                 case Stages.Navigate:
                     {
-                        this._lastStage = this.Stage;
-                        int entryAmount = this._files.Length;
+                        _lastStage = Stage;
+                        int entryAmount = _files.Length;
                         int adjustedMaxEntries = Math.Min(Window.SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
                         Window.SetSize(OptionFTP.WIDTH, consoleHeight);
                         Cursor.Reset();
                         Window.PrintLine();
-                        Window.PrintLine($" {$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{this.Path}'",-98}");
+                        Window.PrintLine($" {$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}");
                         Window.PrintLine();
                         Input.RequestScroll(
-                            items: this._files,
+                            items: _files,
                             getText: file =>
                             {
                                 string s = file.Name;
@@ -167,41 +167,41 @@ namespace B.Options.Tools.FTP
                             maxEntriesPerPage: adjustedMaxEntries,
                             exitKeybind: new(() =>
                             {
-                                if (this.Path == string.Empty)
+                                if (Path == string.Empty)
                                 {
                                     Input.ScrollIndex = 0;
-                                    this.Quit();
+                                    Quit();
                                 }
                                 else
-                                    this.PreviousDirectory();
+                                    PreviousDirectory();
                             }, "Exit", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
-                                new(() => this.SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown),
-                                new(() => this.SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete),
+                                new(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown),
+                                new(() => SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete),
                                 new(() =>
                                 {
-                                    SftpFile currentFile = this.CurrentFile;
+                                    SftpFile currentFile = CurrentFile;
 
                                     if (currentFile.IsDirectory)
-                                        this.Path += "/" + currentFile.Name;
+                                        Path += "/" + currentFile.Name;
                                     else
-                                        this.SetStage(Stages.FileInteract);
+                                        SetStage(Stages.FileInteract);
                                 }, "Select", key: ConsoleKey.Enter),
-                                new(() => this.RefreshFiles(), "Refresh", key: ConsoleKey.F5),
-                                new(() => this.PreviousDirectory(), "Back", key: ConsoleKey.Backspace)});
+                                new(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5),
+                                new(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace)});
                     }
                     break;
 
                 case Stages.FileInteract:
                     {
-                        this._lastStage = this.Stage;
+                        _lastStage = Stage;
                         Window.ClearAndSetSize(OptionFTP.WIDTH, 8);
-                        SftpFile file = this.CurrentFile;
+                        SftpFile file = CurrentFile;
                         Input.CreateChoice($"{file.FullName} | {file.Attributes.Size} bytes")
-                            .Add(() => this.SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown)
-                            .Add(() => this.SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete)
+                            .Add(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown)
+                            .Add(() => SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
-                            .Add(() => this.SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape)
+                            .Add(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape)
                             .Request();
                         Window.Clear();
                     }
@@ -210,9 +210,9 @@ namespace B.Options.Tools.FTP
                 case Stages.Download:
                     {
                         // May hang while downloading files
-                        this.Download(this.CurrentFile);
+                        Download(CurrentFile);
                         Window.Clear();
-                        this.SetStage(this._lastStage);
+                        SetStage(_lastStage);
                     }
                     break;
 
@@ -220,14 +220,14 @@ namespace B.Options.Tools.FTP
                     {
                         Window.ClearAndSetSize(OptionFTP.WIDTH, 9);
                         Window.PrintLine();
-                        SftpFile currentFile = this.CurrentFile;
+                        SftpFile currentFile = CurrentFile;
                         Window.PrintLine($"  {currentFile.FullName}");
                         Input.CreateChoice("Are you sure you want to delete this file?")
-                            .Add(() => this.Delete(currentFile), "yes", key: ConsoleKey.Enter)
+                            .Add(() => Delete(currentFile), "yes", key: ConsoleKey.Enter)
                             .AddSpacer()
                             .Add(null!, "NO", key: ConsoleKey.Escape)
                             .Request();
-                        this.SetStage(Stages.Navigate);
+                        SetStage(Stages.Navigate);
                     }
                     break;
             }
@@ -235,7 +235,7 @@ namespace B.Options.Tools.FTP
 
         private void RefreshFiles()
         {
-            this._files = this._client.ListDirectory(this.Path).OrderBy(x => !x.IsDirectory).ToArray();
+            _files = _client.ListDirectory(Path).OrderBy(x => !x.IsDirectory).ToArray();
             Input.ScrollIndex = 0;
             Window.Clear();
         }
@@ -243,8 +243,8 @@ namespace B.Options.Tools.FTP
         private void Download(SftpFile file)
         {
             if (file.IsDirectory)
-                foreach (SftpFile subFile in this._client.ListDirectory(file.FullName))
-                    this.Download(subFile);
+                foreach (SftpFile subFile in _client.ListDirectory(file.FullName))
+                    Download(subFile);
             else
             {
                 string path = OptionFTP.DownloadPath + file.FullName.Substring(1);
@@ -262,7 +262,7 @@ namespace B.Options.Tools.FTP
                     Window.Print(file.FullName);
                     Cursor.SetPosition(2, 5);
                     Window.Print("Bytes Downloaded");
-                    this._client.DownloadFile(file.FullName, stream, l =>
+                    _client.DownloadFile(file.FullName, stream, l =>
                     {
                         Cursor.SetPosition(19, 5);
                         Window.Print($"{l,-(OptionFTP.WIDTH - 30)}");
@@ -273,7 +273,7 @@ namespace B.Options.Tools.FTP
 
         private void Delete(SftpFile file)
         {
-            try { this._client.Delete(file.FullName); }
+            try { _client.Delete(file.FullName); }
             catch (SshException)
             {
                 Window.ClearAndSetSize(21, 6);
@@ -283,13 +283,13 @@ namespace B.Options.Tools.FTP
                 Input.Get();
             }
 
-            this.RefreshFiles();
+            RefreshFiles();
         }
 
         private void PreviousDirectory()
         {
-            if (this.Path != string.Empty)
-                this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/'));
+            if (Path != string.Empty)
+                Path = Path.Substring(0, Path.LastIndexOf('/'));
         }
 
         public enum Stages
@@ -303,8 +303,8 @@ namespace B.Options.Tools.FTP
 
         public override void Quit()
         {
-            if (this._client != null && this._client.IsConnected)
-                this._client.Disconnect();
+            if (_client != null && _client.IsConnected)
+                _client.Disconnect();
 
             base.Quit();
         }

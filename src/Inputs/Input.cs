@@ -188,7 +188,7 @@ namespace B.Inputs
             private Keybind[] _keybinds = new Keybind[0];
             private readonly string? _message;
 
-            public Choice(string? message = null) => this._message = message;
+            public Choice(string? message = null) => _message = message;
 
             public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false)
             {
@@ -211,9 +211,9 @@ namespace B.Inputs
             public Choice AddExit(IOption option, bool addSpacerBefore = true)
             {
                 if (addSpacerBefore)
-                    this.AddSpacer();
+                    AddSpacer();
 
-                return this.Add(() => option.Quit(), "Exit", key: ConsoleKey.Escape);
+                return Add(() => option.Quit(), "Exit", key: ConsoleKey.Escape);
             }
 
             public ConsoleKeyInfo Request()
@@ -221,14 +221,14 @@ namespace B.Inputs
                 // Print out input options
                 bool printLine = false;
 
-                if (this._message is not null)
+                if (_message is not null)
                 {
                     Window.PrintLine();
-                    Window.PrintLine($"  {this._message}");
+                    Window.PrintLine($"  {_message}");
                     printLine = true;
                 }
 
-                foreach (Keybind keybind in this._keybinds)
+                foreach (Keybind keybind in _keybinds)
                 {
                     // If keybind is null, add spacer in display
                     // If keybind description is null, don't display option
@@ -256,7 +256,7 @@ namespace B.Inputs
                 ConsoleKeyInfo keyInfo = Input.Get();
 
                 // Activate function for pressed keybind
-                foreach (Keybind keybind in this._keybinds)
+                foreach (Keybind keybind in _keybinds)
                 {
                     if (keybind is not null && keybind == keyInfo)
                     {
@@ -271,7 +271,7 @@ namespace B.Inputs
             public ConsoleKeyInfo Request(Vector2 position)
             {
                 Cursor.SetPosition(position);
-                return this.Request();
+                return Request();
             }
         }
     }

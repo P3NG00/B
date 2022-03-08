@@ -31,16 +31,16 @@ namespace B.Options.Tools.Settings
 
         public override void Loop()
         {
-            switch (this.Stage)
+            switch (Stage)
             {
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(35, 13);
                         Input.CreateChoice(OptionSettings.Title)
-                            .Add(() => this.SetStage(Stages.Color), "Color", '1')
-                            .Add(() => this.SetStage(Stages.WindowSize), "Window Size", '2')
-                            .Add(() => this.SetStage(Stages.KeyPress), "Key Press", '3')
-                            .Add(() => this.SetStage(Stages.DeleteData), "Delete Data", '4')
+                            .Add(() => SetStage(Stages.Color), "Color", '1')
+                            .Add(() => SetStage(Stages.WindowSize), "Window Size", '2')
+                            .Add(() => SetStage(Stages.KeyPress), "Key Press", '3')
+                            .Add(() => SetStage(Stages.DeleteData), "Delete Data", '4')
                             .AddSpacer()
                             .Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F11)
                             .Add(null!, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12)
@@ -51,17 +51,17 @@ namespace B.Options.Tools.Settings
 
                 case Stages.WindowSize:
                     {
-                        this._size = this._size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
-                        Window.ClearAndSetSize(this._size);
+                        _size = _size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
+                        Window.ClearAndSetSize(_size);
                         Window.PrintLine($"Detected Max Size: {Window.SIZE_MAX}");
-                        Window.Print($"Current Size: {this._size}");
+                        Window.Print($"Current Size: {_size}");
 
                         Input.CreateChoice()
-                            .Add(() => this._size.x++, keyChar: '8', key: ConsoleKey.RightArrow)
-                            .Add(() => this._size.x--, keyChar: '2', key: ConsoleKey.LeftArrow)
-                            .Add(() => this._size.y++, keyChar: '6', key: ConsoleKey.DownArrow)
-                            .Add(() => this._size.y--, keyChar: '4', key: ConsoleKey.UpArrow)
-                            .Add(() => this.SetStage(Stages.MainMenu), key: ConsoleKey.Escape)
+                            .Add(() => _size.x++, keyChar: '8', key: ConsoleKey.RightArrow)
+                            .Add(() => _size.x--, keyChar: '2', key: ConsoleKey.LeftArrow)
+                            .Add(() => _size.y++, keyChar: '6', key: ConsoleKey.DownArrow)
+                            .Add(() => _size.y--, keyChar: '4', key: ConsoleKey.UpArrow)
+                            .Add(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -70,29 +70,29 @@ namespace B.Options.Tools.Settings
                     {
                         Window.ClearAndSetSize(20, 8);
                         Input.CreateChoice("Color")
-                            .Add(() => this.SetStage(Stages.Color_Theme), "Themes", '1')
-                            .Add(() => this.SetStage(Stages.Color_Custom), "Customize", '2')
+                            .Add(() => SetStage(Stages.Color_Theme), "Themes", '1')
+                            .Add(() => SetStage(Stages.Color_Custom), "Customize", '2')
                             .AddSpacer()
-                            .Add(() => this.SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
+                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
                 case Stages.Color_Theme:
                     {
-                        ColorTheme theme = this._colorThemes[Input.ScrollIndex];
+                        ColorTheme theme = _colorThemes[Input.ScrollIndex];
                         Program.Settings.ColorBackground = theme.ColorBG;
                         Program.Settings.ColorText = theme.ColorText;
                         Program.Settings.UpdateColors();
-                        Window.ClearAndSetSize(32, this._colorThemes.Length + 8);
+                        Window.ClearAndSetSize(32, _colorThemes.Length + 8);
                         Input.RequestScroll(
-                            items: this._colorThemes,
+                            items: _colorThemes,
                             getText: theme => theme.Title,
                             title: "Color Themes",
                             exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this.SetStage(Stages.Color);
+                                SetStage(Stages.Color);
                             }, "Back", key: ConsoleKey.Escape));
                     }
                     break;
@@ -111,7 +111,7 @@ namespace B.Options.Tools.Settings
                             exitKeybind: new(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                this.SetStage(Stages.Color);
+                                SetStage(Stages.Color);
                             }, "Exit", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 new(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
@@ -128,7 +128,7 @@ namespace B.Options.Tools.Settings
                             .Add(CreateDeleteKeybind("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), '3'))
                             .Add(CreateDeleteKeybind("Settings", () => File.Delete(ProgramSettings.Path), '4'))
                             .AddSpacer()
-                            .Add(() => this.SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
+                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
                             .Request();
 
                         Keybind CreateDeleteKeybind(string title, Action deleteAction, char num) => new Keybind(() =>
@@ -160,7 +160,7 @@ namespace B.Options.Tools.Settings
                         Window.PrintLine($" Alt: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Alt)}");
 
                         if (Input.Get().Key == ConsoleKey.Escape)
-                            this.SetStage(Stages.MainMenu);
+                            SetStage(Stages.MainMenu);
                     }
                     break;
             }

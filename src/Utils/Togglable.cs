@@ -7,8 +7,8 @@ namespace B.Utils
 
         public Togglable() : this(false) { }
 
-        public Togglable(bool value) => this.Active = value;
+        public Togglable(bool value) => Active = value;
 
-        public void Toggle() => this.Active = !this.Active;
+        public void Toggle() => Active = !Active;
     }
 }

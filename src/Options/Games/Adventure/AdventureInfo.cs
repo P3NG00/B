@@ -9,10 +9,10 @@ namespace B.Options.Games.Adventure
 
         public int GridID
         {
-            get => this._gridID;
+            get => _gridID;
             set
             {
-                this._gridID = value;
+                _gridID = value;
                 // The console should be cleared if the GridID is changed because
                 // the grid needs to be replaced completely instead of being
                 // written on top of in case there is left over artifacts.
@@ -22,8 +22,8 @@ namespace B.Options.Games.Adventure
 
         public int Speed
         {
-            get => this._speed;
-            set => this._speed = value.Clamp(1, 25);
+            get => _speed;
+            set => _speed = value.Clamp(1, 25);
         }
 
         public Vector2 Position = new();

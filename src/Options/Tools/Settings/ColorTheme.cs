@@ -8,9 +8,9 @@ namespace B.Options.Tools.Settings
 
         public ColorTheme(string title, ConsoleColor colorText, ConsoleColor colorBG)
         {
-            this.Title = title;
-            this.ColorText = colorText;
-            this.ColorBG = colorBG;
+            Title = title;
+            ColorText = colorText;
+            ColorBG = colorBG;
         }
     }
 }

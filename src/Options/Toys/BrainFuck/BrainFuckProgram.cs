@@ -10,8 +10,8 @@ namespace B.Options.Toys.BrainFuck
 
         public BrainFuckProgram(string title, string fullFilePath)
         {
-            this.Title = title;
-            this.Instructions =
+            Title = title;
+            Instructions =
                 File.ReadAllText(fullFilePath)
                     .Replace(" ", string.Empty)
                     .ReplaceLineEndings(string.Empty)
@@ -20,7 +20,7 @@ namespace B.Options.Toys.BrainFuck
 
         public void HandleStep(in byte[] memory, ref uint memoryIndex, ref uint instructionIndex, ref uint bracketDepth, ref string output)
         {
-            switch (this.Instructions[instructionIndex])
+            switch (Instructions[instructionIndex])
             {
                 // Move Right One Cell
                 case '>': memoryIndex++; break;
@@ -56,9 +56,9 @@ namespace B.Options.Toys.BrainFuck
                         {
                             bracketDepth++;
 
-                            while (this.Instructions[instructionIndex] != ']' || bracketDepth != 0)
+                            while (Instructions[instructionIndex] != ']' || bracketDepth != 0)
                             {
-                                switch (this.Instructions[++instructionIndex])
+                                switch (Instructions[++instructionIndex])
                                 {
                                     case '[': bracketDepth++; break;
                                     case ']': bracketDepth--; break;
@@ -75,9 +75,9 @@ namespace B.Options.Toys.BrainFuck
                         {
                             bracketDepth++;
 
-                            while (this.Instructions[instructionIndex] != '[' || bracketDepth != 0)
+                            while (Instructions[instructionIndex] != '[' || bracketDepth != 0)
                             {
-                                switch (this.Instructions[--instructionIndex])
+                                switch (Instructions[--instructionIndex])
                                 {
                                     case '[': bracketDepth--; break;
                                     case ']': bracketDepth++; break;

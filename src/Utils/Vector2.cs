@@ -14,7 +14,7 @@ namespace B.Utils
         public int y;
 
         public Vector2 Copy() => new(this);
-        public (int, int) Tuple => (this.x, this.y);
+        public (int, int) Tuple => (x, y);
 
         public Vector2() : this(0) { }
 
@@ -22,31 +22,31 @@ namespace B.Utils
 
         public Vector2(int x, int y)
         {
-            this.x = x;
-            this.y = y;
+            x = x;
+            y = y;
         }
 
         public Vector2((int, int) tuple) : this(tuple.Item1, tuple.Item2) { }
 
         public Vector2(Vector2 vec) : this(vec.x, vec.y) { }
 
-        public sealed override string ToString() => $"({this.x}, {this.y})";
+        public sealed override string ToString() => $"({x}, {y})";
 
-        public void Move(Direction direction) => this.Move((Vector2)direction);
+        public void Move(Direction direction) => Move((Vector2)direction);
 
-        public void Move(Vector2 vec) => this.Move(vec.x, vec.y);
+        public void Move(Vector2 vec) => Move(vec.x, vec.y);
 
-        public void Move((int, int) tuple) => this.Move(tuple.Item1, tuple.Item2);
+        public void Move((int, int) tuple) => Move(tuple.Item1, tuple.Item2);
 
         public void Move(int x, int y)
         {
-            this.x += x;
-            this.y += y;
+            x += x;
+            y += y;
         }
 
         public override bool Equals(object? obj) => obj is Vector2 && this == (Vector2)obj;
 
-        public override int GetHashCode() => (this.x * this.y).GetHashCode();
+        public override int GetHashCode() => (x * y).GetHashCode();
 
         public static Vector2 Min(Vector2 vecA, Vector2 vecB) => new(Math.Min(vecA.x, vecB.x), Math.Min(vecA.y, vecB.y));
 

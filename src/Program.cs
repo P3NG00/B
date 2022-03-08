@@ -57,24 +57,24 @@ namespace B
         private void Start()
         {
             // Initialize program
-            try { this.Initialize(); }
+            try { Initialize(); }
             catch (Exception e)
             {
-                this.HandleException(e);
+                HandleException(e);
                 Environment.Exit(1);
             }
 
             // Program loop
-            while (this.IsRunning())
+            while (IsRunning())
             {
-                try { this.Loop(); }
-                catch (NotImplementedException e) { this.HandleNotImplementedException(e); }
-                catch (Exception e) { this.HandleException(e); }
+                try { Loop(); }
+                catch (NotImplementedException e) { HandleNotImplementedException(e); }
+                catch (Exception e) { HandleException(e); }
             }
 
             // Save before exiting
             try { Util.Serialize(ProgramSettings.Path, Program.Settings); }
-            catch (Exception e) { this.HandleException(e); }
+            catch (Exception e) { HandleException(e); }
         }
 
         private void Initialize()
@@ -111,7 +111,7 @@ namespace B
                 mainDirectory.Attributes |= FileAttributes.Hidden;
             }
 
-            switch (this.Stage)
+            switch (Stage)
             {
                 case Stages.MainMenu:
                     {
@@ -124,8 +124,8 @@ namespace B
                             var optionGroup = Program.OptionGroups[i];
                             iob.Add(() =>
                             {
-                                this._optionGroup = optionGroup;
-                                this.SetStage(Stages.Group);
+                                _optionGroup = optionGroup;
+                                SetStage(Stages.Group);
                             }, optionGroup.GroupTitle, (char)('1' + i));
                         }
 
@@ -137,33 +137,33 @@ namespace B
                 case Stages.Group:
                     {
                         // TODO test
-                        Window.ClearAndSetSize(22, this._optionGroup.Options.Length + 6);
-                        Input.Choice iob = Input.CreateChoice(this._optionGroup.GroupTitle);
+                        Window.ClearAndSetSize(22, _optionGroup.Options.Length + 6);
+                        Input.Choice iob = Input.CreateChoice(_optionGroup.GroupTitle);
 
-                        for (int i = 0; i < this._optionGroup.Options.Length; i++)
+                        for (int i = 0; i < _optionGroup.Options.Length; i++)
                         {
-                            var option = this._optionGroup.Options[i];
+                            var option = _optionGroup.Options[i];
                             iob.Add(() =>
                             {
-                                this._selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
-                                this.SetStage(Stages.Option);
+                                _selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
+                                SetStage(Stages.Option);
                             }, option.GetTitle(), (char)('1' + i));
                         }
 
                         iob.AddSpacer()
-                            .Add(() => this.SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
+                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
                 case Stages.Option:
                     {
-                        if (this._selectedOption is not null && this._selectedOption.IsRunning())
-                            this._selectedOption.Loop();
+                        if (_selectedOption is not null && _selectedOption.IsRunning())
+                            _selectedOption.Loop();
                         else
                         {
-                            this._selectedOption = null;
-                            this.SetStage(Stages.Group);
+                            _selectedOption = null;
+                            SetStage(Stages.Group);
                         }
                     }
                     break;
@@ -180,7 +180,7 @@ namespace B
             Cursor.SetPosition(cursorPos);
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
-            this._selectedOption = null;
+            _selectedOption = null;
 
             if (Stage == Stages.Option)
                 SetStage(Stages.Group);

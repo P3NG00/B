@@ -8,25 +8,25 @@ namespace B.Options.Toys.Canvas
         public string Title = string.Empty;
         public ConsoleColor[][] Colors = null!;
 
-        public string FilePath => OptionCanvas.DirectoryPath + this.Title;
-        public Vector2 Size => new(this.Colors[0].Length, this.Colors.Length);
+        public string FilePath => OptionCanvas.DirectoryPath + Title;
+        public Vector2 Size => new(Colors[0].Length, Colors.Length);
 
         // Use these as Color Getter and Setter
-        public ref ConsoleColor Color(int x, int y) => ref this.Colors[y][x];
-        public ref ConsoleColor Color(Vector2 pos) => ref this.Color(pos.x, pos.y);
+        public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
+        public ref ConsoleColor Color(Vector2 pos) => ref Color(pos.x, pos.y);
 
         public void Draw(Vector2? offset = null)
         {
-            Vector2 windowSize = this.Size + (OptionCanvas.CANVAS_BORDER_PAD * 2);
+            Vector2 windowSize = Size + (OptionCanvas.CANVAS_BORDER_PAD * 2);
 
             if (offset is not null)
                 windowSize += offset;
 
             Window.ClearAndSetSize(windowSize);
 
-            for (int y = 0; y < this.Size.y; y++)
+            for (int y = 0; y < Size.y; y++)
             {
-                for (int x = 0; x < this.Size.x; x++)
+                for (int x = 0; x < Size.x; x++)
                 {
                     Vector2 newPos = new Vector2(x, y) + OptionCanvas.CANVAS_BORDER_PAD;
 
@@ -34,7 +34,7 @@ namespace B.Options.Toys.Canvas
                         newPos += offset;
 
                     Cursor.SetPosition(newPos);
-                    Window.Print(' ', colorBG: this.Color(x, y));
+                    Window.Print(' ', colorBG: Color(x, y));
                 }
             }
 

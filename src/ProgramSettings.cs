@@ -13,8 +13,8 @@ namespace B
 
         public void UpdateColors()
         {
-            Console.BackgroundColor = this.ColorBackground;
-            Console.ForegroundColor = this.ColorText;
+            Console.BackgroundColor = ColorBackground;
+            Console.ForegroundColor = ColorText;
         }
     }
 }

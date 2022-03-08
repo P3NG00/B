@@ -1,5 +1,3 @@
-using B.Utils;
-
 namespace B.Options.Tools.Backup
 {
     public sealed class OptionBackup : Option<OptionBackup.Stages>
@@ -12,7 +10,7 @@ namespace B.Options.Tools.Backup
         {
             throw new NotImplementedException();
 
-            // switch (this.Stage)
+            // switch (Stage)
             // {
             //     case Stages.MainMenu:
             //         {

@@ -24,8 +24,8 @@ namespace B.Options.Games.Adventure
             if (chars.Length != 2)
                 throw new ArgumentException("chars.Length != 2");
 
-            this.Chars = chars;
-            this.TileType = tileType;
+            Chars = chars;
+            TileType = tileType;
         }
 
         public enum TileTypes
@@ -37,7 +37,7 @@ namespace B.Options.Games.Adventure
             Interactable
         }
 
-        public sealed override string ToString() => $"Tile: chars:'{this.Chars}', stopMovement: {this.TileType.StopsMovement()}, isInteractable: {this.TileType.IsInteractable()}";
+        public sealed override string ToString() => $"Tile: chars:'{Chars}', stopMovement: {TileType.StopsMovement()}, isInteractable: {TileType.IsInteractable()}";
 
         public static explicit operator Tile(char c)
         {

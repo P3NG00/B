@@ -12,7 +12,7 @@ namespace B.Options.Games.OptionCheckers
         {
             throw new NotImplementedException(); // TODO REMOVE
 
-            // switch (this.Stage)
+            // switch (Stage)
             // {
             //     case Stages.MainMenu:
             //         {
