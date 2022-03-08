@@ -11,7 +11,7 @@ namespace B.Options.Toys.BrainFuck
         public static readonly string DirectoryPath = Program.DataPath + @"brainfuck\";
         public static string Title => Program.Settings.Censor.Active ? "BrainF**k" : "BrainFuck";
 
-        private readonly Utils.List<BrainFuckProgram> _programs = new();
+        private BrainFuckProgram[] _programs = new BrainFuckProgram[0];
         private BrainFuckProgram _currentProgram = null!;
 
         // Memory Cells for BrainFuck Program.
@@ -33,7 +33,7 @@ namespace B.Options.Toys.BrainFuck
                 Directory.CreateDirectory(OptionBrainFuck.DirectoryPath);
             else
                 foreach (string filePath in Directory.GetFiles(OptionBrainFuck.DirectoryPath, OptionBrainFuck.FILE_EXTENSION))
-                    this._programs.Add(new BrainFuckProgram(Path.GetFileNameWithoutExtension(filePath), filePath));
+                    _programs = _programs.Add(new BrainFuckProgram(Path.GetFileNameWithoutExtension(filePath), filePath));
         }
 
         public override void Loop()
@@ -43,7 +43,7 @@ namespace B.Options.Toys.BrainFuck
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(20, 7);
-                        new Input.Choice(OptionBrainFuck.Title)
+                        Input.CreateChoice(OptionBrainFuck.Title)
                             .Add(() => this.SetStage(Stages.List), "List", '1')
                             .AddExit(this)
                             .Request();
@@ -54,7 +54,7 @@ namespace B.Options.Toys.BrainFuck
                     {
                         Window.ClearAndSetSize(40, 10 + this._programs.Length);
                         Input.RequestScroll(
-                            items: this._programs.Items,
+                            items: this._programs,
                             getText: program => program.Title,
                             title: $"{OptionBrainFuck.Title} Programs",
                             exitKeybind: new(() =>
@@ -142,7 +142,7 @@ namespace B.Options.Toys.BrainFuck
                             Input.ScrollIndex = (int)this._memoryIndex;
                             Input.RequestScroll(
                                 items: this._memory,
-                                getText: b => string.Format(format, b, Util.Unformat((char)b), $"{b,2:X}"),
+                                getText: b => string.Format(format, b, ((char)b).Unformat(), $"{b,2:X}"),
                                 maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {

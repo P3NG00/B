@@ -22,18 +22,14 @@ namespace B.Options.Tools.FTP
         private static Func<int, string>[] _scramblers = new Func<int, string>[]
         {
             // Center Waves
-            l =>
-            {
-                string[] sa =
+            l => new string[]
                 {
                     @"    ^    ",
                     @"   / \   ",
                     @"  /   \  ",
                     @" /     \ ",
                     @"/       \",
-                };
-                return sa[l % sa.Length];
-            },
+                }.FromRemainder(l),
             // Star Scroll
             l =>
             {
@@ -47,7 +43,10 @@ namespace B.Options.Tools.FTP
             {
                 char[] ca = new char[9];
                 Array.Fill(ca, ' ');
-                ca[l % ca.Length] = Util.RandomFrom('!', '?', '@', '#', '$', '%', '&', '*', '+', '=', '~', 'X', 'O', '§', '®', '¡', '¿', '©', '█', '■', '"');
+                ca[l % ca.Length] = new char[] {'!', '?', '@', '#', '$', '%', '&', '*', '+', '=',
+                                                '~', 'X', 'O', 'Q', '§', '®', '¡', '¿', '©', '█',
+                                                '■', '"', '/', '·', '|', ':', ';', '<', '>', '-',
+                                                '\\'}.Random();
                 return new string(ca);
             },
             // Bar Fill
@@ -62,11 +61,15 @@ namespace B.Options.Tools.FTP
                 return new string(ca);
             },
             // Spinner
-            l =>
-            {
-                char[] ca = { '|', '/', '-', '\\' };
-                return Convert.ToString(ca[l % ca.Length]);
-            }
+            l => Convert.ToString(new char[] { '|', '/', '-', '\\' }.FromRemainder(l)),
+            // Dots
+            l => new string[]
+                {
+                    "     ",
+                    "·    ",
+                    "· ·  ",
+                    "· · ·",
+                }.FromRemainder(l),
         };
 
         private Func<int, string> _scrambler;
@@ -91,7 +94,7 @@ namespace B.Options.Tools.FTP
             // When FTP is initialized, empty the input string
             // and select a random scrambler to show.
             Input.ResetString(); ;
-            this._scrambler = Util.RandomFrom(OptionFTP._scramblers);
+            this._scrambler = OptionFTP._scramblers.Random();
 
             // If Download Path doesn't exist, create it.
             if (Directory.Exists(OptionFTP.DownloadPath))
@@ -194,7 +197,7 @@ namespace B.Options.Tools.FTP
                         this._lastStage = this.Stage;
                         Window.ClearAndSetSize(OptionFTP.WIDTH, 8);
                         SftpFile file = this.CurrentFile;
-                        new Input.Choice($"{file.FullName} | {file.Attributes.Size} bytes")
+                        Input.CreateChoice($"{file.FullName} | {file.Attributes.Size} bytes")
                             .Add(() => this.SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown)
                             .Add(() => this.SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
@@ -219,7 +222,7 @@ namespace B.Options.Tools.FTP
                         Window.PrintLine();
                         SftpFile currentFile = this.CurrentFile;
                         Window.PrintLine($"  {currentFile.FullName}");
-                        new Input.Choice("Are you sure you want to delete this file?")
+                        Input.CreateChoice("Are you sure you want to delete this file?")
                             .Add(() => this.Delete(currentFile), "yes", key: ConsoleKey.Enter)
                             .AddSpacer()
                             .Add(null!, "NO", key: ConsoleKey.Escape)

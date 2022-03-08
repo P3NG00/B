@@ -2,6 +2,7 @@
 using B.Options;
 using B.Options.Games.Adventure;
 using B.Options.Games.Blackjack;
+using B.Options.Games.MexicanTrain;
 using B.Options.Games.NumberGuesser;
 using B.Options.Games.OptionCheckers;
 using B.Options.Tools.FTP;
@@ -33,6 +34,7 @@ namespace B
         {
             ("Games", new (Type, Func<string>)[] {
                 (typeof(OptionAdventure), () => OptionAdventure.Title),
+                (typeof(OptionMexicanTrain), () => OptionMexicanTrain.Title),
                 (typeof(OptionBlackjack), () => OptionBlackjack.Title),
                 (typeof(OptionCheckers), () => OptionCheckers.Title),
                 (typeof(OptionNumberGuesser), () => OptionNumberGuesser.Title),
@@ -115,7 +117,7 @@ namespace B
                     {
                         // Display main menu options
                         Window.ClearAndSetSize(22, Program.OptionGroups.Length + 6);
-                        Input.Choice iob = new($"{Program.Title}'s");
+                        Input.Choice iob = Input.CreateChoice($"{Program.Title}'s");
 
                         for (int i = 0; i < Program.OptionGroups.Length; i++)
                         {
@@ -136,7 +138,7 @@ namespace B
                     {
                         // TODO test
                         Window.ClearAndSetSize(22, this._optionGroup.Options.Length + 6);
-                        Input.Choice iob = new(this._optionGroup.GroupTitle);
+                        Input.Choice iob = Input.CreateChoice(this._optionGroup.GroupTitle);
 
                         for (int i = 0; i < this._optionGroup.Options.Length; i++)
                         {
@@ -168,37 +170,37 @@ namespace B
             }
         }
 
-        private void HandleException(Exception e)
+        private void HandleExceptionAction(Exception e, Action printAction)
         {
             Window.ClearAndSetSize(Window.SIZE_MAX / 2);
+            printAction();
+            Vector2 cursorPos = Cursor.GetPositionVector2();
+            cursorPos.x = 2;
+            cursorPos.y += 2;
+            Cursor.SetPosition(cursorPos);
+            Input.WaitFor(ConsoleKey.F1);
+            Window.Clear();
+            this._selectedOption = null;
+
+            if (Stage == Stages.Option)
+                SetStage(Stages.Group);
+            else if (Stage == Stages.Group)
+                SetStage(Stages.MainMenu);
+        }
+
+        private void HandleException(Exception e) => HandleExceptionAction(e, () =>
+        {
             Cursor.SetPosition(2, 1);
             Window.Print("An exception was thrown!", ConsoleColor.Red);
             Cursor.SetPosition(2, 3);
             Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
-            Vector2 cursorPos = Cursor.GetPositionVector2();
-            cursorPos.x = 2;
-            cursorPos.y += 2;
-            Cursor.SetPosition(cursorPos);
-            Input.WaitFor(ConsoleKey.F1);
-            Window.Clear();
-            this._selectedOption = null;
-            this.SetStage(Stages.MainMenu);
-        }
+        });
 
-        private void HandleNotImplementedException(NotImplementedException e)
+        private void HandleNotImplementedException(NotImplementedException e) => HandleExceptionAction(e, () =>
         {
-            Window.ClearAndSetSize(Window.SIZE_MAX / 2);
             Cursor.SetPosition(2, 1);
             Window.Print("This feature is not yet implemented.", ConsoleColor.DarkYellow);
-            Vector2 cursorPos = Cursor.GetPositionVector2();
-            cursorPos.x = 2;
-            cursorPos.y += 2;
-            Cursor.SetPosition(cursorPos);
-            Input.WaitFor(ConsoleKey.F1);
-            Window.Clear();
-            this._selectedOption = null;
-            this.SetStage(Stages.MainMenu);
-        }
+        });
 
         public enum Stages
         {

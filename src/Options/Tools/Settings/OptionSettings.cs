@@ -36,7 +36,7 @@ namespace B.Options.Tools.Settings
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(35, 13);
-                        new Input.Choice(OptionSettings.Title)
+                        Input.CreateChoice(OptionSettings.Title)
                             .Add(() => this.SetStage(Stages.Color), "Color", '1')
                             .Add(() => this.SetStage(Stages.WindowSize), "Window Size", '2')
                             .Add(() => this.SetStage(Stages.KeyPress), "Key Press", '3')
@@ -56,7 +56,7 @@ namespace B.Options.Tools.Settings
                         Window.PrintLine($"Detected Max Size: {Window.SIZE_MAX}");
                         Window.Print($"Current Size: {this._size}");
 
-                        new Input.Choice()
+                        Input.CreateChoice()
                             .Add(() => this._size.x++, keyChar: '8', key: ConsoleKey.RightArrow)
                             .Add(() => this._size.x--, keyChar: '2', key: ConsoleKey.LeftArrow)
                             .Add(() => this._size.y++, keyChar: '6', key: ConsoleKey.DownArrow)
@@ -69,7 +69,7 @@ namespace B.Options.Tools.Settings
                 case Stages.Color:
                     {
                         Window.ClearAndSetSize(20, 8);
-                        new Input.Choice("Color")
+                        Input.CreateChoice("Color")
                             .Add(() => this.SetStage(Stages.Color_Theme), "Themes", '1')
                             .Add(() => this.SetStage(Stages.Color_Custom), "Customize", '2')
                             .AddSpacer()
@@ -122,7 +122,7 @@ namespace B.Options.Tools.Settings
                 case Stages.DeleteData:
                     {
                         Window.ClearAndSetSize(20, 10);
-                        new Input.Choice("Delete Data")
+                        Input.CreateChoice("Delete Data")
                             .Add(CreateDeleteKeybind("Adventure", () => File.Delete(OptionAdventure.FilePath), '1'))
                             .Add(CreateDeleteKeybind(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true), '2'))
                             .Add(CreateDeleteKeybind("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), '3'))
@@ -134,7 +134,7 @@ namespace B.Options.Tools.Settings
                         Keybind CreateDeleteKeybind(string title, Action deleteAction, char num) => new Keybind(() =>
                         {
                             Window.ClearAndSetSize(30, 7);
-                            new Input.Choice($"Delete {title} Data?")
+                            Input.CreateChoice($"Delete {title} Data?")
                                 .Add(null!, "NO", key: ConsoleKey.Escape)
                                 .AddSpacer()
                                 .Add(deleteAction, "yes", key: ConsoleKey.Enter)
@@ -152,7 +152,7 @@ namespace B.Options.Tools.Settings
                         ConsoleKeyInfo lastInput = Input.LastInput;
                         Window.PrintLine($" Key: {lastInput.Key}");
                         Window.PrintLine($" Key Num: {(int)lastInput.Key}");
-                        Window.PrintLine($" Key Char: {Util.Unformat(lastInput.KeyChar)}");
+                        Window.PrintLine($" Key Char: {lastInput.KeyChar.Unformat()}");
                         Window.PrintLine($" Key Char Num: {(int)lastInput.KeyChar}");
                         Window.PrintLine($" Modifiers: {lastInput.Modifiers}");
                         Window.PrintLine($" Control: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Control)}");
@@ -169,7 +169,7 @@ namespace B.Options.Tools.Settings
         private void AskDelete(string title, Action deleteAction)
         {
             Window.ClearAndSetSize(30, 7);
-            new Input.Choice($"Delete {title} Data?")
+            Input.CreateChoice($"Delete {title} Data?")
                 .Add(null!, "NO", key: ConsoleKey.Escape)
                 .AddSpacer()
                 .Add(deleteAction, "yes", key: ConsoleKey.Enter)

@@ -18,7 +18,7 @@ namespace B.Options.Toys.Canvas
         public static readonly string DirectoryPath = Program.DataPath + @"canvas\";
 
         private (int x, int y, int width, int height) _lastConsoleWindow = new(0, 0, 0, 0); // TODO replace with better way to see when screen needs to be fully reprinted
-        private Utils.List<CanvasInfo> _canvases = new();
+        private CanvasInfo[] _canvases = new CanvasInfo[0];
         private CanvasInfo _canvas = null!;
         private ConsoleColor _color = ConsoleColor.Black;
         private Vector2 BrushSize = Vector2.One;
@@ -30,7 +30,7 @@ namespace B.Options.Toys.Canvas
                 Directory.CreateDirectory(OptionCanvas.DirectoryPath);
             else
                 foreach (string filePath in Directory.GetFiles(OptionCanvas.DirectoryPath))
-                    this._canvases.Add(Util.Deserialize<CanvasInfo>(filePath));
+                    _canvases = _canvases.Add(Util.Deserialize<CanvasInfo>(filePath));
         }
 
         public override void Loop()
@@ -41,12 +41,12 @@ namespace B.Options.Toys.Canvas
                     {
                         int consoleHeight = 7;
 
-                        if (!this._canvases.IsEmpty)
+                        if (!_canvases.IsEmpty())
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
 
-                        Input.Choice iob = new Input.Choice(OptionCanvas.Title)
+                        Input.Choice iob = Input.CreateChoice(OptionCanvas.Title)
                             .Add(() =>
                             {
                                 Window.Clear();
@@ -55,7 +55,7 @@ namespace B.Options.Toys.Canvas
                                 this.SetStage(Stages.Create_Name);
                             }, "Create", '1');
 
-                        if (!this._canvases.IsEmpty)
+                        if (!_canvases.IsEmpty())
                             iob.Add(() =>
                             {
                                 Input.ScrollIndex = 0;
@@ -71,7 +71,7 @@ namespace B.Options.Toys.Canvas
                     {
                         Window.ClearAndSetSize(32, this._canvases.Length + 10);
                         Input.RequestScroll(
-                            items: this._canvases.Items,
+                            items: this._canvases,
                             getText: canvas => canvas.Title,
                             title: "Canvases",
                             maxEntriesPerPage: OptionCanvas.MAX_CANVASES_PER_PAGE,
@@ -94,13 +94,13 @@ namespace B.Options.Toys.Canvas
                 case Stages.Delete:
                     {
                         Window.ClearAndSetSize(39, 7);
-                        new Input.Choice($"Delete '{this._canvas.Title}'?")
+                        Input.CreateChoice($"Delete '{this._canvas.Title}'?")
                             .Add(() =>
                             {
                                 File.Delete(this._canvas.FilePath);
-                                this._canvases.Remove(this._canvas);
+                                _canvases = _canvases.Remove(this._canvas);
 
-                                if (this._canvases.IsEmpty)
+                                if (_canvases.IsEmpty())
                                     this.SetStage(Stages.MainMenu);
                             }, "yes", key: ConsoleKey.Enter)
                             .AddSpacer()
@@ -139,7 +139,7 @@ namespace B.Options.Toys.Canvas
                         Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {this.BrushSize} | Color: {this._color}"));
                         Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
                         Cursor.SetPosition(this.CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
-                        new Input.Choice()
+                        Input.CreateChoice()
                             // Move in Direction
                             .Add(() => MoveCursor(Direction.Up), key: ConsoleKey.UpArrow)
                             .Add(() => MoveCursor(Direction.Down), key: ConsoleKey.DownArrow)
@@ -152,7 +152,7 @@ namespace B.Options.Toys.Canvas
                             .Add(() => PaintDirection(Direction.Right), keyChar: '6')
                             // Paint
                             .Add(() => Paint(), key: ConsoleKey.Spacebar)
-                            .Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, control: true) // TODO use Vector2.Move(Direction)
+                            .Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, control: true)
                             .Add(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, control: true)
                             .Add(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, control: true)
                             .Add(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, control: true)
@@ -166,7 +166,7 @@ namespace B.Options.Toys.Canvas
                             .Add(() =>
                             {
                                 if (!this._canvases.Contains(this._canvas))
-                                    this._canvases.Add(this._canvas);
+                                    _canvases = _canvases.Add(this._canvas);
 
                                 this.Save();
                                 this._lastConsoleWindow = new(0, 0, 0, 0);
@@ -229,15 +229,14 @@ namespace B.Options.Toys.Canvas
                 case Stages.ColorSelect:
                     {
                         Window.ClearAndSetSize(32, 26);
-                        Window.PrintLine();
-                        Window.PrintLine("  Color Select");
-                        Window.PrintLine();
                         ConsoleColor[] colors = Util.OrderedConsoleColors;
+                        // TODO once RequestScroll uses Cursor Positioning instead of printlining, adjust cursor position so that the title lines up with the color (4, 1)?
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",
                             getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
                             getBackgroundColor: c => c,
+                            title: "Color Select",
                             exitKeybind: new Keybind(() => this.SetStage(Stages.Edit), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind(() =>
                             {
@@ -283,7 +282,7 @@ namespace B.Options.Toys.Canvas
                     {
                         case CreationStage.Name:
                             {
-                                if (!string.IsNullOrWhiteSpace(Input.String) && !this._canvases.GetSubList(c => c.Title).Contains(Input.String))
+                                if (!string.IsNullOrWhiteSpace(Input.String) && !this._canvases.FromEach(c => c.Title).Contains(Input.String))
                                 {
                                     this._canvas.Title = Input.String.Trim();
                                     Input.ResetString(); ;

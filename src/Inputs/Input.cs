@@ -63,6 +63,7 @@ namespace B.Inputs
             }
         }
 
+        // TODO use Cursor Position positioning
         public static ConsoleKeyInfo RequestScroll<T>(
             T[] items,                                          // Items to scroll through
             Func<T, string> getText,                            // Function to get text from item
@@ -75,7 +76,7 @@ namespace B.Inputs
             params Keybind[] extraKeybinds)                     // Extra keybinds
         {
             int maxEntriesAdjusted = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
-            Input.Choice iob = new();
+            Input.Choice choice = Input.CreateChoice();
             ConsoleKeyInfo keyInfo;
 
             if (maxEntriesAdjusted > 0 && items.Length > 0)
@@ -124,7 +125,7 @@ namespace B.Inputs
                 int lastPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
 
                 if (navigationKeybinds)
-                    iob.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
+                    choice.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
                         .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow)
                         .Add(() =>
                         {
@@ -138,9 +139,9 @@ namespace B.Inputs
                         }, key: ConsoleKey.LeftArrow);
 
                 if (hasExtraKeybinds)
-                    iob.Add(extraKeybinds!);
+                    choice.Add(extraKeybinds!);
 
-                keyInfo = iob.AddSpacer()
+                keyInfo = choice.AddSpacer()
                     .Add(exitKeybind)
                     .Request();
 
@@ -157,7 +158,7 @@ namespace B.Inputs
                 Window.PrintLine();
                 Window.PrintLine("  No entries.");
                 Window.PrintLine();
-                keyInfo = iob.Add(exitKeybind)
+                keyInfo = choice.Add(exitKeybind)
                     .Request();
             }
 
@@ -180,28 +181,30 @@ namespace B.Inputs
             return Input.RequestScroll(items, getText, getTextColor, getBackgroundColor, title, maxEntriesPerPage, navigationKeybinds, exitKeybind, extraKeybinds);
         }
 
+        public static Choice CreateChoice(string? title = null) => new(title);
+
         public sealed class Choice
         {
-            private readonly Utils.List<Keybind> _keybinds = new Utils.List<Keybind>();
+            private Keybind[] _keybinds = new Keybind[0];
             private readonly string? _message;
 
             public Choice(string? message = null) => this._message = message;
 
             public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false)
             {
-                this._keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
+                _keybinds = _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
                 return this;
             }
 
             public Choice Add(params Keybind[] keybinds)
             {
-                this._keybinds.Add(keybinds);
+                _keybinds = _keybinds.Add(keybinds);
                 return this;
             }
 
             public Choice AddSpacer()
             {
-                this._keybinds.Add(new Keybind[] { null! });
+                _keybinds = _keybinds.Add(new Keybind[] { null! });
                 return this;
             }
 

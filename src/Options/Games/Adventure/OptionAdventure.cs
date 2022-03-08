@@ -52,13 +52,13 @@ namespace B.Options.Games.Adventure
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice iob = new Input.Choice(OptionAdventure.Title)
+                        Input.Choice choice = Input.CreateChoice(OptionAdventure.Title)
                             .Add(() => this.InitGame(true), "New Game", '1');
 
                         if (fileExists)
-                            iob.Add(() => this.InitGame(false), "Continue", '2');
+                            choice.Add(() => this.InitGame(false), "Continue", '2');
 
-                        iob.AddExit(this)
+                        choice.AddExit(this)
                             .Request();
                     }
                     break;
@@ -114,7 +114,7 @@ namespace B.Options.Games.Adventure
                         Window.PrintLine("      Move) W A S D");
                         Window.PrintLine("  Interact) Space");
                         Window.PrintLine("     Speed) + -");
-                        new Input.Choice()
+                        Input.CreateChoice()
                             .Add(() => this.MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
                             .Add(() => this.MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
                             .Add(() => this.MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2)

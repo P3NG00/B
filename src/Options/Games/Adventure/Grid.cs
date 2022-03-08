@@ -10,8 +10,8 @@ namespace B.Options.Games.Adventure
 
         private readonly Dict<Vector2, Action> _interactionDict = new();
         private readonly Dict<Vector2, (int, Vector2)> _doorDict = new();
-        private readonly Utils.List<Vector2> _coinList = new();
         private readonly Tile[][] _tileGrid;
+        private Vector2[] _coinList = new Vector2[0];
 
         // Private Initialization Cache
         private readonly int _initInteractables = 0;
@@ -46,7 +46,7 @@ namespace B.Options.Games.Adventure
                             tileType = tile.TileType;
 
                             if (tileType == Tile.TileTypes.Coin)
-                                this._coinList.Add(new Vector2(x, y));
+                                _coinList = _coinList.Add(new Vector2(x, y));
                             else if (tileType == Tile.TileTypes.Interactable)
                                 this._initInteractables++;
                             else if (tileType == Tile.TileTypes.Door)
@@ -67,7 +67,7 @@ namespace B.Options.Games.Adventure
 
         public void PickupCoinAt(Vector2 pos)
         {
-            this._coinList.Remove(pos);
+            _coinList = _coinList.Remove(pos);
             OptionAdventure.Info.Coins++;
             OptionAdventure.Message = "You picked up a coin!";
         }

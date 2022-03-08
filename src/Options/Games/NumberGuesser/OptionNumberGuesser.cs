@@ -29,7 +29,7 @@ namespace B.Options.Games.NumberGuesser
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(20, 8);
-                        new Input.Choice(OptionNumberGuesser.Title)
+                        Input.CreateChoice(OptionNumberGuesser.Title)
                             .Add(() =>
                             {
                                 this._numRandom = Util.Random.Next(this._numMax) + 1;
@@ -72,7 +72,7 @@ namespace B.Options.Games.NumberGuesser
                         else if (guess > this._numRandom)
                             guessMessage = "TOO HIGH!!!";
                         else
-                            guessMessage = Util.RandomFrom(OptionNumberGuesser._winMessages);
+                            guessMessage = OptionNumberGuesser._winMessages.Random();
 
                         Window.PrintLine();
                         Window.PrintLine($"  {guessMessage}");
@@ -94,7 +94,7 @@ namespace B.Options.Games.NumberGuesser
                 case Stages.Settings:
                     {
                         Window.ClearAndSetSize(20, 7);
-                        new Input.Choice("Settings")
+                        Input.CreateChoice("Settings")
                             .Add(() =>
                             {
                                 Input.String = this._numMax.ToString();

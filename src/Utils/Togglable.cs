@@ -9,6 +9,6 @@ namespace B.Utils
 
         public Togglable(bool value) => this.Active = value;
 
-        public void Toggle() => Util.ToggleBool(ref this.Active);
+        public void Toggle() => this.Active = !this.Active;
     }
 }

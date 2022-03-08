@@ -27,8 +27,6 @@ namespace B.Utils
             ConsoleColor.Red
         };
 
-        public static char Unformat(char c) => Util.FormatChars.Contains(c) ? ' ' : c;
-
         public static string StringOf(string str, int length)
         {
             string s = string.Empty;
@@ -41,25 +39,17 @@ namespace B.Utils
 
         public static string StringOf(char c, int length) => Util.StringOf(c.ToString(), length);
 
-        public static T RandomFrom<T>(params T[] list) => list[Util.Random.Next(list.Length)];
-
         public static string Spaces(int spaces) => string.Empty.PadLeft(spaces);
 
-        public static void ToggleBool(ref bool b) => b = !b;
-
+        #region Serialize
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
             using (FileStream fileStream = File.Open(filePath, FileMode.Create))
+            using (XmlWriter writer = XmlWriter.Create(fileStream, new XmlWriterSettings() { Indent = true, OmitXmlDeclaration = true }))
             {
-                XmlSerializer serializer = new(typeof(T));
                 XmlSerializerNamespaces namespaces = new();
                 namespaces.Add("", "");
-                XmlWriterSettings settings = new();
-                settings.Indent = true;
-                settings.OmitXmlDeclaration = true;
-
-                using (XmlWriter writer = XmlWriter.Create(fileStream, settings))
-                    serializer.Serialize(writer, objectToWrite, namespaces);
+                new XmlSerializer(typeof(T)).Serialize(writer, objectToWrite, namespaces);
             }
         }
 
@@ -68,5 +58,14 @@ namespace B.Utils
             using (FileStream fileStream = File.Open(filePath, FileMode.Open))
                 return (T)new XmlSerializer(typeof(T)).Deserialize(fileStream)!;
         }
+        #endregion
+
+        #region Extensions
+        public static byte Square(this byte b) => (byte)(b * b);
+
+        public static byte Add(this byte b, byte b2) => (byte)(b + b2);
+
+        public static char Unformat(this char c) => Util.FormatChars.Contains(c) ? ' ' : c;
+        #endregion
     }
 }

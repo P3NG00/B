@@ -11,7 +11,7 @@ namespace B.Options.Tools.MoneyTracker
 
         public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
 
-        private readonly Utils.List<Account> _accounts = new();
+        private Account[] _accounts = new Account[0];
         private Transaction? _tempTransaction;
         private Account? _selectedAccount;
 
@@ -37,13 +37,13 @@ namespace B.Options.Tools.MoneyTracker
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice iob = new Input.Choice(OptionMoneyTracker.Title)
+                        Input.Choice choice = Input.CreateChoice(OptionMoneyTracker.Title)
                             .Add(() => this.SetStage(Stages.Account), "Account", '1');
 
                         if (selected)
-                            iob.Add(() => this.SetStage(Stages.Transaction), "Transaction", '2');
+                            choice.Add(() => this.SetStage(Stages.Transaction), "Transaction", '2');
 
-                        iob.AddExit(this)
+                        choice.AddExit(this)
                             .Request();
                     }
                     break;
@@ -60,7 +60,7 @@ namespace B.Options.Tools.MoneyTracker
                         else
                             Window.ClearAndSetSize(24, 9);
 
-                        new Input.Choice("Account")
+                        Input.CreateChoice("Account")
                             .Add(() => this.SetStage(Stages.Account_Create), "Create", '1')
                             .Add(() => this.SetStage(Stages.Account_Select), "Select", '2')
                             .Add(() => this.SetStage(Stages.Account_Remove), "Remove", '3')
@@ -118,24 +118,24 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.ClearAndSetSize(27, consoleHeight);
                         Window.PrintLine();
-                        Input.Choice iob = new();
+                        Input.Choice choice = Input.CreateChoice();
 
                         if (amountAccounts > 0)
                         {
                             for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = this._accounts[i];
-                                iob.Add(() =>
+                                choice.Add(() =>
                                 {
                                     this._selectedAccount = account;
                                     this.SetStage(Stages.Account);
                                 }, account.Name, keyChar: (char)('1' + i));
                             }
 
-                            iob.AddSpacer();
+                            choice.AddSpacer();
                         }
 
-                        iob.Add(() => this.SetStage(Stages.Account), "Back", key: ConsoleKey.Escape)
+                        choice.Add(() => this.SetStage(Stages.Account), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -149,28 +149,28 @@ namespace B.Options.Tools.MoneyTracker
                             consoleHeight += amountAccounts + 1;
 
                         Window.ClearAndSetSize(27, consoleHeight);
-                        Input.Choice iob = new("Remove Account");
+                        Input.Choice choice = Input.CreateChoice("Remove Account");
 
                         if (amountAccounts > 0)
                         {
                             for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = this._accounts[i];
-                                iob.Add(() =>
+                                choice.Add(() =>
                                 {
                                     if (this._selectedAccount == account)
                                         this._selectedAccount = null;
 
-                                    this._accounts.Remove(account);
+                                    _accounts = _accounts.Remove(account);
                                     account.Delete();
                                     this.SetStage(Stages.Account);
                                 }, account.Name, keyChar: (char)('1' + i));
                             }
 
-                            iob.AddSpacer();
+                            choice.AddSpacer();
                         }
 
-                        iob.Add(() => this.SetStage(Stages.Account), "Back", key: ConsoleKey.Escape)
+                        choice.Add(() => this.SetStage(Stages.Account), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
@@ -178,7 +178,7 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Transaction:
                     {
                         Window.ClearAndSetSize(20, 10);
-                        new Input.Choice("Transaction")
+                        Input.CreateChoice("Transaction")
                             .Add(() =>
                             {
                                 this.SetStage(Stages.Transaction_View);
@@ -206,7 +206,7 @@ namespace B.Options.Tools.MoneyTracker
                         Cursor.Reset();
                         Window.PrintLine();
                         Input.RequestScroll(
-                            items: this._selectedAccount.Transactions.Items,
+                            items: this._selectedAccount.Transactions,
                             getText: transaction => string.Format("{0," + (Constants.MAX_CHARS_DECIMAL + this._selectedAccount.Decimals + 1) + ":0." + Util.StringOf('0', this._selectedAccount.Decimals) + "} | {1," + Constants.MAX_CHARS_DECIMAL + "}", transaction.Amount, transaction.Description),
                             maxEntriesPerPage: OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
                             exitKeybind: new(() =>
@@ -264,7 +264,7 @@ namespace B.Options.Tools.MoneyTracker
                 account.Save();
             }
 
-            this._accounts.Add(account);
+            _accounts = _accounts.Add(account);
             return account;
         }
 
@@ -308,7 +308,7 @@ namespace B.Options.Tools.MoneyTracker
                         if (Input.String.Length > 0)
                         {
                             this._tempTransaction.Description = Input.String.Trim();
-                            this._selectedAccount!.Transactions.Add(this._tempTransaction);
+                            this._selectedAccount!.Transactions = this._selectedAccount!.Transactions.Add(this._tempTransaction);
                             this._tempTransaction = null;
                             Input.ResetString(); ;
                             this.SetStage(Stages.Transaction);
