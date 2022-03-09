@@ -41,7 +41,6 @@ namespace B.Utils
 
         public static string Spaces(int spaces) => string.Empty.PadLeft(spaces);
 
-        #region Serialize
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
             using (FileStream fileStream = File.Open(filePath, FileMode.Create))
@@ -58,14 +57,7 @@ namespace B.Utils
             using (FileStream fileStream = File.Open(filePath, FileMode.Open))
                 return (T)new XmlSerializer(typeof(T)).Deserialize(fileStream)!;
         }
-        #endregion
-
-        #region Extensions
-        public static byte Square(this byte b) => (byte)(b * b);
-
-        public static byte Add(this byte b, byte b2) => (byte)(b + b2);
 
         public static char Unformat(this char c) => Util.FormatChars.Contains(c) ? ' ' : c;
-        #endregion
     }
 }

@@ -22,8 +22,8 @@ namespace B.Utils
 
         public Vector2(int x, int y)
         {
-            x = x;
-            y = y;
+            this.x = x;
+            this.y = y;
         }
 
         public Vector2((int, int) tuple) : this(tuple.Item1, tuple.Item2) { }
@@ -75,6 +75,8 @@ namespace B.Utils
         public static bool operator !=(Vector2 vecA, Vector2 vecB) => !(vecA == vecB);
 
         public static bool operator !=(Vector2 vec, (int, int) tuple) => !(vec == tuple);
+
+        public static explicit operator Vector2((int x, int y) tuple) => new Vector2(tuple);
 
         public static explicit operator Vector2(Direction direction)
         {

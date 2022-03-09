@@ -7,10 +7,10 @@ namespace B.Options.Games.MexicanTrain
     {
         public const string Title = "Mexican Train";
 
-        private const byte MAX_DOMINO_VALUES = 13;
-        private const byte MAX_DOMINOES = 91;
+        private const int PLAYERS_MIN = 2;
+        private const int PLAYERS_MAX = 8;
 
-        private Domino[] _dominoes = null!;
+        private MexicanTrainInfo _info = null!;
 
         public OptionMexicanTrain() : base(Stages.MainMenu) { }
 
@@ -20,13 +20,22 @@ namespace B.Options.Games.MexicanTrain
             {
                 case Stages.MainMenu:
                     {
-                        Window.ClearAndSetSize(20, 7);
-                        Input.CreateChoice(OptionMexicanTrain.Title)
-                            .Add(() =>
+                        Window.ClearAndSetSize(32, 7);
+                        Input.CreateChoice(OptionMexicanTrain.Title, $"Press <{OptionMexicanTrain.PLAYERS_MIN}-{OptionMexicanTrain.PLAYERS_MAX}> to select players.")
+                            .AddRoutine(keybinds =>
                             {
-                                InitGame();
-                                SetStage(Stages.Game);
-                            }, "Play", '1')
+                                for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
+                                {
+                                    MexicanTrainInfo info = new(i);
+                                    char c = (char)('0' + i);
+
+                                    keybinds.Add(new(() =>
+                                    {
+                                        _info = info;
+                                        SetStage(Stages.Game);
+                                    }, keyChar: c));
+                                }
+                            })
                             .AddExit(this)
                             .Request();
                         // TODO
@@ -35,22 +44,22 @@ namespace B.Options.Games.MexicanTrain
 
                 case Stages.Game:
                     {
-                        throw new NotImplementedException();
+                        Window.ClearAndSetSize(60, 20);
+                        Window.Print($"Players: {_info.Players}", (2, 1));
+                        Input.WaitFor(ConsoleKey.Escape);
                         // TODO
+
+                        // TODO
+                        throw new NotImplementedException();
                     }
                     break;
             }
         }
 
-        private void InitGame()
+        [Obsolete("Not yet implemented.", true)]
+        public override void Save()
         {
-            _dominoes = new Domino[0];
-
-            for (byte b1 = 0; b1 < MAX_DOMINO_VALUES; b1++)
-                for (byte b2 = b1; b2 < MAX_DOMINO_VALUES; b2++)
-                    _dominoes = _dominoes.Add(new Domino(b1, b2));
-
-            _dominoes.Shuffle();
+            throw new NotImplementedException();
         }
 
         public enum Stages

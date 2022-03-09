@@ -60,7 +60,7 @@ namespace B
             try { Initialize(); }
             catch (Exception e)
             {
-                HandleException(e);
+                HandleInitializationException(e);
                 Environment.Exit(1);
             }
 
@@ -68,7 +68,7 @@ namespace B
             while (IsRunning())
             {
                 try { Loop(); }
-                catch (NotImplementedException e) { HandleNotImplementedException(e); }
+                catch (NotImplementedException) { HandleNotImplementedException(); }
                 catch (Exception e) { HandleException(e); }
             }
 
@@ -136,7 +136,6 @@ namespace B
 
                 case Stages.Group:
                     {
-                        // TODO test
                         Window.ClearAndSetSize(22, _optionGroup.Options.Length + 6);
                         Input.Choice iob = Input.CreateChoice(_optionGroup.GroupTitle);
 
@@ -170,7 +169,24 @@ namespace B
             }
         }
 
-        private void HandleExceptionAction(Exception e, Action printAction)
+        private void HandleException(Exception e) => PrintExceptionOutput(() =>
+        {
+            Window.Print("An exception was thrown!", (2, 1), ConsoleColor.Red);
+            Window.Print(e, (2, 3), ConsoleColor.White, ConsoleColor.Black);
+        });
+
+        private void HandleNotImplementedException() => PrintExceptionOutput(() =>
+        {
+            Window.Print("This feature is not yet implemented.", (2, 1), ConsoleColor.DarkYellow);
+        });
+
+        private void HandleInitializationException(Exception e) => PrintExceptionOutput(() =>
+        {
+            Window.Print("AN ERROR HAS OCCURRED DURING INITIALIZATION.", (2, 1), ConsoleColor.DarkRed, ConsoleColor.Gray);
+            Window.Print(e, (2, 3), ConsoleColor.White, ConsoleColor.Black);
+        });
+
+        private void PrintExceptionOutput(Action printAction)
         {
             Window.ClearAndSetSize(Window.SIZE_MAX / 2);
             printAction();
@@ -187,20 +203,6 @@ namespace B
             else if (Stage == Stages.Group)
                 SetStage(Stages.MainMenu);
         }
-
-        private void HandleException(Exception e) => HandleExceptionAction(e, () =>
-        {
-            Cursor.SetPosition(2, 1);
-            Window.Print("An exception was thrown!", ConsoleColor.Red);
-            Cursor.SetPosition(2, 3);
-            Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
-        });
-
-        private void HandleNotImplementedException(NotImplementedException e) => HandleExceptionAction(e, () =>
-        {
-            Cursor.SetPosition(2, 1);
-            Window.Print("This feature is not yet implemented.", ConsoleColor.DarkYellow);
-        });
 
         public enum Stages
         {

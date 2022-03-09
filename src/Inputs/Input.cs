@@ -106,7 +106,7 @@ namespace B.Inputs
                     if (getBackgroundColor != null)
                         colorBackground = getBackgroundColor(item);
 
-                    Window.Print(output, colorText, colorBackground);
+                    Window.Print(output, colorText: colorText, colorBG: colorBackground);
                     Window.PrintLine();
                 }
 
@@ -181,14 +181,19 @@ namespace B.Inputs
             return Input.RequestScroll(items, getText, getTextColor, getBackgroundColor, title, maxEntriesPerPage, navigationKeybinds, exitKeybind, extraKeybinds);
         }
 
-        public static Choice CreateChoice(string? title = null) => new(title);
+        public static Choice CreateChoice(string? title = null, string? message = null) => new Choice(title, message);
 
         public sealed class Choice
         {
             private Keybind[] _keybinds = new Keybind[0];
+            private readonly string? _title;
             private readonly string? _message;
 
-            public Choice(string? message = null) => _message = message;
+            public Choice(string? title = null, string? message = null)
+            {
+                _title = title;
+                _message = message;
+            }
 
             public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false)
             {
@@ -199,6 +204,14 @@ namespace B.Inputs
             public Choice Add(params Keybind[] keybinds)
             {
                 _keybinds = _keybinds.Add(keybinds);
+                return this;
+            }
+
+            public Choice AddRoutine(Action<List<Keybind>> keybindRoutine)
+            {
+                List<Keybind> keybinds = new();
+                keybindRoutine(keybinds);
+                _keybinds = _keybinds.Add(keybinds.ToArray());
                 return this;
             }
 
@@ -221,10 +234,17 @@ namespace B.Inputs
                 // Print out input options
                 bool printLine = false;
 
+                if (_title is not null)
+                {
+                    Window.PrintLine();
+                    Window.PrintLine($"  {_title}");
+                    printLine = true;
+                }
+
                 if (_message is not null)
                 {
                     Window.PrintLine();
-                    Window.PrintLine($"  {_message}");
+                    Window.PrintLine($" {_message}");
                     printLine = true;
                 }
 
@@ -271,6 +291,18 @@ namespace B.Inputs
             public ConsoleKeyInfo Request(Vector2 position)
             {
                 Cursor.SetPosition(position);
+                return Request();
+            }
+
+            public ConsoleKeyInfo Request((int x, int y) position)
+            {
+                Cursor.SetPosition(position);
+                return Request();
+            }
+
+            public ConsoleKeyInfo Request(int x, int y)
+            {
+                Cursor.SetPosition(x, y);
                 return Request();
             }
         }

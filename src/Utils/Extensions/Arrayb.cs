@@ -50,7 +50,6 @@ namespace B.Utils
             return false;
         }
 
-        // TODO go through and make this referenced
         public static void ForEach<T>(this T[] array, Action<T> action)
         {
             foreach (T item in array)
@@ -71,15 +70,21 @@ namespace B.Utils
 
         public static T FromRemainder<T>(this T[] array, int amount) => array[amount % array.Length];
 
-        public static void Shuffle<T>(this T[] array)
+        public static T[] Shuffle<T>(this T[] array)
         {
-            for (int i = 0; i < array.Length; i++)
+            int length = array.Length;
+            T[] newArray = new T[length];
+            Array.Copy(array, newArray, length);
+
+            for (int i = 0; i < length; i++)
             {
-                int j = Util.Random.Next(i, array.Length);
-                T temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
+                int r = Util.Random.Next(i, length);
+                T temp = newArray[i];
+                newArray[i] = newArray[r];
+                newArray[r] = temp;
             }
+
+            return newArray;
         }
 
         public static T[] Copy<T>(this T[] array)

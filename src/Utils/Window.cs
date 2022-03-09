@@ -5,8 +5,14 @@ namespace B.Utils
         public static Vector2 SIZE_MIN => new(16, 2);
         public static Vector2 SIZE_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
-        public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
+        public static void Print(object message, (int x, int y) position, ConsoleColor? colorText = null, ConsoleColor? colorBG = null) => Print(message, (Vector2)position, colorText, colorBG);
+
+        public static void Print(object message, Vector2? position = null, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
+            // If position specified
+            if (position is not null)
+                Cursor.SetPosition(position);
+
             // Override colors if specified
             if (colorText.HasValue) Console.ForegroundColor = colorText.Value;
             if (colorBG.HasValue) Console.BackgroundColor = colorBG.Value;
@@ -18,14 +24,16 @@ namespace B.Utils
             Program.Settings.UpdateColors();
         }
 
-        public static void PrintLine(object message = null!, ConsoleColor? colorText = null, ConsoleColor? colorBackground = null)
+        public static void PrintLine(object message = null!, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
             if (message != null)
-                Window.Print(message, colorText, colorBackground);
+                Window.Print(message, colorText: colorText, colorBG: colorBG);
 
             Console.WriteLine();
         }
 
+        // TODO remove this function when all references are gone
+        [Obsolete("Use Cursor.SetPosition(x, y) instead.")]
         public static void PrintLines(int lines)
         {
             for (int i = 0; i < lines; i++)
@@ -38,7 +46,8 @@ namespace B.Utils
             if (OperatingSystem.IsWindows())
             {
                 Console.SetWindowSize(width, height);
-                Console.SetBufferSize(Console.WindowLeft + width, Console.WindowTop + height);
+                Console.SetBufferSize(Console.WindowLeft + width,
+                                      Console.WindowTop + height);
                 Console.SetWindowSize(width, height); // This is called twice to fix the scrollbar from showing
             }
         }
