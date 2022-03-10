@@ -3,6 +3,7 @@ using B.Options.Games.Adventure;
 using B.Options.Tools.MoneyTracker;
 using B.Options.Toys.BrainFuck;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Options.Tools.Settings
 {

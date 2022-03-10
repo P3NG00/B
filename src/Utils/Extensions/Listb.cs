@@ -1,8 +1,17 @@
-namespace B.Utils
+namespace B.Utils.Extensions
 {
     public static class Listb
     {
         public static bool IsEmpty<T>(this List<T> list) => list.Count == 0;
+
+        public static T Random<T>(this List<T> list) => list[Util.Random.Next(list.Count)];
+
+        public static T RemoveRandom<T>(this List<T> list)
+        {
+            T item = list.Random();
+            list.Remove(item);
+            return item;
+        }
 
         public static void Shuffle<T>(this List<T> list)
         {

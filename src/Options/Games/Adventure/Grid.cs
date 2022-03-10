@@ -1,4 +1,5 @@
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Options.Games.Adventure
 {

@@ -27,10 +27,17 @@ namespace B.Utils
             ConsoleColor.Red
         };
 
+        public static void Loop(int times, Action<int> action)
+        {
+            for (int i = 0; i < times; i++)
+                action(i);
+        }
+
         public static string StringOf(string str, int length)
         {
             string s = string.Empty;
 
+            // TODO replace with Util.Loop
             for (int i = 0; i < length; i++)
                 s += str;
 

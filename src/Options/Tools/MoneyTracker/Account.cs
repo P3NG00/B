@@ -1,4 +1,6 @@
+using B.Inputs;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Options.Tools.MoneyTracker
 {
@@ -11,7 +13,7 @@ namespace B.Options.Tools.MoneyTracker
         public byte Decimals
         {
             get => _decimals;
-            set => _decimals = value.Clamp(0, Constants.MAX_CHARS_DECIMAL);
+            set => _decimals = value.Clamp(0, Input.DECIMAL_LENGTH);
         }
 
         private byte _decimals = 2;

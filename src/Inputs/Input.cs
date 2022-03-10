@@ -1,10 +1,13 @@
 using B.Options;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Inputs
 {
     static class Input
     {
+        public const int DECIMAL_LENGTH = 27;
+
         public static int ScrollIndex = 0;
         public static string String = string.Empty;
 

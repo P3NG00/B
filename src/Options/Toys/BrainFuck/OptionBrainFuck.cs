@@ -1,5 +1,6 @@
 using B.Inputs;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Options.Toys.BrainFuck
 {

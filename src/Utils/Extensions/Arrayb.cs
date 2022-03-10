@@ -1,7 +1,8 @@
-namespace B.Utils
+namespace B.Utils.Extensions
 {
     public static class Arrayb
     {
+        // TODO remove
         public static T[] Add<T>(this T[] array, params T[] items)
         {
             T[] newArray = new T[array.Length + items.Length];
@@ -10,6 +11,7 @@ namespace B.Utils
             return newArray;
         }
 
+        // TODO remove
         public static T[] Add<T>(this T[] array, T item, int index)
         {
             T[] newArray = new T[array.Length + 1];
@@ -19,6 +21,7 @@ namespace B.Utils
             return newArray;
         }
 
+        // TODO remove
         public static T[] Remove<T>(this T[] array, T item)
         {
             // Remove element from array by skipping it while iterating
@@ -33,6 +36,7 @@ namespace B.Utils
             return array;
         }
 
+        // TODO remove
         public static T[] Remove<T>(this T[] array, int index)
         {
             T[] newArray = new T[array.Length - 1];
@@ -41,15 +45,7 @@ namespace B.Utils
             return newArray;
         }
 
-        public static bool Contains<T>(this T[] array, T item)
-        {
-            foreach (T currentItem in array)
-                if (currentItem is not null && currentItem.Equals(item))
-                    return true;
-
-            return false;
-        }
-
+        // TODO check before removing
         public static void ForEach<T>(this T[] array, Action<T> action)
         {
             foreach (T item in array)
@@ -84,13 +80,6 @@ namespace B.Utils
                 newArray[r] = temp;
             }
 
-            return newArray;
-        }
-
-        public static T[] Copy<T>(this T[] array)
-        {
-            T[] newArray = new T[array.Length];
-            Array.Copy(array, newArray, array.Length);
             return newArray;
         }
 

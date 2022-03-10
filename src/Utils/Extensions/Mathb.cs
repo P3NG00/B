@@ -1,4 +1,4 @@
-namespace B.Utils
+namespace B.Utils.Extensions
 {
     public static class Mathb
     {
