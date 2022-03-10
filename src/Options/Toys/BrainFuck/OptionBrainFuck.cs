@@ -44,7 +44,7 @@ namespace B.Options.Toys.BrainFuck
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(20, 7);
-                        Input.CreateChoice(OptionBrainFuck.Title)
+                        Input.Choice.Create(OptionBrainFuck.Title)
                             .Add(() => SetStage(Stages.List), "List", '1')
                             .AddExit(this)
                             .Request();

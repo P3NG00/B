@@ -38,7 +38,7 @@ namespace B.Options.Tools.MoneyTracker
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice choice = Input.CreateChoice(OptionMoneyTracker.Title)
+                        Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title)
                             .Add(() => SetStage(Stages.Account), "Account", '1');
 
                         if (selected)
@@ -61,7 +61,7 @@ namespace B.Options.Tools.MoneyTracker
                         else
                             Window.ClearAndSetSize(24, 9);
 
-                        Input.CreateChoice("Account")
+                        Input.Choice.Create("Account")
                             .Add(() => SetStage(Stages.Account_Create), "Create", '1')
                             .Add(() => SetStage(Stages.Account_Select), "Select", '2')
                             .Add(() => SetStage(Stages.Account_Remove), "Remove", '3')
@@ -119,7 +119,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.ClearAndSetSize(27, consoleHeight);
                         Window.PrintLine();
-                        Input.Choice choice = Input.CreateChoice();
+                        Input.Choice choice = Input.Choice.Create();
 
                         if (amountAccounts > 0)
                         {
@@ -150,7 +150,7 @@ namespace B.Options.Tools.MoneyTracker
                             consoleHeight += amountAccounts + 1;
 
                         Window.ClearAndSetSize(27, consoleHeight);
-                        Input.Choice choice = Input.CreateChoice("Remove Account");
+                        Input.Choice choice = Input.Choice.Create("Remove Account");
 
                         if (amountAccounts > 0)
                         {
@@ -179,7 +179,7 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Transaction:
                     {
                         Window.ClearAndSetSize(20, 10);
-                        Input.CreateChoice("Transaction")
+                        Input.Choice.Create("Transaction")
                             .Add(() =>
                             {
                                 SetStage(Stages.Transaction_View);

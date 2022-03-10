@@ -13,6 +13,12 @@ namespace B.Utils.Extensions
             return item;
         }
 
+        public static void ForEach<T>(this List<T> list, Action<T, int> action)
+        {
+            for (int i = 0; i < list.Count; i++)
+                action(list[i], i);
+        }
+
         public static void Shuffle<T>(this List<T> list)
         {
             Random random = Util.Random;

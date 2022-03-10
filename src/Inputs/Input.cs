@@ -79,7 +79,7 @@ namespace B.Inputs
             params Keybind[] extraKeybinds)                     // Extra keybinds
         {
             int maxEntriesAdjusted = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
-            Input.Choice choice = Input.CreateChoice();
+            Input.Choice choice = Input.Choice.Create();
             ConsoleKeyInfo keyInfo;
 
             if (maxEntriesAdjusted > 0 && items.Length > 0)
@@ -184,29 +184,38 @@ namespace B.Inputs
             return Input.RequestScroll(items, getText, getTextColor, getBackgroundColor, title, maxEntriesPerPage, navigationKeybinds, exitKeybind, extraKeybinds);
         }
 
-        public static Choice CreateChoice(string? title = null, string? message = null) => new Choice(title, message);
-
         public sealed class Choice
         {
-            private Keybind[] _keybinds = new Keybind[0];
-            private readonly string? _title;
-            private readonly string? _message;
+            private readonly List<Keybind> _keybinds = new();
+            private readonly List<string> _messages = new();
 
-            public Choice(string? title = null, string? message = null)
+            private Choice(string? title = null)
             {
-                _title = title;
-                _message = message;
+                if (title is not null)
+                    AddMessage(title);
+            }
+
+            public Choice AddMessage(string title)
+            {
+                _messages.Add(title);
+                return this;
+            }
+
+            public Choice AddMessageSpacer()
+            {
+                _messages.Add(string.Empty);
+                return this;
             }
 
             public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false)
             {
-                _keybinds = _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
+                _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
                 return this;
             }
 
             public Choice Add(params Keybind[] keybinds)
             {
-                _keybinds = _keybinds.Add(keybinds);
+                _keybinds.AddRange(keybinds);
                 return this;
             }
 
@@ -214,16 +223,18 @@ namespace B.Inputs
             {
                 List<Keybind> keybinds = new();
                 keybindRoutine(keybinds);
-                _keybinds = _keybinds.Add(keybinds.ToArray());
+                _keybinds.AddRange(keybinds);
                 return this;
             }
 
             public Choice AddSpacer()
             {
-                _keybinds = _keybinds.Add(new Keybind[] { null! });
+                _keybinds.AddRange(new Keybind[] { null! });
                 return this;
             }
 
+            // TODO remove spacer before variable
+            // create new AddExit without spacer option and make this function obsolete
             public Choice AddExit(IOption option, bool addSpacerBefore = true)
             {
                 if (addSpacerBefore)
@@ -234,23 +245,17 @@ namespace B.Inputs
 
             public ConsoleKeyInfo Request()
             {
-                // Print out input options
                 bool printLine = false;
 
-                if (_title is not null)
+                // Print messages before keybinds
+                if (!_messages.IsEmpty())
                 {
                     Window.PrintLine();
-                    Window.PrintLine($"  {_title}");
+                    _messages.ForEach(msg => Window.PrintLine($"  {msg}"));
                     printLine = true;
                 }
 
-                if (_message is not null)
-                {
-                    Window.PrintLine();
-                    Window.PrintLine($" {_message}");
-                    printLine = true;
-                }
-
+                // Print keybinds
                 foreach (Keybind keybind in _keybinds)
                 {
                     // If keybind is null, add spacer in display
@@ -266,9 +271,9 @@ namespace B.Inputs
                             }
 
                             string preface = string.Empty;
-                            if (keybind.ModifierControl) preface += "Ctrl+";
-                            if (keybind.ModifierShift) preface += "Shift+";
-                            if (keybind.ModifierAlt) preface += "Alt+";
+                            if (keybind.HasModifier(ConsoleModifiers.Control)) preface += "Ctrl+";
+                            if (keybind.HasModifier(ConsoleModifiers.Shift)) preface += "Shift+";
+                            if (keybind.HasModifier(ConsoleModifiers.Alt)) preface += "Alt+";
                             Window.PrintLine($" {preface}{(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
                         }
                     }
@@ -308,6 +313,8 @@ namespace B.Inputs
                 Cursor.SetPosition(x, y);
                 return Request();
             }
+
+            public static Choice Create(string? title = null) => new(title);
         }
     }
 }

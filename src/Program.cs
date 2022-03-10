@@ -117,7 +117,7 @@ namespace B
                     {
                         // Display main menu options
                         Window.ClearAndSetSize(22, Program.OptionGroups.Length + 6);
-                        Input.Choice iob = Input.CreateChoice($"{Program.Title}'s");
+                        Input.Choice iob = Input.Choice.Create($"{Program.Title}'s");
 
                         for (int i = 0; i < Program.OptionGroups.Length; i++)
                         {
@@ -137,7 +137,7 @@ namespace B
                 case Stages.Group:
                     {
                         Window.ClearAndSetSize(22, _optionGroup.Options.Length + 6);
-                        Input.Choice iob = Input.CreateChoice(_optionGroup.GroupTitle);
+                        Input.Choice iob = Input.Choice.Create(_optionGroup.GroupTitle);
 
                         for (int i = 0; i < _optionGroup.Options.Length; i++)
                         {

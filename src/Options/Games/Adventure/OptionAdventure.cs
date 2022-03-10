@@ -52,7 +52,7 @@ namespace B.Options.Games.Adventure
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice choice = Input.CreateChoice(OptionAdventure.Title)
+                        Input.Choice choice = Input.Choice.Create(OptionAdventure.Title)
                             .Add(() => InitGame(true), "New Game", '1');
 
                         if (fileExists)
@@ -114,7 +114,7 @@ namespace B.Options.Games.Adventure
                         Window.PrintLine("      Move) W A S D");
                         Window.PrintLine("  Interact) Space");
                         Window.PrintLine("     Speed) + -");
-                        Input.CreateChoice()
+                        Input.Choice.Create()
                             .Add(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
                             .Add(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
                             .Add(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2)
@@ -125,6 +125,7 @@ namespace B.Options.Games.Adventure
                             .Add(() => Interact(Direction.Right), key: ConsoleKey.RightArrow)
                             .Add(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add)
                             .Add(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract)
+                            .AddSpacer()
                             .Add(() =>
                             {
                                 Save();

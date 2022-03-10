@@ -47,7 +47,7 @@ namespace B.Options.Toys.Canvas
 
                         Window.ClearAndSetSize(20, consoleHeight);
 
-                        Input.Choice iob = Input.CreateChoice(OptionCanvas.Title)
+                        Input.Choice iob = Input.Choice.Create(OptionCanvas.Title)
                             .Add(() =>
                             {
                                 Window.Clear();
@@ -95,7 +95,7 @@ namespace B.Options.Toys.Canvas
                 case Stages.Delete:
                     {
                         Window.ClearAndSetSize(39, 7);
-                        Input.CreateChoice($"Delete '{_canvas.Title}'?")
+                        Input.Choice.Create($"Delete '{_canvas.Title}'?")
                             .Add(() =>
                             {
                                 File.Delete(_canvas.FilePath);
@@ -140,7 +140,7 @@ namespace B.Options.Toys.Canvas
                         Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
                         Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
                         Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
-                        Input.CreateChoice()
+                        Input.Choice.Create()
                             // Move in Direction
                             .Add(() => MoveCursor(Direction.Up), key: ConsoleKey.UpArrow)
                             .Add(() => MoveCursor(Direction.Down), key: ConsoleKey.DownArrow)
@@ -238,14 +238,19 @@ namespace B.Options.Toys.Canvas
                             getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
                             getBackgroundColor: c => c,
                             title: "Color Select",
-                            exitKeybind: new Keybind(() => SetStage(Stages.Edit), "Back", key: ConsoleKey.Escape),
+                            exitKeybind: new Keybind(() => ExitColorSelect(), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind(() =>
                             {
                                 _color = colors[Input.ScrollIndex];
-                                Input.ScrollIndex = 0;
-                                SetStage(Stages.Edit);
+                                ExitColorSelect();
                             }, "Select", key: ConsoleKey.Enter)
                         );
+
+                        void ExitColorSelect()
+                        {
+                            Input.ScrollIndex = 0;
+                            SetStage(Stages.Edit);
+                        }
                     }
                     break;
             }

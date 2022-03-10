@@ -21,8 +21,10 @@ namespace B.Options.Games.MexicanTrain
             {
                 case Stages.MainMenu:
                     {
-                        Window.ClearAndSetSize(32, 7);
-                        Input.CreateChoice(OptionMexicanTrain.Title, $"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players.")
+                        Window.ClearAndSetSize(34, 7);
+                        Input.Choice.Create(OptionMexicanTrain.Title)
+                            .AddMessageSpacer()
+                            .AddMessage($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players.")
                             .AddRoutine(keybinds =>
                             {
                                 for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
@@ -40,7 +42,7 @@ namespace B.Options.Games.MexicanTrain
                                     }, keyChar: c));
                                 }
                             })
-                            .AddExit(this)
+                            .AddExit(this, false)
                             .Request();
                     }
                     break;

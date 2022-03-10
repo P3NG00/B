@@ -1,7 +1,7 @@
 namespace B.Utils
 {
     [Serializable]
-    public sealed class Vector2
+    public sealed class Vector2 // TODO look into phasing out Vector2's, use tuples and extensions instead
     {
         public static Vector2 Up => new(0, 1);
         public static Vector2 Left => new(-1, 0);

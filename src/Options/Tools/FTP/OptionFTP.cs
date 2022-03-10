@@ -198,7 +198,7 @@ namespace B.Options.Tools.FTP
                         _lastStage = Stage;
                         Window.ClearAndSetSize(OptionFTP.WIDTH, 8);
                         SftpFile file = CurrentFile;
-                        Input.CreateChoice($"{file.FullName} | {file.Attributes.Size} bytes")
+                        Input.Choice.Create($"{file.FullName} | {file.Attributes.Size} bytes")
                             .Add(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown)
                             .Add(() => SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete)
                             .AddSpacer()
@@ -223,7 +223,7 @@ namespace B.Options.Tools.FTP
                         Window.PrintLine();
                         SftpFile currentFile = CurrentFile;
                         Window.PrintLine($"  {currentFile.FullName}");
-                        Input.CreateChoice("Are you sure you want to delete this file?")
+                        Input.Choice.Create("Are you sure you want to delete this file?")
                             .Add(() => Delete(currentFile), "yes", key: ConsoleKey.Enter)
                             .AddSpacer()
                             .Add(null!, "NO", key: ConsoleKey.Escape)

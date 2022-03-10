@@ -37,7 +37,7 @@ namespace B.Options.Tools.Settings
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(35, 13);
-                        Input.CreateChoice(OptionSettings.Title)
+                        Input.Choice.Create(OptionSettings.Title)
                             .Add(() => SetStage(Stages.Color), "Color", '1')
                             .Add(() => SetStage(Stages.WindowSize), "Window Size", '2')
                             .Add(() => SetStage(Stages.KeyPress), "Key Press", '3')
@@ -57,7 +57,7 @@ namespace B.Options.Tools.Settings
                         Window.PrintLine($"Detected Max Size: {Window.SIZE_MAX}");
                         Window.Print($"Current Size: {_size}");
 
-                        Input.CreateChoice()
+                        Input.Choice.Create()
                             .Add(() => _size.x++, keyChar: '8', key: ConsoleKey.RightArrow)
                             .Add(() => _size.x--, keyChar: '2', key: ConsoleKey.LeftArrow)
                             .Add(() => _size.y++, keyChar: '6', key: ConsoleKey.DownArrow)
@@ -70,7 +70,7 @@ namespace B.Options.Tools.Settings
                 case Stages.Color:
                     {
                         Window.ClearAndSetSize(20, 8);
-                        Input.CreateChoice("Color")
+                        Input.Choice.Create("Color")
                             .Add(() => SetStage(Stages.Color_Theme), "Themes", '1')
                             .Add(() => SetStage(Stages.Color_Custom), "Customize", '2')
                             .AddSpacer()
@@ -123,7 +123,7 @@ namespace B.Options.Tools.Settings
                 case Stages.DeleteData:
                     {
                         Window.ClearAndSetSize(20, 10);
-                        Input.CreateChoice("Delete Data")
+                        Input.Choice.Create("Delete Data")
                             .Add(CreateDeleteKeybind("Adventure", () => File.Delete(OptionAdventure.FilePath), '1'))
                             .Add(CreateDeleteKeybind(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true), '2'))
                             .Add(CreateDeleteKeybind("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), '3'))
@@ -135,7 +135,7 @@ namespace B.Options.Tools.Settings
                         Keybind CreateDeleteKeybind(string title, Action deleteAction, char num) => new Keybind(() =>
                         {
                             Window.ClearAndSetSize(30, 7);
-                            Input.CreateChoice($"Delete {title} Data?")
+                            Input.Choice.Create($"Delete {title} Data?")
                                 .Add(null!, "NO", key: ConsoleKey.Escape)
                                 .AddSpacer()
                                 .Add(deleteAction, "yes", key: ConsoleKey.Enter)
@@ -170,7 +170,7 @@ namespace B.Options.Tools.Settings
         private void AskDelete(string title, Action deleteAction)
         {
             Window.ClearAndSetSize(30, 7);
-            Input.CreateChoice($"Delete {title} Data?")
+            Input.Choice.Create($"Delete {title} Data?")
                 .Add(null!, "NO", key: ConsoleKey.Escape)
                 .AddSpacer()
                 .Add(deleteAction, "yes", key: ConsoleKey.Enter)

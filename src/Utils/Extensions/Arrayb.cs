@@ -45,11 +45,16 @@ namespace B.Utils.Extensions
             return newArray;
         }
 
-        // TODO check before removing
         public static void ForEach<T>(this T[] array, Action<T> action)
         {
             foreach (T item in array)
                 action(item);
+        }
+
+        public static void ForEach<T>(this T[] array, Action<T, int> action)
+        {
+            for (int i = 0; i < array.Length; i++)
+                action(array[i], i);
         }
 
         public static V[] FromEach<T, V>(this T[] array, Func<T, V> action)

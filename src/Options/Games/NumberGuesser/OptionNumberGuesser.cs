@@ -30,7 +30,7 @@ namespace B.Options.Games.NumberGuesser
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(20, 8);
-                        Input.CreateChoice(OptionNumberGuesser.Title)
+                        Input.Choice.Create(OptionNumberGuesser.Title)
                             .Add(() =>
                             {
                                 _numRandom = Util.Random.Next(_numMax) + 1;
@@ -95,7 +95,7 @@ namespace B.Options.Games.NumberGuesser
                 case Stages.Settings:
                     {
                         Window.ClearAndSetSize(20, 7);
-                        Input.CreateChoice("Settings")
+                        Input.Choice.Create("Settings")
                             .Add(() =>
                             {
                                 Input.String = _numMax.ToString();
