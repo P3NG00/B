@@ -21,7 +21,9 @@ namespace B.Utils.Extensions
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T, int> action)
         {
             int i = 0;
-            enumerable.ForEach(t => action(t, i++));
+
+            foreach (T t in enumerable)
+                action(t, i++);
         }
 
         public static IEnumerable<V> FromEach<T, V>(this IEnumerable<T> enumerable, Func<T, V> getValueFrom)
