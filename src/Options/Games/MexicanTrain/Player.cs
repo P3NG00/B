@@ -1,3 +1,4 @@
+using B.Inputs;
 using B.Utils.Extensions;
 
 namespace B.Options.Games.MexicanTrain
@@ -9,7 +10,9 @@ namespace B.Options.Games.MexicanTrain
         // Returns if the player's turn is over
         public virtual bool HandleTurn()
         {
-            // Input.CreateChoice(); // TODO
+            Input.Choice choice = Input.Choice.Create();
+            choice.Add(); // TODO
+            choice.Request();
 
             // TODO create input choice for user to choose domino to play
 

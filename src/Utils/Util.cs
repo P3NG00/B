@@ -1,5 +1,6 @@
 using System.Xml;
 using System.Xml.Serialization;
+using B.Utils.Extensions;
 
 namespace B.Utils
 {
@@ -27,24 +28,15 @@ namespace B.Utils
             ConsoleColor.Red
         };
 
-        public static void Loop(int times, Action action) => Util.Loop(times, i => action());
-
-        public static void Loop(int times, Action<int> action)
-        {
-            for (int i = 0; i < times; i++)
-                action(i);
-        }
-
         public static string StringOf(string str, int length)
         {
             string s = string.Empty;
-            Util.Loop(length, i => s += str);
+            Action action = () => s += str;
+            action.Loop(length);
             return s;
         }
 
         public static string StringOf(char c, int length) => new string(c, length);
-
-        public static string Spaces(int spaces) => string.Empty.PadLeft(spaces);
 
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
