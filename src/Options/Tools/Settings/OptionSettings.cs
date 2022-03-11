@@ -45,6 +45,7 @@ namespace B.Options.Tools.Settings
                             .AddSpacer()
                             .Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F11)
                             .Add(null!, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12)
+                            .AddSpacer()
                             .AddExit(this)
                             .Request();
                     }

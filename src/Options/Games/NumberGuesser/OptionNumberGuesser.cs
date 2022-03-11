@@ -39,7 +39,7 @@ namespace B.Options.Games.NumberGuesser
                             }, "New Game", '1')
                             .AddSpacer()
                             .Add(() => SetStage(Stages.Settings), "Settings", '9')
-                            .AddExit(this, false)
+                            .AddExit(this)
                             .Request();
                     }
                     break;

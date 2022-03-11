@@ -14,7 +14,7 @@ using B.Utils;
 
 namespace B
 {
-    public sealed class Program : Option<Program.Stages>
+    public sealed class Program : Option<Program.Level>
     {
         public const string Title = "B";
 
@@ -28,6 +28,7 @@ namespace B
         // Program Info
         public static ProgramSettings Settings { get; private set; } = new();
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
+        public static Level CurrentLevel => _instance.Stage;
 
         // Option Groups
         private static (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options)[] OptionGroups => new (string, (Type, Func<string>)[])[]
@@ -49,10 +50,18 @@ namespace B
                 (typeof(OptionSettings), () => OptionSettings.Title),
             }),
         };
+        private static Program _instance = null!;
+
         private (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options) _optionGroup;
         private IOption? _selectedOption = null;
 
-        public Program() : base(Stages.MainMenu) { }
+        public Program() : base(Level.Program)
+        {
+            if (_instance is null)
+                _instance = this;
+            else
+                throw new Exception("Program already instantiated.");
+        }
 
         private void Start()
         {
@@ -113,7 +122,7 @@ namespace B
 
             switch (Stage)
             {
-                case Stages.MainMenu:
+                case Level.Program:
                     {
                         // Display main menu options
                         Window.ClearAndSetSize(22, Program.OptionGroups.Length + 6);
@@ -125,16 +134,17 @@ namespace B
                             iob.Add(() =>
                             {
                                 _optionGroup = optionGroup;
-                                SetStage(Stages.Group);
+                                SetStage(Level.Group);
                             }, optionGroup.GroupTitle, (char)('1' + i));
                         }
 
-                        iob.AddExit(this)
+                        iob.AddSpacer()
+                            .AddExit(this)
                             .Request();
                     }
                     break;
 
-                case Stages.Group:
+                case Level.Group:
                     {
                         Window.ClearAndSetSize(22, _optionGroup.Options.Length + 6);
                         Input.Choice iob = Input.Choice.Create(_optionGroup.GroupTitle);
@@ -145,24 +155,24 @@ namespace B
                             iob.Add(() =>
                             {
                                 _selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
-                                SetStage(Stages.Option);
+                                SetStage(Level.Option);
                             }, option.GetTitle(), (char)('1' + i));
                         }
 
                         iob.AddSpacer()
-                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
+                            .Add(() => SetStage(Level.Program), "Back", key: ConsoleKey.Escape)
                             .Request();
                     }
                     break;
 
-                case Stages.Option:
+                case Level.Option:
                     {
                         if (_selectedOption is not null && _selectedOption.IsRunning())
                             _selectedOption.Loop();
                         else
                         {
                             _selectedOption = null;
-                            SetStage(Stages.Group);
+                            SetStage(Level.Group);
                         }
                     }
                     break;
@@ -198,15 +208,15 @@ namespace B
             Window.Clear();
             _selectedOption = null;
 
-            if (Stage == Stages.Option)
-                SetStage(Stages.Group);
-            else if (Stage == Stages.Group)
-                SetStage(Stages.MainMenu);
+            if (Stage == Level.Option)
+                SetStage(Level.Group);
+            else if (Stage == Level.Group)
+                SetStage(Level.Program);
         }
 
-        public enum Stages
+        public enum Level
         {
-            MainMenu,
+            Program,
             Group,
             Option,
         }

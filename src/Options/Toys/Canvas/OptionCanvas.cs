@@ -19,7 +19,7 @@ namespace B.Options.Toys.Canvas
         public static readonly string DirectoryPath = Program.DataPath + @"canvas\";
 
         private (int x, int y, int width, int height) _lastConsoleWindow = new(0, 0, 0, 0); // TODO replace with better way to see when screen needs to be fully reprinted
-        private CanvasInfo[] _canvases = new CanvasInfo[0];
+        private List<CanvasInfo> _canvases = new();
         private CanvasInfo _canvas = null!;
         private ConsoleColor _color = ConsoleColor.Black;
         private Vector2 BrushSize = Vector2.One;
@@ -31,7 +31,7 @@ namespace B.Options.Toys.Canvas
                 Directory.CreateDirectory(OptionCanvas.DirectoryPath);
             else
                 foreach (string filePath in Directory.GetFiles(OptionCanvas.DirectoryPath))
-                    _canvases = _canvases.Add(Util.Deserialize<CanvasInfo>(filePath));
+                    _canvases.Add(Util.Deserialize<CanvasInfo>(filePath));
         }
 
         public override void Loop()
@@ -63,14 +63,15 @@ namespace B.Options.Toys.Canvas
                                 SetStage(Stages.List);
                             }, "List", '2');
 
-                        iob.AddExit(this)
+                        iob.AddSpacer()
+                            .AddExit(this)
                             .Request();
                     }
                     break;
 
                 case Stages.List:
                     {
-                        Window.ClearAndSetSize(32, _canvases.Length + 10);
+                        Window.ClearAndSetSize(32, _canvases.Count + 10);
                         Input.RequestScroll(
                             items: _canvases,
                             getText: canvas => canvas.Title,
@@ -99,7 +100,7 @@ namespace B.Options.Toys.Canvas
                             .Add(() =>
                             {
                                 File.Delete(_canvas.FilePath);
-                                _canvases = _canvases.Remove(_canvas);
+                                _canvases.Remove(_canvas);
 
                                 if (_canvases.IsEmpty())
                                     SetStage(Stages.MainMenu);
@@ -167,7 +168,7 @@ namespace B.Options.Toys.Canvas
                             .Add(() =>
                             {
                                 if (!_canvases.Contains(_canvas))
-                                    _canvases = _canvases.Add(_canvas);
+                                    _canvases.Add(_canvas);
 
                                 Save();
                                 _lastConsoleWindow = new(0, 0, 0, 0);

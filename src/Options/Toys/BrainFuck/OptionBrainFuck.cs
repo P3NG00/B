@@ -1,6 +1,5 @@
 using B.Inputs;
 using B.Utils;
-using B.Utils.Extensions;
 
 namespace B.Options.Toys.BrainFuck
 {
@@ -12,7 +11,7 @@ namespace B.Options.Toys.BrainFuck
         public static readonly string DirectoryPath = Program.DataPath + @"brainfuck\";
         public static string Title => Program.Settings.Censor.Active ? "BrainF**k" : "BrainFuck";
 
-        private BrainFuckProgram[] _programs = new BrainFuckProgram[0];
+        private List<BrainFuckProgram> _programs = new();
         private BrainFuckProgram _currentProgram = null!;
 
         // Memory Cells for BrainFuck Program.
@@ -34,7 +33,7 @@ namespace B.Options.Toys.BrainFuck
                 Directory.CreateDirectory(OptionBrainFuck.DirectoryPath);
             else
                 foreach (string filePath in Directory.GetFiles(OptionBrainFuck.DirectoryPath, OptionBrainFuck.FILE_EXTENSION))
-                    _programs = _programs.Add(new BrainFuckProgram(Path.GetFileNameWithoutExtension(filePath), filePath));
+                    _programs.Add(new BrainFuckProgram(Path.GetFileNameWithoutExtension(filePath), filePath));
         }
 
         public override void Loop()
@@ -46,6 +45,7 @@ namespace B.Options.Toys.BrainFuck
                         Window.ClearAndSetSize(20, 7);
                         Input.Choice.Create(OptionBrainFuck.Title)
                             .Add(() => SetStage(Stages.List), "List", '1')
+                            .AddSpacer()
                             .AddExit(this)
                             .Request();
                     }
@@ -53,7 +53,7 @@ namespace B.Options.Toys.BrainFuck
 
                 case Stages.List:
                     {
-                        Window.ClearAndSetSize(40, 10 + _programs.Length);
+                        Window.ClearAndSetSize(40, 10 + _programs.Count);
                         Input.RequestScroll(
                             items: _programs,
                             getText: program => program.Title,

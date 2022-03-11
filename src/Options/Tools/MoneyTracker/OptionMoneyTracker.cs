@@ -1,6 +1,5 @@
 using B.Inputs;
 using B.Utils;
-using B.Utils.Extensions;
 
 namespace B.Options.Tools.MoneyTracker
 {
@@ -12,7 +11,7 @@ namespace B.Options.Tools.MoneyTracker
 
         public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
 
-        private Account[] _accounts = new Account[0];
+        private List<Account> _accounts = new();
         private Transaction? _tempTransaction;
         private Account? _selectedAccount;
 
@@ -44,7 +43,8 @@ namespace B.Options.Tools.MoneyTracker
                         if (selected)
                             choice.Add(() => SetStage(Stages.Transaction), "Transaction", '2');
 
-                        choice.AddExit(this)
+                        choice.AddSpacer()
+                            .AddExit(this)
                             .Request();
                     }
                     break;
@@ -112,7 +112,7 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Account_Select:
                     {
                         int consoleHeight = 3;
-                        int amountAccounts = _accounts.Length;
+                        int amountAccounts = _accounts.Count;
 
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
@@ -144,7 +144,7 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Account_Remove:
                     {
                         int consoleHeight = 5;
-                        int amountAccounts = _accounts.Length;
+                        int amountAccounts = _accounts.Count;
 
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
@@ -162,7 +162,7 @@ namespace B.Options.Tools.MoneyTracker
                                     if (_selectedAccount == account)
                                         _selectedAccount = null;
 
-                                    _accounts = _accounts.Remove(account);
+                                    _accounts.Remove(account);
                                     account.Delete();
                                     SetStage(Stages.Account);
                                 }, account.Name, keyChar: (char)('1' + i));
@@ -203,7 +203,7 @@ namespace B.Options.Tools.MoneyTracker
                     {
                         Window.SetSize(
                             (Input.DECIMAL_LENGTH * 2) + _selectedAccount!.Decimals + 9,
-                            Math.Min(_selectedAccount.Transactions.Length, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
+                            Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
                         Cursor.Reset();
                         Window.PrintLine();
                         Input.RequestScroll(
@@ -232,7 +232,7 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction_Delete:
                     {
-                        Window.ClearAndSetSize(31, _selectedAccount!.Transactions.Length + 4);
+                        Window.ClearAndSetSize(31, _selectedAccount!.Transactions.Count + 4);
                         // Util.PrintLine();
                         // Util.PrintLine("  Delete");
                         // _selectedAccount.PrintTransactions(); // TODO
@@ -265,7 +265,7 @@ namespace B.Options.Tools.MoneyTracker
                 account.Save();
             }
 
-            _accounts = _accounts.Add(account);
+            _accounts.Add(account);
             return account;
         }
 
@@ -309,7 +309,7 @@ namespace B.Options.Tools.MoneyTracker
                         if (Input.String.Length > 0)
                         {
                             _tempTransaction.Description = Input.String.Trim();
-                            _selectedAccount!.Transactions = _selectedAccount!.Transactions.Add(_tempTransaction);
+                            _selectedAccount!.Transactions.Add(_tempTransaction);
                             _tempTransaction = null;
                             Input.ResetString(); ;
                             SetStage(Stages.Transaction);

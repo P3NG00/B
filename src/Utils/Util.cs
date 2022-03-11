@@ -36,15 +36,11 @@ namespace B.Utils
         public static string StringOf(string str, int length)
         {
             string s = string.Empty;
-
-            // TODO replace with Util.Loop
-            for (int i = 0; i < length; i++)
-                s += str;
-
+            Util.Loop(length, i => s += str);
             return s;
         }
 
-        public static string StringOf(char c, int length) => Util.StringOf(c.ToString(), length);
+        public static string StringOf(char c, int length) => new string(c, length);
 
         public static string Spaces(int spaces) => string.Empty.PadLeft(spaces);
 

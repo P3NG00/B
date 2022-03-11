@@ -8,7 +8,7 @@ namespace B.Options.Tools.MoneyTracker
     public sealed class Account
     {
         public string FilePath => OptionMoneyTracker.DirectoryPath + Name;
-        public Transaction[] Transactions = new Transaction[0];
+        public List<Transaction> Transactions = new();
         public string Name = string.Empty;
         public byte Decimals
         {

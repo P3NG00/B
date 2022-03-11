@@ -68,7 +68,7 @@ namespace B.Inputs
 
         // TODO use Cursor Position positioning
         public static ConsoleKeyInfo RequestScroll<T>(
-            T[] items,                                          // Items to scroll through
+            IEnumerable<T> items,                               // Items to scroll through
             Func<T, string> getText,                            // Function to get text from item
             Func<T, ConsoleColor?> getTextColor = null!,        // Function to get text color from item
             Func<T, ConsoleColor?> getBackgroundColor = null!,  // Function to get background color from item
@@ -78,11 +78,12 @@ namespace B.Inputs
             Keybind exitKeybind = null!,                        // Exit keybind (seperate because spacer is added before this keybind)
             params Keybind[] extraKeybinds)                     // Extra keybinds
         {
-            int maxEntriesAdjusted = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : items.Length;
+            int itemCount = items.Count();
+            int maxEntriesAdjusted = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : itemCount;
             Input.Choice choice = Input.Choice.Create();
             ConsoleKeyInfo keyInfo;
 
-            if (maxEntriesAdjusted > 0 && items.Length > 0)
+            if (maxEntriesAdjusted > 0 && itemCount > 0)
             {
                 if (title != null)
                 {
@@ -92,12 +93,12 @@ namespace B.Inputs
                 }
 
                 int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntriesAdjusted);
-                int endIndex = Math.Min(startIndex + maxEntriesAdjusted, items.Length);
+                int endIndex = Math.Min(startIndex + maxEntriesAdjusted, itemCount);
 
                 for (int i = startIndex; i < endIndex; i++)
                 {
                     Window.Print(Input.ScrollIndex == i ? " > " : "   ");
-                    T item = items[i];
+                    T item = items.ElementAt(i);
                     string text = getText(item);
                     string output = string.Format("{0,-" + (text.Length + 1) + "}", text);
                     ConsoleColor? colorText = null;
@@ -148,7 +149,7 @@ namespace B.Inputs
                     .Add(exitKeybind)
                     .Request();
 
-                Input.ScrollIndex = Input.ScrollIndex.Clamp(0, items.Length - 1);
+                Input.ScrollIndex = Input.ScrollIndex.Clamp(0, itemCount - 1);
                 int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
 
@@ -233,15 +234,46 @@ namespace B.Inputs
                 return this;
             }
 
-            // TODO remove spacer before variable
-            // create new AddExit without spacer option and make this function obsolete
-            public Choice AddExit(IOption option, bool addSpacerBefore = true)
+            public Choice AddExit(IOption option)
             {
-                if (addSpacerBefore)
-                    AddSpacer();
+                string phrase = string.Empty;
 
-                return Add(() => option.Quit(), "Exit", key: ConsoleKey.Escape);
+                switch (Program.CurrentLevel)
+                {
+                    case Program.Level.Program: phrase = "Quit"; break;
+                    case Program.Level.Group: phrase = "Back"; break;
+                    case Program.Level.Option: phrase = "Exit"; break;
+                }
+
+                return Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);
             }
+
+            // TODO use functions below
+            // public void AddMessage(string title) => _messages.Add(title);
+
+            // public void AddMessageSpacer() => _messages.Add(string.Empty);
+
+            // public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
+
+            // public void Add(params Keybind[] keybinds) => _keybinds.AddRange(keybinds);
+
+            // public void AddRoutine(Func<List<Keybind>> keybindRoutine) => _keybinds.AddRange(keybindRoutine());
+
+            // public void AddSpacer() => _keybinds.AddRange(new Keybind[] { null! });
+
+            // public void AddExit(IOption option)
+            // {
+            //     string phrase = string.Empty;
+
+            //     switch (Program.CurrentLevel)
+            //     {
+            //         case Program.Level.Program: phrase = "Quit"; break;
+            //         case Program.Level.Group: phrase = "Back"; break;
+            //         case Program.Level.Option: phrase = "Exit"; break;
+            //     }
+
+            //     Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);
+            // }
 
             public ConsoleKeyInfo Request()
             {

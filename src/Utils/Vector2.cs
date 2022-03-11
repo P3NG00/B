@@ -40,8 +40,8 @@ namespace B.Utils
 
         public void Move(int x, int y)
         {
-            x += x;
-            y += y;
+            this.x += x;
+            this.y += y;
         }
 
         public override bool Equals(object? obj) => obj is Vector2 && this == (Vector2)obj;

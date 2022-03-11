@@ -1,6 +1,6 @@
 namespace B.Utils.Extensions
 {
-    public static class Mathb
+    public static class MathB
     {
         public static int Clamp(this int value, int min, int max) => Math.Clamp(value, min, max);
 

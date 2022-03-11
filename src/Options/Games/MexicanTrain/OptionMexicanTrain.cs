@@ -11,6 +11,9 @@ namespace B.Options.Games.MexicanTrain
         public const int PLAYERS_MAX = 8;
         public const int DOMINO_START = 10; // TODO change to account for number of players
 
+        // TODO implement saving/loading
+        public static string FilePath => Program.DataPath + "mexicanTrain";
+
         private MexicanTrainInfo _info = null!;
 
         public OptionMexicanTrain() : base(Stages.MainMenu) { }
@@ -42,7 +45,7 @@ namespace B.Options.Games.MexicanTrain
                                     }, keyChar: c));
                                 }
                             })
-                            .AddExit(this, false)
+                            .AddExit(this)
                             .Request();
                     }
                     break;
@@ -52,20 +55,11 @@ namespace B.Options.Games.MexicanTrain
                         Window.ClearAndSetSize(60, 20);
                         Window.Print($"Players: {_info.Players}", (2, 1));
 
-                        _info.HandleTurn(); // TODO
-
-
                         // TODO
-                        throw new NotImplementedException();
+                        _info.HandleTurn();
                     }
                     break;
             }
-        }
-
-        [Obsolete("Not yet implemented.", true)]
-        public override void Save()
-        {
-            throw new NotImplementedException();
         }
 
         public enum Stages

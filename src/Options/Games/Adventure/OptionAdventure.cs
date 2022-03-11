@@ -58,7 +58,8 @@ namespace B.Options.Games.Adventure
                         if (fileExists)
                             choice.Add(() => InitGame(false), "Continue", '2');
 
-                        choice.AddExit(this)
+                        choice.AddSpacer()
+                            .AddExit(this)
                             .Request();
                     }
                     break;
