@@ -22,7 +22,8 @@ namespace B.Options.Toys.Canvas
             if (offset is not null)
                 windowSize += offset;
 
-            Window.ClearAndSetSize(windowSize);
+            Window.Clear();
+            Window.SetSize(windowSize);
 
             for (int y = 0; y < Size.y; y++)
             {

@@ -109,7 +109,8 @@ namespace B.Options.Tools.FTP
                 case Stages.Login:
                     {
                         int consoleWidth = 16;
-                        Window.ClearAndSetSize(consoleWidth, 5);
+                        Window.Clear();
+                        Window.SetSize(consoleWidth, 5);
                         Window.PrintLine();
                         Window.PrintLine("     Login");
                         string scrambled = _scrambler(Input.String.Length);
@@ -196,7 +197,8 @@ namespace B.Options.Tools.FTP
                 case Stages.FileInteract:
                     {
                         _lastStage = Stage;
-                        Window.ClearAndSetSize(OptionFTP.WIDTH, 8);
+                        Window.Clear();
+                        Window.SetSize(OptionFTP.WIDTH, 8);
                         SftpFile file = CurrentFile;
                         Input.Choice choice = Input.Choice.Create($"{file.FullName} | {file.Attributes.Size} bytes");
                         choice.Add(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown);
@@ -219,7 +221,8 @@ namespace B.Options.Tools.FTP
 
                 case Stages.Delete:
                     {
-                        Window.ClearAndSetSize(OptionFTP.WIDTH, 9);
+                        Window.Clear();
+                        Window.SetSize(OptionFTP.WIDTH, 9);
                         Window.PrintLine();
                         SftpFile currentFile = CurrentFile;
                         Window.PrintLine($"  {currentFile.FullName}");
@@ -256,7 +259,8 @@ namespace B.Options.Tools.FTP
 
                 using (Stream stream = File.Open(path, FileMode.Create))
                 {
-                    Window.ClearAndSetSize(OptionFTP.WIDTH, 7);
+                    Window.Clear();
+                    Window.SetSize(OptionFTP.WIDTH, 7);
                     Cursor.SetPosition(2, 1);
                     Window.Print("Downloading...");
                     Cursor.SetPosition(2, 3);
@@ -277,8 +281,10 @@ namespace B.Options.Tools.FTP
             try { _client.Delete(file.FullName); }
             catch (SshException)
             {
-                Window.ClearAndSetSize(21, 6);
-                Window.PrintLines(2);
+                Window.Clear();
+                Window.SetSize(21, 6);
+                Window.PrintLine();
+                Window.PrintLine();
                 Window.PrintLine("       Error:");
                 Window.PrintLine("  Can't delete file");
                 Input.Get();

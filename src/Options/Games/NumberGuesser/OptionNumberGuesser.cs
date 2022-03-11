@@ -29,7 +29,8 @@ namespace B.Options.Games.NumberGuesser
             {
                 case Stages.MainMenu:
                     {
-                        Window.ClearAndSetSize(20, 8);
+                        Window.Clear();
+                        Window.SetSize(20, 8);
                         Input.Choice choice = Input.Choice.Create(OptionNumberGuesser.Title);
                         choice.Add(() =>
                         {
@@ -55,7 +56,8 @@ namespace B.Options.Games.NumberGuesser
                         if (debug)
                             consoleHeight += 2;
 
-                        Window.ClearAndSetSize(20, consoleHeight);
+                        Window.Clear();
+                        Window.SetSize(20, consoleHeight);
 
                         if (debug)
                         {
@@ -94,7 +96,8 @@ namespace B.Options.Games.NumberGuesser
 
                 case Stages.Settings:
                     {
-                        Window.ClearAndSetSize(20, 7);
+                        Window.Clear();
+                        Window.SetSize(20, 7);
                         Input.Choice choice = Input.Choice.Create("Settings");
                         choice.Add(() =>
                         {
@@ -109,7 +112,8 @@ namespace B.Options.Games.NumberGuesser
 
                 case Stages.Settings_MaxNumber:
                     {
-                        Window.ClearAndSetSize(20, 5);
+                        Window.Clear();
+                        Window.SetSize(20, 5);
                         Window.PrintLine();
                         Window.PrintLine($"  Max - {Input.String}");
                         Window.PrintLine();

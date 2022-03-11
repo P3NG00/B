@@ -51,7 +51,8 @@ namespace B.Options.Games.Adventure
                         if (fileExists)
                             consoleHeight++;
 
-                        Window.ClearAndSetSize(20, consoleHeight);
+                        Window.Clear();
+                        Window.SetSize(20, consoleHeight);
                         Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
                         choice.Add(() => InitGame(true), "New Game", '1');
 

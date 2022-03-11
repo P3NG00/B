@@ -130,8 +130,10 @@ namespace B.Inputs
 
                 if (navigationKeybinds)
                 {
+                    // Scroll up and down
                     choice.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow);
                     choice.Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
+                    // Sroll next/previous page (automatically clears window)
                     choice.Add(() =>
                     {
                         Input.ScrollIndex += maxEntriesAdjusted;
@@ -154,7 +156,7 @@ namespace B.Inputs
                 int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
 
-                // If crossing into new page, clear console
+                // If scrolling into new page, clear console
                 if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
                     Window.Clear();
             }
@@ -168,22 +170,6 @@ namespace B.Inputs
             }
 
             return keyInfo;
-        }
-
-        public static ConsoleKeyInfo RequestScroll<T>(
-            T[] items,                                          // Items to scroll through
-            Vector2 position,                                   // Position to begin printing
-            Func<T, string> getText,                            // Function to get text from item
-            Func<T, ConsoleColor?> getTextColor = null!,        // Function to get text color from item
-            Func<T, ConsoleColor?> getBackgroundColor = null!,  // Function to get background color from item
-            string title = null!,                               // Scroll title
-            int? maxEntriesPerPage = null,                      // Max entries to display per page
-            bool navigationKeybinds = true,                     // Whether to add scroll navigation keybinds
-            Keybind exitKeybind = null!,                        // Exit keybind (seperate because spacer is added before this keybind)
-            params Keybind[] extraKeybinds)                     // Extra keybinds
-        {
-            Cursor.SetPosition(position);
-            return Input.RequestScroll(items, getText, getTextColor, getBackgroundColor, title, maxEntriesPerPage, navigationKeybinds, exitKeybind, extraKeybinds);
         }
 
         public sealed class Choice
@@ -279,24 +265,6 @@ namespace B.Inputs
                 }
 
                 return keyInfo;
-            }
-
-            public ConsoleKeyInfo Request(Vector2 position)
-            {
-                Cursor.SetPosition(position);
-                return Request();
-            }
-
-            public ConsoleKeyInfo Request((int x, int y) position)
-            {
-                Cursor.SetPosition(position);
-                return Request();
-            }
-
-            public ConsoleKeyInfo Request(int x, int y)
-            {
-                Cursor.SetPosition(x, y);
-                return Request();
             }
 
             public static Choice Create(string? title = null) => new(title);

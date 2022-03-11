@@ -36,7 +36,8 @@ namespace B.Options.Tools.Settings
             {
                 case Stages.MainMenu:
                     {
-                        Window.ClearAndSetSize(35, 13);
+                        Window.Clear();
+                        Window.SetSize(35, 13);
                         Input.Choice choice = Input.Choice.Create(OptionSettings.Title);
                         choice.Add(() => SetStage(Stages.Color), "Color", '1');
                         choice.Add(() => SetStage(Stages.WindowSize), "Window Size", '2');
@@ -54,7 +55,8 @@ namespace B.Options.Tools.Settings
                 case Stages.WindowSize:
                     {
                         _size = _size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
-                        Window.ClearAndSetSize(_size);
+                        Window.Clear();
+                        Window.SetSize(_size);
                         Window.PrintLine($"Detected Max Size: {Window.SIZE_MAX}");
                         Window.Print($"Current Size: {_size}");
                         Input.Choice choice = Input.Choice.Create();
@@ -69,7 +71,8 @@ namespace B.Options.Tools.Settings
 
                 case Stages.Color:
                     {
-                        Window.ClearAndSetSize(20, 8);
+                        Window.Clear();
+                        Window.SetSize(20, 8);
                         Input.Choice choice = Input.Choice.Create("Color");
                         choice.Add(() => SetStage(Stages.Color_Theme), "Themes", '1');
                         choice.Add(() => SetStage(Stages.Color_Custom), "Customize", '2');
@@ -85,7 +88,8 @@ namespace B.Options.Tools.Settings
                         Program.Settings.ColorBackground = theme.ColorBG;
                         Program.Settings.ColorText = theme.ColorText;
                         Program.Settings.UpdateColors();
-                        Window.ClearAndSetSize(32, _colorThemes.Length + 8);
+                        Window.Clear();
+                        Window.SetSize(32, _colorThemes.Length + 8);
                         Input.RequestScroll(
                             items: _colorThemes,
                             getText: theme => theme.Title,
@@ -101,7 +105,8 @@ namespace B.Options.Tools.Settings
                 case Stages.Color_Custom:
                     {
                         Program.Settings.UpdateColors();
-                        Window.ClearAndSetSize(32, 27);
+                        Window.Clear();
+                        Window.SetSize(32, 27);
                         ConsoleColor[] colors = Util.OrderedConsoleColors;
                         Input.RequestScroll(
                             items: colors,
@@ -122,7 +127,8 @@ namespace B.Options.Tools.Settings
 
                 case Stages.DeleteData:
                     {
-                        Window.ClearAndSetSize(20, 10);
+                        Window.Clear();
+                        Window.SetSize(20, 10);
                         Input.Choice choice = Input.Choice.Create("Delete Data");
                         choice.Add(CreateDeleteKeybind("Adventure", () => File.Delete(OptionAdventure.FilePath), '1'));
                         choice.Add(CreateDeleteKeybind(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true), '2'));
@@ -134,7 +140,8 @@ namespace B.Options.Tools.Settings
 
                         Keybind CreateDeleteKeybind(string title, Action deleteAction, char num) => new Keybind(() =>
                         {
-                            Window.ClearAndSetSize(30, 7);
+                            Window.Clear();
+                            Window.SetSize(30, 7);
                             Input.Choice choice = Input.Choice.Create($"Delete {title} Data?");
                             choice.Add(null!, "NO", key: ConsoleKey.Escape);
                             choice.AddSpacer();
@@ -146,7 +153,8 @@ namespace B.Options.Tools.Settings
 
                 case Stages.KeyPress:
                     {
-                        Window.ClearAndSetSize(35, 12);
+                        Window.Clear();
+                        Window.SetSize(35, 12);
                         Window.PrintLine();
                         Window.PrintLine(" Last Pressed");
                         Window.PrintLine();
@@ -169,7 +177,8 @@ namespace B.Options.Tools.Settings
 
         private void AskDelete(string title, Action deleteAction)
         {
-            Window.ClearAndSetSize(30, 7);
+            Window.Clear();
+            Window.SetSize(30, 7);
             Input.Choice choice = Input.Choice.Create($"Delete {title} Data?");
             choice.Add(null!, "NO", key: ConsoleKey.Escape);
             choice.AddSpacer();

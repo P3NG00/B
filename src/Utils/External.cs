@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using B.Utils.Extensions;
 
 namespace B.Utils
 {
@@ -16,14 +17,7 @@ namespace B.Utils
             if (handle != IntPtr.Zero)
             {
                 IntPtr sysMenu = External.GetSystemMenu(handle, false);
-
-                foreach (SystemCommand sc in new SystemCommand[] {
-                    SystemCommand.SC_SIZE,
-                    SystemCommand.SC_MINIMIZE,
-                    SystemCommand.SC_MAXIMIZE,
-                    SystemCommand.SC_CLOSE,
-                })
-                    External.DeleteMenu(sysMenu, (int)sc, 0x00000000);
+                Enum.GetValues<SystemCommand>().ForEach(sc => External.DeleteMenu(sysMenu, (int)sc, 0x00000000));
             }
         }
 

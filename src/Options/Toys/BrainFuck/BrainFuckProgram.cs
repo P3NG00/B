@@ -40,7 +40,8 @@ namespace B.Options.Toys.BrainFuck
                 // Input Current Cell Value from User
                 case ',':
                     {
-                        Window.ClearAndSetSize(30, 10);
+                        Window.Clear();
+                        Window.SetSize(30, 10);
                         Window.PrintLine();
                         Window.PrintLine($" Output: {output}");
                         Window.PrintLine();

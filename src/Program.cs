@@ -125,7 +125,8 @@ namespace B
                 case Level.Program:
                     {
                         // Display main menu options
-                        Window.ClearAndSetSize(22, Program.OptionGroups.Length + 6);
+                        Window.Clear();
+                        Window.SetSize(22, Program.OptionGroups.Length + 6);
                         Input.Choice choice = Input.Choice.Create($"{Program.Title}'s");
 
                         for (int i = 0; i < Program.OptionGroups.Length; i++)
@@ -146,7 +147,8 @@ namespace B
 
                 case Level.Group:
                     {
-                        Window.ClearAndSetSize(22, _optionGroup.Options.Length + 6);
+                        Window.Clear();
+                        Window.SetSize(22, _optionGroup.Options.Length + 6);
                         Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
 
                         for (int i = 0; i < _optionGroup.Options.Length; i++)
@@ -181,26 +183,30 @@ namespace B
 
         private void HandleException(Exception e) => PrintExceptionOutput(() =>
         {
-            Window.Print("An exception was thrown!", (2, 1), ConsoleColor.Red);
-            Window.Print(e, (2, 3), ConsoleColor.White, ConsoleColor.Black);
+            Window.Print("An exception was thrown!", ConsoleColor.Red);
+            Cursor.SetPosition(2, 3);
+            Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
         });
 
         private void HandleNotImplementedException() => PrintExceptionOutput(() =>
         {
-            Window.Print("This feature is not yet implemented.", (2, 1), ConsoleColor.DarkYellow);
+            Window.Print("This feature is not yet implemented.", ConsoleColor.DarkYellow);
         });
 
         private void HandleInitializationException(Exception e) => PrintExceptionOutput(() =>
         {
-            Window.Print("AN ERROR HAS OCCURRED DURING INITIALIZATION.", (2, 1), ConsoleColor.DarkRed, ConsoleColor.Gray);
-            Window.Print(e, (2, 3), ConsoleColor.White, ConsoleColor.Black);
+            Window.Print("AN ERROR HAS OCCURRED DURING INITIALIZATION.", ConsoleColor.DarkRed, ConsoleColor.Gray);
+            Cursor.SetPosition(2, 3);
+            Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
         });
 
         private void PrintExceptionOutput(Action printAction)
         {
-            Window.ClearAndSetSize(Window.SIZE_MAX / 2);
+            Window.Clear();
+            Window.SetSize(Window.SIZE_MAX / 2);
+            Cursor.SetPosition(2, 1);
             printAction();
-            Vector2 cursorPos = Cursor.GetPositionVector2();
+            Vector2 cursorPos = Cursor.GetPosition();
             cursorPos.x = 2;
             cursorPos.y += 2;
             Cursor.SetPosition(cursorPos);

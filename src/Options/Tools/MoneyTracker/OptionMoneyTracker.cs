@@ -36,7 +36,8 @@ namespace B.Options.Tools.MoneyTracker
                         if (selected)
                             consoleHeight++;
 
-                        Window.ClearAndSetSize(20, consoleHeight);
+                        Window.Clear();
+                        Window.SetSize(20, consoleHeight);
                         Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title);
                         choice.Add(() => SetStage(Stages.Account), "Account", '1');
 
@@ -51,15 +52,17 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Account:
                     {
+                        Window.Clear();
+
                         if (_selectedAccount != null)
                         {
-                            Window.ClearAndSetSize(24, 12);
+                            Window.SetSize(24, 12);
                             Window.PrintLine();
                             Window.PrintLine("   Selected Account:");
                             Window.PrintLine($"  {_selectedAccount.Name}");
                         }
                         else
-                            Window.ClearAndSetSize(24, 9);
+                            Window.SetSize(24, 9);
 
                         Input.Choice choice = Input.Choice.Create("Account");
                         choice.Add(() => SetStage(Stages.Account_Create), "Create", '1');
@@ -73,7 +76,8 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Account_Create:
                     {
-                        Window.ClearAndSetSize(42, 5);
+                        Window.Clear();
+                        Window.SetSize(42, 5);
                         Window.PrintLine();
                         Window.Print($"  New Account Name: {Input.String}");
                         Input.RequestLine(20,
@@ -87,14 +91,16 @@ namespace B.Options.Tools.MoneyTracker
                                     {
                                         Account account = AddAccount(Path.GetFileNameWithoutExtension(filePath));
                                         _selectedAccount = account;
-                                        Window.PrintLines(2);
+                                        Window.PrintLine();
+                                        Window.PrintLine();
                                         Window.PrintLine($"  \"{Input.String}\" created!");
                                         Input.ResetString(); ;
                                         SetStage(Stages.Account);
                                     }
                                     else
                                     {
-                                        Window.PrintLines(2);
+                                        Window.PrintLine();
+                                        Window.PrintLine();
                                         Window.PrintLine("    Name already taken!");
                                     }
 
@@ -117,7 +123,8 @@ namespace B.Options.Tools.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Window.ClearAndSetSize(27, consoleHeight);
+                        Window.Clear();
+                        Window.SetSize(27, consoleHeight);
                         Window.PrintLine();
                         Input.Choice choice = Input.Choice.Create();
 
@@ -149,7 +156,8 @@ namespace B.Options.Tools.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Window.ClearAndSetSize(27, consoleHeight);
+                        Window.Clear();
+                        Window.SetSize(27, consoleHeight);
                         Input.Choice choice = Input.Choice.Create("Remove Account");
 
                         if (amountAccounts > 0)
@@ -178,7 +186,8 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction:
                     {
-                        Window.ClearAndSetSize(20, 10);
+                        Window.Clear();
+                        Window.SetSize(20, 10);
                         Input.Choice choice = Input.Choice.Create("Transaction");
                         choice.Add(() =>
                         {
@@ -232,7 +241,8 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction_Delete:
                     {
-                        Window.ClearAndSetSize(31, _selectedAccount!.Transactions.Count + 4);
+                        Window.Clear();
+                        Window.SetSize(31, _selectedAccount!.Transactions.Count + 4);
                         // Util.PrintLine();
                         // Util.PrintLine("  Delete");
                         // _selectedAccount.PrintTransactions(); // TODO
@@ -271,7 +281,8 @@ namespace B.Options.Tools.MoneyTracker
 
         private void ShowTransactionStage()
         {
-            Window.ClearAndSetSize(4 + Input.DECIMAL_LENGTH, 7);
+            Window.Clear();
+            Window.SetSize(4 + Input.DECIMAL_LENGTH, 7);
             Window.PrintLine();
             Window.PrintLine("  Amount:");
 

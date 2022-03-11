@@ -27,6 +27,8 @@ namespace B.Utils
             ConsoleColor.Red
         };
 
+        public static void Loop(int times, Action action) => Util.Loop(times, i => action());
+
         public static void Loop(int times, Action<int> action)
         {
             for (int i = 0; i < times; i++)

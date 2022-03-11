@@ -42,7 +42,8 @@ namespace B.Options.Toys.BrainFuck
             {
                 case Stages.MainMenu:
                     {
-                        Window.ClearAndSetSize(20, 7);
+                        Window.Clear();
+                        Window.SetSize(20, 7);
                         Input.Choice choice = Input.Choice.Create(OptionBrainFuck.Title);
                         choice.Add(() => SetStage(Stages.List), "List", '1');
                         choice.AddSpacer();
@@ -53,7 +54,8 @@ namespace B.Options.Toys.BrainFuck
 
                 case Stages.List:
                     {
-                        Window.ClearAndSetSize(40, 10 + _programs.Count);
+                        Window.Clear();
+                        Window.SetSize(40, 10 + _programs.Count);
                         Input.RequestScroll(
                             items: _programs,
                             getText: program => program.Title,
@@ -84,7 +86,8 @@ namespace B.Options.Toys.BrainFuck
                             if (Program.Settings.DebugMode.Active)
                             {
                                 int consoleWidth = 50;
-                                Window.ClearAndSetSize(consoleWidth, 25);
+                                Window.Clear();
+                                Window.SetSize(consoleWidth, 25);
                                 Window.PrintLine(_output);
                                 Window.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
                                 Window.PrintLine("  DEBUG ON | OUTPUT ABOVE LINE");
@@ -112,7 +115,8 @@ namespace B.Options.Toys.BrainFuck
                         }
                         else
                         {
-                            Window.ClearAndSetSize(50, 25);
+                            Window.Clear();
+                            Window.SetSize(50, 25);
                             Window.PrintLine();
                             Window.PrintLine(_output);
                             Input.WaitFor(ConsoleKey.F1);

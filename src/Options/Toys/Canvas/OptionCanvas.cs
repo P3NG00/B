@@ -45,7 +45,8 @@ namespace B.Options.Toys.Canvas
                         if (!_canvases.IsEmpty())
                             consoleHeight++;
 
-                        Window.ClearAndSetSize(20, consoleHeight);
+                        Window.Clear();
+                        Window.SetSize(20, consoleHeight);
 
                         Input.Choice choice = Input.Choice.Create(OptionCanvas.Title);
                         choice.Add(() =>
@@ -71,7 +72,8 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.List:
                     {
-                        Window.ClearAndSetSize(32, _canvases.Count + 10);
+                        Window.Clear();
+                        Window.SetSize(32, _canvases.Count + 10);
                         Input.RequestScroll(
                             items: _canvases,
                             getText: canvas => canvas.Title,
@@ -95,7 +97,8 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.Delete:
                     {
-                        Window.ClearAndSetSize(39, 7);
+                        Window.Clear();
+                        Window.SetSize(39, 7);
                         Input.Choice choice = Input.Choice.Create($"Delete '{_canvas.Title}'?");
                         choice.Add(() =>
                         {
@@ -230,7 +233,8 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.ColorSelect:
                     {
-                        Window.ClearAndSetSize(32, 26);
+                        Window.Clear();
+                        Window.SetSize(32, 26);
                         ConsoleColor[] colors = Util.OrderedConsoleColors;
                         // TODO once RequestScroll uses Cursor Positioning instead of printlining, adjust cursor position so that the title lines up with the color (4, 1)?
                         Input.RequestScroll(
@@ -261,12 +265,13 @@ namespace B.Options.Toys.Canvas
 
         private void ShowCreationStage(CreationStage stage)
         {
-            Window.ClearAndSetSize(35, 8);
+            Window.Clear();
+            Window.SetSize(35, 8);
             Window.PrintLine();
             Window.PrintLine("  New Canvas");
             Window.PrintLine();
 
-            if (stage == 0)
+            if (stage == CreationStage.Name)
                 Window.Print($"  Name: {Input.String}");
             else
             {
