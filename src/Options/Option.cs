@@ -3,7 +3,8 @@ namespace B.Options
     public abstract class Option<T> : IOption where T : Enum
     {
         protected T Stage { get; private set; }
-        private bool _running = true;
+
+        public bool IsRunning { get; private set; } = true;
 
         public Option(T defaultStage) => Stage = defaultStage;
 
@@ -11,10 +12,8 @@ namespace B.Options
 
         public abstract void Loop();
 
-        public bool IsRunning() => _running;
-
         public virtual void Save() { }
 
-        public virtual void Quit() => _running = false;
+        public virtual void Quit() => IsRunning = false;
     }
 }

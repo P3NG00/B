@@ -2,10 +2,10 @@ namespace B.Options
 {
     public interface IOption
     {
-        public abstract void Loop();
+        bool IsRunning { get; }
 
-        public abstract bool IsRunning();
+        void Loop();
 
-        public abstract void Quit();
+        void Quit();
     }
 }

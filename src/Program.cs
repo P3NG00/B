@@ -74,7 +74,7 @@ namespace B
             }
 
             // Program loop
-            while (IsRunning())
+            while (IsRunning)
             {
                 try { Loop(); }
                 catch (NotImplementedException) { HandleNotImplementedException(); }
@@ -169,7 +169,7 @@ namespace B
 
                 case Level.Option:
                     {
-                        if (_selectedOption is not null && _selectedOption.IsRunning())
+                        if (_selectedOption is not null && _selectedOption.IsRunning)
                             _selectedOption.Loop();
                         else
                         {
