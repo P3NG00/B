@@ -198,12 +198,12 @@ namespace B.Options.Tools.FTP
                         _lastStage = Stage;
                         Window.ClearAndSetSize(OptionFTP.WIDTH, 8);
                         SftpFile file = CurrentFile;
-                        Input.Choice.Create($"{file.FullName} | {file.Attributes.Size} bytes")
-                            .Add(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown)
-                            .Add(() => SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete)
-                            .AddSpacer()
-                            .Add(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create($"{file.FullName} | {file.Attributes.Size} bytes");
+                        choice.Add(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown);
+                        choice.Add(() => SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete);
+                        choice.AddSpacer();
+                        choice.Add(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
                         Window.Clear();
                     }
                     break;
@@ -223,11 +223,11 @@ namespace B.Options.Tools.FTP
                         Window.PrintLine();
                         SftpFile currentFile = CurrentFile;
                         Window.PrintLine($"  {currentFile.FullName}");
-                        Input.Choice.Create("Are you sure you want to delete this file?")
-                            .Add(() => Delete(currentFile), "yes", key: ConsoleKey.Enter)
-                            .AddSpacer()
-                            .Add(null!, "NO", key: ConsoleKey.Escape)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create("Are you sure you want to delete this file?");
+                        choice.Add(() => Delete(currentFile), "yes", key: ConsoleKey.Enter);
+                        choice.AddSpacer();
+                        choice.Add(null!, "NO", key: ConsoleKey.Escape);
+                        choice.Request();
                         SetStage(Stages.Navigate);
                     }
                     break;

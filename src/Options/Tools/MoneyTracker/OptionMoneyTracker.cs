@@ -37,15 +37,15 @@ namespace B.Options.Tools.MoneyTracker
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title)
-                            .Add(() => SetStage(Stages.Account), "Account", '1');
+                        Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title);
+                        choice.Add(() => SetStage(Stages.Account), "Account", '1');
 
                         if (selected)
                             choice.Add(() => SetStage(Stages.Transaction), "Transaction", '2');
 
-                        choice.AddSpacer()
-                            .AddExit(this)
-                            .Request();
+                        choice.AddSpacer();
+                        choice.AddExit(this);
+                        choice.Request();
                     }
                     break;
 
@@ -61,13 +61,13 @@ namespace B.Options.Tools.MoneyTracker
                         else
                             Window.ClearAndSetSize(24, 9);
 
-                        Input.Choice.Create("Account")
-                            .Add(() => SetStage(Stages.Account_Create), "Create", '1')
-                            .Add(() => SetStage(Stages.Account_Select), "Select", '2')
-                            .Add(() => SetStage(Stages.Account_Remove), "Remove", '3')
-                            .AddSpacer()
-                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create("Account");
+                        choice.Add(() => SetStage(Stages.Account_Create), "Create", '1');
+                        choice.Add(() => SetStage(Stages.Account_Select), "Select", '2');
+                        choice.Add(() => SetStage(Stages.Account_Remove), "Remove", '3');
+                        choice.AddSpacer();
+                        choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
                     }
                     break;
 
@@ -136,8 +136,8 @@ namespace B.Options.Tools.MoneyTracker
                             choice.AddSpacer();
                         }
 
-                        choice.Add(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        choice.Add(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
                     }
                     break;
 
@@ -171,31 +171,31 @@ namespace B.Options.Tools.MoneyTracker
                             choice.AddSpacer();
                         }
 
-                        choice.Add(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        choice.Add(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
                     }
                     break;
 
                 case Stages.Transaction:
                     {
                         Window.ClearAndSetSize(20, 10);
-                        Input.Choice.Create("Transaction")
-                            .Add(() =>
-                            {
-                                SetStage(Stages.Transaction_View);
-                                Window.Clear();
-                            }, "View", '1')
-                            .Add(() =>
-                            {
-                                Input.ResetString(); ;
-                                _tempTransaction = new();
-                                SetStage(Stages.Transaction_Add_Amount);
-                            }, "Add", '2')
-                            .Add(() => SetStage(Stages.Transaction_Delete), "Delete", '3')
-                            .Add(() => SetStage(Stages.Transaction_Edit), "Edit", '4')
-                            .AddSpacer()
-                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create("Transaction");
+                        choice.Add(() =>
+                        {
+                            SetStage(Stages.Transaction_View);
+                            Window.Clear();
+                        }, "View", '1');
+                        choice.Add(() =>
+                        {
+                            Input.ResetString(); ;
+                            _tempTransaction = new();
+                            SetStage(Stages.Transaction_Add_Amount);
+                        }, "Add", '2');
+                        choice.Add(() => SetStage(Stages.Transaction_Delete), "Delete", '3');
+                        choice.Add(() => SetStage(Stages.Transaction_Edit), "Edit", '4');
+                        choice.AddSpacer();
+                        choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
                     }
                     break;
 

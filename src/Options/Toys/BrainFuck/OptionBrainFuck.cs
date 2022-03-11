@@ -43,11 +43,11 @@ namespace B.Options.Toys.BrainFuck
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(20, 7);
-                        Input.Choice.Create(OptionBrainFuck.Title)
-                            .Add(() => SetStage(Stages.List), "List", '1')
-                            .AddSpacer()
-                            .AddExit(this)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create(OptionBrainFuck.Title);
+                        choice.Add(() => SetStage(Stages.List), "List", '1');
+                        choice.AddSpacer();
+                        choice.AddExit(this);
+                        choice.Request();
                     }
                     break;
 

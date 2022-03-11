@@ -30,17 +30,17 @@ namespace B.Options.Games.NumberGuesser
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(20, 8);
-                        Input.Choice.Create(OptionNumberGuesser.Title)
-                            .Add(() =>
-                            {
-                                _numRandom = Util.Random.Next(_numMax) + 1;
-                                Input.ResetString(); ;
-                                SetStage(Stages.Game);
-                            }, "New Game", '1')
-                            .AddSpacer()
-                            .Add(() => SetStage(Stages.Settings), "Settings", '9')
-                            .AddExit(this)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create(OptionNumberGuesser.Title);
+                        choice.Add(() =>
+                        {
+                            _numRandom = Util.Random.Next(_numMax) + 1;
+                            Input.ResetString(); ;
+                            SetStage(Stages.Game);
+                        }, "New Game", '1');
+                        choice.AddSpacer();
+                        choice.Add(() => SetStage(Stages.Settings), "Settings", '9');
+                        choice.AddExit(this);
+                        choice.Request();
                     }
                     break;
 
@@ -95,15 +95,15 @@ namespace B.Options.Games.NumberGuesser
                 case Stages.Settings:
                     {
                         Window.ClearAndSetSize(20, 7);
-                        Input.Choice.Create("Settings")
-                            .Add(() =>
-                            {
-                                Input.String = _numMax.ToString();
-                                SetStage(Stages.Settings_MaxNumber);
-                            }, "Max Number", '1')
-                            .AddSpacer()
-                            .Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create("Settings");
+                        choice.Add(() =>
+                        {
+                            Input.String = _numMax.ToString();
+                            SetStage(Stages.Settings_MaxNumber);
+                        }, "Max Number", '1');
+                        choice.AddSpacer();
+                        choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
                     }
                     break;
 

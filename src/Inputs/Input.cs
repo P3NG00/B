@@ -129,26 +129,27 @@ namespace B.Inputs
                 int lastPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
 
                 if (navigationKeybinds)
-                    choice.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow)
-                        .Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow)
-                        .Add(() =>
-                        {
-                            Input.ScrollIndex += maxEntriesAdjusted;
-                            Window.Clear();
-                        }, key: ConsoleKey.RightArrow)
-                        .Add(() =>
-                        {
-                            Input.ScrollIndex -= maxEntriesAdjusted;
-                            Window.Clear();
-                        }, key: ConsoleKey.LeftArrow);
+                {
+                    choice.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow);
+                    choice.Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
+                    choice.Add(() =>
+                    {
+                        Input.ScrollIndex += maxEntriesAdjusted;
+                        Window.Clear();
+                    }, key: ConsoleKey.RightArrow);
+                    choice.Add(() =>
+                    {
+                        Input.ScrollIndex -= maxEntriesAdjusted;
+                        Window.Clear();
+                    }, key: ConsoleKey.LeftArrow);
+                }
 
                 if (hasExtraKeybinds)
                     choice.Add(extraKeybinds!);
 
-                keyInfo = choice.AddSpacer()
-                    .Add(exitKeybind)
-                    .Request();
-
+                choice.AddSpacer();
+                choice.Add(exitKeybind);
+                keyInfo = choice.Request();
                 Input.ScrollIndex = Input.ScrollIndex.Clamp(0, itemCount - 1);
                 int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
@@ -162,8 +163,8 @@ namespace B.Inputs
                 Window.PrintLine();
                 Window.PrintLine("  No entries.");
                 Window.PrintLine();
-                keyInfo = choice.Add(exitKeybind)
-                    .Request();
+                choice.Add(exitKeybind);
+                keyInfo = choice.Request();
             }
 
             return keyInfo;
@@ -196,45 +197,24 @@ namespace B.Inputs
                     AddMessage(title);
             }
 
-            public Choice AddMessage(string title)
-            {
-                _messages.Add(title);
-                return this;
-            }
+            public void AddMessage(string title) => _messages.Add(title);
 
-            public Choice AddMessageSpacer()
-            {
-                _messages.Add(string.Empty);
-                return this;
-            }
+            public void AddMessageSpacer() => _messages.Add(string.Empty);
 
-            public Choice Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false)
-            {
-                _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
-                return this;
-            }
+            public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
 
-            public Choice Add(params Keybind[] keybinds)
-            {
-                _keybinds.AddRange(keybinds);
-                return this;
-            }
+            public void Add(params Keybind[] keybinds) => _keybinds.AddRange(keybinds);
 
-            public Choice AddRoutine(Action<List<Keybind>> keybindRoutine)
+            public void AddRoutine(Action<List<Keybind>> keybindRoutine)
             {
                 List<Keybind> keybinds = new();
                 keybindRoutine(keybinds);
                 _keybinds.AddRange(keybinds);
-                return this;
             }
 
-            public Choice AddSpacer()
-            {
-                _keybinds.AddRange(new Keybind[] { null! });
-                return this;
-            }
+            public void AddSpacer() => _keybinds.AddRange(new Keybind[] { null! });
 
-            public Choice AddExit(IOption option)
+            public void AddExit(IOption option)
             {
                 string phrase = string.Empty;
 
@@ -245,35 +225,8 @@ namespace B.Inputs
                     case Program.Level.Option: phrase = "Exit"; break;
                 }
 
-                return Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);
+                Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);
             }
-
-            // TODO use functions below
-            // public void AddMessage(string title) => _messages.Add(title);
-
-            // public void AddMessageSpacer() => _messages.Add(string.Empty);
-
-            // public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
-
-            // public void Add(params Keybind[] keybinds) => _keybinds.AddRange(keybinds);
-
-            // public void AddRoutine(Func<List<Keybind>> keybindRoutine) => _keybinds.AddRange(keybindRoutine());
-
-            // public void AddSpacer() => _keybinds.AddRange(new Keybind[] { null! });
-
-            // public void AddExit(IOption option)
-            // {
-            //     string phrase = string.Empty;
-
-            //     switch (Program.CurrentLevel)
-            //     {
-            //         case Program.Level.Program: phrase = "Quit"; break;
-            //         case Program.Level.Group: phrase = "Back"; break;
-            //         case Program.Level.Option: phrase = "Exit"; break;
-            //     }
-
-            //     Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);
-            // }
 
             public ConsoleKeyInfo Request()
             {

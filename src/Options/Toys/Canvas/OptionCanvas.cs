@@ -47,25 +47,25 @@ namespace B.Options.Toys.Canvas
 
                         Window.ClearAndSetSize(20, consoleHeight);
 
-                        Input.Choice iob = Input.Choice.Create(OptionCanvas.Title)
-                            .Add(() =>
-                            {
-                                Window.Clear();
-                                _canvas = new();
-                                Input.ResetString();
-                                SetStage(Stages.Create_Name);
-                            }, "Create", '1');
+                        Input.Choice choice = Input.Choice.Create(OptionCanvas.Title);
+                        choice.Add(() =>
+                        {
+                            Window.Clear();
+                            _canvas = new();
+                            Input.ResetString();
+                            SetStage(Stages.Create_Name);
+                        }, "Create", '1');
 
                         if (!_canvases.IsEmpty())
-                            iob.Add(() =>
+                            choice.Add(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 SetStage(Stages.List);
                             }, "List", '2');
 
-                        iob.AddSpacer()
-                            .AddExit(this)
-                            .Request();
+                        choice.AddSpacer();
+                        choice.AddExit(this);
+                        choice.Request();
                     }
                     break;
 
@@ -96,18 +96,18 @@ namespace B.Options.Toys.Canvas
                 case Stages.Delete:
                     {
                         Window.ClearAndSetSize(39, 7);
-                        Input.Choice.Create($"Delete '{_canvas.Title}'?")
-                            .Add(() =>
-                            {
-                                File.Delete(_canvas.FilePath);
-                                _canvases.Remove(_canvas);
+                        Input.Choice choice = Input.Choice.Create($"Delete '{_canvas.Title}'?");
+                        choice.Add(() =>
+                        {
+                            File.Delete(_canvas.FilePath);
+                            _canvases.Remove(_canvas);
 
-                                if (_canvases.IsEmpty())
-                                    SetStage(Stages.MainMenu);
-                            }, "yes", key: ConsoleKey.Enter)
-                            .AddSpacer()
-                            .Add(null!, "NO", key: ConsoleKey.Escape)
-                            .Request();
+                            if (_canvases.IsEmpty())
+                                SetStage(Stages.MainMenu);
+                        }, "yes", key: ConsoleKey.Enter);
+                        choice.AddSpacer();
+                        choice.Add(null!, "NO", key: ConsoleKey.Escape);
+                        choice.Request();
                         SetStage(Stages.List);
                     }
                     break;
@@ -141,40 +141,40 @@ namespace B.Options.Toys.Canvas
                         Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
                         Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
                         Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
-                        Input.Choice.Create()
-                            // Move in Direction
-                            .Add(() => MoveCursor(Direction.Up), key: ConsoleKey.UpArrow)
-                            .Add(() => MoveCursor(Direction.Down), key: ConsoleKey.DownArrow)
-                            .Add(() => MoveCursor(Direction.Left), key: ConsoleKey.LeftArrow)
-                            .Add(() => MoveCursor(Direction.Right), key: ConsoleKey.RightArrow)
-                            // Paint in Direction
-                            .Add(() => PaintDirection(Direction.Up), keyChar: '8')
-                            .Add(() => PaintDirection(Direction.Down), keyChar: '2')
-                            .Add(() => PaintDirection(Direction.Left), keyChar: '4')
-                            .Add(() => PaintDirection(Direction.Right), keyChar: '6')
-                            // Paint
-                            .Add(() => Paint(), key: ConsoleKey.Spacebar)
-                            .Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, control: true)
-                            .Add(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, control: true)
-                            .Add(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, control: true)
-                            .Add(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, control: true)
-                            // Color Select
-                            .Add(() =>
-                            {
-                                _lastConsoleWindow = new(0, 0, 0, 0);
-                                SetStage(Stages.ColorSelect);
-                            }, key: ConsoleKey.F1)
-                            // Exit
-                            .Add(() =>
-                            {
-                                if (!_canvases.Contains(_canvas))
-                                    _canvases.Add(_canvas);
+                        Input.Choice choice = Input.Choice.Create();
+                        // Move in Direction
+                        choice.Add(() => MoveCursor(Direction.Up), key: ConsoleKey.UpArrow);
+                        choice.Add(() => MoveCursor(Direction.Down), key: ConsoleKey.DownArrow);
+                        choice.Add(() => MoveCursor(Direction.Left), key: ConsoleKey.LeftArrow);
+                        choice.Add(() => MoveCursor(Direction.Right), key: ConsoleKey.RightArrow);
+                        // Paint in Direction
+                        choice.Add(() => PaintDirection(Direction.Up), keyChar: '8');
+                        choice.Add(() => PaintDirection(Direction.Down), keyChar: '2');
+                        choice.Add(() => PaintDirection(Direction.Left), keyChar: '4');
+                        choice.Add(() => PaintDirection(Direction.Right), keyChar: '6');
+                        // Paint
+                        choice.Add(() => Paint(), key: ConsoleKey.Spacebar);
+                        choice.Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, control: true);
+                        choice.Add(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, control: true);
+                        choice.Add(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, control: true);
+                        choice.Add(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, control: true);
+                        // Color Select
+                        choice.Add(() =>
+                        {
+                            _lastConsoleWindow = new(0, 0, 0, 0);
+                            SetStage(Stages.ColorSelect);
+                        }, key: ConsoleKey.F1);
+                        // Exit
+                        choice.Add(() =>
+                        {
+                            if (!_canvases.Contains(_canvas))
+                                _canvases.Add(_canvas);
 
-                                Save();
-                                _lastConsoleWindow = new(0, 0, 0, 0);
-                                SetStage(Stages.MainMenu);
-                            }, key: ConsoleKey.Escape)
-                            .Request();
+                            Save();
+                            _lastConsoleWindow = new(0, 0, 0, 0);
+                            SetStage(Stages.MainMenu);
+                        }, key: ConsoleKey.Escape);
+                        choice.Request();
 
                         Vector2 maxCanvasPos = _canvas.Size - Vector2.One;
                         // Fix cursor position

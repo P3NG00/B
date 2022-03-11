@@ -126,42 +126,42 @@ namespace B
                     {
                         // Display main menu options
                         Window.ClearAndSetSize(22, Program.OptionGroups.Length + 6);
-                        Input.Choice iob = Input.Choice.Create($"{Program.Title}'s");
+                        Input.Choice choice = Input.Choice.Create($"{Program.Title}'s");
 
                         for (int i = 0; i < Program.OptionGroups.Length; i++)
                         {
                             var optionGroup = Program.OptionGroups[i];
-                            iob.Add(() =>
+                            choice.Add(() =>
                             {
                                 _optionGroup = optionGroup;
                                 SetStage(Level.Group);
                             }, optionGroup.GroupTitle, (char)('1' + i));
                         }
 
-                        iob.AddSpacer()
-                            .AddExit(this)
-                            .Request();
+                        choice.AddSpacer();
+                        choice.AddExit(this);
+                        choice.Request();
                     }
                     break;
 
                 case Level.Group:
                     {
                         Window.ClearAndSetSize(22, _optionGroup.Options.Length + 6);
-                        Input.Choice iob = Input.Choice.Create(_optionGroup.GroupTitle);
+                        Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
 
                         for (int i = 0; i < _optionGroup.Options.Length; i++)
                         {
                             var option = _optionGroup.Options[i];
-                            iob.Add(() =>
+                            choice.Add(() =>
                             {
                                 _selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
                                 SetStage(Level.Option);
                             }, option.GetTitle(), (char)('1' + i));
                         }
 
-                        iob.AddSpacer()
-                            .Add(() => SetStage(Level.Program), "Back", key: ConsoleKey.Escape)
-                            .Request();
+                        choice.AddSpacer();
+                        choice.Add(() => SetStage(Level.Program), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
                     }
                     break;
 

@@ -25,28 +25,28 @@ namespace B.Options.Games.MexicanTrain
                 case Stages.MainMenu:
                     {
                         Window.ClearAndSetSize(34, 7);
-                        Input.Choice.Create(OptionMexicanTrain.Title)
-                            .AddMessageSpacer()
-                            .AddMessage($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players.")
-                            .AddRoutine(keybinds =>
+                        Input.Choice choice = Input.Choice.Create(OptionMexicanTrain.Title);
+                        choice.AddMessageSpacer();
+                        choice.AddMessage($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players.");
+                        choice.AddRoutine(keybinds =>
+                        {
+                            for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
                             {
-                                for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
-                                {
-                                    // Create new instances because 'i' will change while looping
-                                    MexicanTrainInfo info = new(i);
-                                    char c = (char)('0' + i);
+                                // Create new instances because 'i' will change while looping
+                                MexicanTrainInfo info = new(i);
+                                char c = (char)('0' + i);
 
-                                    // Add keybinds
-                                    keybinds.Add(new(() =>
-                                    {
-                                        _info = info;
-                                        _info.Initialize();
-                                        SetStage(Stages.Game);
-                                    }, keyChar: c));
-                                }
-                            })
-                            .AddExit(this)
-                            .Request();
+                                // Add keybinds
+                                keybinds.Add(new(() =>
+                                {
+                                    _info = info;
+                                    _info.Initialize();
+                                    SetStage(Stages.Game);
+                                }, keyChar: c));
+                            }
+                        });
+                        choice.AddExit(this);
+                        choice.Request();
                     }
                     break;
 

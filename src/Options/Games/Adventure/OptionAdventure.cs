@@ -52,15 +52,15 @@ namespace B.Options.Games.Adventure
                             consoleHeight++;
 
                         Window.ClearAndSetSize(20, consoleHeight);
-                        Input.Choice choice = Input.Choice.Create(OptionAdventure.Title)
-                            .Add(() => InitGame(true), "New Game", '1');
+                        Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
+                        choice.Add(() => InitGame(true), "New Game", '1');
 
                         if (fileExists)
                             choice.Add(() => InitGame(false), "Continue", '2');
 
-                        choice.AddSpacer()
-                            .AddExit(this)
-                            .Request();
+                        choice.AddSpacer();
+                        choice.AddExit(this);
+                        choice.Request();
                     }
                     break;
 
@@ -115,24 +115,24 @@ namespace B.Options.Games.Adventure
                         Window.PrintLine("      Move) W A S D");
                         Window.PrintLine("  Interact) Space");
                         Window.PrintLine("     Speed) + -");
-                        Input.Choice.Create()
-                            .Add(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8)
-                            .Add(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4)
-                            .Add(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2)
-                            .Add(() => MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6)
-                            .Add(() => Interact(Direction.Up), key: ConsoleKey.UpArrow)
-                            .Add(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow)
-                            .Add(() => Interact(Direction.Down), key: ConsoleKey.DownArrow)
-                            .Add(() => Interact(Direction.Right), key: ConsoleKey.RightArrow)
-                            .Add(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add)
-                            .Add(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract)
-                            .AddSpacer()
-                            .Add(() =>
-                            {
-                                Save();
-                                SetStage(Stages.MainMenu);
-                            }, "Quit", key: ConsoleKey.Escape)
-                            .Request();
+                        Input.Choice choice = Input.Choice.Create();
+                        choice.Add(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8);
+                        choice.Add(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4);
+                        choice.Add(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2);
+                        choice.Add(() => MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6);
+                        choice.Add(() => Interact(Direction.Up), key: ConsoleKey.UpArrow);
+                        choice.Add(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow);
+                        choice.Add(() => Interact(Direction.Down), key: ConsoleKey.DownArrow);
+                        choice.Add(() => Interact(Direction.Right), key: ConsoleKey.RightArrow);
+                        choice.Add(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add);
+                        choice.Add(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract);
+                        choice.AddSpacer();
+                        choice.Add(() =>
+                        {
+                            Save();
+                            SetStage(Stages.MainMenu);
+                        }, "Quit", key: ConsoleKey.Escape);
+                        choice.Request();
                     }
                     break;
             }
