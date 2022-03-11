@@ -1,4 +1,5 @@
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Options.Games.Adventure
 {
@@ -145,7 +146,7 @@ namespace B.Options.Games.Adventure
         public static string[] CreateGrid(Vector2 dimensions)
         {
             string[] sa = new string[dimensions.y];
-            string s = Util.StringOf(' ', dimensions.x);
+            string s = ' '.Loop(dimensions.x);
 
             for (int i = 0; i < sa.Length; i++)
                 sa[i] = s;

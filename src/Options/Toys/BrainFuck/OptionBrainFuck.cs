@@ -1,5 +1,6 @@
 using B.Inputs;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Options.Toys.BrainFuck
 {
@@ -89,7 +90,7 @@ namespace B.Options.Toys.BrainFuck
                                 Window.Clear();
                                 Window.SetSize(consoleWidth, 25);
                                 Window.PrintLine(_output);
-                                Window.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
+                                Window.PrintLine($" {'-'.Loop(consoleWidth - 2)}");
                                 Window.PrintLine("  DEBUG ON | OUTPUT ABOVE LINE");
                                 Window.PrintLine($"Memory Index: {_memoryIndex}");
                                 Window.PrintLine($"Instruction Index: {_instructionIndex}");
@@ -143,7 +144,7 @@ namespace B.Options.Toys.BrainFuck
                             // Column 3 - Hex
                             string format = "{0,-6}{1,-6}{2,-2}";
                             Window.PrintLine($"   {string.Format(format, "byte", "char", "hex")}");
-                            Window.PrintLine($" {Util.StringOf('-', consoleWidth - 2)}");
+                            Window.PrintLine($" {'-'.Loop(consoleWidth - 2)}");
                             Input.ScrollIndex = (int)_memoryIndex;
                             Input.RequestScroll(
                                 items: _memory,

@@ -28,16 +28,6 @@ namespace B.Utils
             ConsoleColor.Red
         };
 
-        public static string StringOf(string str, int length)
-        {
-            string s = string.Empty;
-            Action action = () => s += str;
-            action.Loop(length);
-            return s;
-        }
-
-        public static string StringOf(char c, int length) => new string(c, length);
-
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
             using (FileStream fileStream = File.Open(filePath, FileMode.Create))

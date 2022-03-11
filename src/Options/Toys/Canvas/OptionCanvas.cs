@@ -142,7 +142,7 @@ namespace B.Options.Toys.Canvas
 
                         Cursor.Reset();
                         Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
-                        Window.PrintLine($" {Util.StringOf('-', windowSize.x - 2)}");
+                        Window.PrintLine($" {'-'.Loop(windowSize.x - 2)}");
                         Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         Input.Choice choice = Input.Choice.Create();
                         // Move in Direction

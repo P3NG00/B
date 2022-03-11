@@ -1,5 +1,6 @@
 using B.Inputs;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Options.Tools.MoneyTracker
 {
@@ -217,7 +218,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.PrintLine();
                         Input.RequestScroll(
                             items: _selectedAccount.Transactions,
-                            getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + Util.StringOf('0', _selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
+                            getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
                             maxEntriesPerPage: OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
                             exitKeybind: new(() =>
                             {
