@@ -23,7 +23,10 @@ namespace B.Utils.Extensions
             int i = 0;
 
             foreach (T t in enumerable)
-                action(t, i++);
+            {
+                action(t, i);
+                i++;
+            }
         }
 
         public static IEnumerable<V> FromEach<T, V>(this IEnumerable<T> enumerable, Func<T, V> getValueFrom)

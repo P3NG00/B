@@ -19,7 +19,7 @@ namespace B.Utils
         }
 
         // TODO remove this function when all references are gone
-        // TODO [Obsolete("Use Cursor.SetPosition and Window.Print instead.")]
+        [Obsolete("Use Cursor.SetPosition and Window.Print instead.")]
         public static void PrintLine(object message = null!, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
             if (message != null)

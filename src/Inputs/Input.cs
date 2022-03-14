@@ -183,6 +183,10 @@ namespace B.Inputs
                     AddMessage(title);
             }
 
+            // TODO combine _keybinds and _messages by storing messages in Keybinds with description but no key
+
+            // TODO add SetFormat method to set formatting for keybinds/messages
+
             public void AddMessage(string title) => _messages.Add(title);
 
             public void AddMessageSpacer() => _messages.Add(string.Empty);

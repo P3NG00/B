@@ -1,12 +1,10 @@
 using System.Xml;
 using System.Xml.Serialization;
-using B.Utils.Extensions;
 
 namespace B.Utils
 {
     public static class Util
     {
-        public static char[] FormatChars => new char[] { (char)7, (char)8, (char)9, (char)10, (char)13 };
         public static Random Random => new Random();
 
         public static ConsoleColor[] OrderedConsoleColors => new ConsoleColor[] {
@@ -44,7 +42,5 @@ namespace B.Utils
             using (FileStream fileStream = File.Open(filePath, FileMode.Open))
                 return (T)new XmlSerializer(typeof(T)).Deserialize(fileStream)!;
         }
-
-        public static char Unformat(this char c) => Util.FormatChars.Contains(c) ? ' ' : c;
     }
 }

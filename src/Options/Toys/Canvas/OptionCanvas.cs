@@ -140,16 +140,17 @@ namespace B.Options.Toys.Canvas
                             _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
                         }
 
-                        Cursor.Reset();
-                        Window.PrintLine(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
-                        Window.PrintLine($" {'-'.Loop(windowSize.x - 2)}");
+                        Cursor.SetPosition(1, 0);
+                        Window.Print(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
+                        Cursor.SetPosition(1, 1);
+                        Window.Print($" {'-'.Loop(windowSize.x - 2)}");
                         Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         Input.Choice choice = Input.Choice.Create();
                         // Move in Direction
-                        choice.Add(() => MoveCursor(Direction.Up), key: ConsoleKey.UpArrow);
-                        choice.Add(() => MoveCursor(Direction.Down), key: ConsoleKey.DownArrow);
-                        choice.Add(() => MoveCursor(Direction.Left), key: ConsoleKey.LeftArrow);
-                        choice.Add(() => MoveCursor(Direction.Right), key: ConsoleKey.RightArrow);
+                        choice.Add(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow);
+                        choice.Add(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow);
+                        choice.Add(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow);
+                        choice.Add(() => MoveCursor(Direction.Right), keyChar: 'd', key: ConsoleKey.RightArrow);
                         // Paint in Direction
                         choice.Add(() => PaintDirection(Direction.Up), keyChar: '8');
                         choice.Add(() => PaintDirection(Direction.Down), keyChar: '2');
@@ -157,6 +158,7 @@ namespace B.Options.Toys.Canvas
                         choice.Add(() => PaintDirection(Direction.Right), keyChar: '6');
                         // Paint
                         choice.Add(() => Paint(), key: ConsoleKey.Spacebar);
+                        // Resize Brush
                         choice.Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, control: true);
                         choice.Add(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, control: true);
                         choice.Add(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, control: true);
@@ -267,25 +269,31 @@ namespace B.Options.Toys.Canvas
         {
             Window.Clear();
             Window.SetSize(35, 8);
-            Window.PrintLine();
-            Window.PrintLine("  New Canvas");
-            Window.PrintLine();
+            Cursor.SetPosition(2, 1);
+            Window.Print("New Canvas");
+            Cursor.SetPosition(2, 3);
+            Window.Print($"Name: {(stage == CreationStage.Name ? Input.String : _canvas.Title)}");
 
-            if (stage == CreationStage.Name)
-                Window.Print($"  Name: {Input.String}");
-            else
+            // TODO change creation stage order Width and Height
+
+            if (stage != CreationStage.Name)
             {
-                Window.PrintLine($"  Name: {_canvas.Title}");
-                Window.PrintLine();
+                Cursor.SetPosition(2, 5);
+                string print = string.Empty;
+
+                if (stage == CreationStage.Height)
+                    print = Input.String;
+                else if (stage == CreationStage.Width)
+                    print = _canvas.Colors.Length.ToString();
+
+                Window.Print(string.Format("Height: {0}", print));
             }
 
-            if (stage == CreationStage.Height)
-                Window.Print($"  Height: {Input.String}");
-            else if (stage == CreationStage.Width)
-                Window.PrintLine($"  Height: {_canvas.Colors.Length}");
-
             if (stage == CreationStage.Width)
-                Window.Print($"  Width: {Input.String}");
+            {
+                Cursor.SetPosition(2, 6);
+                Window.Print($"Width: {Input.String}");
+            }
 
             Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH,
                 new Keybind(() =>
@@ -297,7 +305,7 @@ namespace B.Options.Toys.Canvas
                                 if (!string.IsNullOrWhiteSpace(Input.String) && !_canvases.FromEach(c => c.Title).Contains(Input.String))
                                 {
                                     _canvas.Title = Input.String.Trim();
-                                    Input.ResetString(); ;
+                                    Input.ResetString();
                                     SetStage(Stages.Create_Size_Height);
                                 }
                             }
