@@ -1,3 +1,5 @@
+using B.Utils.Extensions;
+
 namespace B.Utils
 {
     public static class Cursor
@@ -18,6 +20,22 @@ namespace B.Utils
         {
             get => Console.CursorTop;
             set => Console.CursorTop = value;
+        }
+
+        public static int Size
+        {
+            get => Console.CursorSize;
+            set
+            {
+                if (OperatingSystem.IsWindows())
+                    Console.CursorSize = value.Clamp(1, 100);
+            }
+        }
+
+        public static bool Visible
+        {
+            get => OperatingSystem.IsWindows() ? Console.CursorVisible : false;
+            set => Console.CursorVisible = value;
         }
 
         public static void Reset() => Console.SetCursorPosition(0, 0);

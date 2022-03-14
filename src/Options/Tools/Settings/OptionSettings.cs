@@ -37,18 +37,35 @@ namespace B.Options.Tools.Settings
                 case Stages.MainMenu:
                     {
                         Window.Clear();
-                        Window.SetSize(35, 13);
+                        bool windows = OperatingSystem.IsWindows();
+                        Window.SetSize(35, windows ? 14 : 13);
                         Input.Choice choice = Input.Choice.Create(OptionSettings.Title);
-                        choice.Add(() => SetStage(Stages.Color), "Color", '1');
-                        choice.Add(() => SetStage(Stages.WindowSize), "Window Size", '2');
+                        char key = '1';
+                        choice.Add(() => SetStage(Stages.Color), "Color", key);
+                        key++;
+                        choice.Add(() => SetStage(Stages.WindowSize), "Window Size", key);
+                        key++;
                         choice.Add(() =>
                         {
                             Window.Clear();
                             SetStage(Stages.KeyPress);
-                        }, "Key Press", '3');
-                        choice.Add(() => SetStage(Stages.DeleteData), "Delete Data", '4');
+                        }, "Key Press", key);
+                        key++;
+
+                        if (windows)
+                        {
+                            choice.Add(() =>
+                            {
+                                Window.Clear();
+                                SetStage(Stages.Cursor);
+                            }, "Cursor", key);
+                            key++;
+                        }
+
+                        choice.Add(() => SetStage(Stages.DeleteData), "Delete Data", key);
                         choice.AddSpacer();
-                        choice.Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F11);
+                        choice.Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10);
+                        // Action is null because F12 will toggle Debug Mode in Program using LastInput
                         choice.Add(null!, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12);
                         choice.AddSpacer();
                         choice.AddExit(this);
@@ -131,6 +148,68 @@ namespace B.Options.Tools.Settings
                     }
                     break;
 
+                case Stages.Cursor:
+                    {
+                        Window.SetSize(23, 8);
+                        Cursor.Reset();
+                        Input.Choice choice = Input.Choice.Create("Cursor");
+                        choice.Add(() => Cursor.Visible = !Cursor.Visible, $"Visibility - {Cursor.Visible,-5}", '1');
+                        choice.Add(() =>
+                        {
+                            Window.Clear();
+                            SetStage(Stages.Cursor_Size);
+                        }, "Size", '2');
+                        choice.AddSpacer();
+                        choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
+                        choice.Request();
+                    }
+                    break;
+
+                case Stages.Cursor_Size:
+                    {
+                        // TODO reivew spacing and positioning
+                        Window.SetSize(40, 20); // TODO make sure size is okay
+                        Cursor.Reset();
+                        Input.Choice choice = Input.Choice.Create($"Cursor Size - {Cursor.Size,-3}");
+                        choice.Add(() => Cursor.Size++, "+1", key: ConsoleKey.UpArrow);
+                        choice.Add(() => Cursor.Size--, "-1", key: ConsoleKey.DownArrow);
+                        choice.Add(() => Cursor.Size += 10, "+10", key: ConsoleKey.RightArrow);
+                        choice.Add(() => Cursor.Size -= 10, "-10", key: ConsoleKey.LeftArrow);
+                        choice.AddSpacer();
+                        choice.Add(() =>
+                        {
+                            Window.Clear();
+                            SetStage(Stages.Cursor);
+                        }, "Back", key: ConsoleKey.Escape);
+                        choice.Request();
+                    }
+                    break;
+
+                case Stages.KeyPress:
+                    {
+                        Window.SetSize(35, 11);
+                        Cursor.Position = new(1, 1);
+                        Window.Print("Last Pressed");
+                        ConsoleKeyInfo lastInput = Input.LastInput;
+                        Print(3, "Key", lastInput.Key);
+                        Print(4, "Key Num", (int)lastInput.Key);
+                        Print(5, "Key Char", lastInput.KeyChar.Unformat());
+                        Print(6, "Key Char Num", (int)lastInput.KeyChar);
+                        Print(7, "Control", lastInput.IsControlHeld());
+                        Print(8, "Shift", lastInput.IsShiftHeld());
+                        Print(9, "Alt", lastInput.IsAltHeld());
+
+                        void Print(int line, string title, object value)
+                        {
+                            Cursor.Position = new(1, line);
+                            Window.Print($"{title}: {value,-10}");
+                        }
+
+                        if (Input.Get().Key == ConsoleKey.Escape)
+                            SetStage(Stages.MainMenu);
+                    }
+                    break;
+
                 case Stages.DeleteData:
                     {
                         Window.Clear();
@@ -156,32 +235,6 @@ namespace B.Options.Tools.Settings
                         }, title, num);
                     }
                     break;
-
-                case Stages.KeyPress:
-                    {
-                        Window.SetSize(35, 12);
-                        Cursor.Position = new(1, 1);
-                        Window.Print("Last Pressed");
-                        ConsoleKeyInfo lastInput = Input.LastInput;
-                        Print(3, "Key", lastInput.Key);
-                        Print(4, "Key Num", (int)lastInput.Key);
-                        Print(5, "Key Char", lastInput.KeyChar.Unformat());
-                        Print(6, "Key Char Num", (int)lastInput.KeyChar);
-                        Print(7, "Modifiers", lastInput.Modifiers);
-                        Print(8, "Control", lastInput.IsControlHeld());
-                        Print(9, "Shift", lastInput.IsShiftHeld());
-                        Print(10, "Alt", lastInput.IsAltHeld());
-
-                        void Print(int line, string title, object value)
-                        {
-                            Cursor.Position = new(1, line);
-                            Window.Print($"{title}: {value,-10}");
-                        }
-
-                        if (Input.Get().Key == ConsoleKey.Escape)
-                            SetStage(Stages.MainMenu);
-                    }
-                    break;
             }
         }
 
@@ -203,8 +256,10 @@ namespace B.Options.Tools.Settings
             Color,
             Color_Theme,
             Color_Custom,
-            DeleteData,
+            Cursor,
+            Cursor_Size,
             KeyPress,
+            DeleteData,
         }
     }
 }

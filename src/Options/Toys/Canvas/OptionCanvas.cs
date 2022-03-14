@@ -374,6 +374,12 @@ namespace B.Options.Toys.Canvas
                 }, key: ConsoleKey.Escape));
         }
 
+        protected override void SetStage(Stages stage)
+        {
+            Cursor.Visible = stage == Stages.Edit;
+            base.SetStage(stage);
+        }
+
         private enum CreationStage
         {
             Name,

@@ -91,8 +91,12 @@ namespace B
             // Initialize window properties
             External.Initialize();
 
-            // Set console window title
+            // Set console settings
             Console.Title = Program.Title;
+
+            // Set cursor settings
+            Cursor.Size = 100;
+            Cursor.Visible = false;
 
             // Console input ctrl+c override
             if (OperatingSystem.IsWindows())
@@ -151,6 +155,7 @@ namespace B
                         Window.SetSize(22, _optionGroup.Options.Length + 6);
                         Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
 
+                        // TODO use choice.AddRoutine();
                         for (int i = 0; i < _optionGroup.Options.Length; i++)
                         {
                             var option = _optionGroup.Options[i];
@@ -205,6 +210,7 @@ namespace B
             Window.Clear();
             Window.SetSize(Window.SIZE_MAX / 2);
             Cursor.Position = new(2, 1);
+            // Cursor will always start at (2, 1)
             printAction();
             Cursor.x = 2;
             Cursor.y += 2;
