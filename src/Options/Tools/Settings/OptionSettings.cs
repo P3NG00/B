@@ -41,7 +41,11 @@ namespace B.Options.Tools.Settings
                         Input.Choice choice = Input.Choice.Create(OptionSettings.Title);
                         choice.Add(() => SetStage(Stages.Color), "Color", '1');
                         choice.Add(() => SetStage(Stages.WindowSize), "Window Size", '2');
-                        choice.Add(() => SetStage(Stages.KeyPress), "Key Press", '3');
+                        choice.Add(() =>
+                        {
+                            Window.Clear();
+                            SetStage(Stages.KeyPress);
+                        }, "Key Press", '3');
                         choice.Add(() => SetStage(Stages.DeleteData), "Delete Data", '4');
                         choice.AddSpacer();
                         choice.Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F11);
@@ -57,7 +61,9 @@ namespace B.Options.Tools.Settings
                         _size = _size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
                         Window.Clear();
                         Window.SetSize(_size);
-                        Window.PrintLine($"Detected Max Size: {Window.SIZE_MAX}");
+                        Cursor.SetPosition(0, 0);
+                        Window.Print($"Detected Max Size: {Window.SIZE_MAX}");
+                        Cursor.SetPosition(0, 1);
                         Window.Print($"Current Size: {_size}");
                         Input.Choice choice = Input.Choice.Create();
                         choice.Add(() => _size.x++, keyChar: '8', key: ConsoleKey.RightArrow);
@@ -153,20 +159,24 @@ namespace B.Options.Tools.Settings
 
                 case Stages.KeyPress:
                     {
-                        Window.Clear();
                         Window.SetSize(35, 12);
-                        Window.PrintLine();
-                        Window.PrintLine(" Last Pressed");
-                        Window.PrintLine();
+                        Cursor.SetPosition(1, 1);
+                        Window.Print("Last Pressed");
                         ConsoleKeyInfo lastInput = Input.LastInput;
-                        Window.PrintLine($" Key: {lastInput.Key}");
-                        Window.PrintLine($" Key Num: {(int)lastInput.Key}");
-                        Window.PrintLine($" Key Char: {lastInput.KeyChar.Unformat()}");
-                        Window.PrintLine($" Key Char Num: {(int)lastInput.KeyChar}");
-                        Window.PrintLine($" Modifiers: {lastInput.Modifiers}");
-                        Window.PrintLine($" Control: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Control)}");
-                        Window.PrintLine($" Shift: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Shift)}");
-                        Window.PrintLine($" Alt: {lastInput.Modifiers.HasFlag(ConsoleModifiers.Alt)}");
+                        Print(3, "Key", lastInput.Key);
+                        Print(4, "Key Num", (int)lastInput.Key);
+                        Print(5, "Key Char", lastInput.KeyChar.Unformat());
+                        Print(6, "Key Char Num", (int)lastInput.KeyChar);
+                        Print(7, "Modifiers", lastInput.Modifiers);
+                        Print(8, "Control", lastInput.IsControlHeld());
+                        Print(9, "Shift", lastInput.IsShiftHeld());
+                        Print(10, "Alt", lastInput.IsAltHeld());
+
+                        void Print(int line, string title, object value)
+                        {
+                            Cursor.SetPosition(1, line);
+                            Window.Print($"{title}: {value,-10}");
+                        }
 
                         if (Input.Get().Key == ConsoleKey.Escape)
                             SetStage(Stages.MainMenu);
