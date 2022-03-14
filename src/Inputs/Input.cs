@@ -177,6 +177,8 @@ namespace B.Inputs
             private readonly List<Keybind> _keybinds = new();
             private readonly List<string> _messages = new();
 
+            public static Keybind[] KeybindSpacer => new Keybind[] { null! };
+
             private Choice(string? title = null)
             {
                 if (title is not null)
@@ -186,6 +188,12 @@ namespace B.Inputs
             // TODO combine _keybinds and _messages by storing messages in Keybinds with description but no key
 
             // TODO add SetFormat method to set formatting for keybinds/messages
+
+            // TODO consider adding 'AddConfirmation' method to add universal confirmation method for things like
+            // deleting files in OptionFTP
+            // removing accounts in OptionMoneyTracker
+            // starting a new game in OptionAdventure
+            // deleting data in OptionSettings
 
             public void AddMessage(string title) => _messages.Add(title);
 
@@ -202,7 +210,7 @@ namespace B.Inputs
                 _keybinds.AddRange(keybinds);
             }
 
-            public void AddSpacer() => _keybinds.AddRange(new Keybind[] { null! });
+            public void AddSpacer() => _keybinds.AddRange(KeybindSpacer);
 
             public void AddExit(IOption option)
             {
@@ -220,6 +228,12 @@ namespace B.Inputs
 
             public ConsoleKeyInfo Request()
             {
+                // TODO change how this function works.
+                // TODO need to make spacing make more sense.
+                // TODO start with combining messages and keybinds into one list.
+                // TODO print them line by line basically.
+                // TODO keybinds without keys will be printed with just the description as "messages"
+
                 bool printLine = false;
 
                 // Print messages before keybinds

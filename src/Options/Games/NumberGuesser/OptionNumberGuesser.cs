@@ -35,7 +35,7 @@ namespace B.Options.Games.NumberGuesser
                         choice.Add(() =>
                         {
                             _numRandom = Util.Random.Next(_numMax) + 1;
-                            Input.ResetString(); ;
+                            Input.ResetString();
                             SetStage(Stages.Game);
                         }, "New Game", '1');
                         choice.AddSpacer();

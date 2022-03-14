@@ -54,17 +54,19 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Account:
                     {
                         Window.Clear();
+                        bool selected = _selectedAccount != null;
+                        Window.SetSize(24, selected ? 12 : 9);
 
-                        if (_selectedAccount != null)
+                        if (selected)
                         {
-                            Window.SetSize(24, 12);
-                            Window.PrintLine();
-                            Window.PrintLine("   Selected Account:");
-                            Window.PrintLine($"  {_selectedAccount.Name}");
+                            Cursor.Position = new(3, 1);
+                            Window.Print("Selected Account:");
+                            Cursor.Position = new(2, 2);
+                            Window.Print(_selectedAccount!.Name);
                         }
-                        else
-                            Window.SetSize(24, 9);
 
+                        Cursor.x = 0;
+                        Cursor.y++;
                         Input.Choice choice = Input.Choice.Create("Account");
                         choice.Add(() => SetStage(Stages.Account_Create), "Create", '1');
                         choice.Add(() => SetStage(Stages.Account_Select), "Select", '2');
@@ -79,8 +81,8 @@ namespace B.Options.Tools.MoneyTracker
                     {
                         Window.Clear();
                         Window.SetSize(42, 5);
-                        Window.PrintLine();
-                        Window.Print($"  New Account Name: {Input.String}");
+                        Cursor.Position = new(2, 1);
+                        Window.Print($"New Account Name: {Input.String}");
                         Input.RequestLine(20,
                             new Keybind(() =>
                             {
@@ -92,17 +94,16 @@ namespace B.Options.Tools.MoneyTracker
                                     {
                                         Account account = AddAccount(Path.GetFileNameWithoutExtension(filePath));
                                         _selectedAccount = account;
-                                        Window.PrintLine();
-                                        Window.PrintLine();
-                                        Window.PrintLine($"  \"{Input.String}\" created!");
-                                        Input.ResetString(); ;
+                                        Cursor.x = 2;
+                                        Cursor.y += 2;
+                                        Window.Print($"\"{Input.String}\" created!");
+                                        Input.ResetString();
                                         SetStage(Stages.Account);
                                     }
                                     else
                                     {
-                                        Window.PrintLine();
-                                        Window.PrintLine();
-                                        Window.PrintLine("    Name already taken!");
+                                        Cursor.Position = new(4, 3);
+                                        Window.Print("Name already taken!");
                                     }
 
                                     Input.Get();
@@ -110,7 +111,7 @@ namespace B.Options.Tools.MoneyTracker
                             }, key: ConsoleKey.Enter),
                             new Keybind(() =>
                             {
-                                Input.ResetString(); ;
+                                Input.ResetString();
                                 SetStage(Stages.Account);
                             }, key: ConsoleKey.Escape));
                     }
@@ -126,9 +127,10 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
-                        Window.PrintLine();
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create();
 
+                        // TODO turn into Input.RequestScroll because accounts can reach more than single digit numbers on a keyboard
                         if (amountAccounts > 0)
                         {
                             for (int i = 0; i < amountAccounts; i++)
@@ -160,6 +162,8 @@ namespace B.Options.Tools.MoneyTracker
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
                         Input.Choice choice = Input.Choice.Create("Remove Account");
+
+                        // TODO add confirmation to account removal
 
                         if (amountAccounts > 0)
                         {
@@ -197,7 +201,7 @@ namespace B.Options.Tools.MoneyTracker
                         }, "View", '1');
                         choice.Add(() =>
                         {
-                            Input.ResetString(); ;
+                            Input.ResetString();
                             _tempTransaction = new();
                             SetStage(Stages.Transaction_Add_Amount);
                         }, "Add", '2');
@@ -214,8 +218,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.SetSize(
                             (Input.DECIMAL_LENGTH * 2) + _selectedAccount!.Decimals + 9,
                             Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
-                        Cursor.Reset();
-                        Window.PrintLine();
+                        Cursor.Position = new(0, 1);
                         Input.RequestScroll(
                             items: _selectedAccount.Transactions,
                             getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
@@ -284,12 +287,13 @@ namespace B.Options.Tools.MoneyTracker
         {
             Window.Clear();
             Window.SetSize(4 + Input.DECIMAL_LENGTH, 7);
-            Window.PrintLine();
-            Window.PrintLine("  Amount:");
+            Cursor.Position = new(2, 1);
+            Window.Print("Amount:");
+            Cursor.Position = new(2, 2);
 
             if (Stage == Stages.Transaction_Add_Amount)
             {
-                Window.Print($"  {Input.String}");
+                Window.Print(Input.String);
                 Input.RequestLine(Input.DECIMAL_LENGTH,
                     new Keybind(() =>
                     {
@@ -305,16 +309,17 @@ namespace B.Options.Tools.MoneyTracker
                     new Keybind(() =>
                     {
                         _tempTransaction = null;
-                        Input.ResetString(); ;
+                        Input.ResetString();
                         SetStage(Stages.Transaction);
                     }, key: ConsoleKey.Escape));
             }
             else
             {
-                Window.PrintLine($"  {_tempTransaction!.Amount}");
-                Window.PrintLine();
-                Window.PrintLine("  Description:");
-                Window.Print($"  {Input.String}");
+                Window.Print(_tempTransaction!.Amount);
+                Cursor.Position = new(2, 4);
+                Window.Print("Description:");
+                Cursor.Position = new(2, 5);
+                Window.Print(Input.String);
                 Input.RequestLine(Input.DECIMAL_LENGTH,
                     new Keybind(() =>
                     {
@@ -323,7 +328,7 @@ namespace B.Options.Tools.MoneyTracker
                             _tempTransaction.Description = Input.String.Trim();
                             _selectedAccount!.Transactions.Add(_tempTransaction);
                             _tempTransaction = null;
-                            Input.ResetString(); ;
+                            Input.ResetString();
                             SetStage(Stages.Transaction);
                         }
                     }, key: ConsoleKey.Enter),

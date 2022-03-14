@@ -125,7 +125,7 @@ namespace B.Options.Tools.FTP
                             new Keybind(() =>
                             {
                                 _client = new(OptionFTP.SERVER_IP, OptionFTP.SERVER_PORT, OptionFTP.SERVER_USER, Input.String);
-                                Input.ResetString(); ;
+                                Input.ResetString();
 
                                 try
                                 {

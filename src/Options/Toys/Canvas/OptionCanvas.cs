@@ -123,11 +123,11 @@ namespace B.Options.Toys.Canvas
                     }
                     break;
 
-                case Stages.Create_Name: ShowCreationStage(CreationStage.Name); break;
+                case Stages.Create_Name: ShowCreationStage(); break;
 
-                case Stages.Create_Size_Height: ShowCreationStage(CreationStage.Height); break;
+                case Stages.Create_Size_Height: ShowCreationStage(); break;
 
-                case Stages.Create_Size_Width: ShowCreationStage(CreationStage.Width); break;
+                case Stages.Create_Size_Width: ShowCreationStage(); break;
 
                 case Stages.Edit:
                     {
@@ -265,31 +265,31 @@ namespace B.Options.Toys.Canvas
 
         public override void Save() => Util.Serialize(_canvas.FilePath, _canvas);
 
-        private void ShowCreationStage(CreationStage stage)
+        private void ShowCreationStage()
         {
             Window.Clear();
             Window.SetSize(35, 8);
             Cursor.Position = new(2, 1);
             Window.Print("New Canvas");
             Cursor.Position = new(2, 3);
-            Window.Print($"Name: {(stage == CreationStage.Name ? Input.String : _canvas.Title)}");
+            Window.Print($"Name: {(Stage == Stages.Create_Name ? Input.String : _canvas.Title)}");
 
             // TODO change creation stage order Width and Height
 
-            if (stage != CreationStage.Name)
+            if (Stage != Stages.Create_Name)
             {
                 Cursor.Position = new(2, 5);
                 string print = string.Empty;
 
-                if (stage == CreationStage.Height)
+                if (Stage == Stages.Create_Size_Height)
                     print = Input.String;
-                else if (stage == CreationStage.Width)
+                else if (Stage == Stages.Create_Size_Width)
                     print = _canvas.Colors.Length.ToString();
 
                 Window.Print(string.Format("Height: {0}", print));
             }
 
-            if (stage == CreationStage.Width)
+            if (Stage == Stages.Create_Size_Width)
             {
                 Cursor.Position = new(2, 6);
                 Window.Print($"Width: {Input.String}");
@@ -298,9 +298,9 @@ namespace B.Options.Toys.Canvas
             Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH,
                 new Keybind(() =>
                 {
-                    switch (stage)
+                    switch (Stage)
                     {
-                        case CreationStage.Name:
+                        case Stages.Create_Name:
                             {
                                 if (!string.IsNullOrWhiteSpace(Input.String) && !_canvases.FromEach(c => c.Title).Contains(Input.String))
                                 {
@@ -311,20 +311,20 @@ namespace B.Options.Toys.Canvas
                             }
                             break;
 
-                        case CreationStage.Height:
+                        case Stages.Create_Size_Height:
                             {
                                 int? height = Input.Int;
 
                                 if (height.HasValue && height.Value >= OptionCanvas.CANVAS_SIZE_MIN.y)
                                 {
                                     _canvas.Colors = new ConsoleColor[height.Value][];
-                                    Input.ResetString(); ;
+                                    Input.ResetString();
                                     SetStage(Stages.Create_Size_Width);
                                 }
                             }
                             break;
 
-                        case CreationStage.Width:
+                        case Stages.Create_Size_Width:
                             {
                                 int? width = Input.Int;
 
@@ -337,7 +337,7 @@ namespace B.Options.Toys.Canvas
                                         _canvas.Colors[i] = row;
                                     }
 
-                                    Input.ResetString(); ;
+                                    Input.ResetString();
                                     Window.Clear();
                                     SetStage(Stages.Edit);
                                 }
@@ -347,24 +347,24 @@ namespace B.Options.Toys.Canvas
                 }, key: ConsoleKey.Enter),
                 new Keybind(() =>
                 {
-                    switch (stage)
+                    switch (Stage)
                     {
-                        case CreationStage.Name:
+                        case Stages.Create_Name:
                             {
                                 _canvas = null!;
-                                Input.ResetString(); ;
+                                Input.ResetString();
                                 SetStage(Stages.MainMenu);
                             }
                             break;
 
-                        case CreationStage.Height:
+                        case Stages.Create_Size_Height:
                             {
                                 Input.String = _canvas.Title;
                                 SetStage(Stages.Create_Name);
                             }
                             break;
 
-                        case CreationStage.Width:
+                        case Stages.Create_Size_Width:
                             {
                                 Input.String = _canvas.Colors.Length.ToString();
                                 SetStage(Stages.Create_Size_Height);
@@ -376,6 +376,7 @@ namespace B.Options.Toys.Canvas
 
         protected override void SetStage(Stages stage)
         {
+            // Enable cursor if going into Edit mode
             Cursor.Visible = stage == Stages.Edit;
             base.SetStage(stage);
         }
