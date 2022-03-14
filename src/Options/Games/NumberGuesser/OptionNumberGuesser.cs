@@ -58,15 +58,16 @@ namespace B.Options.Games.NumberGuesser
 
                         Window.Clear();
                         Window.SetSize(20, consoleHeight);
+                        Cursor.Position = new(2, 1);
 
                         if (debug)
                         {
-                            Window.PrintLine();
-                            Window.PrintLine($" Number: {_numRandom}");
+                            Cursor.Position = new(1, 1);
+                            Window.Print($"Number: {_numRandom}");
+                            Cursor.Position = new(2, 3);
                         }
 
-                        Window.PrintLine();
-                        Window.PrintLine($"  {Input.String}");
+                        Window.Print(Input.String);
 
                         if (guess == null)
                             guessMessage = "...";
@@ -77,8 +78,9 @@ namespace B.Options.Games.NumberGuesser
                         else
                             guessMessage = OptionNumberGuesser._winMessages.Random();
 
-                        Window.PrintLine();
-                        Window.PrintLine($"  {guessMessage}");
+                        Cursor.x = 2;
+                        Cursor.y += 2;
+                        Window.Print(guessMessage);
 
                         if (won)
                         {
@@ -87,8 +89,9 @@ namespace B.Options.Games.NumberGuesser
                         }
                         else
                         {
-                            Window.PrintLine();
-                            Window.PrintLine(" Enter a Number!");
+                            Cursor.x = 1;
+                            Cursor.y += 2;
+                            Window.Print("Enter a Number!");
                             Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, new Keybind(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
                         }
                     }
@@ -114,10 +117,10 @@ namespace B.Options.Games.NumberGuesser
                     {
                         Window.Clear();
                         Window.SetSize(20, 5);
-                        Window.PrintLine();
-                        Window.PrintLine($"  Max - {Input.String}");
-                        Window.PrintLine();
-                        Window.PrintLine("  Enter Max Number");
+                        Cursor.Position = new(2, 1);
+                        Window.Print($"Max - {Input.String}");
+                        Cursor.Position = new(2, 3);
+                        Window.Print("Enter Max Number");
                         Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH,
                             new Keybind(() =>
                             {
