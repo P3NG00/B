@@ -184,7 +184,7 @@ namespace B
         private void HandleException(Exception e) => PrintExceptionOutput(() =>
         {
             Window.Print("An exception was thrown!", ConsoleColor.Red);
-            Cursor.SetPosition(2, 3);
+            Cursor.Position = new(2, 3);
             Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
         });
 
@@ -196,7 +196,7 @@ namespace B
         private void HandleInitializationException(Exception e) => PrintExceptionOutput(() =>
         {
             Window.Print("AN ERROR HAS OCCURRED DURING INITIALIZATION.", ConsoleColor.DarkRed, ConsoleColor.Gray);
-            Cursor.SetPosition(2, 3);
+            Cursor.Position = new(2, 3);
             Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
         });
 
@@ -204,12 +204,10 @@ namespace B
         {
             Window.Clear();
             Window.SetSize(Window.SIZE_MAX / 2);
-            Cursor.SetPosition(2, 1);
+            Cursor.Position = new(2, 1);
             printAction();
-            Vector2 cursorPos = Cursor.GetPosition();
-            cursorPos.x = 2;
-            cursorPos.y += 2;
-            Cursor.SetPosition(cursorPos);
+            Cursor.x = 2;
+            Cursor.y += 2;
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
             _selectedOption = null;

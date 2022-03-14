@@ -140,11 +140,11 @@ namespace B.Options.Toys.Canvas
                             _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
                         }
 
-                        Cursor.SetPosition(1, 0);
+                        Cursor.Position = new(1, 0);
                         Window.Print(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
-                        Cursor.SetPosition(1, 1);
+                        Cursor.Position = new(1, 1);
                         Window.Print($" {'-'.Loop(windowSize.x - 2)}");
-                        Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        Cursor.Position = new(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         Input.Choice choice = Input.Choice.Create();
                         // Move in Direction
                         choice.Add(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow);
@@ -185,7 +185,7 @@ namespace B.Options.Toys.Canvas
                         // Fix cursor position
                         CursorPos = CursorPos.Clamp(Vector2.Zero, maxCanvasPos);
                         // Set cursor position
-                        Cursor.SetPosition(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        Cursor.Position = new(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         // Fix brush size
                         BrushSize = BrushSize.Clamp(Vector2.One, maxCanvasPos);
 
@@ -197,13 +197,13 @@ namespace B.Options.Toys.Canvas
                                 {
                                     Vector2 pos = CursorPos + new Vector2(x, y);
                                     _canvas.Color(pos) = _color;
-                                    Cursor.SetPosition(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                                    Cursor.Position = new(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                                     Window.Print(' ', colorBG: _color);
                                 }
                             }
 
                             // TODO test if this is needed. may be necessary to keep cursor in same position
-                            Cursor.SetPosition(CursorPos);
+                            Cursor.Position = new(CursorPos);
                         }
 
                         void PaintDirection(Direction direction)
@@ -269,16 +269,16 @@ namespace B.Options.Toys.Canvas
         {
             Window.Clear();
             Window.SetSize(35, 8);
-            Cursor.SetPosition(2, 1);
+            Cursor.Position = new(2, 1);
             Window.Print("New Canvas");
-            Cursor.SetPosition(2, 3);
+            Cursor.Position = new(2, 3);
             Window.Print($"Name: {(stage == CreationStage.Name ? Input.String : _canvas.Title)}");
 
             // TODO change creation stage order Width and Height
 
             if (stage != CreationStage.Name)
             {
-                Cursor.SetPosition(2, 5);
+                Cursor.Position = new(2, 5);
                 string print = string.Empty;
 
                 if (stage == CreationStage.Height)
@@ -291,7 +291,7 @@ namespace B.Options.Toys.Canvas
 
             if (stage == CreationStage.Width)
             {
-                Cursor.SetPosition(2, 6);
+                Cursor.Position = new(2, 6);
                 Window.Print($"Width: {Input.String}");
             }
 

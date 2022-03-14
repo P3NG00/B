@@ -34,7 +34,7 @@ namespace B.Options.Toys.Canvas
                     if (offset is not null)
                         newPos += offset;
 
-                    Cursor.SetPosition(newPos);
+                    Cursor.Position = new(newPos);
                     Window.Print(' ', colorBG: Color(x, y));
                 }
             }

@@ -114,13 +114,13 @@ namespace B.Options.Tools.FTP
                     {
                         int consoleWidth = 16;
                         Window.SetSize(consoleWidth, 5);
-                        Cursor.SetPosition(5, 1);
+                        Cursor.Position = new(5, 1);
                         Window.Print("Login");
                         string scrambled = _scrambler(Input.String.Length);
                         int textStart = (int)((consoleWidth / 2f) - (scrambled.Length / 2f));
-                        Cursor.SetPosition(textStart, 2);
+                        Cursor.Position = new(textStart, 2);
                         Window.Print(scrambled);
-                        Cursor.SetPosition(0, 3);
+                        Cursor.Position = new(0, 3);
                         Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
                             new Keybind(() =>
                             {
@@ -156,9 +156,9 @@ namespace B.Options.Tools.FTP
                         int adjustedMaxEntries = Math.Min(Window.SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
                         Window.SetSize(OptionFTP.WIDTH, consoleHeight);
-                        Cursor.SetPosition(1, 1);
+                        Cursor.Position = new(1, 1);
                         Window.Print($"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}");
-                        Cursor.SetPosition(0, 3);
+                        Cursor.Position = new(0, 3);
                         Input.RequestScroll(
                             items: _files,
                             getText: file =>
@@ -228,13 +228,13 @@ namespace B.Options.Tools.FTP
                         Window.Clear();
                         Window.SetSize(OptionFTP.WIDTH, 9);
                         SftpFile currentFile = CurrentFile;
-                        Cursor.SetPosition(2, 1);
+                        Cursor.Position = new(2, 1);
                         Window.Print(currentFile.FullName);
                         Input.Choice choice = Input.Choice.Create("Are you sure you want to delete this file?");
                         choice.Add(() => Delete(currentFile), "yes", key: ConsoleKey.Enter);
                         choice.AddSpacer();
                         choice.Add(null!, "NO", key: ConsoleKey.Escape);
-                        Cursor.SetPosition(0, 2);
+                        Cursor.Position = new(0, 2);
                         choice.Request();
                         SetStage(Stages.Navigate);
                         Window.Clear();
@@ -267,15 +267,15 @@ namespace B.Options.Tools.FTP
                 {
                     Window.Clear();
                     Window.SetSize(OptionFTP.WIDTH, 7);
-                    Cursor.SetPosition(2, 1);
+                    Cursor.Position = new(2, 1);
                     Window.Print("Downloading...");
-                    Cursor.SetPosition(2, 3);
+                    Cursor.Position = new(2, 3);
                     Window.Print(file.FullName);
-                    Cursor.SetPosition(2, 5);
+                    Cursor.Position = new(2, 5);
                     Window.Print("Bytes Downloaded");
                     _client.DownloadFile(file.FullName, stream, l =>
                     {
-                        Cursor.SetPosition(19, 5);
+                        Cursor.Position = new(19, 5);
                         Window.Print($"{l,-(OptionFTP.WIDTH - 30)}");
                     });
                 }
@@ -289,9 +289,9 @@ namespace B.Options.Tools.FTP
             {
                 Window.Clear();
                 Window.SetSize(21, 6);
-                Cursor.SetPosition(7, 2);
+                Cursor.Position = new(7, 2);
                 Window.Print("Error:");
-                Cursor.SetPosition(2, 3);
+                Cursor.Position = new(2, 3);
                 Window.Print("Can't delete file");
                 Input.Get();
             }

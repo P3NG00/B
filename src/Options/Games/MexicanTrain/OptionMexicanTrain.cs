@@ -55,7 +55,7 @@ namespace B.Options.Games.MexicanTrain
                     {
                         Window.Clear();
                         Window.SetSize(60, 20);
-                        Cursor.SetPosition(2, 1);
+                        Cursor.Position = new(2, 1);
                         Window.Print($"Players: {_info.Players}");
 
                         // TODO

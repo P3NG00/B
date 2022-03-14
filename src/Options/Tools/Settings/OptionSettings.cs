@@ -61,9 +61,9 @@ namespace B.Options.Tools.Settings
                         _size = _size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
                         Window.Clear();
                         Window.SetSize(_size);
-                        Cursor.SetPosition(0, 0);
+                        Cursor.Position = new(0, 0);
                         Window.Print($"Detected Max Size: {Window.SIZE_MAX}");
-                        Cursor.SetPosition(0, 1);
+                        Cursor.Position = new(0, 1);
                         Window.Print($"Current Size: {_size}");
                         Input.Choice choice = Input.Choice.Create();
                         choice.Add(() => _size.x++, keyChar: '8', key: ConsoleKey.RightArrow);
@@ -160,7 +160,7 @@ namespace B.Options.Tools.Settings
                 case Stages.KeyPress:
                     {
                         Window.SetSize(35, 12);
-                        Cursor.SetPosition(1, 1);
+                        Cursor.Position = new(1, 1);
                         Window.Print("Last Pressed");
                         ConsoleKeyInfo lastInput = Input.LastInput;
                         Print(3, "Key", lastInput.Key);
@@ -174,7 +174,7 @@ namespace B.Options.Tools.Settings
 
                         void Print(int line, string title, object value)
                         {
-                            Cursor.SetPosition(1, line);
+                            Cursor.Position = new(1, line);
                             Window.Print($"{title}: {value,-10}");
                         }
 
