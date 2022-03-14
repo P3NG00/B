@@ -92,9 +92,13 @@ namespace B.Options.Tools.FTP
 
         public OptionFTP() : base(Stages.Login)
         {
-            // When FTP is initialized, empty the input string
-            // and select a random scrambler to show.
-            Input.ResetString(); ;
+            // Clear console to prevent console flashing during login
+            Window.Clear();
+
+            // Empty the input string
+            Input.ResetString();
+
+            // Select a random scrambler to show.
             _scrambler = OptionFTP._scramblers.Random();
 
             // If Download Path doesn't exist, create it.
@@ -109,13 +113,14 @@ namespace B.Options.Tools.FTP
                 case Stages.Login:
                     {
                         int consoleWidth = 16;
-                        Window.Clear();
                         Window.SetSize(consoleWidth, 5);
-                        Window.PrintLine();
-                        Window.PrintLine("     Login");
+                        Cursor.SetPosition(5, 1);
+                        Window.Print("Login");
                         string scrambled = _scrambler(Input.String.Length);
-                        int textDepth = (consoleWidth / 2) + (scrambled.Length / 2);
-                        Window.PrintLine(string.Format("{0," + textDepth + "}", scrambled));
+                        int textStart = (int)((consoleWidth / 2f) - (scrambled.Length / 2f));
+                        Cursor.SetPosition(textStart, 2);
+                        Window.Print(scrambled);
+                        Cursor.SetPosition(0, 3);
                         Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
                             new Keybind(() =>
                             {
@@ -128,19 +133,19 @@ namespace B.Options.Tools.FTP
                                     RefreshFiles();
                                     SetStage(Stages.Navigate);
                                 }
-                                catch (SshAuthenticationException)
-                                {
-                                    Window.PrintLine("Wrong password");
-                                    Input.Get();
-                                }
-                                catch (SocketException)
-                                {
-                                    Window.PrintLine(" Can't connect");
-                                    Input.Get();
-                                }
+                                catch (SshAuthenticationException) { PrintError("Wrong password"); }
+                                catch (SocketException) { PrintError("Can't connect"); }
+                                catch (SshConnectionException) { PrintError("Error"); } // TODO change so that if Debug mode is on, show full error output
                             }, key: ConsoleKey.Enter),
                             new Keybind(() => Input.ResetString(), key: ConsoleKey.Delete),
                             new Keybind(() => Quit(), key: ConsoleKey.Escape));
+
+                        void PrintError(string msg)
+                        {
+                            Window.Print(msg);
+                            Input.Get();
+                            Window.Clear();
+                        }
                     }
                     break;
 
@@ -151,10 +156,9 @@ namespace B.Options.Tools.FTP
                         int adjustedMaxEntries = Math.Min(Window.SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
                         Window.SetSize(OptionFTP.WIDTH, consoleHeight);
-                        Cursor.Reset();
-                        Window.PrintLine();
-                        Window.PrintLine($" {$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}");
-                        Window.PrintLine();
+                        Cursor.SetPosition(1, 1);
+                        Window.Print($"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}");
+                        Cursor.SetPosition(0, 3);
                         Input.RequestScroll(
                             items: _files,
                             getText: file =>
@@ -223,15 +227,17 @@ namespace B.Options.Tools.FTP
                     {
                         Window.Clear();
                         Window.SetSize(OptionFTP.WIDTH, 9);
-                        Window.PrintLine();
                         SftpFile currentFile = CurrentFile;
-                        Window.PrintLine($"  {currentFile.FullName}");
+                        Cursor.SetPosition(2, 1);
+                        Window.Print(currentFile.FullName);
                         Input.Choice choice = Input.Choice.Create("Are you sure you want to delete this file?");
                         choice.Add(() => Delete(currentFile), "yes", key: ConsoleKey.Enter);
                         choice.AddSpacer();
                         choice.Add(null!, "NO", key: ConsoleKey.Escape);
+                        Cursor.SetPosition(0, 2);
                         choice.Request();
                         SetStage(Stages.Navigate);
+                        Window.Clear();
                     }
                     break;
             }
@@ -283,10 +289,10 @@ namespace B.Options.Tools.FTP
             {
                 Window.Clear();
                 Window.SetSize(21, 6);
-                Window.PrintLine();
-                Window.PrintLine();
-                Window.PrintLine("       Error:");
-                Window.PrintLine("  Can't delete file");
+                Cursor.SetPosition(7, 2);
+                Window.Print("Error:");
+                Cursor.SetPosition(2, 3);
+                Window.Print("Can't delete file");
                 Input.Get();
             }
 
