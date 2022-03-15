@@ -36,6 +36,42 @@ namespace B.Inputs
 
         public override int GetHashCode() => base.GetHashCode();
 
+        public override string ToString()
+        {
+            // If no description...
+            if (string.IsNullOrWhiteSpace(Description))
+            {
+                // If action is null...
+                if (Action is null)
+                {
+                    // Treat as spacer
+                    return string.Empty;
+                }
+                else
+                {
+                    // This keybind is supposed to be hidden.
+                    // Do not display it and do not move to next line.
+                    return null!;
+                }
+            }
+            // If description exists...
+            else
+            {
+                // If action is null, proceed as message
+                if (Action is null)
+                    return Description;
+                // If action is not null, proceed as keybind
+                else
+                {
+                    string preface = string.Empty;
+                    if (HasModifier(ConsoleModifiers.Control)) preface += "Ctrl+";
+                    if (HasModifier(ConsoleModifiers.Shift)) preface += "Shift+";
+                    if (HasModifier(ConsoleModifiers.Alt)) preface += "Alt+";
+                    return $"{preface}{(KeyChar.HasValue ? KeyChar.Value.ToString() : Key.ToString())}) {Description}";
+                }
+            }
+        }
+
         public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo) => keybind.IsValid(keyInfo);
 
         public static bool operator !=(Keybind keybind, ConsoleKeyInfo keyInfo) => !keybind.IsValid(keyInfo);

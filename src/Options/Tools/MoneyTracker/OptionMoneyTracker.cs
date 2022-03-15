@@ -39,6 +39,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.Clear();
                         Window.SetSize(20, consoleHeight);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title);
                         choice.Add(() => SetStage(Stages.Account), "Account", '1');
 
@@ -56,6 +57,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.Clear();
                         bool selected = _selectedAccount != null;
                         Window.SetSize(24, selected ? 12 : 9);
+                        Cursor.Position = new(0, 1);
 
                         if (selected)
                         {
@@ -63,10 +65,9 @@ namespace B.Options.Tools.MoneyTracker
                             Window.Print("Selected Account:");
                             Cursor.Position = new(2, 2);
                             Window.Print(_selectedAccount!.Name);
+                            Cursor.Position = new(0, 4);
                         }
 
-                        Cursor.x = 0;
-                        Cursor.y++;
                         Input.Choice choice = Input.Choice.Create("Account");
                         choice.Add(() => SetStage(Stages.Account_Create), "Create", '1');
                         choice.Add(() => SetStage(Stages.Account_Select), "Select", '2');
@@ -161,6 +162,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Remove Account");
 
                         // TODO add confirmation to account removal

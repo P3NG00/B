@@ -26,15 +26,17 @@ namespace B.Options.Games.MexicanTrain
                     {
                         Window.Clear();
                         Window.SetSize(34, 7);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionMexicanTrain.Title);
-                        choice.AddMessageSpacer();
                         choice.AddMessage($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players.");
+                        choice.AddSpacer();
+                        choice.AddExit(this);
                         choice.AddRoutine(keybinds =>
                         {
                             for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
                             {
                                 // Create new instances because 'i' will change while looping
-                                MexicanTrainInfo info = new(i); // TODO change this so it isn't creating multiple instances of MexicanTrainInfo
+                                MexicanTrainInfo info = new(i); // TODO change this so it isn't creating multiple instances of MexicanTrainInfo but instead only one once a number is pressed
                                 char c = (char)('0' + i);
 
                                 // Add keybinds
@@ -46,7 +48,6 @@ namespace B.Options.Games.MexicanTrain
                                 }, keyChar: c));
                             }
                         });
-                        choice.AddExit(this);
                         choice.Request();
                     }
                     break;
@@ -60,8 +61,10 @@ namespace B.Options.Games.MexicanTrain
 
                         // TODO
                         _info.HandleTurn();
+
+                        // TODO
                     }
-                    break;
+                    throw new NotImplementedException();
             }
         }
 

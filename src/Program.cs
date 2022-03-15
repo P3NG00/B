@@ -5,6 +5,7 @@ using B.Options.Games.Blackjack;
 using B.Options.Games.MexicanTrain;
 using B.Options.Games.NumberGuesser;
 using B.Options.Games.OptionCheckers;
+using B.Options.Tools.Backup;
 using B.Options.Tools.FTP;
 using B.Options.Tools.MoneyTracker;
 using B.Options.Tools.Settings;
@@ -47,6 +48,7 @@ namespace B
             }),
             ("Tools", new (Type, Func<string>)[] {
                 (typeof(OptionFTP), () => OptionFTP.Title),
+                (typeof(OptionBackup), () => OptionBackup.Title),
                 (typeof(OptionMoneyTracker), () => OptionMoneyTracker.Title),
                 (typeof(OptionSettings), () => OptionSettings.Title),
             }),
@@ -95,10 +97,6 @@ namespace B
             // Set console settings
             Console.Title = Program.Title;
 
-            // Set cursor settings
-            Cursor.Size = 100;
-            Cursor.Visible = false;
-
             // Console input ctrl+c override
             if (OperatingSystem.IsWindows())
                 Console.TreatControlCAsInput = true;
@@ -112,8 +110,8 @@ namespace B
                 catch (Exception) { }
             }
 
-            // Set console colors
-            Program.Settings.UpdateColors();
+            // Update program settings
+            Program.Settings.UpdateAll();
         }
 
         public override void Loop()
@@ -132,18 +130,21 @@ namespace B
                         // Display main menu options
                         Window.Clear();
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create($"{Program.Title}'s");
-
-                        for (int i = 0; i < Program.OptionGroups.Length; i++)
+                        choice.AddRoutine(keybinds =>
                         {
-                            var optionGroup = Program.OptionGroups[i];
-                            choice.Add(() =>
+                            ((Action<int>)(i =>
                             {
-                                _optionGroup = optionGroup;
-                                SetStage(Levels.Group);
-                            }, optionGroup.GroupTitle, (char)('1' + i));
-                        }
+                                var optionGroup = Program.OptionGroups[i];
 
+                                keybinds.Add(new(() =>
+                                {
+                                    _optionGroup = optionGroup;
+                                    SetStage(Levels.Group);
+                                }, optionGroup.GroupTitle, (char)('1' + i)));
+                            })).Loop(Program.OptionGroups.Length);
+                        });
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
@@ -154,6 +155,7 @@ namespace B
                     {
                         Window.Clear();
                         Window.SetSize(22, _optionGroup.Options.Length + 6);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
                         choice.AddRoutine(keybinds =>
                         {

@@ -28,7 +28,11 @@ namespace B.Utils
             set
             {
                 if (OperatingSystem.IsWindows())
-                    Console.CursorSize = value.Clamp(1, 100);
+                {
+                    int v = value.Clamp(1, 100);
+                    Console.CursorSize = v;
+                    Program.Settings.CursorSize = v;
+                }
             }
         }
 

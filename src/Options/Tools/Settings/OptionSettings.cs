@@ -39,34 +39,25 @@ namespace B.Options.Tools.Settings
                         Window.Clear();
                         bool windows = OperatingSystem.IsWindows();
                         Window.SetSize(35, windows ? 14 : 13);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionSettings.Title);
-                        char key = '1';
-                        choice.Add(() => SetStage(Stages.Color), "Color", key);
-                        key++;
-                        choice.Add(() => SetStage(Stages.WindowSize), "Window Size", key);
-                        key++;
+                        choice.Add(() => SetStage(Stages.Color), "Color", '1');
+                        choice.Add(() => SetStage(Stages.WindowSize), "Window Size", '2');
                         choice.Add(() =>
                         {
                             Window.Clear();
                             SetStage(Stages.KeyPress);
-                        }, "Key Press", key);
-                        key++;
-
-                        if (windows)
+                        }, "Key Press", '3');
+                        choice.Add(() =>
                         {
-                            choice.Add(() =>
-                            {
-                                Window.Clear();
-                                SetStage(Stages.Cursor);
-                            }, "Cursor", key);
-                            key++;
-                        }
-
-                        choice.Add(() => SetStage(Stages.DeleteData), "Delete Data", key);
+                            Window.Clear();
+                            SetStage(Stages.Cursor);
+                        }, "Cursor", '4');
+                        choice.Add(() => SetStage(Stages.DeleteData), "Delete Data", '5');
                         choice.AddSpacer();
                         choice.Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10);
                         // Action is null because F12 will toggle Debug Mode in Program using LastInput
-                        choice.Add(null!, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12);
+                        choice.Add(() => { /* void func */ }, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12);
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
@@ -96,6 +87,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.Clear();
                         Window.SetSize(20, 8);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Color");
                         choice.Add(() => SetStage(Stages.Color_Theme), "Themes", '1');
                         choice.Add(() => SetStage(Stages.Color_Custom), "Customize", '2');
@@ -113,9 +105,12 @@ namespace B.Options.Tools.Settings
                         Program.Settings.UpdateColors();
                         Window.Clear();
                         Window.SetSize(32, _colorThemes.Length + 8);
+                        Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: _colorThemes,
                             getText: theme => theme.Title,
+                            // getText: theme => $" {theme.Title,-15}",
+                            // getBackgroundColor: (c, i) => i % 2 == 0 ? ConsoleColor.White : ConsoleColor.Gray, // TODO implement once more complex themes are create with secondary/tertiary colors
                             title: "Color Themes",
                             exitKeybind: new(() =>
                             {
@@ -131,11 +126,12 @@ namespace B.Options.Tools.Settings
                         Window.Clear();
                         Window.SetSize(32, 27);
                         ConsoleColor[] colors = Util.OrderedConsoleColors;
+                        Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",
-                            getTextColor: c => c,
-                            getBackgroundColor: c => c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Gray,
+                            getTextColor: (c, i) => c,
+                            getBackgroundColor: (c, i) => c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Gray,
                             title: "Colors",
                             exitKeybind: new(() =>
                             {
@@ -152,8 +148,13 @@ namespace B.Options.Tools.Settings
                     {
                         Window.SetSize(23, 8);
                         Cursor.Reset();
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Cursor");
-                        choice.Add(() => Cursor.Visible = !Cursor.Visible, $"Visibility - {Cursor.Visible,-5}", '1');
+                        choice.Add(() =>
+                        {
+                            Program.Settings.CursorVisible.Toggle();
+                            Program.Settings.UpdateCursor();
+                        }, $"Visibility - {Cursor.Visible,-5}", '1');
                         choice.Add(() =>
                         {
                             Window.Clear();
@@ -167,9 +168,8 @@ namespace B.Options.Tools.Settings
 
                 case Stages.Cursor_Size:
                     {
-                        // TODO reivew spacing and positioning
-                        Window.SetSize(40, 20); // TODO make sure size is okay
-                        Cursor.Reset();
+                        Window.SetSize(21, 10);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create($"Cursor Size - {Cursor.Size,-3}");
                         choice.Add(() => Cursor.Size++, "+1", key: ConsoleKey.UpArrow);
                         choice.Add(() => Cursor.Size--, "-1", key: ConsoleKey.DownArrow);
@@ -181,7 +181,14 @@ namespace B.Options.Tools.Settings
                             Window.Clear();
                             SetStage(Stages.Cursor);
                         }, "Back", key: ConsoleKey.Escape);
-                        choice.Request();
+                        choice.Request(() =>
+                        {
+                            // Show cursor for changing
+                            Cursor.Visible = true;
+                            // Position cursor near open area in bottom-right corner
+                            Cursor.Position = new(18, 8);
+                        });
+                        Program.Settings.UpdateCursor();
                     }
                     break;
 
@@ -214,6 +221,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.Clear();
                         Window.SetSize(20, 10);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Delete Data");
                         choice.Add(CreateDeleteKeybind("Adventure", () => File.Delete(OptionAdventure.FilePath), '1'));
                         choice.Add(CreateDeleteKeybind(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true), '2'));
@@ -227,6 +235,7 @@ namespace B.Options.Tools.Settings
                         {
                             Window.Clear();
                             Window.SetSize(30, 7);
+                            Cursor.Position = new(0, 1);
                             Input.Choice choice = Input.Choice.Create($"Delete {title} Data?");
                             choice.Add(null!, "NO", key: ConsoleKey.Escape);
                             choice.AddSpacer();

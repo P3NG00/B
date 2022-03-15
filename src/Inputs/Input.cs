@@ -67,17 +67,18 @@ namespace B.Inputs
             }
         }
 
-        // TODO use Cursor Position positioning
+        // This function will start printing the title where the cursor is left.
+        // Make sure the cursor position is correct before calling this function.
         public static ConsoleKeyInfo RequestScroll<T>(
-            IEnumerable<T> items,                               // Items to scroll through
-            Func<T, string> getText,                            // Function to get text from item
-            Func<T, ConsoleColor?> getTextColor = null!,        // Function to get text color from item
-            Func<T, ConsoleColor?> getBackgroundColor = null!,  // Function to get background color from item
-            string title = null!,                               // Scroll title
-            int? maxEntriesPerPage = null,                      // Max entries to display per page
-            bool navigationKeybinds = true,                     // Whether to add scroll navigation keybinds
-            Keybind exitKeybind = null!,                        // Exit keybind (seperate because spacer is added before this keybind)
-            params Keybind[] extraKeybinds)                     // Extra keybinds
+            IEnumerable<T> items,                                   // Items to scroll through
+            Func<T, string> getText,                                // Function to get text from item
+            Func<T, int, ConsoleColor?> getTextColor = null!,       // Function to get text color from item
+            Func<T, int, ConsoleColor?> getBackgroundColor = null!, // Function to get background color from item
+            string title = null!,                                   // Scroll title
+            int? maxEntriesPerPage = null,                          // Max entries to display per page
+            bool navigationKeybinds = true,                         // Whether to add scroll navigation keybinds
+            Keybind exitKeybind = null!,                            // Exit keybind (seperate because spacer is added before this keybind)
+            params Keybind[] extraKeybinds)                         // Extra keybinds
         {
             int itemCount = items.Count();
             int maxEntriesAdjusted = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : itemCount;
@@ -88,9 +89,8 @@ namespace B.Inputs
             {
                 if (title != null)
                 {
-                    Window.PrintLine();
-                    Window.PrintLine($"  {title}");
-                    Window.PrintLine();
+                    Window.Print(title);
+                    Cursor.y += 2;
                 }
 
                 int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntriesAdjusted);
@@ -98,7 +98,8 @@ namespace B.Inputs
 
                 for (int i = startIndex; i < endIndex; i++)
                 {
-                    Window.Print(Input.ScrollIndex == i ? " > " : "   ");
+                    Cursor.x = 1;
+                    Window.Print(Input.ScrollIndex == i ? '>' : ' ');
                     T item = items.ElementAt(i);
                     string text = getText(item);
                     string output = string.Format("{0,-" + (text.Length + 1) + "}", text);
@@ -106,35 +107,23 @@ namespace B.Inputs
                     ConsoleColor? colorBackground = null;
 
                     if (getTextColor != null)
-                        colorText = getTextColor(item);
+                        colorText = getTextColor(item, i);
 
                     if (getBackgroundColor != null)
-                        colorBackground = getBackgroundColor(item);
+                        colorBackground = getBackgroundColor(item, i);
 
-                    Window.Print(output, colorText: colorText, colorBG: colorBackground);
-                    Window.PrintLine();
+                    Cursor.x = 3;
+                    Window.Print(output, colorText, colorBackground);
+                    Cursor.y++;
                 }
 
                 if (navigationKeybinds)
                 {
-                    Window.PrintLine();
-                    Window.PrintLine(" Use Up/Down to navigate.");
-                }
-
-                bool hasExtraKeybinds = extraKeybinds != null && extraKeybinds.Length != 0;
-
-                if (hasExtraKeybinds)
-                    Window.PrintLine();
-
-                // Get page index before it's modified
-                int lastPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
-
-                if (navigationKeybinds)
-                {
+                    choice.AddMessage("Use Up/Down to navigate");
                     // Scroll up and down
                     choice.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow);
                     choice.Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
-                    // Sroll next/previous page (automatically clears window)
+                    // Scroll next/previous page (automatically clears window)
                     choice.Add(() =>
                     {
                         Input.ScrollIndex += maxEntriesAdjusted;
@@ -147,25 +136,42 @@ namespace B.Inputs
                     }, key: ConsoleKey.LeftArrow);
                 }
 
-                if (hasExtraKeybinds)
-                    choice.Add(extraKeybinds!);
+                if (extraKeybinds != null && extraKeybinds.Length != 0)
+                {
+                    if (navigationKeybinds)
+                        choice.AddSpacer();
 
-                choice.AddSpacer();
-                choice.Add(exitKeybind);
+                    choice.Add(extraKeybinds!);
+                }
+
+                if (exitKeybind is not null)
+                {
+                    if (exitKeybind.ToString() is not null)
+                        choice.AddSpacer();
+
+                    choice.Add(exitKeybind);
+                }
+
+                // Get page index before it's modified
+                int previousPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
+
+                // Request input
+                Cursor.y++;
                 keyInfo = choice.Request();
+
+                // Adjust index
                 Input.ScrollIndex = Input.ScrollIndex.Clamp(0, itemCount - 1);
+
+                // If scrolling into new page, clear console
                 int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
 
-                // If scrolling into new page, clear console
-                if ((lastPageIndex == oneLessThanMax && newPageIndex == 0) || (lastPageIndex == 0 && newPageIndex == oneLessThanMax))
+                if ((previousPageIndex == oneLessThanMax && newPageIndex == 0) || (previousPageIndex == 0 && newPageIndex == oneLessThanMax))
                     Window.Clear();
             }
             else
             {
-                Window.PrintLine();
-                Window.PrintLine("  No entries.");
-                Window.PrintLine();
+                Window.Print("No entries.");
                 choice.Add(exitKeybind);
                 keyInfo = choice.Request();
             }
@@ -176,29 +182,25 @@ namespace B.Inputs
         public sealed class Choice
         {
             private readonly List<Keybind> _keybinds = new();
-            private readonly List<string> _messages = new();
-
-            public static Keybind[] KeybindSpacer => new Keybind[] { null! };
 
             private Choice(string? title = null)
             {
                 if (title is not null)
+                {
                     AddMessage(title);
+                    AddSpacer();
+                }
             }
 
-            // TODO combine _keybinds and _messages by storing messages in Keybinds with description but no key
-
-            // TODO add SetFormat method to set formatting for keybinds/messages
-
-            // TODO consider adding 'AddConfirmation' method to add universal confirmation method for things like
+            // TODO create 'AddConfirmation' method to add universal confirmation method for things like
             // deleting files in OptionFTP
             // removing accounts in OptionMoneyTracker
             // starting a new game in OptionAdventure
             // deleting data in OptionSettings
 
-            public void AddMessage(string title) => _messages.Add(title);
+            public void AddMessage(string message) => _keybinds.Add(new(null!, message));
 
-            public void AddMessageSpacer() => _messages.Add(string.Empty);
+            public void AddSpacer() => _keybinds.Add(new(null!, string.Empty));
 
             public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
 
@@ -210,8 +212,6 @@ namespace B.Inputs
                 keybindRoutine(keybinds);
                 _keybinds.AddRange(keybinds);
             }
-
-            public void AddSpacer() => _keybinds.AddRange(KeybindSpacer);
 
             public void AddExit(IOption option)
             {
@@ -227,50 +227,39 @@ namespace B.Inputs
                 Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);
             }
 
-            public ConsoleKeyInfo Request()
+            // This will reset cursor position for each keybind printed.
+            // Make sure this is called when the cursor is in the row (Cursor.y) you want it to begin printing.
+            public ConsoleKeyInfo Request(Action? final = null)
             {
-                // TODO change how this function works.
-                // TODO need to make spacing make more sense.
-                // TODO start with combining messages and keybinds into one list.
-                // TODO print them line by line basically.
-                // TODO keybinds without keys will be printed with just the description as "messages"
-
-                bool printLine = false;
-
-                // Print messages before keybinds
-                if (!_messages.IsEmpty())
-                {
-                    Window.PrintLine();
-                    _messages.ForEach(msg => Window.PrintLine($"  {msg}"));
-                    printLine = true;
-                }
-
                 // Print keybinds
-                foreach (Keybind keybind in _keybinds)
+                _keybinds.ForEach(keybind =>
                 {
-                    // If keybind is null, add spacer in display
-                    // If keybind description is null, don't display option
+                    // If keybind is not null, display it
                     if (keybind != null)
                     {
-                        if (keybind.Description != null)
-                        {
-                            if (printLine)
-                            {
-                                printLine = false;
-                                Window.PrintLine();
-                            }
+                        Cursor.x = keybind.Action is null ? 2 : 1;
+                        string kStr = keybind.ToString();
 
-                            string preface = string.Empty;
-                            if (keybind.HasModifier(ConsoleModifiers.Control)) preface += "Ctrl+";
-                            if (keybind.HasModifier(ConsoleModifiers.Shift)) preface += "Shift+";
-                            if (keybind.HasModifier(ConsoleModifiers.Alt)) preface += "Alt+";
-                            Window.PrintLine($" {preface}{(keybind.KeyChar == null ? keybind.Key.ToString() : keybind.KeyChar.Value.ToString())}) {keybind.Description}");
+                        // Handle keybind display
+                        if (kStr is not null)
+                        {
+                            // Print
+                            Window.Print(kStr);
+
+                            // Go to next line
+                            Cursor.y++;
                         }
                     }
-                    else if (!printLine)
-                        printLine = true;
-                }
+                });
 
+                // Reset cursor
+                Cursor.x = 0;
+
+                // Do any last input
+                if (final is not null)
+                    final();
+
+                // Wait for user input
                 ConsoleKeyInfo keyInfo = Input.Get();
 
                 // Activate function for pressed keybind

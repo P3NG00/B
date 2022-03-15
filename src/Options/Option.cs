@@ -8,7 +8,7 @@ namespace B.Options
 
         public Option(T defaultStage) => Stage = defaultStage;
 
-        protected virtual void SetStage(T stage) => Stage = stage;
+        protected void SetStage(T stage) => Stage = stage;
 
         public abstract void Loop();
 

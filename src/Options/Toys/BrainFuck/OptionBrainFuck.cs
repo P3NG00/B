@@ -45,8 +45,13 @@ namespace B.Options.Toys.BrainFuck
                     {
                         Window.Clear();
                         Window.SetSize(20, 7);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionBrainFuck.Title);
-                        choice.Add(() => SetStage(Stages.List), "List", '1');
+                        choice.Add(() =>
+                        {
+                            Input.ScrollIndex = 0;
+                            SetStage(Stages.List);
+                        }, "List", '1');
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
@@ -57,6 +62,7 @@ namespace B.Options.Toys.BrainFuck
                     {
                         Window.Clear();
                         Window.SetSize(40, 10 + _programs.Count);
+                        Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: _programs,
                             getText: program => program.Title,
@@ -128,7 +134,6 @@ namespace B.Options.Toys.BrainFuck
                             Cursor.Position = new(0, 1);
                             Window.Print(_output);
                             Input.WaitFor(ConsoleKey.F1);
-                            Input.ScrollIndex = 0;
                             SetStage(Stages.List);
                         }
                     }
@@ -152,7 +157,6 @@ namespace B.Options.Toys.BrainFuck
                             Window.Print($"{string.Format(format, "byte", "char", "hex")}");
                             Cursor.Position = new(1, 4);
                             Window.Print($"{'-'.Loop(consoleWidth - 2)}");
-                            // TODO this Cursor.Position = new call is to set the cursor so the Input.RequestScroll appears correctly
                             Cursor.Position = new(0, 5);
                             Input.ScrollIndex = (int)_memoryIndex;
                             Input.RequestScroll(
@@ -162,7 +166,11 @@ namespace B.Options.Toys.BrainFuck
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {
                                     new(() => HandleStep(), "Step", key: ConsoleKey.Spacebar),
-                                    new(() => SetStage(Stages.Run), "Back", key: ConsoleKey.F1)});
+                                    new(() =>
+                                    {
+                                        Input.ScrollIndex = 0;
+                                        SetStage(Stages.Run);
+                                    }, "Back", key: ConsoleKey.F1)});
                         }
                         else
                             SetStage(Stages.Run);

@@ -157,8 +157,6 @@ namespace B.Options.Tools.FTP
                         int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
                         Window.SetSize(OptionFTP.WIDTH, consoleHeight);
                         Cursor.Position = new(1, 1);
-                        Window.Print($"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}");
-                        Cursor.Position = new(0, 3);
                         Input.RequestScroll(
                             items: _files,
                             getText: file =>
@@ -170,6 +168,7 @@ namespace B.Options.Tools.FTP
 
                                 return s;
                             },
+                            title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}",
                             maxEntriesPerPage: adjustedMaxEntries,
                             exitKeybind: new(() =>
                             {

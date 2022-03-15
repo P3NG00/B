@@ -31,6 +31,7 @@ namespace B.Options.Games.NumberGuesser
                     {
                         Window.Clear();
                         Window.SetSize(20, 8);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionNumberGuesser.Title);
                         choice.Add(() =>
                         {
@@ -101,6 +102,7 @@ namespace B.Options.Games.NumberGuesser
                     {
                         Window.Clear();
                         Window.SetSize(20, 7);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Settings");
                         choice.Add(() =>
                         {

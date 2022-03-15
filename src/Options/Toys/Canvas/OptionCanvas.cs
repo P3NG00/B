@@ -25,6 +25,8 @@ namespace B.Options.Toys.Canvas
         private Vector2 BrushSize = Vector2.One;
         private Vector2 CursorPos = Vector2.Zero;
 
+        // TODO add image importing to canvas grid
+
         public OptionCanvas() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(OptionCanvas.DirectoryPath))
@@ -47,7 +49,7 @@ namespace B.Options.Toys.Canvas
 
                         Window.Clear();
                         Window.SetSize(20, consoleHeight);
-
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionCanvas.Title);
                         choice.Add(() =>
                         {
@@ -73,13 +75,14 @@ namespace B.Options.Toys.Canvas
                 case Stages.List:
                     {
                         Window.Clear();
-                        Window.SetSize(32, _canvases.Count + 10);
+                        Window.SetSize(32, _canvases.Count + 12);
+                        Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: _canvases,
                             getText: canvas => canvas.Title,
                             title: "Canvases",
                             maxEntriesPerPage: OptionCanvas.MAX_CANVASES_PER_PAGE,
-                            exitKeybind: new(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape),
+                            exitKeybind: new(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 new(() => SetCanvasAndChangeStage(Stages.View), "View", key: ConsoleKey.Enter),
                                 new(() => SetCanvasAndChangeStage(Stages.Edit), "Edit", key: ConsoleKey.Tab),
@@ -140,11 +143,12 @@ namespace B.Options.Toys.Canvas
                             _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
                         }
 
+                        // Print top info
                         Cursor.Position = new(1, 0);
                         Window.Print(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
+                        // Print border
                         Cursor.Position = new(1, 1);
                         Window.Print($" {'-'.Loop(windowSize.x - 2)}");
-                        Cursor.Position = new(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         Input.Choice choice = Input.Choice.Create();
                         // Move in Direction
                         choice.Add(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow);
@@ -179,13 +183,22 @@ namespace B.Options.Toys.Canvas
                             _lastConsoleWindow = new(0, 0, 0, 0);
                             SetStage(Stages.MainMenu);
                         }, key: ConsoleKey.Escape);
-                        choice.Request();
+                        // Set cursor position in request
+                        choice.Request(() =>
+                        {
+                            // Make cursor big and visible
+                            Cursor.Size = 100;
+                            Cursor.Visible = true;
+                            // Set to brush position
+                            Cursor.Position = new(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                        });
+
+                        // Update cursor settings
+                        Program.Settings.UpdateCursor();
 
                         Vector2 maxCanvasPos = _canvas.Size - Vector2.One;
                         // Fix cursor position
                         CursorPos = CursorPos.Clamp(Vector2.Zero, maxCanvasPos);
-                        // Set cursor position
-                        Cursor.Position = new(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         // Fix brush size
                         BrushSize = BrushSize.Clamp(Vector2.One, maxCanvasPos);
 
@@ -202,7 +215,6 @@ namespace B.Options.Toys.Canvas
                                 }
                             }
 
-                            // TODO test if this is needed. may be necessary to keep cursor in same position
                             Cursor.Position = new(CursorPos);
                         }
 
@@ -239,11 +251,12 @@ namespace B.Options.Toys.Canvas
                         Window.SetSize(32, 26);
                         ConsoleColor[] colors = Util.OrderedConsoleColors;
                         // TODO once RequestScroll uses Cursor Positioning instead of printlining, adjust cursor position so that the title lines up with the color (4, 1)?
+                        Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",
-                            getTextColor: c => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
-                            getBackgroundColor: c => c,
+                            getTextColor: (c, i) => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
+                            getBackgroundColor: (c, i) => c,
                             title: "Color Select",
                             exitKeybind: new Keybind(() => ExitColorSelect(), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind(() =>
@@ -372,13 +385,6 @@ namespace B.Options.Toys.Canvas
                             break;
                     }
                 }, key: ConsoleKey.Escape));
-        }
-
-        protected override void SetStage(Stages stage)
-        {
-            // Enable cursor if going into Edit mode
-            Cursor.Visible = stage == Stages.Edit;
-            base.SetStage(stage);
         }
 
         private enum CreationStage

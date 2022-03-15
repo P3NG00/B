@@ -54,6 +54,7 @@ namespace B.Options.Games.Adventure
 
                         Window.Clear();
                         Window.SetSize(20, consoleHeight);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
                         choice.Add(() => InitGame(true), "New Game", '1');
 

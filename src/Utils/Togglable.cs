@@ -10,5 +10,7 @@ namespace B.Utils
         public Togglable(bool value) => Active = value;
 
         public void Toggle() => Active = !Active;
+
+        // TODO consider settable OnToggle action to invoke when toggled
     }
 }
