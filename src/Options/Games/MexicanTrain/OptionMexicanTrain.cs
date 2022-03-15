@@ -9,7 +9,7 @@ namespace B.Options.Games.MexicanTrain
         public const int DOMINO_MAX = 12;
         public const int PLAYERS_MIN = 2;
         public const int PLAYERS_MAX = 8;
-        public const int DOMINO_START = 10; // TODO change to account for number of players
+        public const int DOMINO_START = 10; // TODO change to take into account the number of players
 
         // TODO implement saving/loading
         public static string FilePath => Program.DataPath + "mexicanTrain";
@@ -34,7 +34,7 @@ namespace B.Options.Games.MexicanTrain
                             for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
                             {
                                 // Create new instances because 'i' will change while looping
-                                MexicanTrainInfo info = new(i);
+                                MexicanTrainInfo info = new(i); // TODO change this so it isn't creating multiple instances of MexicanTrainInfo
                                 char c = (char)('0' + i);
 
                                 // Add keybinds

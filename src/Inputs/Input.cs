@@ -36,8 +36,9 @@ namespace B.Inputs
         {
             if (!silent)
             {
-                Window.PrintLine(); // TODO replace with Cursor Position positioning
-                Window.PrintLine($"Press {key} to continue...");
+                Cursor.x = 0;
+                Cursor.y += 2;
+                Window.Print($"Press {key} to continue...");
             }
 
             bool wait = true;
@@ -218,9 +219,9 @@ namespace B.Inputs
 
                 switch (Program.CurrentLevel)
                 {
-                    case Program.Level.Program: phrase = "Quit"; break;
-                    case Program.Level.Group: phrase = "Back"; break;
-                    case Program.Level.Option: phrase = "Exit"; break;
+                    case Program.Levels.Program: phrase = "Quit"; break;
+                    case Program.Levels.Group: phrase = "Back"; break;
+                    case Program.Levels.Option: phrase = "Exit"; break;
                 }
 
                 Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);

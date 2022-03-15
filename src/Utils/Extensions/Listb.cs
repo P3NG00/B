@@ -21,7 +21,5 @@ namespace B.Utils.Extensions
                 list[j] = temp;
             }
         }
-
-        public static void Sort<T>(this List<T> list, Func<T, float> sortBy) => list.Sort((a, b) => (int)(sortBy(a) - (sortBy(b))));
     }
 }

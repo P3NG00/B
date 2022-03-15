@@ -68,6 +68,8 @@ namespace B.Options.Games.Adventure
 
                 case Stages.Game:
                     {
+                        // TODO rewrite and take into account different border styles
+
                         Cursor.Reset();
                         Grid currentGrid = OptionAdventure.CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;

@@ -14,7 +14,7 @@ using B.Utils;
 
 namespace B
 {
-    public sealed class Program : Option<Program.Level>
+    public sealed class Program : Option<Program.Levels>
     {
         public const string Title = "B";
 
@@ -28,7 +28,7 @@ namespace B
         // Program Info
         public static ProgramSettings Settings { get; private set; } = new();
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
-        public static Level CurrentLevel => _instance.Stage;
+        public static Levels CurrentLevel => _instance.Stage;
 
         // Option Groups
         private static (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options)[] OptionGroups => new (string, (Type, Func<string>)[])[]
@@ -55,7 +55,7 @@ namespace B
         private (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options) _optionGroup;
         private IOption? _selectedOption = null;
 
-        public Program() : base(Level.Program)
+        public Program() : base(Levels.Program)
         {
             if (_instance is null)
                 _instance = this;
@@ -126,7 +126,7 @@ namespace B
 
             switch (Stage)
             {
-                case Level.Program:
+                case Levels.Program:
                     {
                         // Display main menu options
                         Window.Clear();
@@ -139,7 +139,7 @@ namespace B
                             choice.Add(() =>
                             {
                                 _optionGroup = optionGroup;
-                                SetStage(Level.Group);
+                                SetStage(Levels.Group);
                             }, optionGroup.GroupTitle, (char)('1' + i));
                         }
 
@@ -149,7 +149,7 @@ namespace B
                     }
                     break;
 
-                case Level.Group:
+                case Levels.Group:
                     {
                         Window.Clear();
                         Window.SetSize(22, _optionGroup.Options.Length + 6);
@@ -159,27 +159,28 @@ namespace B
                         for (int i = 0; i < _optionGroup.Options.Length; i++)
                         {
                             var option = _optionGroup.Options[i];
+
                             choice.Add(() =>
                             {
                                 _selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
-                                SetStage(Level.Option);
+                                SetStage(Levels.Option);
                             }, option.GetTitle(), (char)('1' + i));
                         }
 
                         choice.AddSpacer();
-                        choice.Add(() => SetStage(Level.Program), "Back", key: ConsoleKey.Escape);
+                        choice.AddExit(this);
                         choice.Request();
                     }
                     break;
 
-                case Level.Option:
+                case Levels.Option:
                     {
                         if (_selectedOption is not null && _selectedOption.IsRunning)
                             _selectedOption.Loop();
                         else
                         {
                             _selectedOption = null;
-                            SetStage(Level.Group);
+                            SetStage(Levels.Group);
                         }
                     }
                     break;
@@ -212,19 +213,25 @@ namespace B
             Cursor.Position = new(2, 1);
             // Cursor will always start at (2, 1)
             printAction();
-            Cursor.x = 2;
-            Cursor.y += 2;
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
             _selectedOption = null;
 
-            if (Stage == Level.Option)
-                SetStage(Level.Group);
-            else if (Stage == Level.Group)
-                SetStage(Level.Program);
+            if (Stage == Levels.Option)
+                SetStage(Levels.Group);
+            else if (Stage == Levels.Group)
+                SetStage(Levels.Program);
         }
 
-        public enum Level
+        public override void Quit()
+        {
+            if (Stage == Levels.Group)
+                SetStage(Levels.Program);
+            else
+                base.Quit();
+        }
+
+        public enum Levels
         {
             Program,
             Group,
