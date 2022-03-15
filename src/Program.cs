@@ -11,6 +11,7 @@ using B.Options.Tools.Settings;
 using B.Options.Toys.BrainFuck;
 using B.Options.Toys.Canvas;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B
 {
@@ -154,19 +155,19 @@ namespace B
                         Window.Clear();
                         Window.SetSize(22, _optionGroup.Options.Length + 6);
                         Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
-
-                        // TODO use choice.AddRoutine();
-                        for (int i = 0; i < _optionGroup.Options.Length; i++)
+                        choice.AddRoutine(keybinds =>
                         {
-                            var option = _optionGroup.Options[i];
-
-                            choice.Add(() =>
+                            ((Action<int>)(i =>
                             {
-                                _selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
-                                SetStage(Levels.Option);
-                            }, option.GetTitle(), (char)('1' + i));
-                        }
+                                var option = _optionGroup.Options[i];
 
+                                keybinds.Add(new(() =>
+                                {
+                                    _selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
+                                    SetStage(Levels.Option);
+                                }, option.GetTitle(), (char)('1' + i)));
+                            })).Loop(_optionGroup.Options.Length);
+                        });
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
