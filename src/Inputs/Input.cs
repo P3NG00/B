@@ -85,17 +85,20 @@ namespace B.Inputs
             Input.Choice choice = Input.Choice.Create();
             ConsoleKeyInfo keyInfo;
 
+            // If title exists, print it
+            if (title != null)
+            {
+                Window.Print(title);
+                Cursor.y += 2;
+            }
+
             if (maxEntriesAdjusted > 0 && itemCount > 0)
             {
-                if (title != null)
-                {
-                    Window.Print(title);
-                    Cursor.y += 2;
-                }
-
+                // Get indexes of current page
                 int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntriesAdjusted);
                 int endIndex = Math.Min(startIndex + maxEntriesAdjusted, itemCount);
 
+                // Scroll through current page
                 for (int i = startIndex; i < endIndex; i++)
                 {
                     Cursor.x = 1;
@@ -103,32 +106,31 @@ namespace B.Inputs
                     T item = items.ElementAt(i);
                     string text = getText(item);
                     string output = string.Format("{0,-" + (text.Length + 1) + "}", text);
-                    ConsoleColor? colorText = null;
-                    ConsoleColor? colorBackground = null;
-
-                    if (getTextColor != null)
-                        colorText = getTextColor(item, i);
-
-                    if (getBackgroundColor != null)
-                        colorBackground = getBackgroundColor(item, i);
-
+                    ConsoleColor? colorText = getTextColor is null ? null : getTextColor(item, i);
+                    ConsoleColor? colorBG = getBackgroundColor is null ? null : getBackgroundColor(item, i);
                     Cursor.x = 3;
-                    Window.Print(output, colorText, colorBackground);
+                    Window.Print(output, colorText, colorBG);
                     Cursor.y++;
                 }
 
+                // If navigation keybinds...
                 if (navigationKeybinds)
                 {
+                    // Add message
                     choice.AddMessage("Use Up/Down to navigate");
-                    // Scroll up and down
+                    // Scroll up
                     choice.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow);
+                    // Scroll down
                     choice.Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
-                    // Scroll next/previous page (automatically clears window)
+                    // Scroll previous page
                     choice.Add(() =>
                     {
                         Input.ScrollIndex += maxEntriesAdjusted;
+                        // Window is cleared here since it is only detected
+                        // later if you crossed from the ends of the pages
                         Window.Clear();
                     }, key: ConsoleKey.RightArrow);
+                    // Scroll next page
                     choice.Add(() =>
                     {
                         Input.ScrollIndex -= maxEntriesAdjusted;
@@ -136,19 +138,25 @@ namespace B.Inputs
                     }, key: ConsoleKey.LeftArrow);
                 }
 
+                // If extra keybinds added...
                 if (extraKeybinds != null && extraKeybinds.Length != 0)
                 {
+                    // Add spacer from navigation keybinds if added
                     if (navigationKeybinds)
                         choice.AddSpacer();
 
+                    // Add extra keybinds
                     choice.Add(extraKeybinds!);
                 }
 
+                // If exit keybind...
                 if (exitKeybind is not null)
                 {
+                    // Add spacer from previous output if keybind is meant to be displayed
                     if (exitKeybind.ToString() is not null)
                         choice.AddSpacer();
 
+                    // Add exit keybind
                     choice.Add(exitKeybind);
                 }
 
@@ -159,19 +167,22 @@ namespace B.Inputs
                 Cursor.y++;
                 keyInfo = choice.Request();
 
-                // Adjust index
+                // Fix index if it's out of bounds
                 Input.ScrollIndex = Input.ScrollIndex.Clamp(0, itemCount - 1);
 
-                // If scrolling into new page, clear console
+                // Get page indexes after it's modified
                 int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
 
+                // If scrolling into new page, clear console
                 if ((previousPageIndex == oneLessThanMax && newPageIndex == 0) || (previousPageIndex == 0 && newPageIndex == oneLessThanMax))
                     Window.Clear();
             }
             else
             {
+                Cursor.x = 2;
                 Window.Print("No entries.");
+                Cursor.y += 2;
                 choice.Add(exitKeybind);
                 keyInfo = choice.Request();
             }
