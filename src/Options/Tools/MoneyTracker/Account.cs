@@ -1,13 +1,13 @@
 using B.Inputs;
 using B.Utils;
 using B.Utils.Extensions;
+using Newtonsoft.Json;
 
 namespace B.Options.Tools.MoneyTracker
 {
-    [Serializable]
     public sealed class Account
     {
-        public string FilePath => OptionMoneyTracker.DirectoryPath + Name;
+        [JsonIgnore] public string FilePath => OptionMoneyTracker.DirectoryPath + Name;
         public List<Transaction> Transactions = new();
         public string Name = string.Empty;
         public byte Decimals

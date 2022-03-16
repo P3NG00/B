@@ -3,7 +3,6 @@ using B.Utils.Extensions;
 
 namespace B.Options.Games.Adventure
 {
-    [Serializable]
     public sealed class AdventureInfo
     {
         // TODO keep track of Tuple<gridId (int), coinPos (vector2)> to fix coin respawn on reload game

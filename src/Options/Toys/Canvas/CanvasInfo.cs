@@ -1,15 +1,15 @@
 using B.Utils;
+using Newtonsoft.Json;
 
 namespace B.Options.Toys.Canvas
 {
-    [Serializable]
     public sealed class CanvasInfo
     {
         public string Title = string.Empty;
         public ConsoleColor[][] Colors = null!;
 
-        public string FilePath => OptionCanvas.DirectoryPath + Title;
-        public Vector2 Size => new(Colors[0].Length, Colors.Length);
+        [JsonIgnore] public string FilePath => OptionCanvas.DirectoryPath + Title;
+        [JsonIgnore] public Vector2 Size => new(Colors[0].Length, Colors.Length);
 
         // Use these as Color Getter and Setter
         public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
