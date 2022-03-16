@@ -14,7 +14,7 @@ namespace B.Options.Toys.Canvas
         private const int MAX_CANVASES_PER_PAGE = 10;
 
         private static Vector2 CANVAS_SIZE_MIN => new(20, 10);
-        private static Vector2 CURSOR_POS_MIN => new(0, 2);
+        private static Vector2 CURSOR_POS_MIN => new(0, 4);
 
         public static readonly string DirectoryPath = Program.DataPath + @"canvas\";
 
@@ -93,6 +93,8 @@ namespace B.Options.Toys.Canvas
                         {
                             _canvas = _canvases[Input.ScrollIndex];
                             Input.ScrollIndex = 0;
+                            BrushSize = Vector2.One;
+                            CursorPos = Vector2.Zero;
                             SetStage(stage);
                         }
                     }
@@ -144,13 +146,17 @@ namespace B.Options.Toys.Canvas
                         }
 
                         // Print top info
-                        Cursor.Position = new(1, 0);
-                        Window.Print(string.Format(" {0,-" + (windowSize.x - 2) + "}", $"Brush: {BrushSize} | Color: {_color}"));
+                        Cursor.Position = new(2, 0);
+                        Window.Print($"Color: {_color,-11}");
+                        Cursor.Position = new(2, 1);
+                        Window.Print($"Position: {CursorPos,-10}");
+                        Cursor.Position = new(2, 2);
+                        Window.Print($"Brush: {BrushSize,-10}");
                         // Print border
-                        Cursor.Position = new(1, 1);
-                        Window.Print($" {'-'.Loop(windowSize.x - 2)}");
-                        Input.Choice choice = Input.Choice.Create();
+                        Cursor.Position = new(2, 3);
+                        Window.Print('-'.Loop(windowSize.x - 2));
                         // Move in Direction
+                        Input.Choice choice = Input.Choice.Create();
                         choice.Add(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow);
                         choice.Add(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow);
                         choice.Add(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow);
@@ -181,6 +187,8 @@ namespace B.Options.Toys.Canvas
 
                             Save();
                             _lastConsoleWindow = new(0, 0, 0, 0);
+                            BrushSize = Vector2.One;
+                            CursorPos = Vector2.Zero;
                             SetStage(Stages.MainMenu);
                         }, key: ConsoleKey.Escape);
                         // Set cursor position in request
