@@ -185,7 +185,7 @@ namespace B.Inputs
 
             private Choice(string? title = null)
             {
-                if (title is not null)
+                if (!string.IsNullOrWhiteSpace(title))
                 {
                     AddMessage(title);
                     AddSpacer();

@@ -24,7 +24,7 @@ namespace B.Options.Tools.MoneyTracker
 
         public Account(string name) => Name = name;
 
-        public void Save() => Util.Serialize(FilePath, this);
+        public void Save() => Data.Serialize(FilePath, this);
 
         public void Delete()
         {

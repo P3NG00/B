@@ -152,7 +152,7 @@ namespace B.Options.Games.Adventure
                 PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
             }
             else
-                OptionAdventure.Info = Util.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
+                OptionAdventure.Info = Data.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
 
             Window.Clear();
             SetStage(Stages.Game);
@@ -233,7 +233,7 @@ namespace B.Options.Games.Adventure
                 grid.Seal();
         }
 
-        public override void Save() => Util.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
+        public override void Save() => Data.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
 
         public enum Stages
         {

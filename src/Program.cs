@@ -85,7 +85,7 @@ namespace B
             }
 
             // Save before exiting
-            try { Util.Serialize(ProgramSettings.Path, Program.Settings); }
+            try { Data.Serialize(ProgramSettings.Path, Program.Settings); }
             catch (Exception e) { HandleException(e); }
         }
 
@@ -106,7 +106,7 @@ namespace B
             {
                 // If settings can't be loaded, just handle exception.
                 // Settings are already initialized to default values.
-                try { Program.Settings = Util.Deserialize<ProgramSettings>(ProgramSettings.Path); }
+                try { Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
                 catch (Exception) { }
             }
 

@@ -1,6 +1,3 @@
-using System.Xml;
-using System.Xml.Serialization;
-
 namespace B.Utils
 {
     public static class Util
@@ -25,22 +22,5 @@ namespace B.Utils
             ConsoleColor.DarkRed,
             ConsoleColor.Red
         };
-
-        public static void Serialize<T>(string filePath, T objectToWrite)
-        {
-            using (FileStream fileStream = File.Open(filePath, FileMode.Create))
-            using (XmlWriter writer = XmlWriter.Create(fileStream, new XmlWriterSettings() { Indent = true, OmitXmlDeclaration = true }))
-            {
-                XmlSerializerNamespaces namespaces = new();
-                namespaces.Add("", "");
-                new XmlSerializer(typeof(T)).Serialize(writer, objectToWrite, namespaces);
-            }
-        }
-
-        public static T Deserialize<T>(string filePath)
-        {
-            using (FileStream fileStream = File.Open(filePath, FileMode.Open))
-                return (T)new XmlSerializer(typeof(T)).Deserialize(fileStream)!;
-        }
     }
 }

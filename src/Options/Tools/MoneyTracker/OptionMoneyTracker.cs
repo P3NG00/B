@@ -274,7 +274,7 @@ namespace B.Options.Tools.MoneyTracker
             Account account;
 
             if (deserialize)
-                account = Util.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name)!;
+                account = Data.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name)!;
             else
             {
                 account = new(name);

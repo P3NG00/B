@@ -33,7 +33,7 @@ namespace B.Options.Toys.Canvas
                 Directory.CreateDirectory(OptionCanvas.DirectoryPath);
             else
                 foreach (string filePath in Directory.GetFiles(OptionCanvas.DirectoryPath))
-                    _canvases.Add(Util.Deserialize<CanvasInfo>(filePath));
+                    _canvases.Add(Data.Deserialize<CanvasInfo>(filePath));
         }
 
         public override void Loop()
@@ -276,7 +276,7 @@ namespace B.Options.Toys.Canvas
             }
         }
 
-        public override void Save() => Util.Serialize(_canvas.FilePath, _canvas);
+        public override void Save() => Data.Serialize(_canvas.FilePath, _canvas);
 
         private void ShowCreationStage()
         {
