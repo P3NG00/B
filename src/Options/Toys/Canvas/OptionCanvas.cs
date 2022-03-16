@@ -6,8 +6,7 @@ namespace B.Options.Toys.Canvas
 {
     public sealed class OptionCanvas : Option<OptionCanvas.Stages>
     {
-        public const string Title = "Canvas";
-
+        public static string Title => "Canvas";
         public static Vector2 CANVAS_BORDER_PAD => new(2, 1);
 
         private const int MAX_INPUT_LENGTH = 25;
@@ -137,7 +136,6 @@ namespace B.Options.Toys.Canvas
                 case Stages.Edit:
                     {
                         (int x, int y, int width, int height) consoleWindow = new(Console.WindowLeft, Console.WindowTop, Console.WindowWidth, Console.WindowHeight);
-                        Vector2 windowSize = _canvas.Size + OptionCanvas.CURSOR_POS_MIN + (OptionCanvas.CANVAS_BORDER_PAD * 2);
 
                         if (consoleWindow != _lastConsoleWindow)
                         {
@@ -154,7 +152,7 @@ namespace B.Options.Toys.Canvas
                         Window.Print($"Brush: {BrushSize,-10}");
                         // Print border
                         Cursor.Position = new(2, 3);
-                        Window.Print('-'.Loop(windowSize.x - 2));
+                        Window.Print('-'.Loop(Window.Size.x - 2));
                         // Move in Direction
                         Input.Choice choice = Input.Choice.Create();
                         choice.Add(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow);
@@ -192,6 +190,7 @@ namespace B.Options.Toys.Canvas
                             SetStage(Stages.MainMenu);
                         }, key: ConsoleKey.Escape);
                         // Set cursor position in request
+                        // TODO ADD DESCRIPTIONS AND DISPLAY KEYBINDS IN EDIT MODE
                         choice.Request(() =>
                         {
                             // Make cursor big and visible
@@ -257,7 +256,7 @@ namespace B.Options.Toys.Canvas
                     {
                         Window.Clear();
                         Window.SetSize(32, 26);
-                        ConsoleColor[] colors = Util.OrderedConsoleColors;
+                        ConsoleColor[] colors = Util.ConsoleColors;
                         // TODO once RequestScroll uses Cursor Positioning instead of printlining, adjust cursor position so that the title lines up with the color (4, 1)?
                         Cursor.Position = new(2, 1);
                         Input.RequestScroll(

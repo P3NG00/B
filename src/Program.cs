@@ -1,7 +1,9 @@
-﻿using B.Inputs;
+﻿using System.Diagnostics;
+using B.Inputs;
 using B.Options;
 using B.Options.Games.Adventure;
 using B.Options.Games.Blackjack;
+using B.Options.Games.MadLibs;
 using B.Options.Games.MexicanTrain;
 using B.Options.Games.NumberGuesser;
 using B.Options.Games.OptionCheckers;
@@ -33,29 +35,30 @@ namespace B
         public static Levels CurrentLevel => _instance.Stage;
 
         // Option Groups
-        private static (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options)[] OptionGroups => new (string, (Type, Func<string>)[])[]
+        private static (string GroupTitle, Type[] OptionType)[] OptionGroups => new (string, Type[])[]
         {
-            ("Games", new (Type, Func<string>)[] {
-                (typeof(OptionAdventure), () => OptionAdventure.Title),
-                (typeof(OptionMexicanTrain), () => OptionMexicanTrain.Title),
-                (typeof(OptionBlackjack), () => OptionBlackjack.Title),
-                (typeof(OptionCheckers), () => OptionCheckers.Title),
-                (typeof(OptionNumberGuesser), () => OptionNumberGuesser.Title),
+            ("Games", new Type[] {
+                typeof(OptionAdventure),
+                typeof(OptionMexicanTrain),
+                typeof(OptionBlackjack),
+                typeof(OptionCheckers),
+                typeof(OptionMadLibs),
+                typeof(OptionNumberGuesser),
             }),
-            ("Toys", new (Type, Func<string>)[] {
-                (typeof(OptionCanvas), () => OptionCanvas.Title),
-                (typeof(OptionBrainFuck), () => OptionBrainFuck.Title),
+            ("Toys", new Type[] {
+                typeof(OptionCanvas),
+                typeof(OptionBrainFuck),
             }),
-            ("Tools", new (Type, Func<string>)[] {
-                (typeof(OptionFTP), () => OptionFTP.Title),
-                (typeof(OptionBackup), () => OptionBackup.Title),
-                (typeof(OptionMoneyTracker), () => OptionMoneyTracker.Title),
-                (typeof(OptionSettings), () => OptionSettings.Title),
+            ("Tools", new Type[] {
+                typeof(OptionFTP),
+                typeof(OptionBackup),
+                typeof(OptionMoneyTracker),
+                typeof(OptionSettings),
             }),
         };
         private static Program _instance = null!;
 
-        private (string GroupTitle, (Type OptionType, Func<string> GetTitle)[] Options) _optionGroup;
+        private (string GroupTitle, Type[] OptionTypes) _optionGroup;
         private IOption? _selectedOption = null;
 
         public Program() : base(Levels.Program)
@@ -132,19 +135,17 @@ namespace B
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create($"{Program.Title}'s");
-                        choice.AddRoutine(keybinds =>
+                        Action<int> action = i =>
                         {
-                            ((Action<int>)(i =>
-                            {
-                                var optionGroup = Program.OptionGroups[i];
+                            var optionGroup = Program.OptionGroups[i];
 
-                                keybinds.Add(new(() =>
-                                {
-                                    _optionGroup = optionGroup;
-                                    SetStage(Levels.Group);
-                                }, optionGroup.GroupTitle, (char)('1' + i)));
-                            })).Loop(Program.OptionGroups.Length);
-                        });
+                            choice.Add(() =>
+                            {
+                                _optionGroup = optionGroup;
+                                SetStage(Levels.Group);
+                            }, optionGroup.GroupTitle, (char)('1' + i));
+                        };
+                        action.Loop(Program.OptionGroups.Length);
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
@@ -154,22 +155,24 @@ namespace B
                 case Levels.Group:
                     {
                         Window.Clear();
-                        Window.SetSize(22, _optionGroup.Options.Length + 6);
+                        Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
-                        choice.AddRoutine(keybinds =>
+                        Action<int> action = i =>
                         {
-                            ((Action<int>)(i =>
-                            {
-                                var option = _optionGroup.Options[i];
+                            Type optionType = _optionGroup.OptionTypes[i];
+                            string title = (string)optionType.GetProperty("Title")?.GetValue(null)!;
 
-                                keybinds.Add(new(() =>
-                                {
-                                    _selectedOption = (IOption?)Activator.CreateInstance(option.OptionType);
-                                    SetStage(Levels.Option);
-                                }, option.GetTitle(), (char)('1' + i)));
-                            })).Loop(_optionGroup.Options.Length);
-                        });
+                            if (title is null)
+                                throw new Exception($"{optionType.Name} has no 'Title' property.");
+
+                            choice.Add(() =>
+                            {
+                                _selectedOption = (IOption?)Activator.CreateInstance(optionType);
+                                SetStage(Levels.Option);
+                            }, title, (char)('1' + i));
+                        };
+                        action.Loop(_optionGroup.OptionTypes.Length);
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
@@ -212,7 +215,7 @@ namespace B
         private void PrintExceptionOutput(Action printAction)
         {
             Window.Clear();
-            Window.SetSize(Window.SIZE_MAX / 2);
+            Window.Size = Window.SIZE_MAX / 2;
             Cursor.Position = new(2, 1);
             // Cursor will always start at (2, 1)
             printAction();
@@ -228,6 +231,7 @@ namespace B
 
         public override void Quit()
         {
+            // If quit is pressed in Levels.Group go back to Levels.Program
             if (Stage == Levels.Group)
                 SetStage(Levels.Program);
             else

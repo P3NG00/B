@@ -18,7 +18,7 @@ namespace B.Options.Games.Adventure
         public const string CHAR_CORNER_B = @"\\";
         public const string MESSAGE_EMPTY = "...";
 
-        public const string Title = "Adventure!";
+        public static string Title => "Adventure!";
 
         public static readonly string FilePath = Program.DataPath + "adventure";
 
@@ -46,20 +46,19 @@ namespace B.Options.Games.Adventure
             {
                 case Stages.MainMenu:
                     {
-                        int consoleHeight = 7;
                         bool fileExists = File.Exists(OptionAdventure.FilePath);
-
-                        if (fileExists)
-                            consoleHeight++;
-
                         Window.Clear();
-                        Window.SetSize(20, consoleHeight);
+                        Window.SetSize(20, fileExists ? 8 : 7);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
-                        choice.Add(() => InitGame(true), "New Game", '1');
 
                         if (fileExists)
+                        {
+                            choice.AddConfirmation(() => InitGame(true), "Are you sure you want to override the current game?", "New Game", '1');
                             choice.Add(() => InitGame(false), "Continue", '2');
+                        }
+                        else
+                            choice.Add(() => InitGame(true), "New Game", '1');
 
                         choice.AddSpacer();
                         choice.AddExit(this);

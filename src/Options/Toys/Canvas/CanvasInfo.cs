@@ -13,7 +13,7 @@ namespace B.Options.Toys.Canvas
 
         // Use these as Color Getter and Setter
         public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
-        public ref ConsoleColor Color(Vector2 pos) => ref Color(pos.x, pos.y);
+        public ref ConsoleColor Color(Vector2 pos) => ref Colors[pos.y][pos.x];
 
         public void Draw(Vector2? offset = null)
         {
@@ -23,7 +23,7 @@ namespace B.Options.Toys.Canvas
                 windowSize += offset;
 
             Window.Clear();
-            Window.SetSize(windowSize);
+            Window.Size = windowSize;
 
             for (int y = 0; y < Size.y; y++)
             {

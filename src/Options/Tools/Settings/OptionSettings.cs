@@ -9,7 +9,7 @@ namespace B.Options.Tools.Settings
 {
     public sealed class OptionSettings : Option<OptionSettings.Stages>
     {
-        public const string Title = "Settings";
+        public static string Title => "Settings";
 
         private readonly ColorTheme[] _colorThemes =
         {
@@ -57,7 +57,7 @@ namespace B.Options.Tools.Settings
                         choice.AddSpacer();
                         choice.Add(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10);
                         // Action is null because F12 will toggle Debug Mode in Program using LastInput
-                        choice.Add(() => { /* void func */ }, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12);
+                        choice.Add(Util.Void, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12);
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
@@ -68,7 +68,7 @@ namespace B.Options.Tools.Settings
                     {
                         _size = _size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
                         Window.Clear();
-                        Window.SetSize(_size);
+                        Window.Size = _size;
                         Cursor.Position = new(0, 0);
                         Window.Print($"Detected Max Size: {Window.SIZE_MAX}");
                         Cursor.Position = new(0, 1);
@@ -125,7 +125,7 @@ namespace B.Options.Tools.Settings
                         Program.Settings.UpdateColors();
                         Window.Clear();
                         Window.SetSize(32, 27);
-                        ConsoleColor[] colors = Util.OrderedConsoleColors;
+                        ConsoleColor[] colors = Util.ConsoleColors;
                         Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: colors,
@@ -223,25 +223,15 @@ namespace B.Options.Tools.Settings
                         Window.SetSize(20, 10);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Delete Data");
-                        choice.Add(CreateDeleteKeybind("Adventure", () => File.Delete(OptionAdventure.FilePath), '1'));
-                        choice.Add(CreateDeleteKeybind(OptionBrainFuck.Title, () => Directory.Delete(OptionBrainFuck.DirectoryPath, true), '2'));
-                        choice.Add(CreateDeleteKeybind("Money Tracker", () => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), '3'));
-                        choice.Add(CreateDeleteKeybind("Settings", () => File.Delete(ProgramSettings.Path), '4'));
+                        choice.Add(CreateDeleteKeybind(() => File.Delete(OptionAdventure.FilePath), OptionAdventure.Title, '1'));
+                        choice.Add(CreateDeleteKeybind(() => Directory.Delete(OptionBrainFuck.DirectoryPath, true), OptionBrainFuck.Title, '2'));
+                        choice.Add(CreateDeleteKeybind(() => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), OptionMoneyTracker.Title, '3'));
+                        choice.Add(CreateDeleteKeybind(() => File.Delete(ProgramSettings.Path), OptionSettings.Title, '4'));
                         choice.AddSpacer();
                         choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
                         choice.Request();
 
-                        Keybind CreateDeleteKeybind(string title, Action deleteAction, char num) => new Keybind(() =>
-                        {
-                            Window.Clear();
-                            Window.SetSize(30, 7);
-                            Cursor.Position = new(0, 1);
-                            Input.Choice choice = Input.Choice.Create($"Delete {title} Data?");
-                            choice.Add(null!, "NO", key: ConsoleKey.Escape);
-                            choice.AddSpacer();
-                            choice.Add(deleteAction, "yes", key: ConsoleKey.Enter);
-                            choice.Request();
-                        }, title, num);
+                        Keybind CreateDeleteKeybind(Action deleteAction, string title, char num) => Keybind.CreateConfirmationKeybind(deleteAction, $"Delete saved data for {title}?", title, num);
                     }
                     break;
             }

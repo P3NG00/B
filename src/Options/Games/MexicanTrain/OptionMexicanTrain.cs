@@ -5,11 +5,12 @@ namespace B.Options.Games.MexicanTrain
 {
     public sealed class OptionMexicanTrain : Option<OptionMexicanTrain.Stages>
     {
-        public const string Title = "Mexican Train";
         public const int DOMINO_MAX = 12;
         public const int PLAYERS_MIN = 2;
         public const int PLAYERS_MAX = 8;
         public const int DOMINO_START = 10; // TODO change to take into account the number of players
+
+        public static string Title => "Mexican Train";
 
         // TODO implement saving/loading
         public static string FilePath => Program.DataPath + "mexicanTrain";
@@ -31,23 +32,20 @@ namespace B.Options.Games.MexicanTrain
                         choice.AddMessage($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players.");
                         choice.AddSpacer();
                         choice.AddExit(this);
-                        choice.AddRoutine(keybinds =>
+                        for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
                         {
-                            for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
-                            {
-                                // Create new instances because 'i' will change while looping
-                                MexicanTrainInfo info = new(i); // TODO change this so it isn't creating multiple instances of MexicanTrainInfo but instead only one once a number is pressed
-                                char c = (char)('0' + i);
+                            // Create new instances because 'i' will change while looping
+                            MexicanTrainInfo info = new(i); // TODO change this so it isn't creating multiple instances of MexicanTrainInfo but instead only one once a number is pressed
+                            char c = (char)('0' + i);
 
-                                // Add keybinds
-                                keybinds.Add(new(() =>
-                                {
-                                    _info = info;
-                                    _info.Initialize();
-                                    SetStage(Stages.Game);
-                                }, keyChar: c));
-                            }
-                        });
+                            // Add keybinds
+                            choice.Add(() =>
+                            {
+                                _info = info;
+                                _info.Initialize();
+                                SetStage(Stages.Game);
+                            }, keyChar: c);
+                        }
                         choice.Request();
                     }
                     break;

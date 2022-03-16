@@ -201,12 +201,6 @@ namespace B.Inputs
                 }
             }
 
-            // TODO create 'AddConfirmation' method to add universal confirmation method for things like
-            // deleting files in OptionFTP
-            // removing accounts in OptionMoneyTracker
-            // starting a new game in OptionAdventure
-            // deleting data in OptionSettings
-
             public void AddMessage(string message) => _keybinds.Add(new(null!, message));
 
             public void AddSpacer() => _keybinds.Add(new(null!, string.Empty));
@@ -215,12 +209,7 @@ namespace B.Inputs
 
             public void Add(params Keybind[] keybinds) => _keybinds.AddRange(keybinds);
 
-            public void AddRoutine(Action<List<Keybind>> keybindRoutine)
-            {
-                List<Keybind> keybinds = new();
-                keybindRoutine(keybinds);
-                _keybinds.AddRange(keybinds);
-            }
+            public void AddConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => _keybinds.Add(Keybind.CreateConfirmationKeybind(action, message, description, keyChar, key, control, shift, alt));
 
             public void AddExit(IOption option)
             {

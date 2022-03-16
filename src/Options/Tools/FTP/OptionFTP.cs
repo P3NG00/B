@@ -10,14 +10,14 @@ namespace B.Options.Tools.FTP
 {
     public sealed class OptionFTP : Option<OptionFTP.Stages>
     {
-        public const string Title = "FTP";
-
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int MAX_LIST_ENTRIES = 40;
         private const int WIDTH = 140;
         private const string SERVER_IP = "***REMOVED***";
         private const string SERVER_USER = "***REMOVED***";
         private const int SERVER_PORT = 22;
+
+        public static string Title => "FTP";
 
         private static string DownloadPath => Environment.CurrentDirectory + @"\download\";
         private static Func<int, string>[] _scramblers = new Func<int, string>[]
@@ -182,7 +182,7 @@ namespace B.Options.Tools.FTP
                             }, "Exit", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 new(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown),
-                                new(() => SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete),
+                                CreateConfirmKeybindForCurrent(),
                                 new(() =>
                                 {
                                     SftpFile currentFile = CurrentFile;
@@ -201,11 +201,13 @@ namespace B.Options.Tools.FTP
                     {
                         _lastStage = Stage;
                         Window.Clear();
-                        Window.SetSize(OptionFTP.WIDTH, 8);
                         SftpFile file = CurrentFile;
-                        Input.Choice choice = Input.Choice.Create($"{file.FullName} | {file.Attributes.Size} bytes");
+                        string title = $"{file.FullName} | {file.Attributes.Size} bytes";
+                        Window.SetSize(title.Length + 4, 8);
+                        Cursor.Position = new(2, 1);
+                        Input.Choice choice = Input.Choice.Create(title);
                         choice.Add(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown);
-                        choice.Add(() => SetStage(Stages.Delete), "Delete", key: ConsoleKey.Delete);
+                        choice.Add(CreateConfirmKeybindForCurrent());
                         choice.AddSpacer();
                         choice.Add(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape);
                         choice.Request();
@@ -219,24 +221,6 @@ namespace B.Options.Tools.FTP
                         Download(CurrentFile);
                         Window.Clear();
                         SetStage(_lastStage);
-                    }
-                    break;
-
-                case Stages.Delete:
-                    {
-                        Window.Clear();
-                        Window.SetSize(OptionFTP.WIDTH, 9);
-                        SftpFile currentFile = CurrentFile;
-                        Cursor.Position = new(2, 1);
-                        Window.Print(currentFile.FullName);
-                        Input.Choice choice = Input.Choice.Create("Are you sure you want to delete this file?");
-                        choice.Add(() => Delete(currentFile), "yes", key: ConsoleKey.Enter);
-                        choice.AddSpacer();
-                        choice.Add(null!, "NO", key: ConsoleKey.Escape);
-                        Cursor.Position = new(0, 2);
-                        choice.Request();
-                        SetStage(Stages.Navigate);
-                        Window.Clear();
                     }
                     break;
             }
@@ -281,9 +265,11 @@ namespace B.Options.Tools.FTP
             }
         }
 
-        private void Delete(SftpFile file)
+        private Keybind CreateConfirmKeybindForCurrent() => Keybind.CreateConfirmationKeybind(DeleteCurrent, $"Are you sure you want to delete {CurrentFile.Name}?", "Delete", key: ConsoleKey.Delete);
+
+        private void DeleteCurrent()
         {
-            try { _client.Delete(file.FullName); }
+            try { _client.Delete(CurrentFile.FullName); }
             catch (SshException)
             {
                 Window.Clear();
@@ -295,6 +281,7 @@ namespace B.Options.Tools.FTP
                 Input.Get();
             }
 
+            SetStage(Stages.Navigate);
             RefreshFiles();
         }
 
@@ -310,7 +297,6 @@ namespace B.Options.Tools.FTP
             Navigate,
             FileInteract,
             Download,
-            Delete,
         }
 
         public override void Quit()

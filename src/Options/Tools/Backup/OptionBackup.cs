@@ -2,7 +2,7 @@ namespace B.Options.Tools.Backup
 {
     public sealed class OptionBackup : Option<OptionBackup.Stages>
     {
-        public const string Title = "Backup";
+        public static string Title => "Backup";
 
         public OptionBackup() : base(Stages.MainMenu) { }
 

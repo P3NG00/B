@@ -2,7 +2,7 @@ namespace B.Options.Games.Blackjack
 {
     public sealed class OptionBlackjack : Option<OptionBlackjack.Stages>
     {
-        public const string Title = "Blackjack";
+        public static string Title => "Blackjack";
 
         public OptionBlackjack() : base(Stages.MainMenu) { }
 

@@ -6,9 +6,9 @@ namespace B.Options.Tools.MoneyTracker
 {
     public sealed class OptionMoneyTracker : Option<OptionMoneyTracker.Stages>
     {
-        public const string Title = "Money Tracker";
-
         private const int MAX_TRANSACTIONS_PER_PAGE = 50;
+
+        public static string Title => "Money Tracker";
 
         public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
 
@@ -165,14 +165,13 @@ namespace B.Options.Tools.MoneyTracker
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Remove Account");
 
-                        // TODO add confirmation to account removal
-
                         if (amountAccounts > 0)
                         {
-                            for (int i = 0; i < amountAccounts; i++)
+                            Action<int> action = i =>
                             {
                                 Account account = _accounts[i];
-                                choice.Add(() =>
+
+                                choice.AddConfirmation(() =>
                                 {
                                     if (_selectedAccount == account)
                                         _selectedAccount = null;
@@ -180,8 +179,9 @@ namespace B.Options.Tools.MoneyTracker
                                     _accounts.Remove(account);
                                     account.Delete();
                                     SetStage(Stages.Account);
-                                }, account.Name, keyChar: (char)('1' + i));
-                            }
+                                }, $"Delete account {account.Name}?", account.Name, keyChar: (char)('1' + i));
+                            };
+                            action.Loop(amountAccounts);
 
                             choice.AddSpacer();
                         }

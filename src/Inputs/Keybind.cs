@@ -1,3 +1,5 @@
+using B.Utils;
+
 namespace B.Inputs
 {
     public sealed class Keybind
@@ -71,6 +73,19 @@ namespace B.Inputs
                 }
             }
         }
+
+        public static Keybind CreateConfirmationKeybind(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => new(() =>
+        {
+            Window.Clear();
+            Window.Size = new(message.Length + 4, 7);
+            Cursor.Position = new(2, 1);
+            Input.Choice choice = Input.Choice.Create(message);
+            choice.Add(Util.Void, "NO", key: ConsoleKey.Escape);
+            choice.AddSpacer();
+            choice.Add(action, "yes", key: ConsoleKey.Enter);
+            choice.Request();
+            Window.Clear();
+        }, description, keyChar, key, control, shift, alt);
 
         public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo) => keybind.IsValid(keyInfo);
 

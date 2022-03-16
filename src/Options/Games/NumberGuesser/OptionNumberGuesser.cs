@@ -6,9 +6,9 @@ namespace B.Options.Games.NumberGuesser
 {
     public sealed class OptionNumberGuesser : Option<OptionNumberGuesser.Stages>
     {
-        public const string Title = "Number Guesser";
-
         private const int GUESS_LENGTH = 9;
+
+        public static string Title => "Number Guesser";
 
         private static readonly string[] _winMessages = new string[]
         {

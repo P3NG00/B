@@ -2,9 +2,11 @@ namespace B.Utils
 {
     public static class Util
     {
+        public static Action Void => () => { };
+
         public static Random Random => new Random();
 
-        public static ConsoleColor[] OrderedConsoleColors => new ConsoleColor[] {
+        public static ConsoleColor[] ConsoleColors => new ConsoleColor[] {
             ConsoleColor.White,
             ConsoleColor.Gray,
             ConsoleColor.DarkGray,

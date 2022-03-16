@@ -4,7 +4,7 @@ namespace B.Options.Games.OptionCheckers
     {
         // TODO - intended to be a checkers game. 2 player / 1 vs AI
 
-        public const string Title = "Checkers";
+        public static string Title => "Checkers";
 
         public OptionCheckers() : base(Stages.MainMenu) { }
 
