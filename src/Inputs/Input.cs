@@ -41,11 +41,9 @@ namespace B.Inputs
                 Window.Print($"Press {key} to continue...");
             }
 
-            bool wait = true;
-
-            while (wait)
+            while (true)
                 if (Input.Get().Key == key)
-                    wait = false;
+                    break;
         }
 
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)

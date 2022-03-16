@@ -9,11 +9,11 @@ namespace B.Options.Games.Adventure
 
         static Tile()
         {
-            Tile.TileMap.Add(' ', new(OptionAdventure.CHAR_EMPTY, TileTypes.Empty));
-            Tile.TileMap.Add('c', new(OptionAdventure.CHAR_EMPTY, TileTypes.Coin));
-            Tile.TileMap.Add('d', new(OptionAdventure.CHAR_DOOR, TileTypes.Door));
-            Tile.TileMap.Add('w', new(OptionAdventure.CHAR_WALL, TileTypes.Wall));
-            Tile.TileMap.Add('i', new(OptionAdventure.CHAR_INTERACTABLE, TileTypes.Interactable));
+            TileMap.Add(' ', new(OptionAdventure.CHAR_EMPTY, TileTypes.Empty));
+            TileMap.Add('c', new(OptionAdventure.CHAR_EMPTY, TileTypes.Coin));
+            TileMap.Add('d', new(OptionAdventure.CHAR_DOOR, TileTypes.Door));
+            TileMap.Add('w', new(OptionAdventure.CHAR_WALL, TileTypes.Wall));
+            TileMap.Add('i', new(OptionAdventure.CHAR_INTERACTABLE, TileTypes.Interactable));
         }
 
         public readonly string Chars;
@@ -41,7 +41,7 @@ namespace B.Options.Games.Adventure
 
         public static explicit operator Tile(char c)
         {
-            try { return Tile.TileMap[c]; }
+            try { return TileMap[c]; }
             catch (ArgumentException) { throw new ArgumentException($"Invalid tile character \"{c}\""); }
         }
     }
