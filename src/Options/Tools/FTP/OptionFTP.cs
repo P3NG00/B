@@ -11,7 +11,6 @@ namespace B.Options.Tools.FTP
     public sealed class OptionFTP : Option<OptionFTP.Stages>
     {
         private const int MAX_LENGTH_PASSWORD = 50;
-        private const int MAX_LIST_ENTRIES = 40;
         private const int WIDTH = 140;
         private const string SERVER_IP = "***REMOVED***";
         private const string SERVER_USER = "***REMOVED***";
@@ -135,7 +134,7 @@ namespace B.Options.Tools.FTP
                                 }
                                 catch (SshAuthenticationException) { PrintError("Wrong password"); }
                                 catch (SocketException) { PrintError("Can't connect"); }
-                                catch (SshConnectionException) { PrintError("Error"); } // TODO change so that if Debug mode is on, show full error output
+                                catch (SshConnectionException) { PrintError("Error"); } // TODO change so that if Debug mode is on, show full error output using Program.HandleException (make public)
                             }, key: ConsoleKey.Enter),
                             new Keybind(() => Quit(), key: ConsoleKey.Escape));
 
@@ -152,8 +151,7 @@ namespace B.Options.Tools.FTP
                     {
                         _lastStage = Stage;
                         int entryAmount = _files.Length;
-                        int adjustedMaxEntries = Math.Min(Window.SIZE_MAX.y - 14, OptionFTP.MAX_LIST_ENTRIES);
-                        int consoleHeight = Math.Min(entryAmount, adjustedMaxEntries) + 14;
+                        int consoleHeight = Math.Min(entryAmount, Input.MaxEntries) + 14;
                         Window.SetSize(OptionFTP.WIDTH, consoleHeight);
                         Cursor.Position = new(1, 1);
                         Input.RequestScroll(
@@ -168,7 +166,6 @@ namespace B.Options.Tools.FTP
                                 return s;
                             },
                             title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}",
-                            maxEntriesPerPage: adjustedMaxEntries,
                             exitKeybind: new(() =>
                             {
                                 if (Path == string.Empty)

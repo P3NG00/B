@@ -41,13 +41,9 @@ namespace B.Options.Toys.Canvas
             {
                 case Stages.MainMenu:
                     {
-                        int consoleHeight = 7;
-
-                        if (!_canvases.IsEmpty())
-                            consoleHeight++;
-
+                        bool hasCanvases = !_canvases.IsEmpty();
                         Window.Clear();
-                        Window.SetSize(20, consoleHeight);
+                        Window.SetSize(20, hasCanvases ? 8 : 7);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionCanvas.Title);
                         choice.Add(() =>
@@ -58,7 +54,7 @@ namespace B.Options.Toys.Canvas
                             SetStage(Stages.Create_Name);
                         }, "Create", '1');
 
-                        if (!_canvases.IsEmpty())
+                        if (hasCanvases)
                             choice.Add(() =>
                             {
                                 Input.ScrollIndex = 0;
@@ -76,6 +72,7 @@ namespace B.Options.Toys.Canvas
                         Window.Clear();
                         Window.SetSize(32, _canvases.Count + 12);
                         Cursor.Position = new(2, 1);
+                        _canvas = _canvases[Input.ScrollIndex];
                         Input.RequestScroll(
                             items: _canvases,
                             getText: canvas => canvas.Title,
@@ -83,39 +80,28 @@ namespace B.Options.Toys.Canvas
                             maxEntriesPerPage: OptionCanvas.MAX_CANVASES_PER_PAGE,
                             exitKeybind: new(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
-                                new(() => SetCanvasAndChangeStage(Stages.View), "View", key: ConsoleKey.Enter),
-                                new(() => SetCanvasAndChangeStage(Stages.Edit), "Edit", key: ConsoleKey.Tab),
-                                new(() => SetCanvasAndChangeStage(Stages.Delete), "Delete", key: ConsoleKey.Delete)
+                                new(() =>
+                                {
+                                    Input.ScrollIndex = 0;
+                                    SetStage(Stages.View);
+                                }, "View", key: ConsoleKey.Enter),
+                                new(() =>
+                                {
+                                    Input.ScrollIndex = 0;
+                                    BrushSize = Vector2.One;
+                                    CursorPos = Vector2.Zero;
+                                    SetStage(Stages.Edit);
+                                }, "Edit", key: ConsoleKey.Tab),
+                                Keybind.CreateConfirmationKeybind(() =>
+                                {
+                                    Input.ScrollIndex = 0;
+                                    File.Delete(_canvas.FilePath);
+                                    _canvases.Remove(_canvas);
+
+                                    if (_canvases.IsEmpty())
+                                        SetStage(Stages.MainMenu);
+                                }, $"Delete {_canvas.Title}?", "Delete", key: ConsoleKey.Delete),
                             });
-
-                        void SetCanvasAndChangeStage(Stages stage)
-                        {
-                            _canvas = _canvases[Input.ScrollIndex];
-                            Input.ScrollIndex = 0;
-                            BrushSize = Vector2.One;
-                            CursorPos = Vector2.Zero;
-                            SetStage(stage);
-                        }
-                    }
-                    break;
-
-                case Stages.Delete:
-                    {
-                        Window.Clear();
-                        Window.SetSize(39, 7);
-                        Input.Choice choice = Input.Choice.Create($"Delete '{_canvas.Title}'?");
-                        choice.Add(() =>
-                        {
-                            File.Delete(_canvas.FilePath);
-                            _canvases.Remove(_canvas);
-
-                            if (_canvases.IsEmpty())
-                                SetStage(Stages.MainMenu);
-                        }, "yes", key: ConsoleKey.Enter);
-                        choice.AddSpacer();
-                        choice.Add(null!, "NO", key: ConsoleKey.Escape);
-                        choice.Request();
-                        SetStage(Stages.List);
                     }
                     break;
 
@@ -405,7 +391,6 @@ namespace B.Options.Toys.Canvas
         {
             MainMenu,
             List,
-            Delete,
             View,
             Create_Name,
             Create_Size_Height,

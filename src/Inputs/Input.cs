@@ -4,12 +4,13 @@ using B.Utils.Extensions;
 
 namespace B.Inputs
 {
-    static class Input
+    public static class Input
     {
         public const int DECIMAL_LENGTH = 27;
 
         public static int ScrollIndex = 0;
         public static string String = string.Empty;
+        public static int MaxEntries => Window.SIZE_MAX.y - 21;
 
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
@@ -48,7 +49,9 @@ namespace B.Inputs
 
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)
         {
-            ConsoleKeyInfo keyInfo = Input.Get();
+            Input.Choice choice = Input.Choice.Create();
+            choice.Add(keybinds);
+            ConsoleKeyInfo keyInfo = choice.Request();
 
             if (keyInfo.Key == ConsoleKey.Backspace)
                 Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
@@ -56,15 +59,6 @@ namespace B.Inputs
                 ResetString();
             else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape && !char.IsControl(keyInfo.KeyChar) && Input.String.Length < maxLength)
                 Input.String += keyInfo.KeyChar;
-
-            foreach (Keybind keybind in keybinds)
-            {
-                if (keybind == keyInfo)
-                {
-                    keybind.Action();
-                    break;
-                }
-            }
         }
 
         // This function will start printing the title where the cursor is left.
@@ -81,7 +75,7 @@ namespace B.Inputs
             params Keybind[] extraKeybinds)                         // Extra keybinds
         {
             int itemCount = items.Count();
-            int maxEntriesAdjusted = maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : itemCount;
+            int maxEntriesAdjusted = Math.Min(MaxEntries, maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : itemCount);
             Input.Choice choice = Input.Choice.Create();
             ConsoleKeyInfo keyInfo;
 

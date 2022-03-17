@@ -60,7 +60,6 @@ namespace B.Options.Toys.BrainFuck
 
                 case Stages.List:
                     {
-                        Window.Clear();
                         Window.SetSize(40, 10 + _programs.Count);
                         Cursor.Position = new(2, 1);
                         Input.RequestScroll(
@@ -177,6 +176,12 @@ namespace B.Options.Toys.BrainFuck
                     }
                     break;
             }
+        }
+
+        protected override void SetStage(Stages stage)
+        {
+            if (stage == Stages.List) Window.Clear();
+            base.SetStage(stage);
         }
 
         private void HandleStep()

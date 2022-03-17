@@ -195,6 +195,7 @@ namespace B.Options.Tools.MoneyTracker
                     {
                         Window.Clear();
                         Window.SetSize(20, 10);
+                        Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Transaction");
                         choice.Add(() =>
                         {
@@ -247,22 +248,24 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction_Delete:
                     {
-                        Window.Clear();
-                        Window.SetSize(31, _selectedAccount!.Transactions.Count + 4);
+                        throw new NotImplementedException();
+                        // Window.Clear();
+                        // Window.SetSize(31, _selectedAccount!.Transactions.Count + 4);
                         // Util.PrintLine();
                         // Util.PrintLine("  Delete");
                         // _selectedAccount.PrintTransactions(); // TODO
 
                         // Util.GetKey();
                         // TODO add keybinds to delete a transaction
-                        SetStage(Stages.Transaction);
+                        // SetStage(Stages.Transaction);
                     }
                     break;
 
                 case Stages.Transaction_Edit:
                     {
-                        Window.Clear();
-                        SetStage(Stages.Transaction);
+                        throw new NotImplementedException();
+                        // Window.Clear();
+                        // SetStage(Stages.Transaction);
                         // TODO
                     }
                     break;

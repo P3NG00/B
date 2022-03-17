@@ -24,7 +24,6 @@ namespace B
         public const string Title = "B";
 
         // Code entry point
-        [STAThread]
         public static void Main()
         {
             Program program = new Program();
