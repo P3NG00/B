@@ -31,9 +31,9 @@ namespace B
         }
 
         // Program Info
-        public static ProgramSettings Settings { get; private set; } = new();
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
-        public static Levels CurrentLevel => _instance.Stage;
+        public static ProgramSettings Settings { get; private set; } = new();
+        public static Program Instance { get; private set; } = null!;
 
         // Option Groups
         private static (string GroupTitle, Type[] OptionType)[] OptionGroups => new (string, Type[])[]
@@ -58,15 +58,14 @@ namespace B
                 typeof(OptionSettings),
             }),
         };
-        private static Program _instance = null!;
 
         private (string GroupTitle, Type[] OptionTypes) _optionGroup;
         private IOption? _selectedOption = null;
 
         public Program() : base(Levels.Program)
         {
-            if (_instance is null)
-                _instance = this;
+            if (Instance is null)
+                Instance = this;
             else
                 throw new Exception("Program already instantiated.");
         }
@@ -77,7 +76,7 @@ namespace B
             try { Initialize(); }
             catch (Exception e)
             {
-                HandleInitializationException(e);
+                HandleException(new Text("AN ERROR HAS OCCURRED DURING INITIALIZATION.", ConsoleColor.DarkRed, ConsoleColor.Gray), e);
                 Environment.Exit(1);
             }
 
@@ -85,7 +84,7 @@ namespace B
             while (IsRunning)
             {
                 try { Loop(); }
-                catch (NotImplementedException) { HandleNotImplementedException(); }
+                catch (NotImplementedException) { HandleException(new Text("This feature is not yet implemented.", ConsoleColor.DarkYellow)); }
                 catch (Exception e) { HandleException(e); }
             }
 
@@ -195,17 +194,17 @@ namespace B
             }
         }
 
-        public static void HandleException(Action printAction, Exception? exception = null)
+        public static void HandleException(Text message, Exception? exception = null)
         {
             Window.Clear();
-            Window.Size = Window.SIZE_MAX / 2;
+            Window.Size = Window.SIZE_MAX * 0.75f;
             // Cursor will always start at (2, 1)
             Cursor.Position = new(2, 1);
 
-            if (printAction is null)
+            if (message is null)
                 Window.Print("An exception was thrown!", ConsoleColor.Red);
             else
-                printAction();
+                message.Print();
 
             if (exception is not null)
             {
@@ -216,25 +215,15 @@ namespace B
 
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
-            _instance._selectedOption = null;
+            Instance._selectedOption = null;
 
-            if (_instance.Stage == Levels.Option)
-                _instance.SetStage(Levels.Group);
-            else if (_instance.Stage == Levels.Group)
-                _instance.SetStage(Levels.Program);
+            if (Instance.Stage == Levels.Option)
+                Instance.SetStage(Levels.Group);
+            else if (Instance.Stage == Levels.Group)
+                Instance.SetStage(Levels.Program);
         }
 
         public static void HandleException(Exception? e) => HandleException(null!, e);
-
-        private void HandleNotImplementedException() => HandleException(() =>
-        {
-            Window.Print("This feature is not yet implemented.", ConsoleColor.DarkYellow);
-        });
-
-        private void HandleInitializationException(Exception e) => HandleException(() =>
-        {
-            Window.Print("AN ERROR HAS OCCURRED DURING INITIALIZATION.", ConsoleColor.DarkRed, ConsoleColor.Gray);
-        }, e);
 
         public override void Quit()
         {

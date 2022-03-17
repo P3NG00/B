@@ -53,6 +53,8 @@ namespace B.Utils
 
         public static Vector2 operator *(Vector2 vec, int scale) => new(vec.x * scale, vec.y * scale);
 
+        public static Vector2 operator *(Vector2 vec, float scale) => new((int)(vec.x * scale), (int)(vec.y * scale));
+
         public static Vector2 operator /(Vector2 vec, int scale) => new(vec.x / scale, vec.y / scale);
 
         public static bool operator ==(Vector2 vecA, Vector2 vecB) => vecA.x == vecB.x && vecA.y == vecB.y;

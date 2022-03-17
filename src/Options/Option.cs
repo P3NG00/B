@@ -2,7 +2,7 @@ namespace B.Options
 {
     public abstract class Option<T> : IOption where T : Enum
     {
-        protected T Stage { get; private set; }
+        public T Stage { get; private set; }
 
         public bool IsRunning { get; private set; } = true;
 

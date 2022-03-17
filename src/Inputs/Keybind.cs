@@ -79,7 +79,7 @@ namespace B.Inputs
         {
             string phrase = string.Empty;
 
-            switch (Program.CurrentLevel)
+            switch (Program.Instance.Stage)
             {
                 case Program.Levels.Program: phrase = "Quit"; break;
                 case Program.Levels.Group: phrase = "Back"; break;
