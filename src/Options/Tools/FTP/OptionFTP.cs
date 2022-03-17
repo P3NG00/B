@@ -137,7 +137,6 @@ namespace B.Options.Tools.FTP
                                 catch (SocketException) { PrintError("Can't connect"); }
                                 catch (SshConnectionException) { PrintError("Error"); } // TODO change so that if Debug mode is on, show full error output
                             }, key: ConsoleKey.Enter),
-                            new Keybind(() => Input.ResetString(), key: ConsoleKey.Delete),
                             new Keybind(() => Quit(), key: ConsoleKey.Escape));
 
                         void PrintError(string msg)

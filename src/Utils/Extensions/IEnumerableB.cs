@@ -4,7 +4,9 @@ namespace B.Utils.Extensions
     {
         public static bool IsEmpty<T>(this IEnumerable<T> enumerable) => enumerable.Count() == 0;
 
-        public static T Random<T>(this IEnumerable<T> enumerable) => enumerable.ElementAt(Util.Random.Next(enumerable.Count()));
+        public static T Random<T>(this IEnumerable<T> enumerable) => enumerable.ElementAt(enumerable.RandomIndex());
+
+        public static int RandomIndex<T>(this IEnumerable<T> enumerable) => Util.Random.Next(enumerable.Count());
 
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action action)
         {

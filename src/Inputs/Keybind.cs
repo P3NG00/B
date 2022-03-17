@@ -1,3 +1,4 @@
+using B.Options;
 using B.Utils;
 
 namespace B.Inputs
@@ -72,6 +73,20 @@ namespace B.Inputs
                     return $"{preface}{(KeyChar.HasValue ? KeyChar.Value.ToString() : Key.ToString())}) {Description}";
                 }
             }
+        }
+
+        public static Keybind CreateOptionExitKeybind(IOption option)
+        {
+            string phrase = string.Empty;
+
+            switch (Program.CurrentLevel)
+            {
+                case Program.Levels.Program: phrase = "Quit"; break;
+                case Program.Levels.Group: phrase = "Back"; break;
+                case Program.Levels.Option: phrase = "Exit"; break;
+            }
+
+            return new(() => option.Quit(), phrase, key: ConsoleKey.Escape);
         }
 
         public static Keybind CreateConfirmationKeybind(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => new(() =>

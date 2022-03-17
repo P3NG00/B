@@ -13,6 +13,7 @@ using B.Options.Tools.MoneyTracker;
 using B.Options.Tools.Settings;
 using B.Options.Toys.BrainFuck;
 using B.Options.Toys.Canvas;
+using B.Options.Toys.TextGenerator;
 using B.Utils;
 using B.Utils.Extensions;
 
@@ -23,6 +24,7 @@ namespace B
         public const string Title = "B";
 
         // Code entry point
+        [STAThread]
         public static void Main()
         {
             Program program = new Program();
@@ -48,6 +50,7 @@ namespace B
             ("Toys", new Type[] {
                 typeof(OptionCanvas),
                 typeof(OptionBrainFuck),
+                typeof(OptionTextGenerator),
             }),
             ("Tools", new Type[] {
                 typeof(OptionFTP),

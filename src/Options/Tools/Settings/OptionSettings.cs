@@ -194,26 +194,52 @@ namespace B.Options.Tools.Settings
 
                 case Stages.KeyPress:
                     {
-                        Window.SetSize(35, 11);
+                        Window.SetSize(35, 28);
                         Cursor.Position = new(1, 1);
                         Window.Print("Last Pressed");
                         ConsoleKeyInfo lastInput = Input.LastInput;
-                        Print(3, "Key", lastInput.Key);
-                        Print(4, "Key Num", (int)lastInput.Key);
-                        Print(5, "Key Char", lastInput.KeyChar.Unformat());
-                        Print(6, "Key Char Num", (int)lastInput.KeyChar);
-                        Print(7, "Control", lastInput.IsControlHeld());
-                        Print(8, "Shift", lastInput.IsShiftHeld());
-                        Print(9, "Alt", lastInput.IsAltHeld());
+                        ConsoleKey key = lastInput.Key;
+                        char c = lastInput.KeyChar;
+                        Print(3, "Key", key);
+                        Print(4, "Key Num", (int)key);
+                        Print(5, "Key Char", c.Unformat());
+                        Print(6, "Key Char Num", (int)c);
 
-                        void Print(int line, string title, object value)
-                        {
-                            Cursor.Position = new(1, line);
-                            Window.Print($"{title}: {value,-10}");
-                        }
+                        Print(8, "Control", lastInput.IsControlHeld());
+                        Print(9, "Shift", lastInput.IsShiftHeld());
+                        Print(10, "Alt", lastInput.IsAltHeld());
+
+                        Print(12, "Ascii", char.IsAscii(c));
+                        Print(13, "Control", char.IsControl(c));
+                        Print(14, "Digit", char.IsDigit(c));
+                        Print(15, "Letter", char.IsLetter(c));
+                        Print(16, "Lower", char.IsLower(c));
+                        Print(17, "Upper", char.IsUpper(c));
+                        Print(18, "Number", char.IsNumber(c));
+                        Print(19, "Punctuation", char.IsPunctuation(c));
+                        Print(20, "Seperator", char.IsSeparator(c));
+                        Print(21, "Symbol", char.IsSymbol(c));
+                        Print(22, "Whitespace", char.IsWhiteSpace(c));
+
+                        Print(24, "Surrogate", char.IsSurrogate(c));
+                        Print(25, "High Surrogate", char.IsHighSurrogate(c));
+                        Print(26, "Low Surrogate", char.IsLowSurrogate(c));
 
                         if (Input.Get().Key == ConsoleKey.Escape)
                             SetStage(Stages.MainMenu);
+
+                        void Print(int line, string title, object value)
+                        {
+                            string? output;
+
+                            if (value is bool b && !b)
+                                output = string.Empty;
+                            else
+                                output = value.ToString();
+
+                            Cursor.Position = new(1, line);
+                            Window.Print($"{title}: {output,-10}");
+                        }
                     }
                     break;
 

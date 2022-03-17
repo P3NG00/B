@@ -52,7 +52,9 @@ namespace B.Inputs
 
             if (keyInfo.Key == ConsoleKey.Backspace)
                 Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
-            else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape && Input.String.Length < maxLength)
+            else if (keyInfo.Key == ConsoleKey.Delete)
+                ResetString();
+            else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape && !char.IsControl(keyInfo.KeyChar) && Input.String.Length < maxLength)
                 Input.String += keyInfo.KeyChar;
 
             foreach (Keybind keybind in keybinds)
