@@ -37,7 +37,7 @@ namespace B.Inputs
         {
             if (!silent)
             {
-                Cursor.x = 0;
+                Cursor.x = 1;
                 Cursor.y += 2;
                 Window.Print($"Press {key} to continue...");
             }

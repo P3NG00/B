@@ -195,41 +195,46 @@ namespace B
             }
         }
 
-        private void HandleException(Exception e) => PrintExceptionOutput(() =>
+        public static void HandleException(Action printAction, Exception? exception = null)
         {
-            Window.Print("An exception was thrown!", ConsoleColor.Red);
-            Cursor.Position = new(2, 3);
-            Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
-        });
+            Window.Clear();
+            Window.Size = Window.SIZE_MAX / 2;
+            // Cursor will always start at (2, 1)
+            Cursor.Position = new(2, 1);
 
-        private void HandleNotImplementedException() => PrintExceptionOutput(() =>
+            if (printAction is null)
+                Window.Print("An exception was thrown!", ConsoleColor.Red);
+            else
+                printAction();
+
+            if (exception is not null)
+            {
+                Cursor.x = 2;
+                Cursor.y += 2;
+                Window.Print(exception, ConsoleColor.White, ConsoleColor.Black);
+            }
+
+            Input.WaitFor(ConsoleKey.F1);
+            Window.Clear();
+            _instance._selectedOption = null;
+
+            if (_instance.Stage == Levels.Option)
+                _instance.SetStage(Levels.Group);
+            else if (_instance.Stage == Levels.Group)
+                _instance.SetStage(Levels.Program);
+        }
+
+        public static void HandleException(Exception? e) => HandleException(null!, e);
+
+        private void HandleNotImplementedException() => HandleException(() =>
         {
             Window.Print("This feature is not yet implemented.", ConsoleColor.DarkYellow);
         });
 
-        private void HandleInitializationException(Exception e) => PrintExceptionOutput(() =>
+        private void HandleInitializationException(Exception e) => HandleException(() =>
         {
             Window.Print("AN ERROR HAS OCCURRED DURING INITIALIZATION.", ConsoleColor.DarkRed, ConsoleColor.Gray);
-            Cursor.Position = new(2, 3);
-            Window.Print(e, ConsoleColor.White, ConsoleColor.Black);
-        });
-
-        private void PrintExceptionOutput(Action printAction)
-        {
-            Window.Clear();
-            Window.Size = Window.SIZE_MAX / 2;
-            Cursor.Position = new(2, 1);
-            // Cursor will always start at (2, 1)
-            printAction();
-            Input.WaitFor(ConsoleKey.F1);
-            Window.Clear();
-            _selectedOption = null;
-
-            if (Stage == Levels.Option)
-                SetStage(Levels.Group);
-            else if (Stage == Levels.Group)
-                SetStage(Levels.Program);
-        }
+        }, e);
 
         public override void Quit()
         {

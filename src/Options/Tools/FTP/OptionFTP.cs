@@ -132,17 +132,22 @@ namespace B.Options.Tools.FTP
                                     RefreshFiles();
                                     SetStage(Stages.Navigate);
                                 }
-                                catch (SshAuthenticationException) { PrintError("Wrong password"); }
-                                catch (SocketException) { PrintError("Can't connect"); }
-                                catch (SshConnectionException) { PrintError("Error"); } // TODO change so that if Debug mode is on, show full error output using Program.HandleException (make public)
+                                catch (SshAuthenticationException e) { PrintError("Wrong password", e); }
+                                catch (SocketException e) { PrintError("Can't connect", e); }
+                                catch (SshConnectionException e) { PrintError("Error", e); }
                             }, key: ConsoleKey.Enter),
                             new Keybind(() => Quit(), key: ConsoleKey.Escape));
 
-                        void PrintError(string msg)
+                        void PrintError(string msg, Exception e)
                         {
-                            Window.Print(msg);
-                            Input.Get();
-                            Window.Clear();
+                            if (Program.Settings.DebugMode.Active)
+                                Program.HandleException(e);
+                            else
+                            {
+                                Window.Print(msg);
+                                Input.Get();
+                                Window.Clear();
+                            }
                         }
                     }
                     break;
@@ -167,15 +172,15 @@ namespace B.Options.Tools.FTP
                             },
                             title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}",
                             exitKeybind: new(() =>
-                            {
-                                if (Path == string.Empty)
-                                {
-                                    Input.ScrollIndex = 0;
-                                    Quit();
-                                }
-                                else
-                                    PreviousDirectory();
-                            }, "Exit", key: ConsoleKey.Escape),
+                           {
+                               if (Path == string.Empty)
+                               {
+                                   Input.ScrollIndex = 0;
+                                   Quit();
+                               }
+                               else
+                                   PreviousDirectory();
+                           }, "Exit", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 new(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown),
                                 CreateConfirmKeybindForCurrent(),
