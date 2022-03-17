@@ -10,13 +10,15 @@ namespace B.Utils
 
         public static void Initialize()
         {
+            IntPtr currentHandle;
+
             // Copied Code to disable some window resizing functionality
             // https://social.msdn.microsoft.com/Forums/vstudio/en-US/1aa43c6c-71b9-42d4-aa00-60058a85f0eb/c-console-window-disable-resize?forum=csharpgeneral
-            IntPtr handle = GetConsoleWindow();
+            currentHandle = GetConsoleWindow();
 
-            if (handle != IntPtr.Zero)
+            if (currentHandle != IntPtr.Zero)
             {
-                IntPtr sysMenu = GetSystemMenu(handle, false);
+                IntPtr sysMenu = GetSystemMenu(currentHandle, false);
                 Enum.GetValues<SystemCommand>().ForEach(sc => DeleteMenu(sysMenu, (int)sc, 0x00000000));
             }
             else
@@ -26,14 +28,14 @@ namespace B.Utils
             // https://stackoverflow.com/a/36720802
 
             // -10 is the standard input device
-            handle = GetStdHandle(-10);
+            currentHandle = GetStdHandle(-10);
 
-            if (GetConsoleMode(handle, out uint consoleMode))
+            if (GetConsoleMode(currentHandle, out uint consoleMode))
             {
                 // 0x0040 controls text selection (quick edit mode)
                 consoleMode &= ~(uint)(0x0040);
 
-                if (!SetConsoleMode(handle, consoleMode))
+                if (!SetConsoleMode(currentHandle, consoleMode))
                     throw new Exception("Failed to set console mode.");
             }
             else
