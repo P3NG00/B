@@ -37,6 +37,8 @@ namespace B.Options.Toys.BrainFuck
                     _programs.Add(new BrainFuckProgram(Path.GetFileNameWithoutExtension(filePath), filePath));
         }
 
+        // TODO add 'editor' mode
+
         public override void Loop()
         {
             switch (Stage)

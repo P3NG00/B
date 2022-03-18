@@ -6,12 +6,19 @@ namespace B
     {
         public static string Path => Program.DataPath + "settings";
 
-        public Togglable CursorVisible = new();
-        public Togglable DebugMode = new();
-        public Togglable Censor = new();
+        public Togglable CursorVisible;
+        public Togglable DebugMode;
+        public Togglable Censor;
         public int CursorSize = 100;
         public ConsoleColor ColorBackground = ConsoleColor.White;
         public ConsoleColor ColorText = ConsoleColor.Black;
+
+        public ProgramSettings()
+        {
+            CursorVisible = new(b => UpdateCursor());
+            DebugMode = new(b => Window.Clear());
+            Censor = new();
+        }
 
         public void UpdateAll()
         {

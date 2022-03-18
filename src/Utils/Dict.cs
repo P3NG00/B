@@ -1,6 +1,5 @@
 namespace B.Utils
 {
-    [Serializable]
     public sealed class Dict<T, V>
     {
         private (T, V)[] _pairs = new (T, V)[0];

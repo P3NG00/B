@@ -21,45 +21,41 @@ namespace B.Options.Games.Adventure
 
         public Grid(string[] raw)
         {
-            if (raw.Length > 0)
+            if (raw.Length == 0)
+                throw new ArgumentException("Grid Init Error: Must have at least one row");
+
+            Width = raw[0].Length;
+            Height = raw.Length;
+            _tileGrid = new Tile[Height][];
+            string str;
+            char[] ca;
+            Tile tile;
+            Tile.TileTypes tileType;
+
+            for (int y = 0; y < Height; y++)
             {
-                Width = raw[0].Length;
-                Height = raw.Length;
-                _tileGrid = new Tile[Height][];
-                string str;
-                char[] ca;
-                Tile tile;
-                Tile.TileTypes tileType;
+                str = raw[y];
 
-                for (int y = 0; y < Height; y++)
+                if (str.Length != Width)
+                    throw new ArgumentException("Grid Init Error: Rows must be same length");
+
+                _tileGrid[y] = new Tile[Width];
+                ca = str.ToCharArray();
+
+                for (int x = 0; x < Width; x++)
                 {
-                    str = raw[y];
+                    tile = (Tile)ca[x];
+                    _tileGrid[y][x] = tile;
+                    tileType = tile.TileType;
 
-                    if (str.Length == Width)
-                    {
-                        _tileGrid[y] = new Tile[Width];
-                        ca = str.ToCharArray();
-
-                        for (int x = 0; x < Width; x++)
-                        {
-                            tile = (Tile)ca[x];
-                            _tileGrid[y][x] = tile;
-                            tileType = tile.TileType;
-
-                            if (tileType == Tile.TileTypes.Coin)
-                                _coinList.Add(new Vector2(x, y));
-                            else if (tileType == Tile.TileTypes.Interactable)
-                                _initInteractables++;
-                            else if (tileType == Tile.TileTypes.Door)
-                                _initDoors++;
-                        }
-                    }
-                    else
-                        throw new ArgumentException("Grid Init Error: Rows must be same length");
+                    if (tileType == Tile.TileTypes.Coin)
+                        _coinList.Add(new Vector2(x, y));
+                    else if (tileType == Tile.TileTypes.Interactable)
+                        _initInteractables++;
+                    else if (tileType == Tile.TileTypes.Door)
+                        _initDoors++;
                 }
             }
-            else
-                throw new ArgumentException("Grid Init Error: Must have at least one row");
         }
 
         public Tile GetTile(Vector2 pos) => _tileGrid[pos.y][pos.x];
@@ -79,37 +75,33 @@ namespace B.Options.Games.Adventure
 
         public void MoveTo(Vector2 pos)
         {
-            if (_seald)
-            {
-                Tile.TileTypes tileType = GetTile(pos).TileType;
-
-                if (tileType == Tile.TileTypes.Coin && _coinList.Contains(pos))
-                    PickupCoinAt(pos);
-
-                if (tileType == Tile.TileTypes.Door && _doorDict.ContainsKey(pos))
-                {
-                    (int, Vector2) gridIdAndPos = _doorDict[pos];
-                    OptionAdventure.Info.GridID = gridIdAndPos.Item1;
-                    OptionAdventure.Info.Position = gridIdAndPos.Item2 ?? Vector2.Zero;
-                }
-            }
-            else
+            if (!_seald)
                 throw new InvalidOperationException("Interact Error: Cannot move on unsealed grid");
+
+            Tile.TileTypes tileType = GetTile(pos).TileType;
+
+            if (tileType == Tile.TileTypes.Coin && _coinList.Contains(pos))
+                PickupCoinAt(pos);
+
+            if (tileType == Tile.TileTypes.Door && _doorDict.ContainsKey(pos))
+            {
+                (int, Vector2) gridIdAndPos = _doorDict[pos];
+                OptionAdventure.Info.GridID = gridIdAndPos.Item1;
+                OptionAdventure.Info.Position = gridIdAndPos.Item2 ?? Vector2.Zero;
+            }
         }
 
         public void Interact(Vector2 pos)
         {
-            if (_seald)
-            {
-                Tile.TileTypes tileType = GetTile(pos).TileType;
-
-                if (tileType == Tile.TileTypes.Interactable && _interactionDict.ContainsKey(pos))
-                    _interactionDict[pos]();
-                else if (tileType == Tile.TileTypes.Coin && _coinList.Contains(pos))
-                    PickupCoinAt(pos);
-            }
-            else
+            if (!_seald)
                 throw new InvalidOperationException("Interact Error: Cannot interact with unsealed grid");
+
+            Tile.TileTypes tileType = GetTile(pos).TileType;
+
+            if (tileType == Tile.TileTypes.Interactable && _interactionDict.ContainsKey(pos))
+                _interactionDict[pos]();
+            else if (tileType == Tile.TileTypes.Coin && _coinList.Contains(pos))
+                PickupCoinAt(pos);
         }
 
         public void Seal()
@@ -125,20 +117,16 @@ namespace B.Options.Games.Adventure
 
         private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dict<Vector2, T> dict)
         {
-            if (!_seald)
-            {
-                if (check.Invoke(GetTile(pos)))
-                {
-                    if (!dict.ContainsKey(pos))
-                        dict.Add(pos, obj);
-                    else
-                        throw new InvalidOperationException($"Add {name} Error: {name} already exists at {pos}");
-                }
-                else
-                    throw new ArgumentException($"Add {name} Error: Tile is not {name} - {pos}");
-            }
-            else
+            if (_seald)
                 throw new InvalidOperationException($"Add {name} Error: Cannot add {name} to a sealed grid");
+
+            if (!check.Invoke(GetTile(pos)))
+                throw new ArgumentException($"Add {name} Error: Tile is not {name} - {pos}");
+
+            if (dict.ContainsKey(pos))
+                throw new InvalidOperationException($"Add {name} Error: {name} already exists at {pos}");
+
+            dict.Add(pos, obj);
         }
 
         public sealed override string ToString() => $"Grid: {Width}x{Height}";
@@ -147,10 +135,8 @@ namespace B.Options.Games.Adventure
         {
             string[] sa = new string[dimensions.y];
             string s = ' '.Loop(dimensions.x);
-
-            for (int i = 0; i < sa.Length; i++)
-                sa[i] = s;
-
+            Action<int> action = i => sa[i] = s;
+            action.Loop(sa.Length);
             return sa;
         }
     }

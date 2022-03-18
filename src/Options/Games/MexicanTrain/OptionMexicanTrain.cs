@@ -35,14 +35,14 @@ namespace B.Options.Games.MexicanTrain
                         for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
                         {
                             // Create new instances because 'i' will change while looping
-                            MexicanTrainInfo info = new(i); // TODO change this so it isn't creating multiple instances of MexicanTrainInfo but instead only one once a number is pressed
                             char c = (char)('0' + i);
+                            int j = i;
 
                             // Add keybinds
                             choice.Add(() =>
                             {
-                                _info = info;
-                                _info.Initialize();
+                                _info = new MexicanTrainInfo(j);
+                                _info.SetupGame();
                                 SetStage(Stages.Game);
                             }, keyChar: c);
                         }

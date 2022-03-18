@@ -2,7 +2,6 @@ using B.Utils;
 
 namespace B.Options.Games.Adventure
 {
-    [Serializable]
     public sealed class Tile
     {
         private static readonly Dict<char, Tile> TileMap = new();

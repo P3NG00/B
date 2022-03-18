@@ -1,6 +1,5 @@
 namespace B.Options.Tools.MoneyTracker
 {
-    [Serializable]
     public sealed class Transaction
     {
         public string Description = string.Empty;

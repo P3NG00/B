@@ -2,7 +2,6 @@ using B.Utils.Extensions;
 
 namespace B.Options.Games.MexicanTrain
 {
-    [Serializable]
     public sealed class MexicanTrainInfo
     {
         // Main domino pool
@@ -34,8 +33,10 @@ namespace B.Options.Games.MexicanTrain
                 _players[i] = new PlayerAI();
         }
 
-        public void Initialize()
+        public void SetupGame()
         {
+            _dominoes.Clear();
+
             // Create dominoes
             for (int i1 = 0; i1 <= OptionMexicanTrain.DOMINO_MAX; i1++)
             {

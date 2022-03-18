@@ -1,16 +1,25 @@
 namespace B.Utils
 {
-    [Serializable]
     public sealed class Togglable
     {
-        public bool Active = false;
+        public bool Active { get; private set; }
 
-        public Togglable() : this(false) { }
+        private Action<bool>? _onChanage;
 
-        public Togglable(bool value) => Active = value;
+        public Togglable(Action<bool>? onChange = null) : this(false, onChange) { }
 
-        public void Toggle() => Active = !Active;
+        public Togglable(bool value, Action<bool>? onChange = null)
+        {
+            Active = value;
+            _onChanage = onChange;
+        }
 
-        // TODO consider settable OnToggle action to invoke when toggled
+        public void Toggle()
+        {
+            Active = !Active;
+
+            if (_onChanage is not null)
+                _onChanage(Active);
+        }
     }
 }

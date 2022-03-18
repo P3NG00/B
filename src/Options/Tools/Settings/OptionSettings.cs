@@ -150,11 +150,7 @@ namespace B.Options.Tools.Settings
                         Cursor.Reset();
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Cursor");
-                        choice.Add(() =>
-                        {
-                            Program.Settings.CursorVisible.Toggle();
-                            Program.Settings.UpdateCursor();
-                        }, $"Visibility - {Cursor.Visible,-5}", '1');
+                        choice.Add(() => Program.Settings.CursorVisible.Toggle(), $"Visibility - {Cursor.Visible,-5}", '1');
                         choice.Add(() =>
                         {
                             Window.Clear();

@@ -24,11 +24,7 @@ namespace B.Inputs
             Input.LastInput = Console.ReadKey(true);
 
             if (Input.LastInput.Key == ConsoleKey.F12)
-            {
                 Program.Settings.DebugMode.Toggle();
-                // Toggling Debug mode clears console to avoid leftover characters
-                Window.Clear();
-            }
 
             return Input.LastInput;
         }
