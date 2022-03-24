@@ -173,6 +173,7 @@ namespace B.Inputs
                 Cursor.x = 2;
                 Window.Print("No entries.");
                 Cursor.y += 2;
+                choice.Add(extraKeybinds);
                 choice.Add(exitKeybind);
                 keyInfo = choice.Request();
             }

@@ -27,8 +27,6 @@ namespace B.Utils
 
         public Vector2(Vector2 vec) : this(vec.x, vec.y) { }
 
-        public void Move(Direction direction) => Move((Vector2)direction);
-
         public void Move(Vector2 vec)
         {
             x += vec.x;
@@ -61,7 +59,7 @@ namespace B.Utils
 
         public static bool operator !=(Vector2 vecA, Vector2 vecB) => !(vecA == vecB);
 
-        public static explicit operator Vector2(Direction direction)
+        public static implicit operator Vector2(Direction direction)
         {
             switch (direction)
             {

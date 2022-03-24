@@ -163,7 +163,7 @@ namespace B.Options.Games.Adventure
 
             for (int i = 0; i < OptionAdventure.Info.Speed && !stop; i++)
             {
-                Vector2 newPos = PlayerPosition + (Vector2)direction;
+                Vector2 newPos = PlayerPosition + direction;
                 Grid currentGrid = OptionAdventure.CurrentGrid;
 
                 if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
@@ -179,7 +179,7 @@ namespace B.Options.Games.Adventure
             }
         }
 
-        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(PlayerPosition + (Vector2)direction);
+        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(PlayerPosition + direction);
 
         public static void InitializeGrids()
         {

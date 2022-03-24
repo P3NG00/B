@@ -159,6 +159,25 @@ namespace B.Options.Tools.FTP
                         int consoleHeight = Math.Min(entryAmount, Input.MaxEntries) + 14;
                         Window.SetSize(OptionFTP.WIDTH, consoleHeight);
                         Cursor.Position = new(1, 1);
+                        List<Keybind> keybinds = new();
+
+                        if (entryAmount != 0)
+                        {
+                            keybinds.Add(new(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
+                            keybinds.Add(CreateConfirmKeybindForCurrent());
+                            keybinds.Add(new(() =>
+                                {
+                                    SftpFile currentFile = CurrentFile;
+
+                                    if (currentFile.IsDirectory)
+                                        Path += "/" + currentFile.Name;
+                                    else
+                                        SetStage(Stages.FileInteract);
+                                }, "Select", key: ConsoleKey.Enter));
+                        }
+
+                        keybinds.Add(new(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5));
+                        keybinds.Add(new(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
                         Input.RequestScroll(
                             items: _files,
                             getText: file =>
@@ -172,29 +191,16 @@ namespace B.Options.Tools.FTP
                             },
                             title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}",
                             exitKeybind: new(() =>
-                           {
-                               if (Path == string.Empty)
-                               {
-                                   Input.ScrollIndex = 0;
-                                   Quit();
-                               }
-                               else
-                                   PreviousDirectory();
-                           }, "Exit", key: ConsoleKey.Escape),
-                            extraKeybinds: new Keybind[] {
-                                new(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown),
-                                CreateConfirmKeybindForCurrent(),
-                                new(() =>
+                            {
+                                if (Path == string.Empty)
                                 {
-                                    SftpFile currentFile = CurrentFile;
-
-                                    if (currentFile.IsDirectory)
-                                        Path += "/" + currentFile.Name;
-                                    else
-                                        SetStage(Stages.FileInteract);
-                                }, "Select", key: ConsoleKey.Enter),
-                                new(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5),
-                                new(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace)});
+                                    Input.ScrollIndex = 0;
+                                    Quit();
+                                }
+                                else
+                                    PreviousDirectory();
+                            }, "Exit", key: ConsoleKey.Escape),
+                            extraKeybinds: keybinds.ToArray());
                     }
                     break;
 
@@ -207,21 +213,12 @@ namespace B.Options.Tools.FTP
                         Window.SetSize(title.Length + 4, 8);
                         Cursor.Position = new(2, 1);
                         Input.Choice choice = Input.Choice.Create(title);
-                        choice.Add(() => SetStage(Stages.Download), "Download", key: ConsoleKey.PageDown);
+                        choice.Add(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown);
                         choice.Add(CreateConfirmKeybindForCurrent());
                         choice.AddSpacer();
                         choice.Add(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape);
                         choice.Request();
                         Window.Clear();
-                    }
-                    break;
-
-                case Stages.Download:
-                    {
-                        // May hang while downloading files
-                        Download(CurrentFile);
-                        Window.Clear();
-                        SetStage(_lastStage);
                     }
                     break;
             }
@@ -231,6 +228,12 @@ namespace B.Options.Tools.FTP
         {
             _files = _client.ListDirectory(Path).OrderBy(x => !x.IsDirectory).ToArray();
             Input.ScrollIndex = 0;
+            Window.Clear();
+        }
+
+        private void DownloadCurrent()
+        {
+            Download(CurrentFile);
             Window.Clear();
         }
 
@@ -297,7 +300,6 @@ namespace B.Options.Tools.FTP
             Login,
             Navigate,
             FileInteract,
-            Download,
         }
 
         public override void Quit()

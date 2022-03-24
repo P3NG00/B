@@ -230,7 +230,7 @@ namespace B.Options.Toys.Canvas
                                 // Since coordinates start from top-left corner, up and down are flipped to move appropriately.
                                 case Direction.Up: dirVec = Vector2.Down; break; // Move up (y - 1 or Vector2.Down)
                                 case Direction.Down: dirVec = Vector2.Up; break; // Move down (y + 1 or Vector2.Up)
-                                default: dirVec = (Vector2)direction; break;
+                                default: dirVec = direction; break;
                             }
 
                             vec.Move(dirVec);

@@ -3,6 +3,7 @@ using B.Inputs;
 using B.Utils;
 using B.Utils.Extensions;
 using Figgle;
+using TextCopy;
 
 namespace B.Options.Toys.TextGenerator
 {
@@ -48,7 +49,7 @@ namespace B.Options.Toys.TextGenerator
                         // Create output
                         string output = fontInfo.Font.Render(Input.String);
                         // Copy to clipboard
-                        Clipboard.Text = output;
+                        ClipboardService.SetText(output);
                         Window.Size = new(Window.SIZE_MAX.x - 5, fontInfo.Font.Height + 12);
                         // Print info
                         Cursor.Position = new(2, 1);

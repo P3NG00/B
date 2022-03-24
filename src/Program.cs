@@ -35,7 +35,7 @@ namespace B
         public static Program Instance { get; private set; } = null!;
 
         // Option Groups
-        private static (string GroupTitle, Type[] OptionType)[] OptionGroups => new (string, Type[])[]
+        private static (string GroupTitle, Type[] OptionTypes)[] OptionGroups => new (string, Type[])[]
         {
             ("Games", new Type[] {
                 typeof(OptionAdventure),
