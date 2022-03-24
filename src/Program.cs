@@ -135,7 +135,7 @@ namespace B
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create($"{Program.Title}'s");
-                        Action<int> action = i =>
+                        Util.Loop(Program.OptionGroups.Length, i =>
                         {
                             var optionGroup = Program.OptionGroups[i];
 
@@ -144,8 +144,7 @@ namespace B
                                 _optionGroup = optionGroup;
                                 SetStage(Levels.Group);
                             }, optionGroup.GroupTitle, (char)('1' + i));
-                        };
-                        action.Loop(Program.OptionGroups.Length);
+                        });
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();
@@ -158,9 +157,8 @@ namespace B
                         Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
-                        Action<int> action = i =>
+                        _optionGroup.OptionTypes.ForEach((optionType, i) =>
                         {
-                            Type optionType = _optionGroup.OptionTypes[i];
                             string title = (string)optionType.GetProperty("Title")?.GetValue(null)!;
 
                             if (title is null)
@@ -171,8 +169,7 @@ namespace B
                                 _selectedOption = (IOption?)Activator.CreateInstance(optionType);
                                 SetStage(Levels.Option);
                             }, title, (char)('1' + i));
-                        };
-                        action.Loop(_optionGroup.OptionTypes.Length);
+                        });
                         choice.AddSpacer();
                         choice.AddExit(this);
                         choice.Request();

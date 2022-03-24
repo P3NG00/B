@@ -1,3 +1,4 @@
+using B.Utils;
 using B.Utils.Extensions;
 
 namespace B.Options.Games.MexicanTrain
@@ -57,8 +58,7 @@ namespace B.Options.Games.MexicanTrain
             _dominoes.Shuffle();
 
             // Deal dominoes
-            Action action = () => _players.ForEach(player => player.TakeRandomFrom(_dominoes));
-            action.Loop(OptionMexicanTrain.DOMINO_START);
+            Util.Loop(OptionMexicanTrain.DOMINO_START, () => _players.ForEach(player => player.TakeRandomFrom(_dominoes)));
         }
 
         public void HandleTurn()

@@ -141,6 +141,7 @@ namespace B.Options.Toys.Canvas
                         Window.Print('-'.Loop(Window.Size.x - 2));
                         // Move in Direction
                         Input.Choice choice = Input.Choice.Create();
+                        // TODO ADD DESCRIPTIONS AND DISPLAY KEYBINDS IN EDIT MODE
                         choice.Add(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow);
                         choice.Add(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow);
                         choice.Add(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow);
@@ -173,10 +174,9 @@ namespace B.Options.Toys.Canvas
                             _lastConsoleWindow = new(0, 0, 0, 0);
                             BrushSize = Vector2.One;
                             CursorPos = Vector2.Zero;
-                            SetStage(Stages.MainMenu);
+                            SetStage(Stages.List);
                         }, key: ConsoleKey.Escape);
                         // Set cursor position in request
-                        // TODO ADD DESCRIPTIONS AND DISPLAY KEYBINDS IN EDIT MODE
                         choice.Request(() =>
                         {
                             // Make cursor big and visible
@@ -243,8 +243,7 @@ namespace B.Options.Toys.Canvas
                         Window.Clear();
                         Window.SetSize(32, 26);
                         ConsoleColor[] colors = Util.ConsoleColors;
-                        // TODO once RequestScroll uses Cursor Positioning instead of printlining, adjust cursor position so that the title lines up with the color (4, 1)?
-                        Cursor.Position = new(2, 1);
+                        Cursor.Position = new(4, 1);
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",

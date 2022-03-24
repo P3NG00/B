@@ -6,7 +6,7 @@ namespace B.Utils.Extensions
         {
             string s = string.Empty;
             Action action = () => s += str;
-            action.Loop(times);
+            Util.Loop(times, () => s += str);
             return s;
         }
     }

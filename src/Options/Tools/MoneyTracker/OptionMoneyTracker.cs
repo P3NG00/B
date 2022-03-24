@@ -167,7 +167,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         if (amountAccounts > 0)
                         {
-                            Action<int> action = i =>
+                            Util.Loop(amountAccounts, i =>
                             {
                                 Account account = _accounts[i];
 
@@ -180,8 +180,7 @@ namespace B.Options.Tools.MoneyTracker
                                     account.Delete();
                                     SetStage(Stages.Account);
                                 }, $"Delete account {account.Name}?", account.Name, keyChar: (char)('1' + i));
-                            };
-                            action.Loop(amountAccounts);
+                            });
 
                             choice.AddSpacer();
                         }
@@ -259,7 +258,7 @@ namespace B.Options.Tools.MoneyTracker
                         // TODO add keybinds to delete a transaction
                         // SetStage(Stages.Transaction);
                     }
-                    break;
+                // break;
 
                 case Stages.Transaction_Edit:
                     {
@@ -268,7 +267,7 @@ namespace B.Options.Tools.MoneyTracker
                         // SetStage(Stages.Transaction);
                         // TODO
                     }
-                    break;
+                    // break;
             }
         }
 
@@ -277,7 +276,7 @@ namespace B.Options.Tools.MoneyTracker
             Account account;
 
             if (deserialize)
-                account = Data.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name)!;
+                account = Data.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name);
             else
             {
                 account = new(name);
