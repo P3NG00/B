@@ -8,24 +8,29 @@ namespace B.Utils
         public static Vector2 Size
         {
             get => new(Console.WindowWidth, Console.WindowHeight);
-            set
-            {
-                // This can only be called on Windows
-                if (OperatingSystem.IsWindows())
-                {
-                    int width = value.x;
-                    int height = value.y;
+            set => SetSize(value.x, value.y);
+        }
 
-                    Console.SetWindowSize(width, height);
-                    Console.SetBufferSize(Console.WindowLeft + width,
-                                          Console.WindowTop + height);
-                    // This is called twice to fix the scrollbar from showing
-                    Console.SetWindowSize(width, height);
-                }
+        public static void SetSize(int width, int height)
+        {
+            // This can only be called on Windows
+            if (OperatingSystem.IsWindows())
+            {
+                Console.SetWindowSize(width, height);
+                Console.SetBufferSize(
+                    Console.WindowLeft + width,
+                    Console.WindowTop + height);
+                // This is called twice to fix the scrollbar from showing
+                Console.SetWindowSize(width, height);
             }
         }
 
-        public static void SetSize(int width, int height) => Size = new(width, height);
+        // TODO utilize in other classes
+        public static void NextLine(int spacesFromLeft = 0)
+        {
+            Cursor.y++;
+            Cursor.x = spacesFromLeft;
+        }
 
         public static void Print(object message, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
         {
