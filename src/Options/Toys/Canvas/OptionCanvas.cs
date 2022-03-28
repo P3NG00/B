@@ -31,8 +31,14 @@ namespace B.Options.Toys.Canvas
             if (!Directory.Exists(OptionCanvas.DirectoryPath))
                 Directory.CreateDirectory(OptionCanvas.DirectoryPath);
             else
+            {
                 foreach (string filePath in Directory.GetFiles(OptionCanvas.DirectoryPath))
-                    _canvases.Add(Data.Deserialize<CanvasInfo>(filePath));
+                {
+                    CanvasInfo info = Data.Deserialize<CanvasInfo>(filePath);
+                    info.Title = Path.GetFileNameWithoutExtension(filePath);
+                    _canvases.Add(info);
+                }
+            }
         }
 
         public override void Loop()

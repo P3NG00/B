@@ -5,7 +5,7 @@ namespace B.Options.Toys.Canvas
 {
     public sealed class CanvasInfo
     {
-        public string Title = string.Empty;
+        [JsonIgnore] public string Title = string.Empty;
         public ConsoleColor[][] Colors = null!;
 
         [JsonIgnore] public string FilePath => OptionCanvas.DirectoryPath + Title;
