@@ -259,11 +259,14 @@ namespace B.Options.Tools.FTP
                     Cursor.Position = new(2, 3);
                     Window.Print(file.FullName);
                     Cursor.Position = new(2, 5);
-                    Window.Print("Bytes Downloaded");
+                    Window.Print("%");
                     _client.DownloadFile(file.FullName, stream, l =>
                     {
-                        Cursor.Position = new(19, 5);
-                        Window.Print($"{l,-(OptionFTP.WIDTH - 30)}");
+                        Cursor.Position = new(4, 5);
+                        double percentage = (double)l / (double)file.Attributes.Size;
+                        percentage *= 100d;
+                        int progress = (int)Math.Ceiling(percentage);
+                        Window.Print($"{progress,3}");
                     });
                 }
             }
