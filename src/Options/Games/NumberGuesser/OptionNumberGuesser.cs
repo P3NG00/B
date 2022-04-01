@@ -93,7 +93,7 @@ namespace B.Options.Games.NumberGuesser
                             Cursor.x = 1;
                             Cursor.y += 2;
                             Window.Print("Enter a Number!");
-                            Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, new Keybind(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
+                            Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
                         }
                     }
                     break;
@@ -124,7 +124,7 @@ namespace B.Options.Games.NumberGuesser
                         Cursor.Position = new(2, 3);
                         Window.Print("Enter Max Number");
                         Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH,
-                            new Keybind(() =>
+                            Keybind.Create(() =>
                             {
                                 int? numMax = Input.Int;
 
@@ -134,7 +134,7 @@ namespace B.Options.Games.NumberGuesser
                                     SetStage(Stages.Settings);
                                 }
                             }, key: ConsoleKey.Enter),
-                            new Keybind(() => SetStage(Stages.Settings), key: ConsoleKey.Escape));
+                            Keybind.Create(() => SetStage(Stages.Settings), key: ConsoleKey.Escape));
                     }
                     break;
             }

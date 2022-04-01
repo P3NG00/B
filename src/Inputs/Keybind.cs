@@ -11,7 +11,7 @@ namespace B.Inputs
         public readonly Action Action;
         private readonly ConsoleModifiers _modifiers;
 
-        public Keybind(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+        private Keybind(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
         {
             KeyChar = keyChar;
             Key = key;
@@ -93,6 +93,12 @@ namespace B.Inputs
                     return $"{preface}{(KeyChar.HasValue ? KeyChar.Value.ToString() : Key.ToString())}) {Description}";
                 }
             }
+        }
+
+        public static Keybind Create(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+        {
+            Keybind keybind = new Keybind(action, description, keyChar, key, modifiers);
+            return keybind;
         }
 
         public static Keybind CreateOptionExitKeybind(IOption option)

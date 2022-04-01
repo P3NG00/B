@@ -121,7 +121,7 @@ namespace B.Options.Tools.FTP
                         Window.Print(scrambled);
                         Cursor.Position = new(0, 3);
                         Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
-                            new Keybind(() =>
+                            Keybind.Create(() =>
                             {
                                 _client = new(OptionFTP.SERVER_IP, OptionFTP.SERVER_PORT, OptionFTP.SERVER_USER, Input.String);
                                 Input.ResetString();
@@ -136,7 +136,7 @@ namespace B.Options.Tools.FTP
                                 catch (SocketException e) { PrintError("Can't connect", e); }
                                 catch (SshConnectionException e) { PrintError("Error", e); }
                             }, key: ConsoleKey.Enter),
-                            new Keybind(() => Quit(), key: ConsoleKey.Escape));
+                            Keybind.Create(() => Quit(), key: ConsoleKey.Escape));
 
                         void PrintError(string msg, Exception e)
                         {
@@ -163,9 +163,9 @@ namespace B.Options.Tools.FTP
 
                         if (entryAmount != 0)
                         {
-                            keybinds.Add(new(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
+                            keybinds.Add(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
                             keybinds.Add(CreateConfirmKeybindForCurrent());
-                            keybinds.Add(new(() =>
+                            keybinds.Add(Keybind.Create(() =>
                                 {
                                     SftpFile currentFile = CurrentFile;
 
@@ -176,8 +176,8 @@ namespace B.Options.Tools.FTP
                                 }, "Select", key: ConsoleKey.Enter));
                         }
 
-                        keybinds.Add(new(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5));
-                        keybinds.Add(new(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
+                        keybinds.Add(Keybind.Create(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5));
+                        keybinds.Add(Keybind.Create(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
                         Input.RequestScroll(
                             items: _files,
                             getText: file =>
@@ -190,7 +190,7 @@ namespace B.Options.Tools.FTP
                                 return s;
                             },
                             title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}",
-                            exitKeybind: new(() =>
+                            exitKeybind: Keybind.Create(() =>
                             {
                                 if (Path == string.Empty)
                                 {

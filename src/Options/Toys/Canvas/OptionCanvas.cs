@@ -84,14 +84,14 @@ namespace B.Options.Toys.Canvas
                             getText: canvas => canvas.Title,
                             title: "Canvases",
                             maxEntriesPerPage: OptionCanvas.MAX_CANVASES_PER_PAGE,
-                            exitKeybind: new(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
+                            exitKeybind: Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
-                                new(() =>
+                                Keybind.Create(() =>
                                 {
                                     Input.ScrollIndex = 0;
                                     SetStage(Stages.View);
                                 }, "View", key: ConsoleKey.Enter),
-                                new(() =>
+                                Keybind.Create(() =>
                                 {
                                     Input.ScrollIndex = 0;
                                     BrushSize = Vector2.One;
@@ -256,8 +256,8 @@ namespace B.Options.Toys.Canvas
                             getTextColor: (c, i) => c == ConsoleColor.Black || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Black,
                             getBackgroundColor: (c, i) => c,
                             title: "Color Select",
-                            exitKeybind: new Keybind(() => ExitColorSelect(), "Back", key: ConsoleKey.Escape),
-                            extraKeybinds: new Keybind(() =>
+                            exitKeybind: Keybind.Create(() => ExitColorSelect(), "Back", key: ConsoleKey.Escape),
+                            extraKeybinds: Keybind.Create(() =>
                             {
                                 _color = colors[Input.ScrollIndex];
                                 ExitColorSelect();
@@ -307,7 +307,7 @@ namespace B.Options.Toys.Canvas
             }
 
             Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH,
-                new Keybind(() =>
+                Keybind.Create(() =>
                 {
                     switch (Stage)
                     {
@@ -356,7 +356,7 @@ namespace B.Options.Toys.Canvas
                             break;
                     }
                 }, key: ConsoleKey.Enter),
-                new Keybind(() =>
+                Keybind.Create(() =>
                 {
                     switch (Stage)
                     {

@@ -68,12 +68,12 @@ namespace B.Options.Toys.BrainFuck
                             items: _programs,
                             getText: program => program.Title,
                             title: $"{OptionBrainFuck.Title} Programs",
-                            exitKeybind: new(() =>
+                            exitKeybind: Keybind.Create(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 SetStage(Stages.MainMenu);
                             }, "Back", key: ConsoleKey.Escape),
-                            extraKeybinds: new Keybind(() =>
+                            extraKeybinds: Keybind.Create(() =>
                             {
                                 _currentProgram = _programs[Input.ScrollIndex];
                                 Array.Fill(_memory, (byte)0);
@@ -166,8 +166,8 @@ namespace B.Options.Toys.BrainFuck
                                 maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {
-                                    new(() => HandleStep(), "Step", key: ConsoleKey.Spacebar),
-                                    new(() =>
+                                    Keybind.Create(() => HandleStep(), "Step", key: ConsoleKey.Spacebar),
+                                    Keybind.Create(() =>
                                     {
                                         Input.ScrollIndex = 0;
                                         SetStage(Stages.Run);

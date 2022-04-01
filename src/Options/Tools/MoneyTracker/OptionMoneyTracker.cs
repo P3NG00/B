@@ -85,7 +85,7 @@ namespace B.Options.Tools.MoneyTracker
                         Cursor.Position = new(2, 1);
                         Window.Print($"New Account Name: {Input.String}");
                         Input.RequestLine(20,
-                            new Keybind(() =>
+                            Keybind.Create(() =>
                             {
                                 if (Input.String.Length > 0)
                                 {
@@ -110,7 +110,7 @@ namespace B.Options.Tools.MoneyTracker
                                     Input.Get();
                                 }
                             }, key: ConsoleKey.Enter),
-                            new Keybind(() =>
+                            Keybind.Create(() =>
                             {
                                 Input.ResetString();
                                 SetStage(Stages.Account);
@@ -225,14 +225,14 @@ namespace B.Options.Tools.MoneyTracker
                             items: _selectedAccount.Transactions,
                             getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
                             maxEntriesPerPage: OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
-                            exitKeybind: new(() =>
+                            exitKeybind: Keybind.Create(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 SetStage(Stages.Transaction);
                             }, "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
-                                new(() => _selectedAccount.Decimals++, "Increase Decimals", '+'),
-                                new(() =>
+                                Keybind.Create(() => _selectedAccount.Decimals++, "Increase Decimals", '+'),
+                                Keybind.Create(() =>
                                 {
                                     // Checking before decrementing to avoid underflowing to max value
                                     if (_selectedAccount.Decimals != 0)
@@ -299,7 +299,7 @@ namespace B.Options.Tools.MoneyTracker
             {
                 Window.Print(Input.String);
                 Input.RequestLine(Input.DECIMAL_LENGTH,
-                    new Keybind(() =>
+                    Keybind.Create(() =>
                     {
                         decimal? amount = Input.Decimal;
 
@@ -310,7 +310,7 @@ namespace B.Options.Tools.MoneyTracker
                             SetStage(Stages.Transaction_Add_Description);
                         }
                     }, key: ConsoleKey.Enter),
-                    new Keybind(() =>
+                    Keybind.Create(() =>
                     {
                         _tempTransaction = null;
                         Input.ResetString();
@@ -325,7 +325,7 @@ namespace B.Options.Tools.MoneyTracker
                 Cursor.Position = new(2, 5);
                 Window.Print(Input.String);
                 Input.RequestLine(Input.DECIMAL_LENGTH,
-                    new Keybind(() =>
+                    Keybind.Create(() =>
                     {
                         if (Input.String.Length > 0)
                         {
@@ -336,7 +336,7 @@ namespace B.Options.Tools.MoneyTracker
                             SetStage(Stages.Transaction);
                         }
                     }, key: ConsoleKey.Enter),
-                    new Keybind(() =>
+                    Keybind.Create(() =>
                     {
                         _tempTransaction.Description = Input.String;
                         Input.String = _tempTransaction.Amount.ToString();

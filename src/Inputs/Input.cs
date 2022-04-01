@@ -196,7 +196,7 @@ namespace B.Inputs
 
             public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
             {
-                Keybind keybind = new Keybind(action, description, keyChar, key, modifiers);
+                Keybind keybind = Keybind.Create(action, description, keyChar, key, modifiers);
                 _keybinds.Add(keybind);
             }
 

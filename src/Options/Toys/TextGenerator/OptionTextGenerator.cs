@@ -67,10 +67,10 @@ namespace B.Options.Toys.TextGenerator
                         // Request
                         Cursor.y++;
                         Input.RequestLine(keybinds: new Keybind[] {
-                            new(() => _fontIndex++, "Next Font", key: ConsoleKey.DownArrow),
-                            new(() => _fontIndex--, "Prev Font", key: ConsoleKey.UpArrow),
-                            new(SelectRandomFont, "Random Font", key: ConsoleKey.F5),
-                            new(() =>
+                            Keybind.Create(() => _fontIndex++, "Next Font", key: ConsoleKey.DownArrow),
+                            Keybind.Create(() => _fontIndex--, "Prev Font", key: ConsoleKey.UpArrow),
+                            Keybind.Create(SelectRandomFont, "Random Font", key: ConsoleKey.F5),
+                            Keybind.Create(() =>
                             {
                                 Window.Clear();
                                 Input.ScrollIndex = _fontIndex;
@@ -94,8 +94,8 @@ namespace B.Options.Toys.TextGenerator
                             items: _fonts,
                             getText: font => font.Name,
                             title: "Select Font",
-                            exitKeybind: new(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
-                            extraKeybinds: new Keybind(() =>
+                            exitKeybind: Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
+                            extraKeybinds: Keybind.Create(() =>
                             {
                                 _fontIndex = Input.ScrollIndex;
                                 SetStage(Stages.MainMenu);

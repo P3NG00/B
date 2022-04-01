@@ -112,7 +112,7 @@ namespace B.Options.Tools.Settings
                             // getText: theme => $" {theme.Title,-15}",
                             // getBackgroundColor: (c, i) => i % 2 == 0 ? ConsoleColor.White : ConsoleColor.Gray, // TODO implement once more complex themes are create with secondary/tertiary colors
                             title: "Color Themes",
-                            exitKeybind: new(() =>
+                            exitKeybind: Keybind.Create(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 SetStage(Stages.Color);
@@ -133,14 +133,14 @@ namespace B.Options.Tools.Settings
                             getTextColor: (c, i) => c,
                             getBackgroundColor: (c, i) => c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark") ? ConsoleColor.White : ConsoleColor.Gray,
                             title: "Colors",
-                            exitKeybind: new(() =>
+                            exitKeybind: Keybind.Create(() =>
                             {
                                 Input.ScrollIndex = 0;
                                 SetStage(Stages.Color);
                             }, "Exit", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
-                                new(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
-                                new(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2')});
+                                Keybind.Create(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
+                                Keybind.Create(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2')});
                     }
                     break;
 
