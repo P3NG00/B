@@ -187,35 +187,43 @@ namespace B.Inputs
 
             private Choice(string? title = null)
             {
-                if (!string.IsNullOrWhiteSpace(title))
-                {
-                    AddMessage(title);
-                    AddSpacer();
-                }
+                if (string.IsNullOrWhiteSpace(title))
+                    return;
+
+                AddMessage(title);
+                AddSpacer();
             }
 
-            public void AddMessage(string message) => _keybinds.Add(new(null!, message));
-
-            public void AddSpacer() => _keybinds.Add(new(null!, string.Empty));
-
-            public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => _keybinds.Add(new Keybind(action, description, keyChar, key, modifiers));
+            public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+            {
+                Keybind keybind = new Keybind(action, description, keyChar, key, modifiers);
+                _keybinds.Add(keybind);
+            }
 
             public void Add(params Keybind[] keybinds) => _keybinds.AddRange(keybinds);
 
-            public void AddConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => _keybinds.Add(Keybind.CreateConfirmationKeybind(action, message, description, keyChar, key, modifiers));
+            public void AddMessage(string message)
+            {
+                Keybind messageBind = Keybind.CreateMessageKeybind(message);
+                _keybinds.Add(messageBind);
+            }
+
+            public void AddSpacer()
+            {
+                Keybind spacerBind = Keybind.CreateSpacerKeybind();
+                _keybinds.Add(spacerBind);
+            }
+
+            public void AddConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+            {
+                Keybind confirmationKeybind = Keybind.CreateConfirmationKeybind(action, message, description, keyChar, key, modifiers);
+                _keybinds.Add(confirmationKeybind);
+            }
 
             public void AddExit(IOption option)
             {
-                string phrase = string.Empty;
-
-                switch (Program.Instance.Stage)
-                {
-                    case Program.Levels.Program: phrase = "Quit"; break;
-                    case Program.Levels.Group: phrase = "Back"; break;
-                    case Program.Levels.Option: phrase = "Exit"; break;
-                }
-
-                Add(() => option.Quit(), phrase, key: ConsoleKey.Escape);
+                Keybind exitKeybind = Keybind.CreateOptionExitKeybind(option);
+                _keybinds.Add(exitKeybind);
             }
 
             // This will reset cursor position for each keybind printed.

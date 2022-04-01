@@ -52,9 +52,9 @@ namespace B.Inputs
             if (obj is Keybind keybind)
                 return this == keybind;
             else if (obj is ConsoleKeyInfo keyInfo)
-                return IsValid(keyInfo);
-            else
-                return false;
+                return this == keyInfo;
+
+            return false;
         }
 
         public override int GetHashCode() => base.GetHashCode();
@@ -104,23 +104,45 @@ namespace B.Inputs
                 case Program.Levels.Program: phrase = "Quit"; break;
                 case Program.Levels.Group: phrase = "Back"; break;
                 case Program.Levels.Option: phrase = "Exit"; break;
+                default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
             }
 
-            return new(() => option.Quit(), phrase, key: ConsoleKey.Escape);
+            Action exitAction = () => option.Quit();
+            Keybind optionExitKeybind = new Keybind(exitAction, phrase, key: ConsoleKey.Escape);
+            return optionExitKeybind;
         }
 
-        public static Keybind CreateConfirmationKeybind(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => new(() =>
+        public static Keybind CreateConfirmationKeybind(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
         {
-            Window.Clear();
-            Window.Size = new(message.Length + 4, 7);
-            Cursor.Position = new(2, 1);
-            Input.Choice choice = Input.Choice.Create(message);
-            choice.Add(Util.Void, "NO", key: ConsoleKey.Escape);
-            choice.AddSpacer();
-            choice.Add(action, "yes", key: ConsoleKey.Enter);
-            choice.Request();
-            Window.Clear();
-        }, description, keyChar, key, modifiers);
+            Action confirmationAction = () =>
+            {
+                Window.Clear();
+                Window.Size = new(message.Length + 4, 7);
+                Cursor.Position = new(2, 1);
+                Input.Choice choice = Input.Choice.Create(message);
+                choice.Add(Util.Void, "NO", key: ConsoleKey.Escape);
+                choice.AddSpacer();
+                choice.Add(action, "yes", key: ConsoleKey.Enter);
+                choice.Request();
+                // Clear window after confirmation
+                Window.Clear();
+            };
+
+            Keybind confirmationKeybind = new Keybind(confirmationAction, description, keyChar, key, modifiers);
+            return confirmationKeybind;
+        }
+
+        public static Keybind CreateMessageKeybind(string message)
+        {
+            Keybind messageKeybind = new Keybind(null!, message);
+            return messageKeybind;
+        }
+
+        public static Keybind CreateSpacerKeybind()
+        {
+            Keybind spacerKeybind = new Keybind(null!, string.Empty);
+            return spacerKeybind;
+        }
 
         public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo) => keybind.IsValid(keyInfo);
 
