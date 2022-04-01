@@ -198,11 +198,11 @@ namespace B.Inputs
 
             public void AddSpacer() => _keybinds.Add(new(null!, string.Empty));
 
-            public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => _keybinds.Add(new Keybind(action, description, keyChar, key, control, shift, alt));
+            public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => _keybinds.Add(new Keybind(action, description, keyChar, key, modifiers));
 
             public void Add(params Keybind[] keybinds) => _keybinds.AddRange(keybinds);
 
-            public void AddConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => _keybinds.Add(Keybind.CreateConfirmationKeybind(action, message, description, keyChar, key, control, shift, alt));
+            public void AddConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => _keybinds.Add(Keybind.CreateConfirmationKeybind(action, message, description, keyChar, key, modifiers));
 
             public void AddExit(IOption option)
             {

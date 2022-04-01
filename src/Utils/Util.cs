@@ -25,11 +25,7 @@ namespace B.Utils
             ConsoleColor.Red
         };
 
-        public static void Loop(int count, Action action)
-        {
-            for (int i = 0; i < count; i++)
-                action();
-        }
+        public static void Loop(int count, Action action) => Loop(count, i => action());
 
         public static void Loop(int count, Action<int> actionIndexed)
         {

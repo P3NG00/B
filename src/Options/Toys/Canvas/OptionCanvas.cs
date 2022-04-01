@@ -160,10 +160,10 @@ namespace B.Options.Toys.Canvas
                         // Paint
                         choice.Add(() => Paint(), key: ConsoleKey.Spacebar);
                         // Resize Brush
-                        choice.Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, control: true);
-                        choice.Add(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, control: true);
-                        choice.Add(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, control: true);
-                        choice.Add(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, control: true);
+                        choice.Add(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, modifiers: ConsoleModifiers.Control);
+                        choice.Add(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, modifiers: ConsoleModifiers.Control);
+                        choice.Add(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, modifiers: ConsoleModifiers.Control);
+                        choice.Add(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, modifiers: ConsoleModifiers.Control);
                         // Color Select
                         choice.Add(() =>
                         {

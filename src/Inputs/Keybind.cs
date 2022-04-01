@@ -11,21 +11,41 @@ namespace B.Inputs
         public readonly Action Action;
         private readonly ConsoleModifiers _modifiers;
 
-        public Keybind(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false)
+        public Keybind(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
         {
             KeyChar = keyChar;
             Key = key;
             Description = description;
             Action = action;
-            _modifiers = 0;
-            if (control) _modifiers |= ConsoleModifiers.Control;
-            if (shift) _modifiers |= ConsoleModifiers.Shift;
-            if (alt) _modifiers |= ConsoleModifiers.Alt;
+
+            if (modifiers.HasValue)
+                _modifiers = modifiers.Value;
+            else
+                _modifiers = default;
         }
 
         public bool HasModifier(ConsoleModifiers modifier) => _modifiers.HasFlag(modifier);
 
-        private bool IsValid(ConsoleKeyInfo keyInfo) => (Key == keyInfo.Key || (KeyChar.HasValue && KeyChar.Value == keyInfo.KeyChar)) && Action != null && _modifiers == keyInfo.Modifiers;
+        private bool IsValid(ConsoleKeyInfo keyInfo)
+        {
+            if (Action is null)
+                return false;
+
+            bool isKey = Key == keyInfo.Key;
+            bool isKeyChar;
+
+            if (KeyChar.HasValue)
+                isKeyChar = KeyChar.Value == keyInfo.KeyChar;
+            else
+                isKeyChar = false;
+
+            bool keyMatches = isKey || isKeyChar;
+
+            if (!keyMatches)
+                return false;
+
+            return _modifiers.Equals(keyInfo.Modifiers);
+        }
 
         public override bool Equals(object? obj)
         {
@@ -89,7 +109,7 @@ namespace B.Inputs
             return new(() => option.Quit(), phrase, key: ConsoleKey.Escape);
         }
 
-        public static Keybind CreateConfirmationKeybind(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), bool control = false, bool shift = false, bool alt = false) => new(() =>
+        public static Keybind CreateConfirmationKeybind(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => new(() =>
         {
             Window.Clear();
             Window.Size = new(message.Length + 4, 7);
@@ -100,7 +120,7 @@ namespace B.Inputs
             choice.Add(action, "yes", key: ConsoleKey.Enter);
             choice.Request();
             Window.Clear();
-        }, description, keyChar, key, control, shift, alt);
+        }, description, keyChar, key, modifiers);
 
         public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo) => keybind.IsValid(keyInfo);
 
