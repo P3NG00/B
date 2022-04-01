@@ -21,8 +21,8 @@ namespace B.Options.Toys.Canvas
         private List<CanvasInfo> _canvases = new();
         private CanvasInfo _canvas = null!;
         private ConsoleColor _color = ConsoleColor.Black;
-        private Vector2 BrushSize = Vector2.One;
-        private Vector2 CursorPos = Vector2.Zero;
+        private Vector2 _brushSize = Vector2.One;
+        private Vector2 _cursorPos = Vector2.Zero;
 
         // TODO add image importing to canvas grid
 
@@ -94,8 +94,8 @@ namespace B.Options.Toys.Canvas
                                 Keybind.Create(() =>
                                 {
                                     Input.ScrollIndex = 0;
-                                    BrushSize = Vector2.One;
-                                    CursorPos = Vector2.Zero;
+                                    _brushSize = Vector2.One;
+                                    _cursorPos = Vector2.Zero;
                                     SetStage(Stages.Edit);
                                 }, "Edit", key: ConsoleKey.Tab),
                                 Keybind.CreateConfirmationKeybind(() =>
@@ -127,7 +127,7 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.Edit:
                     {
-                        (int x, int y, int width, int height) consoleWindow = new(Console.WindowLeft, Console.WindowTop, Console.WindowWidth, Console.WindowHeight);
+                        var consoleWindow = (Console.WindowLeft, Console.WindowTop, Console.WindowWidth, Console.WindowHeight);
 
                         if (consoleWindow != _lastConsoleWindow)
                         {
@@ -139,9 +139,9 @@ namespace B.Options.Toys.Canvas
                         Cursor.Position = new(2, 0);
                         Window.Print($"Color: {_color,-11}");
                         Cursor.Position = new(2, 1);
-                        Window.Print($"Position: {CursorPos,-10}");
+                        Window.Print($"Position: {_cursorPos,-10}");
                         Cursor.Position = new(2, 2);
-                        Window.Print($"Brush: {BrushSize,-10}");
+                        Window.Print($"Brush: {_brushSize,-10}");
                         // Print border
                         Cursor.Position = new(2, 3);
                         Window.Print('-'.Loop(Window.Size.x - 2));
@@ -178,8 +178,8 @@ namespace B.Options.Toys.Canvas
 
                             Save();
                             _lastConsoleWindow = new(0, 0, 0, 0);
-                            BrushSize = Vector2.One;
-                            CursorPos = Vector2.Zero;
+                            _brushSize = Vector2.One;
+                            _cursorPos = Vector2.Zero;
                             SetStage(Stages.List);
                         }, key: ConsoleKey.Escape);
                         // Set cursor position in request
@@ -189,7 +189,7 @@ namespace B.Options.Toys.Canvas
                             Cursor.Size = 100;
                             Cursor.Visible = true;
                             // Set to brush position
-                            Cursor.Position = new(CursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                            Cursor.Position = new(_cursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                         });
 
                         // Update cursor settings
@@ -197,24 +197,24 @@ namespace B.Options.Toys.Canvas
 
                         Vector2 maxCanvasPos = _canvas.Size - Vector2.One;
                         // Fix cursor position
-                        CursorPos = CursorPos.Clamp(Vector2.Zero, maxCanvasPos);
+                        _cursorPos = _cursorPos.Clamp(Vector2.Zero, maxCanvasPos);
                         // Fix brush size
-                        BrushSize = BrushSize.Clamp(Vector2.One, maxCanvasPos);
+                        _brushSize = _brushSize.Clamp(Vector2.One, maxCanvasPos);
 
                         void Paint()
                         {
-                            for (int y = 0; y < BrushSize.y; y++)
+                            for (int y = 0; y < _brushSize.y; y++)
                             {
-                                for (int x = 0; x < BrushSize.x; x++)
+                                for (int x = 0; x < _brushSize.x; x++)
                                 {
-                                    Vector2 pos = CursorPos + new Vector2(x, y);
+                                    Vector2 pos = _cursorPos + new Vector2(x, y);
                                     _canvas.Color(pos) = _color;
                                     Cursor.Position = new(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
                                     Window.Print(' ', colorBG: _color);
                                 }
                             }
 
-                            Cursor.Position = new(CursorPos);
+                            Cursor.Position = new(_cursorPos);
                         }
 
                         void PaintDirection(Direction direction)
@@ -223,9 +223,9 @@ namespace B.Options.Toys.Canvas
                             Paint();
                         }
 
-                        void ResizeBrush(Direction direction) => MoveVec(ref BrushSize, direction);
+                        void ResizeBrush(Direction direction) => MoveVec(ref _brushSize, direction);
 
-                        void MoveCursor(Direction direction) => MoveVec(ref CursorPos, direction);
+                        void MoveCursor(Direction direction) => MoveVec(ref _cursorPos, direction);
 
                         void MoveVec(ref Vector2 vec, Direction direction)
                         {

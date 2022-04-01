@@ -164,11 +164,14 @@ namespace B
                             if (title is null)
                                 throw new Exception($"{optionType.Name} has no 'Title' property.");
 
-                            choice.Add(() =>
+                            Action createInstanceAction = () =>
                             {
-                                _selectedOption = (IOption?)Activator.CreateInstance(optionType);
+                                _selectedOption = optionType.Instantiate<IOption>();
                                 SetStage(Levels.Option);
-                            }, title, (char)('1' + i));
+                            };
+                            char c = (char)('1' + i);
+                            Keybind keybind = Keybind.Create(createInstanceAction, title, c);
+                            choice.Add(keybind);
                         });
                         choice.AddSpacer();
                         choice.AddExit(this);

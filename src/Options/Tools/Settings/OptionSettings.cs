@@ -11,6 +11,12 @@ namespace B.Options.Tools.Settings
     {
         public static string Title => "Settings";
 
+        // TODO work on new color themes
+        // foreground/background pairs
+        // use enum PrintType when printing to specify type
+        // title (pair) (for request scroll titles, input option titles, etc.)
+        // general (pair) (every other text or not specified)
+
         private readonly ColorTheme[] _colorThemes =
         {
             new("Default", ConsoleColor.Black, ConsoleColor.White),
@@ -110,7 +116,7 @@ namespace B.Options.Tools.Settings
                             items: _colorThemes,
                             getText: theme => theme.Title,
                             // getText: theme => $" {theme.Title,-15}",
-                            // getBackgroundColor: (c, i) => i % 2 == 0 ? ConsoleColor.White : ConsoleColor.Gray, // TODO implement once more complex themes are create with secondary/tertiary colors
+                            // getBackgroundColor: (c, i) => i % 2 == 0 ? ConsoleColor.White : ConsoleColor.Gray, // TODO implement once more complex themes are created with secondary/tertiary colors
                             title: "Color Themes",
                             exitKeybind: Keybind.Create(() =>
                             {

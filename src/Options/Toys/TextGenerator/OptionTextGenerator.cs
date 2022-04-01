@@ -29,6 +29,7 @@ namespace B.Options.Toys.TextGenerator
                 PropertyInfo[] properties = typeof(FiggleFonts).GetProperties();
                 // From each property, put font into array
                 _fonts = properties.FromEach(property => (property.Name, (FiggleFont)property.GetValue(null)!)).ToArray();
+                // Sort array by name
                 Array.Sort(_fonts, (fontA, fontB) => fontA.Name.CompareTo(fontB.Name));
             }
 
