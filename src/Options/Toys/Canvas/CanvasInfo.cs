@@ -1,4 +1,5 @@
 using B.Utils;
+using B.Utils.Themes;
 using Newtonsoft.Json;
 
 namespace B.Options.Toys.Canvas
@@ -35,7 +36,7 @@ namespace B.Options.Toys.Canvas
                         newPos += offset;
 
                     Cursor.Position = new(newPos);
-                    Window.Print(' ', colorBG: Color(x, y));
+                    Window.Print(' ', new ColorPair(colorBack: Color(x, y)));
                 }
             }
 

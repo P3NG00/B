@@ -4,9 +4,11 @@ namespace B.Utils
 {
     public static class Data
     {
-        private static readonly JsonSerializer _serializer = new();
-
-        static Data() => _serializer.Formatting = Formatting.Indented;
+        private static readonly JsonSerializer _serializer = new()
+        {
+            Formatting = Formatting.Indented,
+            ObjectCreationHandling = ObjectCreationHandling.Replace,
+        };
 
         public static void Serialize(string filePath, object objectToWrite)
         {

@@ -9,8 +9,8 @@ namespace B.Options.Games.Adventure
         public readonly int Width;
         public readonly int Height;
 
-        private readonly Dict<Vector2, Action> _interactionDict = new();
-        private readonly Dict<Vector2, (int, Vector2)> _doorDict = new();
+        private readonly Dictionary<Vector2, Action> _interactionDict = new();
+        private readonly Dictionary<Vector2, (int, Vector2)> _doorDict = new();
         private readonly List<Vector2> _coinList = new();
         private readonly Tile[][] _tileGrid;
 
@@ -106,16 +106,16 @@ namespace B.Options.Games.Adventure
 
         public void Seal()
         {
-            if (_initDoors != _doorDict.Length)
+            if (_initDoors != _doorDict.Count)
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented doors");
 
-            if (_initInteractables != _interactionDict.Length)
+            if (_initInteractables != _interactionDict.Count)
                 throw new InvalidOperationException("Seal Error: Cannot seal grid with unimplemented interactables");
 
             _seald = true;
         }
 
-        private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dict<Vector2, T> dict)
+        private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dictionary<Vector2, T> dict)
         {
             if (_seald)
                 throw new InvalidOperationException($"Add {name} Error: Cannot add {name} to a sealed grid");

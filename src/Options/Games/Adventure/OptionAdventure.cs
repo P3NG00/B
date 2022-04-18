@@ -54,14 +54,14 @@ namespace B.Options.Games.Adventure
 
                         if (fileExists)
                         {
-                            choice.AddConfirmation(() => InitGame(true), "Are you sure you want to override the current game?", "New Game", '1');
-                            choice.Add(() => InitGame(false), "Continue", '2');
+                            choice.AddKeybind(Keybind.CreateConfirmation(() => InitGame(true), "Are you sure you want to override the current game?", "New Game", '1'));
+                            choice.AddKeybind(Keybind.Create(() => InitGame(false), "Continue", '2'));
                         }
                         else
-                            choice.Add(() => InitGame(true), "New Game", '1');
+                            choice.AddKeybind(Keybind.Create(() => InitGame(true), "New Game", '1'));
 
                         choice.AddSpacer();
-                        choice.AddExit(this);
+                        choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
                     }
                     break;
@@ -120,22 +120,23 @@ namespace B.Options.Games.Adventure
                         Window.PrintLine("  Interact) Space");
                         Window.PrintLine("     Speed) + -");
                         Input.Choice choice = Input.Choice.Create();
-                        choice.Add(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8);
-                        choice.Add(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4);
-                        choice.Add(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2);
-                        choice.Add(() => MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6);
-                        choice.Add(() => Interact(Direction.Up), key: ConsoleKey.UpArrow);
-                        choice.Add(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow);
-                        choice.Add(() => Interact(Direction.Down), key: ConsoleKey.DownArrow);
-                        choice.Add(() => Interact(Direction.Right), key: ConsoleKey.RightArrow);
-                        choice.Add(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add);
-                        choice.Add(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract);
+                        // TODO instead of creating and adding new keybinds every time, try creating and caching this in the constructor and just request it when necessary
+                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8));
+                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4));
+                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2));
+                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6));
+                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Up), key: ConsoleKey.UpArrow));
+                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow));
+                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Down), key: ConsoleKey.DownArrow));
+                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Right), key: ConsoleKey.RightArrow));
+                        choice.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add));
+                        choice.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract));
                         choice.AddSpacer();
-                        choice.Add(() =>
+                        choice.AddKeybind(Keybind.Create(() =>
                         {
                             Save();
                             SetStage(Stages.MainMenu);
-                        }, "Quit", key: ConsoleKey.Escape);
+                        }, "Quit", key: ConsoleKey.Escape));
                         choice.Request();
                     }
                     break;

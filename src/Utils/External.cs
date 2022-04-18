@@ -19,7 +19,7 @@ namespace B.Utils
             if (currentHandle != IntPtr.Zero)
             {
                 IntPtr sysMenu = GetSystemMenu(currentHandle, false);
-                Enum.GetValues<SystemCommand>().ForEach(sc => DeleteMenu(sysMenu, (int)sc, 0x00000000));
+                Enum.GetValues<SystemCommand>().ForEach(sc => DeleteMenu(sysMenu, (int)sc, 0x0000_0000));
             }
             else
                 throw new Exception("Failed to get console window handle.");
@@ -32,10 +32,12 @@ namespace B.Utils
 
             if (GetConsoleMode(currentHandle, out uint consoleMode))
             {
-                // 0x0040 controls text selection (quick edit mode)
-                consoleMode &= ~(uint)(0x0040);
+                // bit 0b1000000 (quick edit mode)
+                consoleMode &= ~(uint)(0b100_0000);
 
-                if (!SetConsoleMode(currentHandle, consoleMode))
+                bool successful = SetConsoleMode(currentHandle, consoleMode);
+
+                if (!successful)
                     throw new Exception("Failed to set console mode.");
             }
             else

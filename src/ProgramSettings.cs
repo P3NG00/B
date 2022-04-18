@@ -1,4 +1,5 @@
 using B.Utils;
+using B.Utils.Themes;
 
 namespace B
 {
@@ -9,27 +10,22 @@ namespace B
         public Togglable CursorVisible;
         public Togglable DebugMode;
         public Togglable Censor;
-        public int CursorSize = 100;
-        public ConsoleColor ColorBackground = ConsoleColor.White;
-        public ConsoleColor ColorText = ConsoleColor.Black;
+        public ColorTheme ColorTheme;
+        public int CursorSize;
 
         public ProgramSettings()
         {
             CursorVisible = new(b => UpdateCursor());
             DebugMode = new(b => Window.Clear());
             Censor = new();
-        }
-
-        public void UpdateAll()
-        {
-            UpdateColors();
-            UpdateCursor();
+            ColorTheme = Util.ThemeDefault;
+            CursorSize = 100;
         }
 
         public void UpdateColors()
         {
-            Console.BackgroundColor = ColorBackground;
-            Console.ForegroundColor = ColorText;
+            ColorPair pair = ColorTheme[PrintType.General];
+            pair.SetConsoleColors();
         }
 
         public void UpdateCursor()

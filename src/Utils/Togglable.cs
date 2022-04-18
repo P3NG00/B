@@ -6,6 +6,8 @@ namespace B.Utils
 
         private Action<bool>? _onChanage;
 
+        private Togglable() { }
+
         public Togglable(Action<bool>? onChange = null) : this(false, onChange) { }
 
         public Togglable(bool value, Action<bool>? onChange = null)

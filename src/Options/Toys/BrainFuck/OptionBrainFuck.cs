@@ -49,13 +49,13 @@ namespace B.Options.Toys.BrainFuck
                         Window.SetSize(20, 7);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionBrainFuck.Title);
-                        choice.Add(() =>
+                        choice.AddKeybind(Keybind.Create(() =>
                         {
                             Input.ScrollIndex = 0;
                             SetStage(Stages.List);
-                        }, "List", '1');
+                        }, "List", '1'));
                         choice.AddSpacer();
-                        choice.AddExit(this);
+                        choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
                     }
                     break;

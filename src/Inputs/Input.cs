@@ -1,21 +1,42 @@
-using B.Options;
 using B.Utils;
 using B.Utils.Extensions;
+using B.Utils.Themes;
 
 namespace B.Inputs
 {
     public static class Input
     {
+        #region Constants
+
         public const int DECIMAL_LENGTH = 27;
+
+        #endregion
+
+
+
+        #region Universal Variables
 
         public static int ScrollIndex = 0;
         public static string String = string.Empty;
+
+        public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
+
+        #endregion
+
+
+
+        #region Universal Properties
+
         public static int MaxEntries => Window.SIZE_MAX.y - 21;
 
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
 
-        public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
+        #endregion
+
+
+
+        #region Universal Methods
 
         public static void ResetString() => Input.String = string.Empty;
 
@@ -46,7 +67,7 @@ namespace B.Inputs
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)
         {
             Input.Choice choice = Input.Choice.Create();
-            choice.Add(keybinds);
+            keybinds.ForEach(keybind => choice.AddKeybind(keybind));
             ConsoleKeyInfo keyInfo = choice.Request();
 
             if (keyInfo.Key == ConsoleKey.Backspace)
@@ -78,7 +99,7 @@ namespace B.Inputs
             // If title exists, print it
             if (title != null)
             {
-                Window.Print(title);
+                Window.Print($" {title} ", PrintType.Title);
                 Cursor.y += 2;
             }
 
@@ -99,7 +120,7 @@ namespace B.Inputs
                     ConsoleColor? colorText = getTextColor is null ? null : getTextColor(item, i);
                     ConsoleColor? colorBG = getBackgroundColor is null ? null : getBackgroundColor(item, i);
                     Cursor.x = 3;
-                    Window.Print(output, colorText, colorBG);
+                    Window.Print(output, new ColorPair(colorText, colorBG));
                     Cursor.y++;
                 }
 
@@ -107,36 +128,36 @@ namespace B.Inputs
                 if (navigationKeybinds)
                 {
                     // Add message
-                    choice.AddMessage("Use Up/Down to navigate");
+                    choice.AddText(new Text("Use Up/Down to navigate"));
                     // Scroll up
-                    choice.Add(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow);
+                    choice.AddKeybind(Keybind.Create(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow));
                     // Scroll down
-                    choice.Add(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow);
+                    choice.AddKeybind(Keybind.Create(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow));
                     // Scroll previous page
-                    choice.Add(() =>
+                    choice.AddKeybind(Keybind.Create(() =>
                     {
                         Input.ScrollIndex += maxEntriesAdjusted;
                         // Window is cleared here since it is only detected
                         // later if you crossed from the ends of the pages
                         Window.Clear();
-                    }, key: ConsoleKey.RightArrow);
+                    }, key: ConsoleKey.RightArrow));
                     // Scroll next page
-                    choice.Add(() =>
+                    choice.AddKeybind(Keybind.Create(() =>
                     {
                         Input.ScrollIndex -= maxEntriesAdjusted;
                         Window.Clear();
-                    }, key: ConsoleKey.LeftArrow);
+                    }, key: ConsoleKey.LeftArrow));
                 }
 
                 // If extra keybinds added...
-                if (extraKeybinds != null && extraKeybinds.Length != 0)
+                if (extraKeybinds is not null && extraKeybinds.Length != 0)
                 {
                     // Add spacer from navigation keybinds if added
                     if (navigationKeybinds)
                         choice.AddSpacer();
 
                     // Add extra keybinds
-                    choice.Add(extraKeybinds!);
+                    extraKeybinds.ForEach(keybind => choice.AddKeybind(keybind));
                 }
 
                 // If exit keybind...
@@ -147,7 +168,7 @@ namespace B.Inputs
                         choice.AddSpacer();
 
                     // Add exit keybind
-                    choice.Add(exitKeybind);
+                    choice.AddKeybind(exitKeybind);
                 }
 
                 // Get page index before it's modified
@@ -173,83 +194,92 @@ namespace B.Inputs
                 Cursor.x = 2;
                 Window.Print("No entries.");
                 Cursor.y += 2;
-                choice.Add(extraKeybinds);
-                choice.Add(exitKeybind);
+                extraKeybinds.ForEach(keybind => choice.AddKeybind(keybind));
+                choice.AddKeybind(exitKeybind);
                 keyInfo = choice.Request();
             }
 
             return keyInfo;
         }
 
+        #endregion
+
+
+
+        #region Input Entry Choice
+
+        private interface IEntry
+        {
+            void Print();
+        }
+
+        private sealed class EntryKeybind : IEntry
+        {
+            private readonly Keybind _keybind;
+
+            public Keybind Keybind => _keybind;
+
+            public EntryKeybind(Keybind keybind) => _keybind = keybind;
+
+            public void Print() => Window.Print(_keybind.ToString());
+        }
+
+        private sealed class EntrySpacer : IEntry
+        {
+            public void Print() => Util.Void();
+        }
+
+        private sealed class EntryText : IEntry
+        {
+            private readonly Text _text;
+
+            public EntryText(Text text) => _text = text;
+
+            public void Print() => _text.Print();
+        }
+
         public sealed class Choice
         {
-            private readonly List<Keybind> _keybinds = new();
+            private readonly List<IEntry> _entries = new();
 
             private Choice(string? title = null)
             {
                 if (string.IsNullOrWhiteSpace(title))
                     return;
 
-                AddMessage(title);
-                AddSpacer();
+                string titleText = $" {title} ";
+                Add(new EntryText(new(titleText, PrintType.Title)));
+                Add(new EntrySpacer());
             }
 
-            public void Add(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+            private void Add(IEntry entry)
             {
-                Keybind keybind = Keybind.Create(action, description, keyChar, key, modifiers);
-                _keybinds.Add(keybind);
+                if (entry is null)
+                    throw new Exception("Entry cannot be null!");
+
+                _entries.Add(entry);
             }
 
-            public void Add(params Keybind[] keybinds) => _keybinds.AddRange(keybinds);
+            public void AddKeybind(Keybind keybind) => Add(new EntryKeybind(keybind));
 
-            public void AddMessage(string message)
-            {
-                Keybind messageBind = Keybind.CreateMessageKeybind(message);
-                _keybinds.Add(messageBind);
-            }
+            public void AddText(Text text) => Add(new EntryText(text));
 
-            public void AddSpacer()
-            {
-                Keybind spacerBind = Keybind.CreateSpacerKeybind();
-                _keybinds.Add(spacerBind);
-            }
+            public void AddSpacer() => Add(new EntrySpacer());
 
-            public void AddConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
-            {
-                Keybind confirmationKeybind = Keybind.CreateConfirmationKeybind(action, message, description, keyChar, key, modifiers);
-                _keybinds.Add(confirmationKeybind);
-            }
-
-            public void AddExit(IOption option)
-            {
-                Keybind exitKeybind = Keybind.CreateOptionExitKeybind(option);
-                _keybinds.Add(exitKeybind);
-            }
-
-            // This will reset cursor position for each keybind printed.
+            // This will reset cursor position for each entry printed.
             // Make sure this is called when the cursor is in the row (Cursor.y) you want it to begin printing.
             public ConsoleKeyInfo Request(Action? final = null)
             {
-                // Print keybinds
-                _keybinds.ForEach(keybind =>
+                // Print entries
+                foreach (IEntry entry in _entries)
                 {
-                    // If keybind is not null, display it
-                    if (keybind != null)
-                    {
-                        Cursor.x = keybind.Action is null ? 2 : 1;
-                        string kStr = keybind.ToString();
+                    if (entry is EntryKeybind entryKeybind && !entryKeybind.Keybind.Display)
+                        continue;
 
-                        // Handle keybind display
-                        if (kStr is not null)
-                        {
-                            // Print
-                            Window.Print(kStr);
-
-                            // Go to next line
-                            Cursor.y++;
-                        }
-                    }
-                });
+                    Cursor.x = 2;
+                    entry.Print();
+                    Cursor.y++;
+                }
 
                 // Reset cursor
                 Cursor.x = 0;
@@ -262,12 +292,17 @@ namespace B.Inputs
                 ConsoleKeyInfo keyInfo = Input.Get();
 
                 // Activate function for pressed keybind
-                foreach (Keybind keybind in _keybinds)
+                foreach (IEntry entry in _entries)
                 {
-                    if (keybind is not null && keybind == keyInfo)
+                    if (entry is EntryKeybind entryKeybind)
                     {
-                        keybind.Action!.Invoke();
-                        break;
+                        Keybind keybind = entryKeybind.Keybind;
+
+                        if (keybind == keyInfo)
+                        {
+                            keybind.Action();
+                            break;
+                        }
                     }
                 }
 
@@ -276,5 +311,7 @@ namespace B.Inputs
 
             public static Choice Create(string? title = null) => new(title);
         }
+
+        #endregion
     }
 }

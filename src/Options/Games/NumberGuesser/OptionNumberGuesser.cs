@@ -33,15 +33,15 @@ namespace B.Options.Games.NumberGuesser
                         Window.SetSize(20, 8);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionNumberGuesser.Title);
-                        choice.Add(() =>
+                        choice.AddKeybind(Keybind.Create(() =>
                         {
                             _numRandom = Util.Random.Next(_numMax) + 1;
                             Input.ResetString();
                             SetStage(Stages.Game);
-                        }, "New Game", '1');
+                        }, "New Game", '1'));
                         choice.AddSpacer();
-                        choice.Add(() => SetStage(Stages.Settings), "Settings", '9');
-                        choice.AddExit(this);
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Settings), "Settings", '9'));
+                        choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
                     }
                     break;
@@ -104,13 +104,13 @@ namespace B.Options.Games.NumberGuesser
                         Window.SetSize(20, 7);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Settings");
-                        choice.Add(() =>
+                        choice.AddKeybind(Keybind.Create(() =>
                         {
                             Input.String = _numMax.ToString();
                             SetStage(Stages.Settings_MaxNumber);
-                        }, "Max Number", '1');
+                        }, "Max Number", '1'));
                         choice.AddSpacer();
-                        choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();
                     }
                     break;

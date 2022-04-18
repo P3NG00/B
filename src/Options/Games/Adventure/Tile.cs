@@ -1,10 +1,8 @@
-using B.Utils;
-
 namespace B.Options.Games.Adventure
 {
     public sealed class Tile
     {
-        private static readonly Dict<char, Tile> TileMap = new();
+        private static readonly Dictionary<char, Tile> TileMap = new();
 
         static Tile()
         {

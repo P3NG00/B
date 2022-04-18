@@ -41,13 +41,13 @@ namespace B.Options.Tools.MoneyTracker
                         Window.SetSize(20, consoleHeight);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title);
-                        choice.Add(() => SetStage(Stages.Account), "Account", '1');
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Account", '1'));
 
                         if (selected)
-                            choice.Add(() => SetStage(Stages.Transaction), "Transaction", '2');
+                            choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction), "Transaction", '2'));
 
                         choice.AddSpacer();
-                        choice.AddExit(this);
+                        choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
                     }
                     break;
@@ -69,11 +69,11 @@ namespace B.Options.Tools.MoneyTracker
                         }
 
                         Input.Choice choice = Input.Choice.Create("Account");
-                        choice.Add(() => SetStage(Stages.Account_Create), "Create", '1');
-                        choice.Add(() => SetStage(Stages.Account_Select), "Select", '2');
-                        choice.Add(() => SetStage(Stages.Account_Remove), "Remove", '3');
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account_Create), "Create", '1'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account_Select), "Select", '2'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account_Remove), "Remove", '3'));
                         choice.AddSpacer();
-                        choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();
                     }
                     break;
@@ -137,17 +137,17 @@ namespace B.Options.Tools.MoneyTracker
                             for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = _accounts[i];
-                                choice.Add(() =>
+                                choice.AddKeybind(Keybind.Create(() =>
                                 {
                                     _selectedAccount = account;
                                     SetStage(Stages.Account);
-                                }, account.Name, keyChar: (char)('1' + i));
+                                }, account.Name, keyChar: (char)('1' + i)));
                             }
 
                             choice.AddSpacer();
                         }
 
-                        choice.Add(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape);
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape));
                         choice.Request();
                     }
                     break;
@@ -171,7 +171,7 @@ namespace B.Options.Tools.MoneyTracker
                             {
                                 Account account = _accounts[i];
 
-                                choice.AddConfirmation(() =>
+                                choice.AddKeybind(Keybind.CreateConfirmation(() =>
                                 {
                                     if (_selectedAccount == account)
                                         _selectedAccount = null;
@@ -179,13 +179,13 @@ namespace B.Options.Tools.MoneyTracker
                                     _accounts.Remove(account);
                                     account.Delete();
                                     SetStage(Stages.Account);
-                                }, $"Delete account {account.Name}?", account.Name, keyChar: (char)('1' + i));
+                                }, $"Delete account {account.Name}?", account.Name, keyChar: (char)('1' + i)));
                             });
 
                             choice.AddSpacer();
                         }
 
-                        choice.Add(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape);
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape));
                         choice.Request();
                     }
                     break;
@@ -196,21 +196,21 @@ namespace B.Options.Tools.MoneyTracker
                         Window.SetSize(20, 10);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Transaction");
-                        choice.Add(() =>
+                        choice.AddKeybind(Keybind.Create(() =>
                         {
                             SetStage(Stages.Transaction_View);
                             Window.Clear();
-                        }, "View", '1');
-                        choice.Add(() =>
+                        }, "View", '1'));
+                        choice.AddKeybind(Keybind.Create(() =>
                         {
                             Input.ResetString();
                             _tempTransaction = new();
                             SetStage(Stages.Transaction_Add_Amount);
-                        }, "Add", '2');
-                        choice.Add(() => SetStage(Stages.Transaction_Delete), "Delete", '3');
-                        choice.Add(() => SetStage(Stages.Transaction_Edit), "Edit", '4');
+                        }, "Add", '2'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_Delete), "Delete", '3'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_Edit), "Edit", '4'));
                         choice.AddSpacer();
-                        choice.Add(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape);
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();
                     }
                     break;

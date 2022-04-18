@@ -1,18 +1,37 @@
+using B.Utils.Themes;
+
 namespace B.Utils
 {
     public sealed class Text
     {
-        private readonly string _text;
-        private readonly ConsoleColor? _colorText;
-        private readonly ConsoleColor? _colorBG;
+        // Private Variables
+        private readonly string _message;
+        private readonly ColorPair? _colors = null;
+        private readonly PrintType? _type = null;
 
-        public Text(string text, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
+        // Private Constructors
+        private Text(object message) => _message = message.ToString() ?? throw new Exception("Message cannot be null!");
+
+        // Public Constructors
+        public Text(object message, ColorPair colors) : this(message) => _colors = colors;
+        public Text(object message, PrintType type = PrintType.General) : this(message) => _type = type;
+
+        // Public Methods
+        public void Print()
         {
-            _text = text;
-            _colorText = colorText;
-            _colorBG = colorBG;
-        }
+            if (_colors is not null)
+            {
+                Window.Print(_message, _colors);
+                return;
+            }
 
-        public void Print() => Window.Print(_text, _colorText, _colorBG);
+            if (_type is not null)
+            {
+                Window.Print(_message, _type.Value);
+                return;
+            }
+
+            throw new Exception("Text could not be printed, no colors or type specified!");
+        }
     }
 }

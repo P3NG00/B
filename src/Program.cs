@@ -15,6 +15,7 @@ using B.Options.Toys.Canvas;
 using B.Options.Toys.TextGenerator;
 using B.Utils;
 using B.Utils.Extensions;
+using B.Utils.Themes;
 
 namespace B
 {
@@ -31,7 +32,7 @@ namespace B
 
         // Program Info
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
-        public static ProgramSettings Settings { get; private set; } = new();
+        public static ProgramSettings Settings { get; private set; } = null!;
         public static Program Instance { get; private set; } = null!;
 
         // Option Groups
@@ -75,7 +76,7 @@ namespace B
             try { Initialize(); }
             catch (Exception e)
             {
-                HandleException(new Text("AN ERROR HAS OCCURRED DURING INITIALIZATION.", ConsoleColor.DarkRed, ConsoleColor.Gray), e);
+                HandleException(new Text("AN ERROR HAS OCCURRED DURING INITIALIZATION.", new ColorPair(ConsoleColor.DarkRed, ConsoleColor.Gray)), e);
                 Environment.Exit(1);
             }
 
@@ -83,7 +84,7 @@ namespace B
             while (IsRunning)
             {
                 try { Loop(); }
-                catch (NotImplementedException) { HandleException(new Text("This feature is not yet implemented.", ConsoleColor.DarkYellow)); }
+                catch (NotImplementedException) { HandleException(new Text("This feature is not yet implemented.", new ColorPair(ConsoleColor.DarkYellow, ConsoleColor.Gray))); }
                 catch (Exception e) { HandleException(e); }
             }
 
@@ -94,9 +95,6 @@ namespace B
 
         private void Initialize()
         {
-            // Initialize window properties
-            External.Initialize();
-
             // Set console settings
             Console.Title = Program.Title;
 
@@ -104,17 +102,33 @@ namespace B
             if (OperatingSystem.IsWindows())
                 Console.TreatControlCAsInput = true;
 
-            // Load program settings
+            // Initialize other window properties
+            External.Initialize();
+
+            // Initialize Utilities
+            Util.Initialize();
+
+            // Get program settings
+            bool programSettingsInitialized = false;
+
             if (File.Exists(ProgramSettings.Path))
             {
                 // If settings can't be loaded, just handle exception.
                 // Settings are already initialized to default values.
-                try { Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
-                catch (Exception) { }
+                try
+                {
+                    Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path);
+                    programSettingsInitialized = true;
+                }
+                catch (Exception e) { HandleException(e); }
             }
 
+            if (!programSettingsInitialized)
+                Program.Settings = new ProgramSettings();
+
             // Update program settings
-            Program.Settings.UpdateAll();
+            Program.Settings.UpdateColors();
+            Program.Settings.UpdateCursor();
         }
 
         public override void Loop()
@@ -138,15 +152,16 @@ namespace B
                         Util.Loop(Program.OptionGroups.Length, i =>
                         {
                             var optionGroup = Program.OptionGroups[i];
-
-                            choice.Add(() =>
+                            Action action = () =>
                             {
                                 _optionGroup = optionGroup;
                                 SetStage(Levels.Group);
-                            }, optionGroup.GroupTitle, (char)('1' + i));
+                            };
+                            char c = (char)('1' + i);
+                            choice.AddKeybind(Keybind.Create(action, optionGroup.GroupTitle, c));
                         });
                         choice.AddSpacer();
-                        choice.AddExit(this);
+                        choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
                     }
                     break;
@@ -171,10 +186,10 @@ namespace B
                             };
                             char c = (char)('1' + i);
                             Keybind keybind = Keybind.Create(createInstanceAction, title, c);
-                            choice.Add(keybind);
+                            choice.AddKeybind(keybind);
                         });
                         choice.AddSpacer();
-                        choice.AddExit(this);
+                        choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
                     }
                     break;
@@ -193,33 +208,34 @@ namespace B
             }
         }
 
-        public static void HandleException(Text message, Exception? exception = null)
+        public static void HandleException(Text text, Exception? exception = null)
         {
             Window.Clear();
             Window.Size = Window.SIZE_MAX * 0.75f;
             // Cursor will always start at (2, 1)
             Cursor.Position = new(2, 1);
 
-            if (message is null)
-                Window.Print("An exception was thrown!", ConsoleColor.Red);
+            if (text is null)
+                Window.Print("An exception was thrown!", new ColorPair(colorText: ConsoleColor.Red));
             else
-                message.Print();
+                text.Print();
 
             if (exception is not null)
             {
                 Cursor.x = 2;
                 Cursor.y += 2;
-                Window.Print(exception, ConsoleColor.White, ConsoleColor.Black);
+                Window.Print(exception, new ColorPair(ConsoleColor.White, ConsoleColor.Black));
             }
 
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
-            Instance._selectedOption = null;
+            Program P = Instance;
+            P._selectedOption = null;
 
-            if (Instance.Stage == Levels.Option)
-                Instance.SetStage(Levels.Group);
-            else if (Instance.Stage == Levels.Group)
-                Instance.SetStage(Levels.Program);
+            if (P.Stage == Levels.Option)
+                P.SetStage(Levels.Group);
+            else if (P.Stage == Levels.Group)
+                P.SetStage(Levels.Program);
         }
 
         public static void HandleException(Exception? e) => HandleException(null!, e);

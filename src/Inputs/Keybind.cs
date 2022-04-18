@@ -5,17 +5,42 @@ namespace B.Inputs
 {
     public sealed class Keybind
     {
-        public readonly ConsoleKey Key;
+        #region Public Properties
+
+        public readonly ConsoleKey? Key;
         public readonly char? KeyChar;
-        public readonly string? Description;
+        public readonly string Description;
         public readonly Action Action;
+
+        public bool Display => !string.IsNullOrWhiteSpace(Description);
+
+        #endregion
+
+
+
+        #region Private Properties
+
         private readonly ConsoleModifiers _modifiers;
 
-        private Keybind(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+        #endregion
+
+
+
+        #region Constructor
+
+        private Keybind(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null)
         {
+            if (action is null)
+                action = Util.Void;
+
             KeyChar = keyChar;
             Key = key;
-            Description = description;
+
+            if (description is null)
+                Description = string.Empty;
+            else
+                Description = description;
+
             Action = action;
 
             if (modifiers.HasValue)
@@ -24,28 +49,13 @@ namespace B.Inputs
                 _modifiers = default;
         }
 
+        #endregion
+
+
+
+        #region Public Methods
+
         public bool HasModifier(ConsoleModifiers modifier) => _modifiers.HasFlag(modifier);
-
-        private bool IsValid(ConsoleKeyInfo keyInfo)
-        {
-            if (Action is null)
-                return false;
-
-            bool isKey = Key == keyInfo.Key;
-            bool isKeyChar;
-
-            if (KeyChar.HasValue)
-                isKeyChar = KeyChar.Value == keyInfo.KeyChar;
-            else
-                isKeyChar = false;
-
-            bool keyMatches = isKey || isKeyChar;
-
-            if (!keyMatches)
-                return false;
-
-            return _modifiers.Equals(keyInfo.Modifiers);
-        }
 
         public override bool Equals(object? obj)
         {
@@ -61,47 +71,26 @@ namespace B.Inputs
 
         public override string ToString()
         {
-            // If no description...
-            if (string.IsNullOrWhiteSpace(Description))
-            {
-                // If action is null...
-                if (Action is null)
-                {
-                    // Treat as spacer
-                    return string.Empty;
-                }
-                else
-                {
-                    // This keybind is supposed to be hidden.
-                    // Do not display it and do not move to next line.
-                    return null!;
-                }
-            }
-            // If description exists...
-            else
-            {
-                // If action is null, proceed as message
-                if (Action is null)
-                    return Description;
-                // If action is not null, proceed as keybind
-                else
-                {
-                    string preface = string.Empty;
-                    if (HasModifier(ConsoleModifiers.Control)) preface += "Ctrl+";
-                    if (HasModifier(ConsoleModifiers.Shift)) preface += "Shift+";
-                    if (HasModifier(ConsoleModifiers.Alt)) preface += "Alt+";
-                    return $"{preface}{(KeyChar.HasValue ? KeyChar.Value.ToString() : Key.ToString())}) {Description}";
-                }
-            }
+            string preface = string.Empty;
+            if (HasModifier(ConsoleModifiers.Control)) preface += "Ctrl+";
+            if (HasModifier(ConsoleModifiers.Shift)) preface += "Shift+";
+            if (HasModifier(ConsoleModifiers.Alt)) preface += "Alt+";
+            return $"{preface}{(KeyChar.HasValue ? KeyChar.Value.ToString() : Key.ToString())}) {Description}";
         }
 
-        public static Keybind Create(Action action, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+        #endregion
+
+
+
+        #region Universal Methods
+
+        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
         {
             Keybind keybind = new Keybind(action, description, keyChar, key, modifiers);
             return keybind;
         }
 
-        public static Keybind CreateOptionExitKeybind(IOption option)
+        public static Keybind CreateOptionExit(IOption option)
         {
             string phrase = string.Empty;
 
@@ -118,7 +107,7 @@ namespace B.Inputs
             return optionExitKeybind;
         }
 
-        public static Keybind CreateConfirmationKeybind(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+        public static Keybind CreateConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
         {
             Action confirmationAction = () =>
             {
@@ -126,9 +115,9 @@ namespace B.Inputs
                 Window.Size = new(message.Length + 4, 7);
                 Cursor.Position = new(2, 1);
                 Input.Choice choice = Input.Choice.Create(message);
-                choice.Add(Util.Void, "NO", key: ConsoleKey.Escape);
+                choice.AddKeybind(Keybind.Create(description: "NO", key: ConsoleKey.Escape));
                 choice.AddSpacer();
-                choice.Add(action, "yes", key: ConsoleKey.Enter);
+                choice.AddKeybind(Keybind.Create(action, "yes", key: ConsoleKey.Enter));
                 choice.Request();
                 // Clear window after confirmation
                 Window.Clear();
@@ -138,20 +127,47 @@ namespace B.Inputs
             return confirmationKeybind;
         }
 
-        public static Keybind CreateMessageKeybind(string message)
+        [Obsolete] // TODO remove function
+        public static Keybind CreateMessage(string message)
         {
-            Keybind messageKeybind = new Keybind(null!, message);
+            Keybind messageKeybind = new Keybind(description: message);
             return messageKeybind;
         }
 
+        [Obsolete] // TODO remove function
         public static Keybind CreateSpacerKeybind()
         {
-            Keybind spacerKeybind = new Keybind(null!, string.Empty);
+            Keybind spacerKeybind = new Keybind(description: string.Empty);
             return spacerKeybind;
         }
 
-        public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo) => keybind.IsValid(keyInfo);
+        #endregion
 
-        public static bool operator !=(Keybind keybind, ConsoleKeyInfo keyInfo) => !keybind.IsValid(keyInfo);
+
+
+        #region Operator Overrides
+
+        public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo)
+        {
+            bool isKey = keybind.Key == keyInfo.Key;
+            bool isKeyChar;
+            char? keychar = keybind.KeyChar;
+
+            if (keychar.HasValue)
+                isKeyChar = keychar.Value == keyInfo.KeyChar;
+            else
+                isKeyChar = false;
+
+            bool keyMatches = isKey || isKeyChar;
+
+            if (!keyMatches)
+                return false;
+
+            return keybind._modifiers.Equals(keyInfo.Modifiers);
+        }
+
+        public static bool operator !=(Keybind keybind, ConsoleKeyInfo keyInfo) => !(keybind == keyInfo);
+
+        #endregion
     }
 }

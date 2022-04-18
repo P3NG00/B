@@ -29,9 +29,9 @@ namespace B.Options.Games.MexicanTrain
                         Window.SetSize(34, 7);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionMexicanTrain.Title);
-                        choice.AddMessage($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players.");
+                        choice.AddText(new Text($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players."));
                         choice.AddSpacer();
-                        choice.AddExit(this);
+                        choice.AddKeybind(Keybind.CreateOptionExit(this));
                         for (int i = PLAYERS_MIN; i <= PLAYERS_MAX; i++)
                         {
                             // Create new instances because 'i' will change while looping
@@ -39,12 +39,12 @@ namespace B.Options.Games.MexicanTrain
                             int j = i;
 
                             // Add keybinds
-                            choice.Add(() =>
+                            choice.AddKeybind(Keybind.Create(() =>
                             {
                                 _info = new MexicanTrainInfo(j);
                                 _info.SetupGame();
                                 SetStage(Stages.Game);
-                            }, keyChar: c);
+                            }, keyChar: c));
                         }
                         choice.Request();
                     }

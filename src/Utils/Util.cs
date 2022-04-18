@@ -1,12 +1,59 @@
+using B.Utils.Themes;
+
 namespace B.Utils
 {
     public static class Util
     {
-        public static Action Void => () => { };
+        // Private
+        private static readonly Random _random = new Random();
 
-        public static Random Random => new Random();
+        private static ColorTheme[] _colorThemes = null!;
 
-        public static ConsoleColor[] ConsoleColors => new ConsoleColor[] {
+        // Universal Properties
+        public static ColorTheme ThemeDefault => new ColorTheme("Default",
+            new PrintPair(PrintType.General, new(ConsoleColor.Black, ConsoleColor.White)),
+            new PrintPair(PrintType.Title, new(ConsoleColor.Black, ConsoleColor.Gray)));
+
+        // Universal Getters
+        public static ColorTheme[] ColorThemes => _colorThemes;
+        public static Random Random => _random;
+
+        // Universal Functions
+        public static void Initialize()
+        {
+            if (_colorThemes is not null)
+                throw new Exception("Util already initialized!");
+
+            _colorThemes = new ColorTheme[]
+            {
+                // TODO add PrintType.Title to ColorThemes
+                ThemeDefault,
+                new("Light",
+                    new PrintPair(PrintType.General, new(ConsoleColor.DarkGray, ConsoleColor.White))),
+                new("Gentle",
+                    new PrintPair(PrintType.General, new(ConsoleColor.DarkCyan, ConsoleColor.White)),
+                    new PrintPair(PrintType.Title, new(ConsoleColor.DarkCyan, ConsoleColor.Gray))),
+                new("Sky",
+                    new PrintPair(PrintType.General, new(ConsoleColor.White, ConsoleColor.DarkCyan))),
+                new("Sunshine",
+                    new PrintPair(PrintType.General, new(ConsoleColor.DarkYellow, ConsoleColor.Yellow))),
+                new("Starlight",
+                    new PrintPair(PrintType.General, new(ConsoleColor.Yellow, ConsoleColor.Black))),
+                new("Purple Banana",
+                    new PrintPair(PrintType.General, new(ConsoleColor.Yellow, ConsoleColor.DarkMagenta))),
+                new("Salmon",
+                    new PrintPair(PrintType.General, new(ConsoleColor.Yellow, ConsoleColor.Red))),
+                new("Console",
+                    new PrintPair(PrintType.General, new(ConsoleColor.White, ConsoleColor.Black))),
+                new("Creeper",
+                    new PrintPair(PrintType.General, new(ConsoleColor.Black, ConsoleColor.Green))),
+                new("Hacker",
+                    new PrintPair(PrintType.General, new(ConsoleColor.Green, ConsoleColor.Black))),
+            };
+        }
+
+        public static ConsoleColor[] ConsoleColors => new ConsoleColor[]
+        {
             ConsoleColor.White,
             ConsoleColor.Gray,
             ConsoleColor.DarkGray,
@@ -22,8 +69,10 @@ namespace B.Utils
             ConsoleColor.DarkYellow,
             ConsoleColor.Yellow,
             ConsoleColor.DarkRed,
-            ConsoleColor.Red
+            ConsoleColor.Red,
         };
+
+        public static Action Void => () => { };
 
         public static void Loop(int count, Action action) => Loop(count, i => action());
 

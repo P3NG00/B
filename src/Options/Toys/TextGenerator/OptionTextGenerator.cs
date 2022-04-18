@@ -12,10 +12,10 @@ namespace B.Options.Toys.TextGenerator
         public static string Title => "Text Generator";
 
         // Font and Name list
-        private static (string Name, FiggleFont Font)[] _fonts = null!;
+        private static FontType[] _fonts = null!;
 
         // Current Font from Index
-        private (string Name, FiggleFont Font) FontInfo => _fonts[_fontIndex];
+        private FontType FontInfo => _fonts[_fontIndex];
 
         // Index of current Font
         private int _fontIndex = 0;
@@ -28,13 +28,13 @@ namespace B.Options.Toys.TextGenerator
                 // Get all font properties
                 PropertyInfo[] properties = typeof(FiggleFonts).GetProperties();
                 // From each property, put font into array
-                _fonts = properties.FromEach(property => (property.Name, (FiggleFont)property.GetValue(null)!)).ToArray();
+                _fonts = properties.FromEach(property => new FontType(property.Name, (FiggleFont)property.GetValue(null)!)).ToArray();
                 // Sort array by name
                 Array.Sort(_fonts, (fontA, fontB) => fontA.Name.CompareTo(fontB.Name));
             }
 
             // Reset text
-            Input.String = "text";
+            Input.String = Program.Title;
             // Select random font
             SelectRandomFont();
         }
@@ -77,7 +77,7 @@ namespace B.Options.Toys.TextGenerator
                                 Input.ScrollIndex = _fontIndex;
                                 SetStage(Stages.FontSelect);
                             }, "Select Font", key: ConsoleKey.F1),
-                            Keybind.CreateOptionExitKeybind(this),
+                            Keybind.CreateOptionExit(this),
                         });
                         // Fix font index
                         if (_fontIndex < 0)

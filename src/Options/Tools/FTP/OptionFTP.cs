@@ -213,10 +213,10 @@ namespace B.Options.Tools.FTP
                         Window.SetSize(title.Length + 4, 8);
                         Cursor.Position = new(2, 1);
                         Input.Choice choice = Input.Choice.Create(title);
-                        choice.Add(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown);
-                        choice.Add(CreateConfirmKeybindForCurrent());
+                        choice.AddKeybind(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
+                        choice.AddKeybind(CreateConfirmKeybindForCurrent());
                         choice.AddSpacer();
-                        choice.Add(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape);
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape));
                         choice.Request();
                         Window.Clear();
                     }
@@ -272,7 +272,7 @@ namespace B.Options.Tools.FTP
             }
         }
 
-        private Keybind CreateConfirmKeybindForCurrent() => Keybind.CreateConfirmationKeybind(DeleteCurrent, $"Are you sure you want to delete {CurrentFile.Name}?", "Delete", key: ConsoleKey.Delete);
+        private Keybind CreateConfirmKeybindForCurrent() => Keybind.CreateConfirmation(DeleteCurrent, $"Are you sure you want to delete {CurrentFile.Name}?", "Delete", key: ConsoleKey.Delete);
 
         private void DeleteCurrent()
         {
