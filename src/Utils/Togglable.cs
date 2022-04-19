@@ -2,18 +2,16 @@ namespace B.Utils
 {
     public sealed class Togglable
     {
-        public bool Active { get; private set; } = false;
+        public bool Active = false;
 
-        private Action<bool>? _onChange;
+        private Action<bool>? _onToggle;
 
-        public void SetOnChangeAction(Action<bool> onChange) => _onChange = onChange;
+        public void SetOnChangeAction(Action<bool> onToggle) => _onToggle = onToggle;
 
         public void Toggle()
         {
             Active = !Active;
-
-            if (_onChange is not null)
-                _onChange(Active);
+            _onToggle?.Invoke(Active);
         }
     }
 }

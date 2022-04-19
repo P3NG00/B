@@ -13,7 +13,6 @@ namespace B.Options.Tools.Settings
         public static string Title => "Settings";
 
         private Vector2 _size = new(40, 20);
-        private Thread _thread = null!;
 
         public OptionSettings() : base(Stages.MainMenu) { }
 
@@ -24,15 +23,14 @@ namespace B.Options.Tools.Settings
                 case Stages.MainMenu:
                     {
                         Window.Clear();
-                        Window.SetSize(27, 15);
+                        Window.SetSize(27, 14);
                         Cursor.Set(0, 1);
                         var choice = Input.Choice.Create(OptionSettings.Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
-                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Mouse), "Mouse", '3'));
-                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '4'));
-                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '5'));
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.DeleteData), "Delete Data", '6'));
+                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
+                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '4'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.DeleteData), "Delete Data", '5'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10));
                         // Action is null because F12 will toggle Debug Mode in Program using LastInput
@@ -173,49 +171,6 @@ namespace B.Options.Tools.Settings
                     }
                     break;
 
-                case Stages.Mouse:
-                    {
-                        // TODO reimplement this mouse-testing thing.
-                        // TODO if theres no reason to keep this, remove it
-                        SetStage(Stages.MainMenu);
-                        // TODO multithread for mouse position and keyboard input
-                        // TODO make this a main function of the program.
-                        // program should accept both keyboard input and mouse input
-
-                        // TODO this example isn't working properly
-                        // Window.SetSize(40, 20);
-                        // var choice = Input.Choice.Create("Mouse");
-                        // choice.AddKeybind(Keybind.Create(() =>
-                        // {
-                        //     if (_thread is not null)
-                        //     {
-                        //         _thread.Abort(); // TODO figure out how to properly terminate multithread process
-                        //         _thread = null!;
-                        //     }
-
-                        //     SetStage(Stages.MainMenu);
-                        // }, "Exit", key: ConsoleKey.Escape));
-
-                        // Cursor.y = 1;
-                        // choice.Request(() =>
-                        // {
-                        //     if (_thread is not null)
-                        //         return;
-
-                        //     _thread = new Thread(() =>
-                        //     {
-                        //         while (true)
-                        //         {
-                        //             Cursor.Set(2, 5);
-                        //             Window.Print($"{Mouse.Position,-16}");
-                        //         }
-                        //     });
-
-                        //     _thread.Start();
-                        // });
-                    }
-                    break;
-
                 case Stages.KeyPress:
                     {
                         Window.SetSize(35, 28);
@@ -298,7 +253,6 @@ namespace B.Options.Tools.Settings
             Color_Custom,
             Cursor,
             Cursor_Size,
-            Mouse,
             KeyPress,
             DeleteData,
         }

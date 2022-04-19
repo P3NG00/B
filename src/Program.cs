@@ -102,7 +102,7 @@ namespace B
             if (OperatingSystem.IsWindows())
                 Console.TreatControlCAsInput = true;
 
-            // Attempt to Deserialize saved Settings
+            // Attempt to Deserialize saved Settings before further initialization
             if (File.Exists(ProgramSettings.Path))
             {
                 try { Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
@@ -113,16 +113,14 @@ namespace B
             if (Program.Settings is null)
                 Program.Settings = new ProgramSettings();
 
-            // Initialize Settings
+            // Initialize Settings after Program.Settings has been created
             Program.Settings.Initialize();
 
             // Initialize other window properties
             External.Initialize();
-
             // Initialize Utilities
             Util.Initialize();
-
-            // Initialize Mouse Capture Thread
+            // Initialize Mouse Capture Thread after Program.Settings has been been initialized
             Mouse.Initialize();
         }
 
