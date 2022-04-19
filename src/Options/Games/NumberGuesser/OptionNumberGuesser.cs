@@ -31,7 +31,7 @@ namespace B.Options.Games.NumberGuesser
                     {
                         Window.Clear();
                         Window.SetSize(20, 8);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionNumberGuesser.Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
@@ -59,13 +59,13 @@ namespace B.Options.Games.NumberGuesser
 
                         Window.Clear();
                         Window.SetSize(20, consoleHeight);
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
 
                         if (debug)
                         {
-                            Cursor.Position = new(1, 1);
+                            Cursor.Set(1, 1);
                             Window.Print($"Number: {_numRandom}");
-                            Cursor.Position = new(2, 3);
+                            Cursor.Set(2, 3);
                         }
 
                         Window.Print(Input.String);
@@ -102,7 +102,7 @@ namespace B.Options.Games.NumberGuesser
                     {
                         Window.Clear();
                         Window.SetSize(20, 7);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create("Settings");
                         choice.AddKeybind(Keybind.Create(() =>
                         {
@@ -119,9 +119,9 @@ namespace B.Options.Games.NumberGuesser
                     {
                         Window.Clear();
                         Window.SetSize(20, 5);
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
                         Window.Print($"Max - {Input.String}");
-                        Cursor.Position = new(2, 3);
+                        Cursor.Set(2, 3);
                         Window.Print("Enter Max Number");
                         Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH,
                             Keybind.Create(() =>

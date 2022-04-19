@@ -23,22 +23,15 @@ namespace B.Options.Tools.Settings
                 case Stages.MainMenu:
                     {
                         Window.Clear();
-                        Window.SetSize(30, 14);
-                        Cursor.Position = new(0, 1);
+                        Window.SetSize(27, 15);
+                        Cursor.Set(0, 1);
                         var choice = Input.Choice.Create(OptionSettings.Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            Window.Clear();
-                            SetStage(Stages.KeyPress);
-                        }, "Key Press", '3'));
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            Window.Clear();
-                            SetStage(Stages.Cursor);
-                        }, "Cursor", '4'));
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.DeleteData), "Delete Data", '5'));
+                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Mouse), "Mouse", '3'));
+                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '4'));
+                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '5'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.DeleteData), "Delete Data", '6'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10));
                         // Action is null because F12 will toggle Debug Mode in Program using LastInput
@@ -46,17 +39,24 @@ namespace B.Options.Tools.Settings
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
+
+                        // Local Method
+                        void ClearSetStage(Stages stage)
+                        {
+                            Window.Clear();
+                            SetStage(stage);
+                        }
                     }
                     break;
 
                 case Stages.WindowSize:
                     {
-                        _size = _size.Clamp(Window.SIZE_MIN, Window.SIZE_MAX);
+                        _size = _size.Clamp(Window.SizeMin, Window.SizeMax);
                         Window.Clear();
-                        Window.Size = _size;
-                        Cursor.Position = new(0, 0);
-                        Window.Print($"Detected Max Size: {Window.SIZE_MAX}");
-                        Cursor.Position = new(0, 1);
+                        Window.SetSize(_size);
+                        Cursor.Set(0, 0);
+                        Window.Print($"Detected Max Size: {Window.SizeMax}");
+                        Cursor.Set(0, 1);
                         Window.Print($"Current Size: {_size}");
                         Input.Choice choice = Input.Choice.Create();
                         choice.AddKeybind(Keybind.Create(() => _size.x++, keyChar: '8', key: ConsoleKey.RightArrow));
@@ -72,7 +72,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.Clear();
                         Window.SetSize(20, 8);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create("Color");
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Themes", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Custom), "Customize", '2'));
@@ -131,7 +131,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.SetSize(25, 8);
                         Cursor.Reset();
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create("Cursor");
                         choice.AddKeybind(Keybind.Create(() => Program.Settings.CursorVisible.Toggle(), $"Visibility - {Cursor.Visible,-5}", '1'));
                         choice.AddKeybind(Keybind.Create(() =>
@@ -148,7 +148,7 @@ namespace B.Options.Tools.Settings
                 case Stages.Cursor_Size:
                     {
                         Window.SetSize(23, 10);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create($"Cursor Size - {Cursor.Size,-3}");
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size++, "+1", key: ConsoleKey.UpArrow));
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size--, "-1", key: ConsoleKey.DownArrow));
@@ -165,10 +165,21 @@ namespace B.Options.Tools.Settings
                             // Show cursor for changing
                             Cursor.Visible = true;
                             // Position cursor near open area in bottom-right corner
-                            Cursor.Position = new(20, 8);
+                            Cursor.Set(20, 8);
                         });
                         // Update cursor after request
                         Program.Settings.UpdateCursor();
+                    }
+                    break;
+
+                case Stages.Mouse:
+                    {
+                        // TODO multithread for mouse position and keyboard input
+                        // TODO make this a main function of the program.
+                        // program should accept both keyboard input and mouse input
+                        Window.SetSize(40, 20);
+                        Cursor.Set(2, 1);
+                        Window.Print($"{Mouse.Position,-16}");
                     }
                     break;
 
@@ -178,7 +189,7 @@ namespace B.Options.Tools.Settings
                         ConsoleKeyInfo lastInput = Input.LastInput;
                         ConsoleKey key = lastInput.Key;
                         char c = lastInput.KeyChar;
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
                         Window.Print(" Last Pressed ", PrintType.Title);
                         //    2
                         Print(3, "Key", key);
@@ -229,7 +240,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.Clear();
                         Window.SetSize(20, 10);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create("Delete Data");
                         choice.AddKeybind(CreateDeleteKeybind(() => File.Delete(OptionAdventure.FilePath), OptionAdventure.Title, '1'));
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionBrainFuck.DirectoryPath, true), OptionBrainFuck.Title, '2'));
@@ -254,6 +265,7 @@ namespace B.Options.Tools.Settings
             Color_Custom,
             Cursor,
             Cursor_Size,
+            Mouse,
             KeyPress,
             DeleteData,
         }

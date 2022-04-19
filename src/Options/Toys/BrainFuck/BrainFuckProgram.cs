@@ -42,9 +42,9 @@ namespace B.Options.Toys.BrainFuck
                     {
                         Window.Clear();
                         Window.SetSize(30, 10);
-                        Cursor.Position = new(1, 1);
+                        Cursor.Set(1, 1);
                         Window.Print($"Output: {output}");
-                        Cursor.Position = new(1, 3);
+                        Cursor.Set(1, 3);
                         Window.Print("Press Input Key...");
                         memory[memoryIndex] = (byte)Input.Get().KeyChar;
                     }

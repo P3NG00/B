@@ -112,7 +112,7 @@ namespace B.Inputs
             Action confirmationAction = () =>
             {
                 Window.Clear();
-                Window.Size = new(message.Length + 6, 7);
+                Window.SetSize(message.Length + 6, 7);
                 Input.Choice choice = Input.Choice.Create(message);
                 choice.AddKeybind(Keybind.Create(description: "NO", key: ConsoleKey.Escape));
                 choice.AddSpacer();

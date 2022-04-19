@@ -52,14 +52,14 @@ namespace B.Options.Toys.TextGenerator
                         string output = fontInfo.Font.Render(Input.String);
                         // Copy to clipboard
                         ClipboardService.SetText(output);
-                        Window.Size = new(Window.SIZE_MAX.x - 5, fontInfo.Font.Height + 12);
+                        Window.SetSize(Window.SizeMax.x - 5, fontInfo.Font.Height + 12);
                         // Print info
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
                         Window.Print($"Input: \"{Input.String}\"");
-                        Cursor.Position = new(2, 2);
+                        Cursor.Set(2, 2);
                         Window.Print($"Font: {fontInfo.Name}");
                         // Print output
-                        Cursor.Position = new(0, 4);
+                        Cursor.Set(0, 4);
                         output.Split("\r\n").ForEach(line =>
                         {
                             Cursor.x = 2;

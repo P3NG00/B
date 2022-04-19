@@ -27,7 +27,7 @@ namespace B.Inputs
 
         #region Universal Properties
 
-        public static int MaxEntries => Window.SIZE_MAX.y - 21;
+        public static int MaxEntries => Window.SizeMax.y - 21;
 
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;

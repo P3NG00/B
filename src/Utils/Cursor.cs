@@ -6,9 +6,11 @@ namespace B.Utils
     {
         public static Vector2 Position
         {
-            get => new(Console.CursorLeft, Console.CursorTop);
+            get => new(x, y);
             set => Console.SetCursorPosition(value.x, value.y);
         }
+
+        public static void Set(int x, int y) => Position = new(x, y);
 
         public static int x
         {

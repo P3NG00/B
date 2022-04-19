@@ -49,7 +49,7 @@ namespace B.Options.Games.Adventure
                         bool fileExists = File.Exists(OptionAdventure.FilePath);
                         Window.Clear();
                         Window.SetSize(20, fileExists ? 8 : 7);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
                         if (fileExists)
                         {

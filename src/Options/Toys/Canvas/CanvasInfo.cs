@@ -24,7 +24,7 @@ namespace B.Options.Toys.Canvas
                 windowSize += offset;
 
             Window.Clear();
-            Window.Size = windowSize;
+            Window.SetSize(windowSize);
 
             for (int y = 0; y < Size.y; y++)
             {
@@ -35,7 +35,7 @@ namespace B.Options.Toys.Canvas
                     if (offset is not null)
                         newPos += offset;
 
-                    Cursor.Position = new(newPos);
+                    Cursor.Position = newPos;
                     Window.Print(' ', new ColorPair(colorBack: Color(x, y)));
                 }
             }

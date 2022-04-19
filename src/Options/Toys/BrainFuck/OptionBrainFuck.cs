@@ -47,7 +47,7 @@ namespace B.Options.Toys.BrainFuck
                     {
                         Window.Clear();
                         Window.SetSize(20, 7);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionBrainFuck.Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
@@ -96,19 +96,19 @@ namespace B.Options.Toys.BrainFuck
                                 int consoleWidth = 50;
                                 Window.Clear();
                                 Window.SetSize(consoleWidth, 25);
-                                Cursor.Position = new(0, 0);
+                                Cursor.Set(0, 0);
                                 Window.Print(_output);
-                                Cursor.Position = new(1, 1);
+                                Cursor.Set(1, 1);
                                 Window.Print($"{'-'.Loop(consoleWidth - 2)}");
-                                Cursor.Position = new(2, 2);
+                                Cursor.Set(2, 2);
                                 Window.Print("DEBUG ON | OUTPUT ABOVE LINE");
-                                Cursor.Position = new(0, 3);
+                                Cursor.Set(0, 3);
                                 Window.Print($"Memory Index: {_memoryIndex}");
-                                Cursor.Position = new(0, 4);
+                                Cursor.Set(0, 4);
                                 Window.Print($"Instruction Index: {_instructionIndex}");
-                                Cursor.Position = new(0, 5);
+                                Cursor.Set(0, 5);
                                 Window.Print($"Bracket Depth: {_bracketDepth}");
-                                Cursor.Position = new(0, 6);
+                                Cursor.Set(0, 6);
                                 Window.Print($"Total Steps: {_stepCounter}");
 
                                 switch (Input.Get().Key)
@@ -132,7 +132,7 @@ namespace B.Options.Toys.BrainFuck
                         {
                             Window.Clear();
                             Window.SetSize(50, 25);
-                            Cursor.Position = new(0, 1);
+                            Cursor.Set(0, 1);
                             Window.Print(_output);
                             Input.WaitFor(ConsoleKey.F1);
                             SetStage(Stages.List);
@@ -148,17 +148,17 @@ namespace B.Options.Toys.BrainFuck
 
                             int consoleWidth = 20;
                             Window.SetSize(consoleWidth, 29);
-                            Cursor.Position = new(2, 1);
+                            Cursor.Set(2, 1);
                             Window.Print("Memory View");
                             // Column 1 - Byte
                             // Column 2 - Char
                             // Column 3 - Hex
                             string format = "{0,-6}{1,-6}{2,-2}";
-                            Cursor.Position = new(3, 3);
+                            Cursor.Set(3, 3);
                             Window.Print($"{string.Format(format, "byte", "char", "hex")}");
-                            Cursor.Position = new(1, 4);
+                            Cursor.Set(1, 4);
                             Window.Print($"{'-'.Loop(consoleWidth - 2)}");
-                            Cursor.Position = new(0, 5);
+                            Cursor.Set(0, 5);
                             Input.ScrollIndex = (int)_memoryIndex;
                             Input.RequestScroll(
                                 items: _memory,

@@ -113,13 +113,13 @@ namespace B.Options.Tools.FTP
                     {
                         int consoleWidth = 16;
                         Window.SetSize(consoleWidth, 5);
-                        Cursor.Position = new(5, 1);
+                        Cursor.Set(5, 1);
                         Window.Print("Login");
                         string scrambled = _scrambler(Input.String.Length);
                         int textStart = (int)((consoleWidth / 2f) - (scrambled.Length / 2f));
-                        Cursor.Position = new(textStart, 2);
+                        Cursor.Set(textStart, 2);
                         Window.Print(scrambled);
-                        Cursor.Position = new(0, 3);
+                        Cursor.Set(0, 3);
                         Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
                             Keybind.Create(() =>
                             {
@@ -208,7 +208,7 @@ namespace B.Options.Tools.FTP
                         SftpFile file = CurrentFile;
                         string title = $"{file.FullName} | {file.Attributes.Size} bytes";
                         Window.SetSize(title.Length + 6, 8);
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
                         Input.Choice choice = Input.Choice.Create(title);
                         choice.AddKeybind(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
                         choice.AddKeybind(CreateConfirmKeybindForCurrent());
@@ -251,15 +251,15 @@ namespace B.Options.Tools.FTP
                 {
                     Window.Clear();
                     Window.SetSize(OptionFTP.WIDTH, 7);
-                    Cursor.Position = new(2, 1);
+                    Cursor.Set(2, 1);
                     Window.Print("Downloading...");
-                    Cursor.Position = new(2, 3);
+                    Cursor.Set(2, 3);
                     Window.Print(file.FullName);
-                    Cursor.Position = new(2, 5);
+                    Cursor.Set(2, 5);
                     Window.Print("%");
                     _client.DownloadFile(file.FullName, stream, l =>
                     {
-                        Cursor.Position = new(4, 5);
+                        Cursor.Set(4, 5);
                         double percentage = (double)l / (double)file.Attributes.Size;
                         percentage *= 100d;
                         int progress = (int)Math.Ceiling(percentage);
@@ -278,9 +278,9 @@ namespace B.Options.Tools.FTP
             {
                 Window.Clear();
                 Window.SetSize(21, 6);
-                Cursor.Position = new(7, 2);
+                Cursor.Set(7, 2);
                 Window.Print("Error:");
-                Cursor.Position = new(2, 3);
+                Cursor.Set(2, 3);
                 Window.Print("Can't delete file");
                 Input.Get();
             }

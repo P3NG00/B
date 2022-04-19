@@ -4,14 +4,11 @@ namespace B.Utils
 {
     public static class Window
     {
-        public static Vector2 SIZE_MIN => new(16, 2);
-        public static Vector2 SIZE_MAX => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
+        public static Vector2 SizeMin => new(16, 2);
+        public static Vector2 SizeMax => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
+        public static Vector2 Size => new(Console.WindowWidth, Console.WindowHeight);
 
-        public static Vector2 Size
-        {
-            get => new(Console.WindowWidth, Console.WindowHeight);
-            set => SetSize(value.x, value.y);
-        }
+        public static void SetSize(Vector2 size) => SetSize(size.x, size.y);
 
         public static void SetSize(int width, int height)
         {
@@ -29,10 +26,7 @@ namespace B.Utils
 
         public static void Print(object message) => Console.Write(message);
 
-        public static void Print(object message, PrintType printType = PrintType.General)
-        {
-            Print(message, Program.Settings.ColorTheme[printType]);
-        }
+        public static void Print(object message, PrintType printType = PrintType.General) => Print(message, Program.Settings.ColorTheme[printType]);
 
         public static void Print(object message, ColorPair colors)
         {
@@ -40,7 +34,7 @@ namespace B.Utils
             colors.SetConsoleColors();
 
             // Print message
-            Console.Write(message);
+            Print(message);
 
             // Restore old color values
             Program.Settings?.UpdateColors();

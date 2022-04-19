@@ -27,7 +27,7 @@ namespace B.Options.Games.MexicanTrain
                     {
                         Window.Clear();
                         Window.SetSize(34, 7);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionMexicanTrain.Title);
                         choice.AddText(new Text($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players."));
                         choice.AddSpacer();
@@ -54,7 +54,7 @@ namespace B.Options.Games.MexicanTrain
                     {
                         Window.Clear();
                         Window.SetSize(60, 20);
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
                         Window.Print($"Players: {_info.Players}");
 
                         // TODO

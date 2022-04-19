@@ -39,7 +39,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.Clear();
                         Window.SetSize(20, consoleHeight);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Account", '1'));
 
@@ -57,15 +57,15 @@ namespace B.Options.Tools.MoneyTracker
                         Window.Clear();
                         bool selected = _selectedAccount != null;
                         Window.SetSize(24, selected ? 12 : 9);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
 
                         if (selected)
                         {
-                            Cursor.Position = new(3, 1);
+                            Cursor.Set(3, 1);
                             Window.Print("Selected Account:");
-                            Cursor.Position = new(2, 2);
+                            Cursor.Set(2, 2);
                             Window.Print(_selectedAccount!.Name);
-                            Cursor.Position = new(0, 4);
+                            Cursor.Set(0, 4);
                         }
 
                         Input.Choice choice = Input.Choice.Create("Account");
@@ -82,7 +82,7 @@ namespace B.Options.Tools.MoneyTracker
                     {
                         Window.Clear();
                         Window.SetSize(42, 5);
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
                         Window.Print($"New Account Name: {Input.String}");
                         Input.RequestLine(20,
                             Keybind.Create(() =>
@@ -103,7 +103,7 @@ namespace B.Options.Tools.MoneyTracker
                                     }
                                     else
                                     {
-                                        Cursor.Position = new(4, 3);
+                                        Cursor.Set(4, 3);
                                         Window.Print("Name already taken!");
                                     }
 
@@ -128,7 +128,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create();
 
                         // TODO turn into Input.RequestScroll because accounts can reach more than single digit numbers on a keyboard
@@ -162,7 +162,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create("Remove Account");
 
                         if (amountAccounts > 0)
@@ -194,7 +194,7 @@ namespace B.Options.Tools.MoneyTracker
                     {
                         Window.Clear();
                         Window.SetSize(20, 10);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create("Transaction");
                         choice.AddKeybind(Keybind.Create(() =>
                         {
@@ -220,6 +220,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.SetSize(
                             (Input.DECIMAL_LENGTH * 2) + _selectedAccount!.Decimals + 9,
                             Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
+                        Cursor.y = 1;
                         Input.RequestScroll(
                             items: _selectedAccount.Transactions,
                             getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
@@ -290,9 +291,9 @@ namespace B.Options.Tools.MoneyTracker
         {
             Window.Clear();
             Window.SetSize(4 + Input.DECIMAL_LENGTH, 7);
-            Cursor.Position = new(2, 1);
+            Cursor.Set(2, 1);
             Window.Print("Amount:");
-            Cursor.Position = new(2, 2);
+            Cursor.Set(2, 2);
 
             if (Stage == Stages.Transaction_Add_Amount)
             {
@@ -319,9 +320,9 @@ namespace B.Options.Tools.MoneyTracker
             else
             {
                 Window.Print(_tempTransaction!.Amount);
-                Cursor.Position = new(2, 4);
+                Cursor.Set(2, 4);
                 Window.Print("Description:");
-                Cursor.Position = new(2, 5);
+                Cursor.Set(2, 5);
                 Window.Print(Input.String);
                 Input.RequestLine(Input.DECIMAL_LENGTH,
                     Keybind.Create(() =>

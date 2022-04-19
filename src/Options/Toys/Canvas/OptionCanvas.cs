@@ -51,7 +51,7 @@ namespace B.Options.Toys.Canvas
                         bool hasCanvases = !_canvases.IsEmpty();
                         Window.Clear();
                         Window.SetSize(20, hasCanvases ? 8 : 7);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionCanvas.Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
@@ -139,14 +139,14 @@ namespace B.Options.Toys.Canvas
                         }
 
                         // Print top info
-                        Cursor.Position = new(2, 0);
+                        Cursor.Set(2, 0);
                         Window.Print($"Color: {_color,-11}");
-                        Cursor.Position = new(2, 1);
+                        Cursor.Set(2, 1);
                         Window.Print($"Position: {_cursorPos,-10}");
-                        Cursor.Position = new(2, 2);
+                        Cursor.Set(2, 2);
                         Window.Print($"Brush: {_brushSize,-10}");
                         // Print border
-                        Cursor.Position = new(2, 3);
+                        Cursor.Set(2, 3);
                         Window.Print('-'.Loop(Window.Size.x - 2));
                         // Move in Direction
                         Input.Choice choice = Input.Choice.Create();
@@ -192,7 +192,7 @@ namespace B.Options.Toys.Canvas
                             Cursor.Size = 100;
                             Cursor.Visible = true;
                             // Set to brush position
-                            Cursor.Position = new(_cursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                            Cursor.Position = _cursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
                         });
 
                         // Update cursor settings
@@ -212,12 +212,12 @@ namespace B.Options.Toys.Canvas
                                 {
                                     Vector2 pos = _cursorPos + new Vector2(x, y);
                                     _canvas.Color(pos) = _color;
-                                    Cursor.Position = new(pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD);
+                                    Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
                                     Window.Print(' ', new ColorPair(colorBack: _color));
                                 }
                             }
 
-                            Cursor.Position = new(_cursorPos);
+                            Cursor.Position = _cursorPos;
                         }
 
                         void PaintDirection(Direction direction)
@@ -282,16 +282,16 @@ namespace B.Options.Toys.Canvas
         {
             Window.Clear();
             Window.SetSize(35, 8);
-            Cursor.Position = new(2, 1);
+            Cursor.Set(2, 1);
             Window.Print("New Canvas");
-            Cursor.Position = new(2, 3);
+            Cursor.Set(2, 3);
             Window.Print($"Name: {(Stage == Stages.Create_Name ? Input.String : _canvas.Title)}");
 
             // TODO change creation stage order Width and Height
 
             if (Stage != Stages.Create_Name)
             {
-                Cursor.Position = new(2, 5);
+                Cursor.Set(2, 5);
                 string print = string.Empty;
 
                 if (Stage == Stages.Create_Size_Height)
@@ -304,7 +304,7 @@ namespace B.Options.Toys.Canvas
 
             if (Stage == Stages.Create_Size_Width)
             {
-                Cursor.Position = new(2, 6);
+                Cursor.Set(2, 6);
                 Window.Print($"Width: {Input.String}");
             }
 

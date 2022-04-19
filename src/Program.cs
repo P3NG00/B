@@ -146,7 +146,7 @@ namespace B
                         // Display main menu options
                         Window.Clear();
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create($"{Program.Title}'s");
                         Util.Loop(Program.OptionGroups.Length, i =>
                         {
@@ -169,7 +169,7 @@ namespace B
                     {
                         Window.Clear();
                         Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
-                        Cursor.Position = new(0, 1);
+                        Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
                         _optionGroup.OptionTypes.ForEach((optionType, i) =>
                         {
@@ -210,9 +210,9 @@ namespace B
         public static void HandleException(Text text, Exception? exception = null)
         {
             Window.Clear();
-            Window.Size = Window.SIZE_MAX * 0.75f;
+            Window.SetSize(Window.SizeMax * 0.75f);
             // Cursor will always start at (2, 1)
-            Cursor.Position = new(2, 1);
+            Cursor.Set(2, 1);
 
             if (text is null)
                 Window.Print("An exception was thrown!", new ColorPair(colorText: ConsoleColor.Red));
