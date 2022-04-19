@@ -51,18 +51,34 @@ namespace B.Options.Games.Adventure
                         Window.SetSize(20, fileExists ? 8 : 7);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
-
                         if (fileExists)
                         {
                             choice.AddKeybind(Keybind.CreateConfirmation(() => InitGame(true), "Are you sure you want to override the current game?", "New Game", '1'));
                             choice.AddKeybind(Keybind.Create(() => InitGame(false), "Continue", '2'));
                         }
                         else
+                        {
                             choice.AddKeybind(Keybind.Create(() => InitGame(true), "New Game", '1'));
-
+                        }
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
+
+                        // Local Method
+                        void InitGame(bool newGame)
+                        {
+                            if (newGame)
+                            {
+                                OptionAdventure.Info = new();
+                                Grid currentGrid = OptionAdventure.CurrentGrid;
+                                PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
+                            }
+                            else
+                                OptionAdventure.Info = Data.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
+
+                            Window.Clear();
+                            SetStage(Stages.Game);
+                        }
                     }
                     break;
 
@@ -141,21 +157,6 @@ namespace B.Options.Games.Adventure
                     }
                     break;
             }
-        }
-
-        private void InitGame(bool newGame)
-        {
-            if (newGame)
-            {
-                OptionAdventure.Info = new();
-                Grid currentGrid = OptionAdventure.CurrentGrid;
-                PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
-            }
-            else
-                OptionAdventure.Info = Data.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
-
-            Window.Clear();
-            SetStage(Stages.Game);
         }
 
         private void MovePlayer(Direction direction)

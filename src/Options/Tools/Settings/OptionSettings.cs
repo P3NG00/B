@@ -23,9 +23,7 @@ namespace B.Options.Tools.Settings
                 case Stages.MainMenu:
                     {
                         Window.Clear();
-                        // TODO figure out if this is still needed?
-                        bool windows = OperatingSystem.IsWindows();
-                        Window.SetSize(35, windows ? 14 : 13);
+                        Window.SetSize(30, 14);
                         Cursor.Position = new(0, 1);
                         var choice = Input.Choice.Create(OptionSettings.Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
@@ -92,7 +90,7 @@ namespace B.Options.Tools.Settings
                         Program.Settings.UpdateColors();
                         Window.Clear();
                         Window.SetSize(32, themes.Length + 8);
-                        Cursor.Position = new(2, 1);
+                        Cursor.y = 1;
                         Input.RequestScroll(
                             items: themes,
                             getText: theme => $" {theme.Title,-15}",
@@ -111,7 +109,6 @@ namespace B.Options.Tools.Settings
                         Window.Clear();
                         Window.SetSize(32, 27);
                         ConsoleColor[] colors = Util.ConsoleColors;
-                        Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",
@@ -132,7 +129,7 @@ namespace B.Options.Tools.Settings
 
                 case Stages.Cursor:
                     {
-                        Window.SetSize(23, 8);
+                        Window.SetSize(25, 8);
                         Cursor.Reset();
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create("Cursor");
@@ -150,7 +147,7 @@ namespace B.Options.Tools.Settings
 
                 case Stages.Cursor_Size:
                     {
-                        Window.SetSize(21, 10);
+                        Window.SetSize(23, 10);
                         Cursor.Position = new(0, 1);
                         Input.Choice choice = Input.Choice.Create($"Cursor Size - {Cursor.Size,-3}");
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size++, "+1", key: ConsoleKey.UpArrow));
@@ -168,8 +165,9 @@ namespace B.Options.Tools.Settings
                             // Show cursor for changing
                             Cursor.Visible = true;
                             // Position cursor near open area in bottom-right corner
-                            Cursor.Position = new(18, 8);
+                            Cursor.Position = new(20, 8);
                         });
+                        // Update cursor after request
                         Program.Settings.UpdateCursor();
                     }
                     break;
@@ -177,12 +175,11 @@ namespace B.Options.Tools.Settings
                 case Stages.KeyPress:
                     {
                         Window.SetSize(35, 28);
-                        Cursor.Position = new(1, 1);
                         ConsoleKeyInfo lastInput = Input.LastInput;
                         ConsoleKey key = lastInput.Key;
                         char c = lastInput.KeyChar;
-
-                        Window.Print("Last Pressed");
+                        Cursor.Position = new(2, 1);
+                        Window.Print(" Last Pressed ", PrintType.Title);
                         //    2
                         Print(3, "Key", key);
                         Print(4, "Key Num", (int)key);
@@ -221,7 +218,8 @@ namespace B.Options.Tools.Settings
                             else
                                 output = value.ToString();
 
-                            Cursor.Position = new(1, line);
+                            Cursor.x = 2;
+                            Cursor.y = line;
                             Window.Print($"{title}: {output,-10}");
                         }
                     }

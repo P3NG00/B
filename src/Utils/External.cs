@@ -8,6 +8,8 @@ namespace B.Utils
         private const string USER32 = "user32.dll";
         private const string KERNEL32 = "kernel32.dll";
 
+        // TODO implement mouse control (https://stackoverflow.com/questions/1944481/console-app-mouse-click-x-y-coordinate-detection-comparison)
+
         public static void Initialize()
         {
             IntPtr currentHandle;

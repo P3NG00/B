@@ -25,6 +25,7 @@ namespace B.Options.Toys.TextGenerator
             // Initialize font list first time only
             if (_fonts is null)
             {
+                // TODO remove fonts that don't appear
                 // Get all font properties
                 PropertyInfo[] properties = typeof(FiggleFonts).GetProperties();
                 // From each property, put font into array
@@ -90,7 +91,6 @@ namespace B.Options.Toys.TextGenerator
                 case Stages.FontSelect:
                     {
                         Window.SetSize(27, 55);
-                        Cursor.Position = new(2, 1);
                         Input.RequestScroll(
                             items: _fonts,
                             getText: font => font.Name,

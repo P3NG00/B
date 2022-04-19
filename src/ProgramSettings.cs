@@ -15,11 +15,22 @@ namespace B
 
         public ProgramSettings()
         {
-            CursorVisible = new(b => UpdateCursor());
-            DebugMode = new(b => Window.Clear());
+            CursorVisible = new();
+            DebugMode = new();
             Censor = new();
             ColorTheme = Util.ThemeDefault;
             CursorSize = 100;
+        }
+
+        public void Initialize()
+        {
+            // These are set outside of constructor because these are not serializable.
+            // Since they are not serializable, they need to be re-initialized every time the program is run instead of being saved.
+            CursorVisible.SetOnChangeAction(b => UpdateCursor());
+            DebugMode.SetOnChangeAction(b => Window.Clear());
+
+            UpdateColors();
+            UpdateCursor();
         }
 
         public void UpdateColors()

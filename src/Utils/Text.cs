@@ -20,18 +20,11 @@ namespace B.Utils
         public void Print()
         {
             if (_colors is not null)
-            {
                 Window.Print(_message, _colors);
-                return;
-            }
-
-            if (_type is not null)
-            {
+            else if (_type is not null)
                 Window.Print(_message, _type.Value);
-                return;
-            }
-
-            throw new Exception("Text could not be printed, no colors or type specified!");
+            else
+                throw new Exception("Text could not be printed, no colors nor type specified!");
         }
     }
 }

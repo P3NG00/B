@@ -26,15 +26,17 @@ namespace B.Utils
 
             _colorThemes = new ColorTheme[]
             {
-                // TODO add PrintType.Title to ColorThemes
                 ThemeDefault,
                 new("Light",
-                    new PrintPair(PrintType.General, new(ConsoleColor.DarkGray, ConsoleColor.White))),
+                    new PrintPair(PrintType.General, new(ConsoleColor.DarkGray, ConsoleColor.White)),
+                    new PrintPair(PrintType.Title, new(ConsoleColor.DarkGray, ConsoleColor.Gray))),
                 new("Gentle",
                     new PrintPair(PrintType.General, new(ConsoleColor.DarkCyan, ConsoleColor.White)),
-                    new PrintPair(PrintType.Title, new(ConsoleColor.DarkCyan, ConsoleColor.Gray))),
+                    new PrintPair(PrintType.Title, new(ConsoleColor.Blue, ConsoleColor.Gray))),
                 new("Sky",
-                    new PrintPair(PrintType.General, new(ConsoleColor.White, ConsoleColor.DarkCyan))),
+                    new PrintPair(PrintType.General, new(ConsoleColor.White, ConsoleColor.DarkCyan)),
+                    new PrintPair(PrintType.Title, new(ConsoleColor.DarkCyan, ConsoleColor.White))),
+                // TODO add PrintType.Title to rest of ColorThemes
                 new("Sunshine",
                     new PrintPair(PrintType.General, new(ConsoleColor.DarkYellow, ConsoleColor.Yellow))),
                 new("Starlight",

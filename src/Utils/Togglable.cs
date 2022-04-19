@@ -2,26 +2,18 @@ namespace B.Utils
 {
     public sealed class Togglable
     {
-        public bool Active { get; private set; }
+        public bool Active { get; private set; } = false;
 
-        private Action<bool>? _onChanage;
+        private Action<bool>? _onChange;
 
-        private Togglable() { }
-
-        public Togglable(Action<bool>? onChange = null) : this(false, onChange) { }
-
-        public Togglable(bool value, Action<bool>? onChange = null)
-        {
-            Active = value;
-            _onChanage = onChange;
-        }
+        public void SetOnChangeAction(Action<bool> onChange) => _onChange = onChange;
 
         public void Toggle()
         {
             Active = !Active;
 
-            if (_onChanage is not null)
-                _onChanage(Active);
+            if (_onChange is not null)
+                _onChange(Active);
         }
     }
 }

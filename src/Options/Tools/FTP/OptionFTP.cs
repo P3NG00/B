@@ -158,9 +158,7 @@ namespace B.Options.Tools.FTP
                         int entryAmount = _files.Length;
                         int consoleHeight = Math.Min(entryAmount, Input.MaxEntries) + 14;
                         Window.SetSize(OptionFTP.WIDTH, consoleHeight);
-                        Cursor.Position = new(1, 1);
                         List<Keybind> keybinds = new();
-
                         if (entryAmount != 0)
                         {
                             keybinds.Add(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
@@ -175,7 +173,6 @@ namespace B.Options.Tools.FTP
                                         SetStage(Stages.FileInteract);
                                 }, "Select", key: ConsoleKey.Enter));
                         }
-
                         keybinds.Add(Keybind.Create(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5));
                         keybinds.Add(Keybind.Create(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
                         Input.RequestScroll(
@@ -210,7 +207,7 @@ namespace B.Options.Tools.FTP
                         Window.Clear();
                         SftpFile file = CurrentFile;
                         string title = $"{file.FullName} | {file.Attributes.Size} bytes";
-                        Window.SetSize(title.Length + 4, 8);
+                        Window.SetSize(title.Length + 6, 8);
                         Cursor.Position = new(2, 1);
                         Input.Choice choice = Input.Choice.Create(title);
                         choice.AddKeybind(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));

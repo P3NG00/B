@@ -31,7 +31,9 @@ namespace B.Inputs
         private Keybind(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null)
         {
             if (action is null)
-                action = Util.Void;
+                Action = Util.Void;
+            else
+                Action = action;
 
             KeyChar = keyChar;
             Key = key;
@@ -40,8 +42,6 @@ namespace B.Inputs
                 Description = string.Empty;
             else
                 Description = description;
-
-            Action = action;
 
             if (modifiers.HasValue)
                 _modifiers = modifiers.Value;
@@ -112,12 +112,12 @@ namespace B.Inputs
             Action confirmationAction = () =>
             {
                 Window.Clear();
-                Window.Size = new(message.Length + 4, 7);
-                Cursor.Position = new(2, 1);
+                Window.Size = new(message.Length + 6, 7);
                 Input.Choice choice = Input.Choice.Create(message);
                 choice.AddKeybind(Keybind.Create(description: "NO", key: ConsoleKey.Escape));
                 choice.AddSpacer();
                 choice.AddKeybind(Keybind.Create(action, "yes", key: ConsoleKey.Enter));
+                Cursor.y = 1;
                 choice.Request();
                 // Clear window after confirmation
                 Window.Clear();
@@ -125,20 +125,6 @@ namespace B.Inputs
 
             Keybind confirmationKeybind = new Keybind(confirmationAction, description, keyChar, key, modifiers);
             return confirmationKeybind;
-        }
-
-        [Obsolete] // TODO remove function
-        public static Keybind CreateMessage(string message)
-        {
-            Keybind messageKeybind = new Keybind(description: message);
-            return messageKeybind;
-        }
-
-        [Obsolete] // TODO remove function
-        public static Keybind CreateSpacerKeybind()
-        {
-            Keybind spacerKeybind = new Keybind(description: string.Empty);
-            return spacerKeybind;
         }
 
         #endregion

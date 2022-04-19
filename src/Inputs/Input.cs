@@ -78,8 +78,8 @@ namespace B.Inputs
                 Input.String += keyInfo.KeyChar;
         }
 
-        // This function will start printing the title where the cursor is left.
-        // Make sure the cursor position is correct before calling this function.
+        // This will reset cursor position for each entry printed.
+        // Make sure this is called when the cursor is in the row (Cursor.y) you want it to begin printing.
         public static ConsoleKeyInfo RequestScroll<T>(
             IEnumerable<T> items,                                   // Items to scroll through
             Func<T, string> getText,                                // Function to get text from item
@@ -99,6 +99,7 @@ namespace B.Inputs
             // If title exists, print it
             if (title != null)
             {
+                Cursor.x = 2;
                 Window.Print($" {title} ", PrintType.Title);
                 Cursor.y += 2;
             }

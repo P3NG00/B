@@ -108,7 +108,7 @@ namespace B
             // Initialize Utilities
             Util.Initialize();
 
-            // Get program settings
+            // Get or Create Program Settings
             bool programSettingsInitialized = false;
 
             if (File.Exists(ProgramSettings.Path))
@@ -120,15 +120,14 @@ namespace B
                     Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path);
                     programSettingsInitialized = true;
                 }
-                catch (Exception e) { HandleException(e); }
+                catch (Exception) { }
             }
 
             if (!programSettingsInitialized)
                 Program.Settings = new ProgramSettings();
 
-            // Update program settings
-            Program.Settings.UpdateColors();
-            Program.Settings.UpdateCursor();
+            // Initialize Settings
+            Program.Settings.Initialize();
         }
 
         public override void Loop()

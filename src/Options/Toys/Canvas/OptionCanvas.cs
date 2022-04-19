@@ -80,8 +80,8 @@ namespace B.Options.Toys.Canvas
                     {
                         Window.Clear();
                         Window.SetSize(32, _canvases.Count + 12);
-                        Cursor.Position = new(2, 1);
                         _canvas = _canvases[Input.ScrollIndex];
+                        Cursor.y = 1;
                         Input.RequestScroll(
                             items: _canvases,
                             getText: canvas => canvas.Title,
@@ -252,7 +252,6 @@ namespace B.Options.Toys.Canvas
                         Window.Clear();
                         Window.SetSize(32, 26);
                         ConsoleColor[] colors = Util.ConsoleColors;
-                        Cursor.Position = new(4, 1);
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",

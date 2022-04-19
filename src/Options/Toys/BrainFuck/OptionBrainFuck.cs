@@ -63,7 +63,7 @@ namespace B.Options.Toys.BrainFuck
                 case Stages.List:
                     {
                         Window.SetSize(40, 10 + _programs.Count);
-                        Cursor.Position = new(2, 1);
+                        Cursor.y = 1;
                         Input.RequestScroll(
                             items: _programs,
                             getText: program => program.Title,

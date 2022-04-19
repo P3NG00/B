@@ -220,7 +220,6 @@ namespace B.Options.Tools.MoneyTracker
                         Window.SetSize(
                             (Input.DECIMAL_LENGTH * 2) + _selectedAccount!.Decimals + 9,
                             Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
-                        Cursor.Position = new(0, 1);
                         Input.RequestScroll(
                             items: _selectedAccount.Transactions,
                             getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
