@@ -60,10 +60,13 @@ namespace B.Inputs
                 // Once Program is stopped, thread finishes while loop and returns.
                 while (Program.Instance.IsRunning)
                 {
+                    // TODO somewhere in this loop, print text to screen and highlight if mouse is inside.
+
                     // If text is being drawn, wait until finished.
                     if (Window.IsDrawing)
                         continue;
 
+                    // Begin processing
                     _isProcessing = true;
 
                     // Mouse Position Debug
@@ -74,6 +77,10 @@ namespace B.Inputs
                         Window.Print($"{Position.ToString(),Vector2.MaxStringLength}");
                     }
 
+                    // Print Selectable Boxes
+                    _boxes.ForEach(box => box.Print());
+
+                    // End processing
                     _isProcessing = false;
                 }
             });
@@ -82,17 +89,9 @@ namespace B.Inputs
             _thread.Start();
         }
 
-        public static void AddSelectableBox(SelectableBox box)
-        {
-            // TODO test
-            _boxes.Add(box);
-        }
+        public static void AddSelectableBox(SelectableBox box) => _boxes.Add(box);
 
-        public static void ClearSelectableBoxes()
-        {
-            // TODO test
-            _boxes.Clear();
-        }
+        public static void ClearSelectableBoxes() => _boxes.Clear();
 
         #endregion
     }

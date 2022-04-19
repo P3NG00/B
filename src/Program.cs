@@ -128,6 +128,7 @@ namespace B
         {
             // Enable drawing mode
             Window.IsDrawing = true;
+            Mouse.ClearSelectableBoxes();
 
             // If directory doesn't exist, create it and add hidden attribute
             if (!Directory.Exists(Program.DataPath))

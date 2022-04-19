@@ -30,8 +30,11 @@ namespace B.Utils.Themes
 
                 if (general is null)
                     throw new Exception("No general color found.");
-                else
+
+                if (type != PrintType.Highlight)
                     return general;
+
+                return new(general.ColorBack, general.ColorText);
             }
         }
     }

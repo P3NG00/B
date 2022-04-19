@@ -222,7 +222,12 @@ namespace B.Inputs
 
             public EntryKeybind(Keybind keybind) => _keybind = keybind;
 
-            public void Print() => Window.Print(_keybind.ToString());
+            public void Print()
+            {
+                // Create selectable box for Mouse class
+                SelectableBox selectableBox = new(_keybind.ToString(), Cursor.Position);
+                Mouse.AddSelectableBox(selectableBox);
+            }
         }
 
         private sealed class EntrySpacer : IEntry
@@ -249,8 +254,8 @@ namespace B.Inputs
                     return;
 
                 string titleText = $" {title} ";
-                Add(new EntryText(new(titleText, PrintType.Title)));
-                Add(new EntrySpacer());
+                AddText(new(titleText, PrintType.Title));
+                AddSpacer();
             }
 
             private void Add(IEntry entry)

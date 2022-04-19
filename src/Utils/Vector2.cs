@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace B.Utils
 {
     [Serializable]
@@ -62,6 +64,8 @@ namespace B.Utils
         public static bool operator ==(Vector2 vecA, Vector2 vecB) => vecA.x == vecB.x && vecA.y == vecB.y;
 
         public static bool operator !=(Vector2 vecA, Vector2 vecB) => !(vecA == vecB);
+
+        public static implicit operator Vector2(Point point) => new(point.X, point.Y);
 
         public static implicit operator Vector2(Direction direction)
         {

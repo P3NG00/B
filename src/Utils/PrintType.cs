@@ -4,5 +4,6 @@ namespace B.Utils
     {
         General,
         Title,
+        Highlight,
     }
 }

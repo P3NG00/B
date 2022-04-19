@@ -34,7 +34,7 @@ namespace B.Options.Tools.Settings
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10));
                         // Action is null because F12 will toggle Debug Mode in Program using LastInput
-                        choice.AddKeybind(Keybind.Create(Util.Void, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12));
+                        choice.AddKeybind(Keybind.Create(description: $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();

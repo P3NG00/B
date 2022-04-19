@@ -44,18 +44,14 @@ namespace B.Utils
             // -10 is the standard input device
             IntPtr currentHandle = GetStdHandle(-10);
 
-            if (GetConsoleMode(currentHandle, out uint consoleMode))
-            {
-                // 0b1000000 (quick edit mode)
-                consoleMode &= ~(uint)(0b100_0000);
-
-                bool successful = SetConsoleMode(currentHandle, consoleMode);
-
-                if (!successful)
-                    throw new Exception("Failed to set console mode.");
-            }
-            else
+            if (!GetConsoleMode(currentHandle, out uint consoleMode))
                 throw new Exception("Failed to get console mode.");
+
+            // 0b1000000 (quick edit mode)
+            consoleMode &= ~(uint)(0b100_0000);
+
+            if (!SetConsoleMode(currentHandle, consoleMode))
+                throw new Exception("Failed to set console mode.");
         }
 
         public static Vector2 GetRelativeMousePosition()
