@@ -42,6 +42,7 @@ namespace B.Inputs
 
         public static ConsoleKeyInfo Get()
         {
+            Window.IsDrawing = false;
             Input.LastInput = Console.ReadKey(true);
 
             if (Input.LastInput.Key == ConsoleKey.F12)
@@ -58,6 +59,8 @@ namespace B.Inputs
                 Cursor.y += 2;
                 Window.Print($"Press {key} to continue...");
             }
+
+            Window.IsDrawing = false;
 
             while (true)
                 if (Input.Get().Key == key)

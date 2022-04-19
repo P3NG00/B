@@ -3,6 +3,8 @@ namespace B.Utils
     [Serializable]
     public sealed class Vector2
     {
+        public const int MaxStringLength = 11;
+
         public static Vector2 Up => new(0, 1);
         public static Vector2 Left => new(-1, 0);
         public static Vector2 Right => new(1, 0);
@@ -37,23 +39,25 @@ namespace B.Utils
 
         public override int GetHashCode() => (x * y).GetHashCode();
 
-        public override string ToString() => $"({x}, {y})";
+        public override string ToString() => $"({x},{y})";
 
         public static Vector2 Min(Vector2 vecA, Vector2 vecB) => new(Math.Min(vecA.x, vecB.x), Math.Min(vecA.y, vecB.y));
 
         public static Vector2 Max(Vector2 vecA, Vector2 vecB) => new(Math.Max(vecA.x, vecB.x), Math.Max(vecA.y, vecB.y));
 
-        public static Vector2 operator +(Vector2 vecA, Vector2 vecB) => new Vector2(vecA.x + vecB.x, vecA.y + vecB.y);
+        public static Vector2 operator +(Vector2 vecA, Vector2 vecB) => new(vecA.x + vecB.x, vecA.y + vecB.y);
 
-        public static Vector2 operator -(Vector2 vecA, Vector2 vecB) => new Vector2(vecA.x - vecB.x, vecA.y - vecB.y);
+        public static Vector2 operator -(Vector2 vecA, Vector2 vecB) => new(vecA.x - vecB.x, vecA.y - vecB.y);
 
-        public static Vector2 operator *(Vector2 vecA, Vector2 vecB) => new Vector2(vecA.x * vecB.x, vecA.y * vecB.y);
+        public static Vector2 operator *(Vector2 vecA, Vector2 vecB) => new(vecA.x * vecB.x, vecA.y * vecB.y);
 
         public static Vector2 operator *(Vector2 vec, int scale) => new(vec.x * scale, vec.y * scale);
 
         public static Vector2 operator *(Vector2 vec, float scale) => new((int)(vec.x * scale), (int)(vec.y * scale));
 
         public static Vector2 operator /(Vector2 vec, int scale) => new(vec.x / scale, vec.y / scale);
+
+        public static Vector2 operator /(Vector2 vecA, Vector2 vecB) => new(vecA.x / vecB.x, vecA.y / vecB.y);
 
         public static bool operator ==(Vector2 vecA, Vector2 vecB) => vecA.x == vecB.x && vecA.y == vecB.y;
 

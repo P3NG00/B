@@ -13,6 +13,7 @@ namespace B.Options.Tools.Settings
         public static string Title => "Settings";
 
         private Vector2 _size = new(40, 20);
+        private Thread _thread = null!;
 
         public OptionSettings() : base(Stages.MainMenu) { }
 
@@ -174,12 +175,44 @@ namespace B.Options.Tools.Settings
 
                 case Stages.Mouse:
                     {
+                        // TODO reimplement this mouse-testing thing.
+                        // TODO if theres no reason to keep this, remove it
+                        SetStage(Stages.MainMenu);
                         // TODO multithread for mouse position and keyboard input
                         // TODO make this a main function of the program.
                         // program should accept both keyboard input and mouse input
-                        Window.SetSize(40, 20);
-                        Cursor.Set(2, 1);
-                        Window.Print($"{Mouse.Position,-16}");
+
+                        // TODO this example isn't working properly
+                        // Window.SetSize(40, 20);
+                        // var choice = Input.Choice.Create("Mouse");
+                        // choice.AddKeybind(Keybind.Create(() =>
+                        // {
+                        //     if (_thread is not null)
+                        //     {
+                        //         _thread.Abort(); // TODO figure out how to properly terminate multithread process
+                        //         _thread = null!;
+                        //     }
+
+                        //     SetStage(Stages.MainMenu);
+                        // }, "Exit", key: ConsoleKey.Escape));
+
+                        // Cursor.y = 1;
+                        // choice.Request(() =>
+                        // {
+                        //     if (_thread is not null)
+                        //         return;
+
+                        //     _thread = new Thread(() =>
+                        //     {
+                        //         while (true)
+                        //         {
+                        //             Cursor.Set(2, 5);
+                        //             Window.Print($"{Mouse.Position,-16}");
+                        //         }
+                        //     });
+
+                        //     _thread.Start();
+                        // });
                     }
                     break;
 

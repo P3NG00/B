@@ -4,9 +4,36 @@ namespace B.Utils
 {
     public static class Window
     {
+        #region Universal Properties
+
+        // This represents the size of one char in the console
+        public static Vector2 CharSize => new(8, 16);
+        // The minimum size of the window
         public static Vector2 SizeMin => new(16, 2);
+        // The maximum size of the window
         public static Vector2 SizeMax => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
-        public static Vector2 Size => new(Console.WindowWidth, Console.WindowHeight);
+        // The current size of the window
+        public static Vector2 Size => new(Width, Height);
+        // The height of the window
+        public static int Height => Console.WindowHeight;
+        // The width of the window
+        public static int Width => Console.WindowWidth;
+
+        #endregion
+
+
+
+        #region Universal Variables
+
+        // Initialized as true to avoid drawing during initialization.
+        // This should be overridden after initialization is finished.
+        public static volatile bool IsDrawing = true;
+
+        #endregion
+
+
+
+        #region Universal Methods
 
         public static void SetSize(Vector2 size) => SetSize(size.x, size.y);
 
@@ -65,5 +92,7 @@ namespace B.Utils
         }
 
         public static void Clear() => Console.Clear();
+
+        #endregion
     }
 }

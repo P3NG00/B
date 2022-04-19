@@ -75,7 +75,7 @@ namespace B.Utils
             ConsoleColor.Red,
         };
 
-        public static Action Void => () => { };
+        public static void Void() { }
 
         public static void Loop(int count, Action action) => Loop(count, i => action());
 

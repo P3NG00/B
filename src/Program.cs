@@ -102,36 +102,35 @@ namespace B
             if (OperatingSystem.IsWindows())
                 Console.TreatControlCAsInput = true;
 
+            // Attempt to Deserialize saved Settings
+            if (File.Exists(ProgramSettings.Path))
+            {
+                try { Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
+                catch (Exception) { }
+            }
+
+            // If Settings not initialized, default
+            if (Program.Settings is null)
+                Program.Settings = new ProgramSettings();
+
+            // Initialize Settings
+            Program.Settings.Initialize();
+
             // Initialize other window properties
             External.Initialize();
 
             // Initialize Utilities
             Util.Initialize();
 
-            // Get or Create Program Settings
-            bool programSettingsInitialized = false;
-
-            if (File.Exists(ProgramSettings.Path))
-            {
-                // If settings can't be loaded, just handle exception.
-                // Settings are already initialized to default values.
-                try
-                {
-                    Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path);
-                    programSettingsInitialized = true;
-                }
-                catch (Exception) { }
-            }
-
-            if (!programSettingsInitialized)
-                Program.Settings = new ProgramSettings();
-
-            // Initialize Settings
-            Program.Settings.Initialize();
+            // Initialize Mouse Capture Thread
+            Mouse.Initialize();
         }
 
         public override void Loop()
         {
+            // Set window to drawing mode.
+            Window.IsDrawing = true;
+
             // If directory doesn't exist, create it and add hidden attribute
             if (!Directory.Exists(Program.DataPath))
             {
