@@ -126,7 +126,7 @@ namespace B
 
         public override void Loop()
         {
-            // Set window to drawing mode.
+            // Enable drawing mode
             Window.IsDrawing = true;
 
             // If directory doesn't exist, create it and add hidden attribute

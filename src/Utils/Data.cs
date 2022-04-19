@@ -10,7 +10,7 @@ namespace B.Utils
             ObjectCreationHandling = ObjectCreationHandling.Replace,
         };
 
-        public static void Serialize(string filePath, object objectToWrite)
+        public static void Serialize<T>(string filePath, T objectToWrite)
         {
             using (StreamWriter file = File.CreateText(filePath))
                 _serializer.Serialize(file, objectToWrite);

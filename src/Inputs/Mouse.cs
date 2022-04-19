@@ -17,7 +17,16 @@ namespace B.Inputs
 
         // This will return the position of the mouse relative
         // to the top-left corner of the text window
-        public static Vector2 Position => External.GetRelativeMousePosition() - TextBeginOffset;
+        public static Vector2 Position
+        {
+            get
+            {
+                // Position of the mouse cursor relative to the beginning of the text window (top-left corner)
+                Vector2 mousePosRelativeToTextWindow = External.GetRelativeMousePosition() - TextBeginOffset;
+                Vector2 scaledRelativeMousePos = mousePosRelativeToTextWindow / Window.CharSize;
+                return scaledRelativeMousePos;
+            }
+        }
 
         #endregion
 
@@ -55,19 +64,11 @@ namespace B.Inputs
                     // Mouse Position Debug
                     if (Program.Settings.DebugMode.Active)
                     {
-                        string mouseCoords = (Position / Window.CharSize).ToString();
-                        int offset = Window.Width - Vector2.MaxStringLength;
                         Cursor.y = 0;
-                        Cursor.x = offset;
-                        Window.Print($"{mouseCoords,Vector2.MaxStringLength}");
+                        Cursor.x = Window.Width - Vector2.MaxStringLength;
+                        Window.Print($"{Position.ToString(),Vector2.MaxStringLength}");
                     }
-
-                    // TODO test if this makes a difference
-                    Thread.Sleep(50);
                 }
-
-                // Thread is finished, dispose of reference
-                _thread = null!;
             });
 
             // Start Mouse Tracking Thread

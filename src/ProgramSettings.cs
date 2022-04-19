@@ -36,11 +36,7 @@ namespace B
             UpdateCursor();
         }
 
-        public void UpdateColors()
-        {
-            ColorPair pair = ColorTheme[PrintType.General];
-            pair.SetConsoleColors();
-        }
+        public void UpdateColors() => ColorTheme[PrintType.General].SetConsoleColors();
 
         public void UpdateCursor()
         {
