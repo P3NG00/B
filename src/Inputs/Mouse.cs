@@ -8,6 +8,7 @@ namespace B.Inputs
 
         private static List<SelectableBox> _boxes = new();
         private static Thread _thread = null!;
+        private static volatile bool _isProcessing = false;
 
         #endregion
 
@@ -27,6 +28,8 @@ namespace B.Inputs
                 return scaledRelativeMousePos;
             }
         }
+
+        public static bool IsProcessing => _isProcessing;
 
         #endregion
 
@@ -61,6 +64,8 @@ namespace B.Inputs
                     if (Window.IsDrawing)
                         continue;
 
+                    _isProcessing = true;
+
                     // Mouse Position Debug
                     if (Program.Settings.DebugMode.Active)
                     {
@@ -68,6 +73,8 @@ namespace B.Inputs
                         Cursor.x = Window.Width - Vector2.MaxStringLength;
                         Window.Print($"{Position.ToString(),Vector2.MaxStringLength}");
                     }
+
+                    _isProcessing = false;
                 }
             });
 

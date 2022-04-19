@@ -111,6 +111,7 @@ namespace B.Inputs
         {
             Action confirmationAction = () =>
             {
+                Window.IsDrawing = true;
                 Window.Clear();
                 Window.SetSize(message.Length + 6, 7);
                 Input.Choice choice = Input.Choice.Create(message);

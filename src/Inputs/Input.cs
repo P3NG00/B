@@ -61,10 +61,7 @@ namespace B.Inputs
             }
 
             Window.IsDrawing = false;
-
-            while (true)
-                if (Input.Get().Key == key)
-                    break;
+            Util.WaitFor(() => Input.Get().Key == key);
         }
 
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)

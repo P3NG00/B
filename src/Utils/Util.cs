@@ -84,5 +84,7 @@ namespace B.Utils
             for (int i = 0; i < count; i++)
                 actionIndexed(i);
         }
+
+        public static void WaitFor(Func<bool> condition) { while (!condition()) { } }
     }
 }

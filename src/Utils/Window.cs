@@ -1,3 +1,4 @@
+using B.Inputs;
 using B.Utils.Themes;
 
 namespace B.Utils
@@ -25,9 +26,26 @@ namespace B.Utils
 
         #region Universal Variables
 
+        public static bool IsDrawing
+        {
+            get => _isDrawing;
+            set
+            {
+                _isDrawing = value;
+                // Wait for mouse process to finish
+                Util.WaitFor(() => !Mouse.IsProcessing);
+            }
+        }
+
+        #endregion
+
+
+
+        #region Private Variables
+
         // Initialized as true to avoid drawing during initialization.
         // This should be overridden after initialization is finished.
-        public static volatile bool IsDrawing = true;
+        private static volatile bool _isDrawing = true;
 
         #endregion
 
