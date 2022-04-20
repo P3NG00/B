@@ -2,11 +2,13 @@ using B.Utils;
 
 namespace B.Inputs
 {
+    [Obsolete]
     public sealed class SelectableBox
     {
+        public readonly Action Action;
+
         private readonly Vector2 _position;
         private readonly string _message;
-        private readonly Action _action;
 
         public bool IsHighlighted
         {
@@ -25,7 +27,7 @@ namespace B.Inputs
         {
             _position = position;
             _message = message;
-            _action = action;
+            Action = action;
         }
 
         public void Print()
@@ -37,7 +39,5 @@ namespace B.Inputs
             else
                 Window.Print(_message, PrintType.General);
         }
-
-        public void Activate() => _action();
     }
 }

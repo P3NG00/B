@@ -122,13 +122,15 @@ namespace B
             Util.Initialize();
             // Initialize Mouse Capture Thread after Program.Settings has been been initialized
             Mouse.Initialize();
+            // Initialize Keyboard Capture Thread
+            Keyboard.Initialize();
         }
 
         public override void Loop()
         {
             // Enable drawing mode
             Window.IsDrawing = true;
-            Mouse.ClearSelectableBoxes();
+            Keybind.Keybinds.Clear();
 
             // If directory doesn't exist, create it and add hidden attribute
             if (!Directory.Exists(Program.DataPath))

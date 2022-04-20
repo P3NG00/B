@@ -174,7 +174,7 @@ namespace B.Options.Tools.Settings
                 case Stages.KeyPress:
                     {
                         Window.SetSize(35, 28);
-                        ConsoleKeyInfo lastInput = Input.LastInput;
+                        ConsoleKeyInfo lastInput = Keyboard.LastInput;
                         ConsoleKey key = lastInput.Key;
                         char c = lastInput.KeyChar;
                         Cursor.Set(2, 1);

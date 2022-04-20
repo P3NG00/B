@@ -5,12 +5,38 @@ namespace B.Inputs
 {
     public sealed class Keybind
     {
+        #region Universal Properties
+
+        public static readonly List<Keybind> Keybinds = new();
+
+        #endregion
+
+
+
         #region Public Properties
 
         public readonly ConsoleKey? Key;
         public readonly char? KeyChar;
         public readonly string Description;
         public readonly Action Action;
+
+        public Vector2 Position { get; private set; } = null!;
+
+        public bool IsHighlighted
+        {
+            get
+            {
+                if (Position is null)
+                    throw new Exception("Cannot highlight Keybind without a position set!");
+
+                Vector2 mousePos = Mouse.Position;
+                bool inLeftEdge = mousePos.x >= Position.x;
+                bool inRightEdge = mousePos.x <= Position.x + ToString().Length - 1;
+                bool isInX = inLeftEdge && inRightEdge;
+                bool isOnY = mousePos.y == Position.y;
+                return isInX && isOnY;
+            }
+        }
 
         public bool Display => !string.IsNullOrWhiteSpace(Description);
 
@@ -56,6 +82,25 @@ namespace B.Inputs
         #region Public Methods
 
         public bool HasModifier(ConsoleModifiers modifier) => _modifiers.HasFlag(modifier);
+
+        public void SetPosition(Vector2 position)
+        {
+            if (Position is not null)
+                throw new Exception("Position already set!");
+
+            Position = position;
+        }
+
+        public void Print()
+        {
+            Cursor.Position = Position;
+            string keybindStr = ToString();
+
+            if (IsHighlighted)
+                Window.Print(keybindStr, PrintType.Highlight);
+            else
+                Window.Print(keybindStr, PrintType.General);
+        }
 
         public override bool Equals(object? obj)
         {

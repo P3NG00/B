@@ -16,9 +16,9 @@ namespace B.Inputs
 
         #region Universal Variables
 
-        public static int ScrollIndex = 0;
         public static string String = string.Empty;
-        public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
+        public static Action Action = null!;
+        public static int ScrollIndex = 0;
 
         #endregion
 
@@ -26,9 +26,9 @@ namespace B.Inputs
 
         #region Universal Properties
 
-        public static int MaxEntries => Window.SizeMax.y - 21;
-        public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
+        public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
+        public static int MaxEntries => Window.SizeMax.y - 21;
 
         #endregion
 
@@ -41,12 +41,10 @@ namespace B.Inputs
         public static ConsoleKeyInfo Get()
         {
             Window.IsDrawing = false;
-            Input.LastInput = Console.ReadKey(true);
-
-            if (Input.LastInput.Key == ConsoleKey.F12)
-                Program.Settings.DebugMode.Toggle();
-
-            return Input.LastInput;
+            Util.WaitFor(() => Action is not null);
+            Action();
+            Action = null!;
+            return Keyboard.LastInput;
         }
 
         public static void WaitFor(ConsoleKey key, bool silent = false)
@@ -58,7 +56,6 @@ namespace B.Inputs
                 Window.Print($"Press {key} to continue...");
             }
 
-            Window.IsDrawing = false;
             Util.WaitFor(() => Input.Get().Key == key);
         }
 
@@ -223,8 +220,8 @@ namespace B.Inputs
             public void Print()
             {
                 // Create selectable box for Mouse class
-                SelectableBox selectableBox = new(_keybind.Action, _keybind.ToString(), Cursor.Position);
-                Mouse.AddSelectableBox(selectableBox);
+                _keybind.SetPosition(Cursor.Position);
+                Keybind.Keybinds.Add(_keybind);
             }
         }
 
@@ -294,21 +291,6 @@ namespace B.Inputs
 
                 // Wait for user input
                 ConsoleKeyInfo keyInfo = Input.Get();
-
-                // Activate function for pressed keybind
-                foreach (IEntry entry in _entries)
-                {
-                    if (entry is EntryKeybind entryKeybind)
-                    {
-                        Keybind keybind = entryKeybind.Keybind;
-
-                        if (keybind == keyInfo)
-                        {
-                            keybind.Action();
-                            break;
-                        }
-                    }
-                }
 
                 return keyInfo;
             }

@@ -7,10 +7,9 @@ namespace B.Inputs
     {
         #region Private Variables
 
-        private static List<SelectableBox> _boxes = new();
-        private static Thread _thread = null!;
         private static volatile bool _isProcessing = false;
         private static bool _lastMouseDown = false;
+        private static Thread _thread = null!;
 
         #endregion
 
@@ -59,10 +58,6 @@ namespace B.Inputs
             _thread = Util.StartLoopedThread(MouseThreadLoop);
         }
 
-        public static void AddSelectableBox(SelectableBox box) => _boxes.Add(box);
-
-        public static void ClearSelectableBoxes() => _boxes.Clear();
-
         #endregion
 
 
@@ -97,11 +92,11 @@ namespace B.Inputs
             // If clicked, attempt to activate highlighted box
             if (leftClick)
             {
-                foreach (SelectableBox box in _boxes)
+                foreach (Keybind keybind in Keybind.Keybinds)
                 {
-                    if (box.IsHighlighted)
+                    if (keybind.IsHighlighted)
                     {
-                        box.Activate();
+                        Input.Action = keybind.Action;
                         break;
                     }
                 }
@@ -113,7 +108,7 @@ namespace B.Inputs
             // Print Selectable Boxes
             // (skip if clicked)
             if (!leftClick)
-                _boxes.ForEach(box => box.Print());
+                Keybind.Keybinds.ForEach(keybind => keybind.Print());
 
             // Mouse Position Debug
             if (Program.Settings.DebugMode.Active)
