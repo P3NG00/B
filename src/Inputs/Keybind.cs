@@ -81,8 +81,6 @@ namespace B.Inputs
 
         #region Public Methods
 
-        public bool HasModifier(ConsoleModifiers modifier) => _modifiers.HasFlag(modifier);
-
         public void SetPosition(Vector2 position)
         {
             if (Position is not null)
@@ -101,6 +99,20 @@ namespace B.Inputs
             else
                 Window.Print(keybindStr, PrintType.General);
         }
+
+        #endregion
+
+
+
+        #region Private Methods
+
+        private bool HasModifier(ConsoleModifiers modifier) => _modifiers.HasFlag(modifier);
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public override bool Equals(object? obj)
         {

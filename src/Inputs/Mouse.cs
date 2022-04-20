@@ -67,11 +67,7 @@ namespace B.Inputs
         private static void MouseThreadLoop()
         {
             // If text is being drawn, wait until finished.
-            if (Window.IsDrawing)
-            {
-                Thread.Sleep(1);
-                return;
-            }
+            Util.WaitFor(() => !Window.IsDrawing);
 
             // Begin processing
             _isProcessing = true;

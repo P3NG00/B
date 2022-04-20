@@ -28,6 +28,8 @@ namespace B.Inputs
 
         private static void KeyboardThreadLoop()
         {
+            Util.WaitFor(() => !Window.IsDrawing);
+
             LastInput = Console.ReadKey(true);
 
             if (LastInput.Key == ConsoleKey.F12)
