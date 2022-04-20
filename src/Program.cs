@@ -76,7 +76,7 @@ namespace B
             try { Initialize(); }
             catch (Exception e)
             {
-                HandleException(new Text("AN ERROR HAS OCCURRED DURING INITIALIZATION.", new ColorPair(ConsoleColor.DarkRed, ConsoleColor.Gray)), e);
+                HandleException(e, new Text("AN ERROR HAS OCCURRED DURING INITIALIZATION.", new ColorPair(ConsoleColor.DarkRed, ConsoleColor.Gray)));
                 Environment.Exit(1);
             }
 
@@ -84,7 +84,7 @@ namespace B
             while (IsRunning)
             {
                 try { Loop(); }
-                catch (NotImplementedException) { HandleException(new Text("This feature is not yet implemented.", new ColorPair(ConsoleColor.DarkYellow, ConsoleColor.Gray))); }
+                catch (NotImplementedException) { HandleException(null, new Text("This feature is not yet implemented.", new ColorPair(ConsoleColor.DarkYellow, ConsoleColor.Gray))); }
                 catch (Exception e) { HandleException(e); }
             }
 
@@ -205,7 +205,7 @@ namespace B
             }
         }
 
-        public static void HandleException(Text text, Exception? exception = null)
+        public static void HandleException(Exception? exception = null, Text? text = null)
         {
             Window.Clear();
             Window.SetSize(Window.SizeMax * 0.75f);
@@ -226,16 +226,14 @@ namespace B
 
             Input.WaitFor(ConsoleKey.F1);
             Window.Clear();
-            Program P = Instance;
-            P._selectedOption = null;
+            Program pInst = Instance;
+            pInst._selectedOption = null;
 
-            if (P.Stage == Levels.Option)
-                P.SetStage(Levels.Group);
-            else if (P.Stage == Levels.Group)
-                P.SetStage(Levels.Program);
+            if (pInst.Stage == Levels.Option)
+                pInst.SetStage(Levels.Group);
+            else if (pInst.Stage == Levels.Group)
+                pInst.SetStage(Levels.Program);
         }
-
-        public static void HandleException(Exception? e) => HandleException(null!, e);
 
         public override void Quit()
         {

@@ -18,7 +18,6 @@ namespace B.Inputs
 
         public static int ScrollIndex = 0;
         public static string String = string.Empty;
-
         public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
 
         #endregion
@@ -28,7 +27,6 @@ namespace B.Inputs
         #region Universal Properties
 
         public static int MaxEntries => Window.SizeMax.y - 21;
-
         public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
         public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
 
@@ -225,7 +223,7 @@ namespace B.Inputs
             public void Print()
             {
                 // Create selectable box for Mouse class
-                SelectableBox selectableBox = new(_keybind.ToString(), Cursor.Position);
+                SelectableBox selectableBox = new(_keybind.Action, _keybind.ToString(), Cursor.Position);
                 Mouse.AddSelectableBox(selectableBox);
             }
         }

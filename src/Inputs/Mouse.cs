@@ -1,4 +1,5 @@
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Inputs
 {
@@ -9,6 +10,7 @@ namespace B.Inputs
         private static List<SelectableBox> _boxes = new();
         private static Thread _thread = null!;
         private static volatile bool _isProcessing = false;
+        private static bool _lastMouseDown = false;
 
         #endregion
 
@@ -53,45 +55,81 @@ namespace B.Inputs
             if (_thread is not null)
                 throw new Exception("Mouse Capture Thread already initialized!");
 
-            // Create Mouse Tracking Thread
-            _thread = new Thread(() =>
-            {
-                // Mouse thread only runs while Program is running.
-                // Once Program is stopped, thread finishes while loop and returns.
-                while (Program.Instance.IsRunning)
-                {
-                    // TODO somewhere in this loop, print text to screen and highlight if mouse is inside.
-
-                    // If text is being drawn, wait until finished.
-                    if (Window.IsDrawing)
-                        continue;
-
-                    // Begin processing
-                    _isProcessing = true;
-
-                    // Mouse Position Debug
-                    if (Program.Settings.DebugMode.Active)
-                    {
-                        Cursor.y = 0;
-                        Cursor.x = Window.Width - Vector2.MaxStringLength;
-                        Window.Print($"{Position.ToString(),Vector2.MaxStringLength}");
-                    }
-
-                    // Print Selectable Boxes
-                    _boxes.ForEach(box => box.Print());
-
-                    // End processing
-                    _isProcessing = false;
-                }
-            });
-
             // Start Mouse Tracking Thread
-            _thread.Start();
+            _thread = Util.StartLoopedThread(MouseThreadLoop);
         }
 
         public static void AddSelectableBox(SelectableBox box) => _boxes.Add(box);
 
         public static void ClearSelectableBoxes() => _boxes.Clear();
+
+        #endregion
+
+
+
+        #region Private Methods
+
+        private static void MouseThreadLoop()
+        {
+            // If text is being drawn, wait until finished.
+            if (Window.IsDrawing)
+            {
+                Thread.Sleep(1);
+                return;
+            }
+
+            // Begin processing
+            _isProcessing = true;
+
+            // Handle Processing
+            Process();
+
+            // End processing
+            _isProcessing = false;
+        }
+
+        private static void Process()
+        {
+            // First check for mouse click
+            bool mouseDown = External.GetLeftMouseButtonDown();
+            bool leftClick = mouseDown && !_lastMouseDown;
+
+            // If clicked, attempt to activate highlighted box
+            if (leftClick)
+            {
+                foreach (SelectableBox box in _boxes)
+                {
+                    if (box.IsHighlighted)
+                    {
+                        box.Activate();
+                        break;
+                    }
+                }
+            }
+
+            // Update last mouse state
+            _lastMouseDown = mouseDown;
+
+            // Print Selectable Boxes
+            // (skip if clicked)
+            if (!leftClick)
+                _boxes.ForEach(box => box.Print());
+
+            // Mouse Position Debug
+            if (Program.Settings.DebugMode.Active)
+            {
+                string positionStr = Position.ToString();
+                int blankSpace = Vector2.MaxStringLength - positionStr.Length;
+                Cursor.y = 0;
+                Cursor.x = Window.Width - Vector2.MaxStringLength;
+                Window.Print(' '.Loop(blankSpace));
+                PrintType printType = leftClick ? PrintType.Highlight : PrintType.General;
+                Window.Print(positionStr, printType);
+                // Slow thread briefly to display click flash
+                if (leftClick)
+                    Thread.Sleep(100);
+            }
+        }
 
         #endregion
     }
