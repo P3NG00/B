@@ -55,7 +55,7 @@ namespace B.Inputs
                 throw new Exception("Mouse Capture Thread already initialized!");
 
             // Start Mouse Tracking Thread
-            _thread = Util.StartLoopedThread(MouseThreadLoop);
+            Util.StartLoopedThread(MouseThreadLoop, out _thread);
         }
 
         #endregion
@@ -67,7 +67,7 @@ namespace B.Inputs
         private static void MouseThreadLoop()
         {
             // If text is being drawn, wait until finished.
-            Util.WaitFor(() => !Window.IsDrawing);
+            Util.WaitFor(() => !Window.IsDrawing && !Keyboard.IsProcessing);
 
             // Begin processing
             _isProcessing = true;

@@ -130,6 +130,7 @@ namespace B
         {
             // Enable drawing mode
             Window.IsDrawing = true;
+            Util.WaitFor(() => !Mouse.IsProcessing && !Keyboard.IsProcessing);
             Keybind.Keybinds.Clear();
 
             // If directory doesn't exist, create it and add hidden attribute

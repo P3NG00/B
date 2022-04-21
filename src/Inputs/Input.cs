@@ -64,6 +64,7 @@ namespace B.Inputs
             Input.Choice choice = Input.Choice.Create();
             keybinds.ForEach(keybind => choice.AddKeybind(keybind));
             ConsoleKeyInfo keyInfo = choice.Request();
+            Input.Action = Util.Void;
 
             if (keyInfo.Key == ConsoleKey.Backspace)
                 Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
@@ -204,44 +205,42 @@ namespace B.Inputs
 
         #region Input Entry Choice
 
-        private interface IEntry
+        private abstract class Entry
         {
-            void Print();
+            public virtual void Print() { }
         }
 
-        private sealed class EntryKeybind : IEntry
+        private sealed class EntryKeybind : Entry
         {
-            private readonly Keybind _keybind;
+            public Keybind Keybind { get; private set; }
 
-            public Keybind Keybind => _keybind;
+            public EntryKeybind(Keybind keybind) => Keybind = keybind;
 
-            public EntryKeybind(Keybind keybind) => _keybind = keybind;
-
-            public void Print()
+            public void RegisterKeybind()
             {
-                // Create selectable box for Mouse class
-                _keybind.SetPosition(Cursor.Position);
-                Keybind.Keybinds.Add(_keybind);
+                // Register keybind
+                Keybind.SetPosition(Cursor.Position);
+                Keybind.Keybinds.Add(Keybind);
             }
         }
 
-        private sealed class EntrySpacer : IEntry
+        private sealed class EntrySpacer : Entry
         {
-            public void Print() => Util.Void();
+            public sealed override void Print() => Util.Void();
         }
 
-        private sealed class EntryText : IEntry
+        private sealed class EntryText : Entry
         {
-            private readonly Text _text;
+            public Text Text { get; private set; }
 
-            public EntryText(Text text) => _text = text;
+            public EntryText(Text text) => Text = text;
 
-            public void Print() => _text.Print();
+            public sealed override void Print() => Text.Print();
         }
 
         public sealed class Choice
         {
-            private readonly List<IEntry> _entries = new();
+            private readonly List<Entry> _entries = new();
 
             private Choice(string? title = null)
             {
@@ -253,7 +252,7 @@ namespace B.Inputs
                 AddSpacer();
             }
 
-            private void Add(IEntry entry)
+            private void Add(Entry entry)
             {
                 if (entry is null)
                     throw new Exception("Entry cannot be null!");
@@ -272,18 +271,20 @@ namespace B.Inputs
             public ConsoleKeyInfo Request(Action? final = null)
             {
                 // Print entries
-                foreach (IEntry entry in _entries)
+                foreach (Entry entry in _entries)
                 {
-                    if (entry is EntryKeybind entryKeybind && !entryKeybind.Keybind.Display)
-                        continue;
+                    if (entry is EntryKeybind entryKeybind)
+                    {
+                        entryKeybind.RegisterKeybind();
+
+                        if (!entryKeybind.Keybind.Display)
+                            continue;
+                    }
 
                     Cursor.x = 2;
                     entry.Print();
                     Cursor.y++;
                 }
-
-                // Reset cursor
-                Cursor.x = 0;
 
                 // Do any last input
                 if (final is not null)

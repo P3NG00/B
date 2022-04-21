@@ -91,12 +91,11 @@ namespace B.Utils
                 Thread.Sleep(5);
         }
 
-        public static Thread StartLoopedThread(Action action)
+        public static void StartLoopedThread(Action action, out Thread thread)
         {
-            Thread thread = new(() => { while (Program.Instance.IsRunning) action(); });
+            thread = new(() => { while (Program.Instance.IsRunning) action(); });
             thread.IsBackground = true;
             thread.Start();
-            return thread;
         }
     }
 }

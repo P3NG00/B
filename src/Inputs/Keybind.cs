@@ -31,7 +31,7 @@ namespace B.Inputs
 
                 Vector2 mousePos = Mouse.Position;
                 bool inLeftEdge = mousePos.x >= Position.x;
-                bool inRightEdge = mousePos.x <= Position.x + ToString().Length - 1;
+                bool inRightEdge = mousePos.x < Position.x + ToString().Length;
                 bool isInX = inLeftEdge && inRightEdge;
                 bool isOnY = mousePos.y == Position.y;
                 return isInX && isOnY;
@@ -91,6 +91,9 @@ namespace B.Inputs
 
         public void Print()
         {
+            if (!Display)
+                return;
+
             Cursor.Position = Position;
             string keybindStr = ToString();
 
