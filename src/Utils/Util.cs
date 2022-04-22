@@ -93,7 +93,11 @@ namespace B.Utils
 
         public static void StartLoopedThread(Action action, out Thread thread)
         {
-            thread = new(() => { while (Program.Instance.IsRunning) action(); });
+            thread = new(() =>
+            {
+                while (Program.Instance.IsRunning)
+                    action();
+            });
             thread.IsBackground = true;
             thread.Start();
         }

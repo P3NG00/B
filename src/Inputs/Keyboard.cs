@@ -64,7 +64,8 @@ namespace B.Inputs
             // Check debug key
             if (LastInput.Key == ConsoleKey.F12)
             {
-                Program.Settings.DebugMode.Toggle();
+                Input.Action = Program.Settings.DebugMode.Toggle;
+                // Return to finish processing further input
                 return;
             }
 

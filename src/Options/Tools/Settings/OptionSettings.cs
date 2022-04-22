@@ -24,7 +24,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.Clear();
                         Window.SetSize(27, 14);
-                        Cursor.Set(0, 1);
+                        Cursor.y = 1;
                         var choice = Input.Choice.Create(OptionSettings.Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
@@ -32,9 +32,8 @@ namespace B.Options.Tools.Settings
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '4'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.DeleteData), "Delete Data", '5'));
                         choice.AddSpacer();
-                        choice.AddKeybind(Keybind.Create(() => Program.Settings.Censor.Toggle(), $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10));
-                        // Action is null because F12 will toggle Debug Mode in Program using LastInput
-                        choice.AddKeybind(Keybind.Create(description: $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12));
+                        choice.AddKeybind(Keybind.Create(Program.Settings.Censor.Toggle, $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10));
+                        choice.AddKeybind(Keybind.Create(Program.Settings.DebugMode.Toggle, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
@@ -108,6 +107,7 @@ namespace B.Options.Tools.Settings
                         Window.Clear();
                         Window.SetSize(32, 27);
                         ConsoleColor[] colors = Util.ConsoleColors;
+                        Cursor.y = 1;
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",
@@ -205,8 +205,11 @@ namespace B.Options.Tools.Settings
                         Print(25, "High Surrogate", char.IsHighSurrogate(c));
                         Print(26, "Low Surrogate", char.IsLowSurrogate(c));
 
-                        if (Input.Get().Key == ConsoleKey.Escape)
-                            SetStage(Stages.MainMenu);
+                        // TOOD Input.RequestKey() or something?
+                        Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape);
+                        Input.RequestLine(keybinds: escapeKeybind); // This will at least allow you to exit out
+                        // if (Input.Get().Key == ConsoleKey.Escape)
+                        //     SetStage(Stages.MainMenu);
 
                         void Print(int line, string title, object value)
                         {

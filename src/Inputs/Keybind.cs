@@ -144,11 +144,7 @@ namespace B.Inputs
 
         #region Universal Methods
 
-        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
-        {
-            Keybind keybind = new Keybind(action, description, keyChar, key, modifiers);
-            return keybind;
-        }
+        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => new Keybind(action, description, keyChar, key, modifiers);
 
         public static Keybind CreateOptionExit(IOption option)
         {
@@ -162,9 +158,7 @@ namespace B.Inputs
                 default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
             }
 
-            Action exitAction = () => option.Quit();
-            Keybind optionExitKeybind = new Keybind(exitAction, phrase, key: ConsoleKey.Escape);
-            return optionExitKeybind;
+            return new Keybind(option.Quit, phrase, key: ConsoleKey.Escape);
         }
 
         public static Keybind CreateConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
@@ -184,8 +178,7 @@ namespace B.Inputs
                 Window.Clear();
             };
 
-            Keybind confirmationKeybind = new Keybind(confirmationAction, description, keyChar, key, modifiers);
-            return confirmationKeybind;
+            return new Keybind(confirmationAction, description, keyChar, key, modifiers);
         }
 
         #endregion

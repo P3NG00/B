@@ -4,6 +4,9 @@ using B.Utils.Themes;
 
 namespace B.Inputs
 {
+    // TODO move Keyboard and Mouse class under Input class.
+    // TODO make Keyboard and Mouse inherit a new abstract class "Processor"?
+
     public static class Input
     {
         #region Constants
@@ -61,6 +64,7 @@ namespace B.Inputs
 
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)
         {
+            Window.IsDrawing = true;
             Input.Choice choice = Input.Choice.Create();
             keybinds.ForEach(keybind => choice.AddKeybind(keybind));
             ConsoleKeyInfo keyInfo = choice.Request();
@@ -87,6 +91,7 @@ namespace B.Inputs
             Keybind exitKeybind = null!,                            // Exit keybind (seperate because spacer is added before this keybind)
             params Keybind[] extraKeybinds)                         // Extra keybinds
         {
+            Window.IsDrawing = true;
             int itemCount = items.Count();
             int maxEntriesAdjusted = Math.Min(MaxEntries, maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : itemCount);
             Input.Choice choice = Input.Choice.Create();
