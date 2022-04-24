@@ -16,6 +16,8 @@ namespace B.Options.Tools.Settings
 
         public OptionSettings() : base(Stages.MainMenu) { }
 
+        // TODO re-implement custom color selecting
+
         public override void Loop()
         {
             switch (Stage)
@@ -173,12 +175,12 @@ namespace B.Options.Tools.Settings
 
                 case Stages.KeyPress:
                     {
-                        Window.SetSize(35, 28);
+                        Window.SetSize(35, 30);
                         ConsoleKeyInfo lastInput = Keyboard.LastInput;
                         ConsoleKey key = lastInput.Key;
                         char c = lastInput.KeyChar;
                         Cursor.Set(2, 1);
-                        Window.Print(" Last Pressed ", PrintType.Title);
+                        Window.Print(" Last Key Pressed ", PrintType.Title);
                         //    2
                         Print(3, "Key", key);
                         Print(4, "Key Num", (int)key);
@@ -205,8 +207,13 @@ namespace B.Options.Tools.Settings
                         Print(25, "High Surrogate", char.IsHighSurrogate(c));
                         Print(26, "Low Surrogate", char.IsLowSurrogate(c));
 
+                        Cursor.Set(2, 28);
+                        Window.Print("Exit - Shift+Escape");
+
                         // TODO Input.RequestKey() or something?
-                        Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape);
+                        Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape, modifiers: ConsoleModifiers.Shift);
+
+                        // TODO this causes a hang because main thread and keyboard thread are waiting for each other to finish. look into thread value locking
                         Input.RequestLine(keybinds: escapeKeybind); // This will at least allow you to exit out
                         // if (Input.Get().Key == ConsoleKey.Escape)
                         //     SetStage(Stages.MainMenu);

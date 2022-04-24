@@ -7,7 +7,6 @@ namespace B.Inputs
     {
         #region Private Variables
 
-        private static volatile bool _isProcessing = false;
         private static bool _lastMouseDown = false;
         private static Thread _thread = null!;
 
@@ -29,8 +28,6 @@ namespace B.Inputs
                 return scaledRelativeMousePos;
             }
         }
-
-        public static bool IsProcessing => _isProcessing;
 
         #endregion
 
@@ -55,7 +52,7 @@ namespace B.Inputs
                 throw new Exception("Mouse Capture Thread already initialized!");
 
             // Start Mouse Tracking Thread
-            Util.StartLoopedThread(MouseThreadLoop, out _thread);
+            _thread = ProgramThread.StartLoopedThread(MouseThreadLoop);
         }
 
         #endregion
@@ -66,17 +63,11 @@ namespace B.Inputs
 
         private static void MouseThreadLoop()
         {
-            // If text is being drawn, wait until finished.
-            Util.WaitFor(() => !Window.IsDrawing && !Keyboard.IsProcessing);
+            ProgramThread.Wait();
 
-            // Begin processing
-            _isProcessing = true;
-
-            // Handle Processing
+            ProgramThread.Lock();
             Process();
-
-            // End processing
-            _isProcessing = false;
+            ProgramThread.Unlock();
         }
 
         private static void Process()
@@ -118,7 +109,7 @@ namespace B.Inputs
                 Window.Print(positionStr, printType);
                 // Slow thread briefly to display click flash
                 if (leftClick)
-                    Thread.Sleep(100);
+                    ProgramThread.Wait(100);
             }
         }
 

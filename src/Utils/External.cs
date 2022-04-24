@@ -70,7 +70,6 @@ namespace B.Utils
         // https://stackoverflow.com/a/36720802
         private static void DisableTextSelection()
         {
-
             // -10 is the standard input device
             IntPtr currentHandle = GetStdHandle(-10);
 

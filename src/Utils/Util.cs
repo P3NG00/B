@@ -88,18 +88,7 @@ namespace B.Utils
         public static void WaitFor(Func<bool> condition)
         {
             while (!condition())
-                Thread.Sleep(5);
-        }
-
-        public static void StartLoopedThread(Action action, out Thread thread)
-        {
-            thread = new(() =>
-            {
-                while (Program.Instance.IsRunning)
-                    action();
-            });
-            thread.IsBackground = true;
-            thread.Start();
+                Thread.Sleep(10);
         }
     }
 }

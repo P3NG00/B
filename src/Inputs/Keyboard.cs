@@ -6,7 +6,6 @@ namespace B.Inputs
     {
         #region Private Variables
 
-        private static volatile bool _isProcessing = false;
         private static Thread _thread = null!;
 
         #endregion
@@ -16,7 +15,6 @@ namespace B.Inputs
         #region Universal Variables
 
         public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
-        public static bool IsProcessing => _isProcessing;
 
         #endregion
 
@@ -31,7 +29,7 @@ namespace B.Inputs
                 throw new Exception("Mouse Capture Thread already initialized!");
 
             // Start thread to constantly accept keyboard input
-            Util.StartLoopedThread(KeyboardThreadLoop, out _thread);
+            _thread = ProgramThread.StartLoopedThread(KeyboardThreadLoop);
         }
 
         #endregion
@@ -45,21 +43,15 @@ namespace B.Inputs
             // Get key
             LastInput = Console.ReadKey(true);
 
-            // Mark as processing
-            // (Mark this so that Mouse will stop processing to allow keyboard input)
-            _isProcessing = true;
-
-            // Process thread
+            ProgramThread.Lock();
             Process();
-
-            // Finish processing
-            _isProcessing = false;
+            ProgramThread.Unlock();
         }
 
         private static void Process()
         {
-            // Wait for drawing and mouse to finish
-            Util.WaitFor(() => !Window.IsDrawing && !Mouse.IsProcessing);
+            // Make input void by default
+            Input.Action = Util.Void;
 
             // Check debug key
             if (LastInput.Key == ConsoleKey.F12)

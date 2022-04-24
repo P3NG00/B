@@ -19,8 +19,8 @@ namespace B.Inputs
 
         #region Universal Variables
 
+        public static volatile Action Action = null!;
         public static string String = string.Empty;
-        public static Action Action = null!;
         public static int ScrollIndex = 0;
 
         #endregion
@@ -43,10 +43,12 @@ namespace B.Inputs
 
         public static ConsoleKeyInfo Get()
         {
-            Window.IsDrawing = false;
+            ProgramThread.Unlock();
             Util.WaitFor(() => Action is not null);
+            ProgramThread.Lock();
             Action();
             Action = null!;
+            ProgramThread.Unlock();
             return Keyboard.LastInput;
         }
 
@@ -64,17 +66,15 @@ namespace B.Inputs
 
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)
         {
-            Window.IsDrawing = true;
             Input.Choice choice = Input.Choice.Create();
             keybinds.ForEach(keybind => choice.AddKeybind(keybind));
             ConsoleKeyInfo keyInfo = choice.Request();
-            Input.Action = Util.Void;
 
             if (keyInfo.Key == ConsoleKey.Backspace)
                 Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
             else if (keyInfo.Key == ConsoleKey.Delete)
                 ResetString();
-            else if (keyInfo.Key != ConsoleKey.Enter && keyInfo.Key != ConsoleKey.Escape && !char.IsControl(keyInfo.KeyChar) && Input.String.Length < maxLength)
+            else if (!char.IsControl(keyInfo.KeyChar) && Input.String.Length < maxLength)
                 Input.String += keyInfo.KeyChar;
         }
 
@@ -91,7 +91,6 @@ namespace B.Inputs
             Keybind exitKeybind = null!,                            // Exit keybind (seperate because spacer is added before this keybind)
             params Keybind[] extraKeybinds)                         // Extra keybinds
         {
-            Window.IsDrawing = true;
             int itemCount = items.Count();
             int maxEntriesAdjusted = Math.Min(MaxEntries, maxEntriesPerPage.HasValue ? maxEntriesPerPage.Value : itemCount);
             Input.Choice choice = Input.Choice.Create();
@@ -212,7 +211,7 @@ namespace B.Inputs
 
         private abstract class Entry
         {
-            public virtual void Print() { }
+            public virtual void Print() => Util.Void();
         }
 
         private sealed class EntryKeybind : Entry
@@ -229,10 +228,7 @@ namespace B.Inputs
             }
         }
 
-        private sealed class EntrySpacer : Entry
-        {
-            public sealed override void Print() => Util.Void();
-        }
+        private sealed class EntrySpacer : Entry { }
 
         private sealed class EntryText : Entry
         {

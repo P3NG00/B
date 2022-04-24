@@ -175,6 +175,7 @@ namespace B.Options.Tools.FTP
                         }
                         keybinds.Add(Keybind.Create(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5));
                         keybinds.Add(Keybind.Create(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
+                        Cursor.y = 1;
                         Input.RequestScroll(
                             items: _files,
                             getText: file =>

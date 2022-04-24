@@ -24,33 +24,6 @@ namespace B.Utils
 
 
 
-        #region Universal Variables
-
-        public static bool IsDrawing
-        {
-            get => _isDrawing;
-            set
-            {
-                _isDrawing = value;
-                // Wait for mouse process to finish
-                Util.WaitFor(() => !Mouse.IsProcessing);
-            }
-        }
-
-        #endregion
-
-
-
-        #region Private Variables
-
-        // Initialized as true to avoid drawing during initialization.
-        // This should be overridden after initialization is finished.
-        private static volatile bool _isDrawing = true;
-
-        #endregion
-
-
-
         #region Universal Methods
 
         public static void SetSize(Vector2 size) => SetSize(size.x, size.y);

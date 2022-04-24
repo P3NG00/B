@@ -1,9 +1,6 @@
-using System.Reflection;
 using B.Inputs;
 using B.Utils;
 using B.Utils.Extensions;
-using Figgle;
-using TextCopy;
 
 namespace B.Options.Toys.TextGenerator
 {
@@ -11,29 +8,14 @@ namespace B.Options.Toys.TextGenerator
     {
         public static string Title => "Text Generator";
 
-        // Font and Name list
-        private static FontType[] _fonts = null!;
-
         // Current Font from Index
-        private FontType FontInfo => _fonts[_fontIndex];
+        private FontType FontInfo => Fonts.FontArray[_fontIndex];
 
         // Index of current Font
         private int _fontIndex = 0;
 
-        public OptionTextGenerator() : base(Stages.MainMenu)
+        public OptionTextGenerator() : base(Stages.Text)
         {
-            // Initialize font list first time only
-            if (_fonts is null)
-            {
-                // TODO remove fonts that don't appear
-                // Get all font properties
-                PropertyInfo[] properties = typeof(FiggleFonts).GetProperties();
-                // From each property, put font into array
-                _fonts = properties.FromEach(property => new FontType(property.Name, (FiggleFont)property.GetValue(null)!)).ToArray();
-                // Sort array by name
-                Array.Sort(_fonts, (fontA, fontB) => fontA.Name.CompareTo(fontB.Name));
-            }
-
             // Reset text
             Input.String = Program.Title;
             // Select random font
@@ -44,14 +26,14 @@ namespace B.Options.Toys.TextGenerator
         {
             switch (Stage)
             {
-                case Stages.MainMenu:
+                case Stages.Text:
                     {
                         Window.Clear();
                         var fontInfo = FontInfo;
                         // Create output
                         string output = fontInfo.Font.Render(Input.String);
                         // Copy to clipboard
-                        ClipboardService.SetText(output);
+                        Clipboard.Text = output;
                         Window.SetSize(Window.SizeMax.x - 5, fontInfo.Font.Height + 12);
                         // Print info
                         Cursor.Set(2, 1);
@@ -82,8 +64,8 @@ namespace B.Options.Toys.TextGenerator
                         });
                         // Fix font index
                         if (_fontIndex < 0)
-                            _fontIndex = _fonts.Length - 1;
-                        else if (_fontIndex >= _fonts.Length)
+                            _fontIndex = Fonts.FontArray.Length - 1;
+                        else if (_fontIndex >= Fonts.FontArray.Length)
                             _fontIndex = 0;
                     }
                     break;
@@ -92,25 +74,25 @@ namespace B.Options.Toys.TextGenerator
                     {
                         Window.SetSize(27, 55);
                         Input.RequestScroll(
-                            items: _fonts,
+                            items: Fonts.FontArray,
                             getText: font => font.Name,
                             title: "Select Font",
-                            exitKeybind: Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
+                            exitKeybind: Keybind.Create(() => SetStage(Stages.Text), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: Keybind.Create(() =>
                             {
                                 _fontIndex = Input.ScrollIndex;
-                                SetStage(Stages.MainMenu);
+                                SetStage(Stages.Text);
                             }, "Select", key: ConsoleKey.Enter));
                     }
                     break;
             }
         }
 
-        private void SelectRandomFont() => _fontIndex = _fonts.RandomIndex();
+        private void SelectRandomFont() => _fontIndex = Fonts.FontArray.RandomIndex();
 
         public enum Stages
         {
-            MainMenu,
+            Text,
             FontSelect,
         }
     }

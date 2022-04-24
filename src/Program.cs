@@ -21,19 +21,37 @@ namespace B
 {
     public sealed class Program : Option<Program.Levels>
     {
+        #region Constants
+
         public const string Title = "B";
 
-        // Code entry point
+        #endregion
+
+
+
+        #region Code Entry Point
+
         public static void Main()
         {
             Program program = new Program();
             program.Start();
         }
 
-        // Program Info
+        #endregion
+
+
+
+        #region Universal Properties
+
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
         public static ProgramSettings Settings { get; private set; } = null!;
         public static Program Instance { get; private set; } = null!;
+
+        #endregion
+
+
+
+        #region Private Variables
 
         // Option Groups
         private static (string GroupTitle, Type[] OptionTypes)[] OptionGroups => new (string, Type[])[]
@@ -62,6 +80,12 @@ namespace B
         private (string GroupTitle, Type[] OptionTypes) _optionGroup;
         private IOption? _selectedOption = null;
 
+        #endregion
+
+
+
+        #region Constructor
+
         public Program() : base(Levels.Program)
         {
             if (Instance is null)
@@ -69,6 +93,12 @@ namespace B
             else
                 throw new Exception("Program already instantiated.");
         }
+
+        #endregion
+
+
+
+        #region Private Methods
 
         private void Start()
         {
@@ -126,11 +156,17 @@ namespace B
             Keyboard.Initialize();
         }
 
+        #endregion
+
+
+
+        #region Override Methods
+
         public override void Loop()
         {
-            // Enable drawing mode
-            Window.IsDrawing = true;
-            Util.WaitFor(() => !Mouse.IsProcessing && !Keyboard.IsProcessing);
+            // Lock thread
+            ProgramThread.Lock();
+            // Clear Keybinds
             Keybind.Keybinds.Clear();
 
             // If directory doesn't exist, create it and add hidden attribute
@@ -202,11 +238,27 @@ namespace B
                         {
                             _selectedOption = null;
                             SetStage(Levels.Group);
+                            ProgramThread.Unlock();
                         }
                     }
                     break;
             }
         }
+
+        public override void Quit()
+        {
+            // If quit is pressed in Levels.Group go back to Levels.Program
+            if (Stage == Levels.Group)
+                SetStage(Levels.Program);
+            else
+                base.Quit();
+        }
+
+        #endregion
+
+
+
+        #region Universal Methods
 
         public static void HandleException(Exception? exception = null, Text? text = null)
         {
@@ -238,14 +290,11 @@ namespace B
                 pInst.SetStage(Levels.Program);
         }
 
-        public override void Quit()
-        {
-            // If quit is pressed in Levels.Group go back to Levels.Program
-            if (Stage == Levels.Group)
-                SetStage(Levels.Program);
-            else
-                base.Quit();
-        }
+        #endregion
+
+
+
+        #region Enum
 
         public enum Levels
         {
@@ -253,5 +302,7 @@ namespace B
             Group,
             Option,
         }
+
+        #endregion
     }
 }
