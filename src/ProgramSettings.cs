@@ -7,9 +7,6 @@ namespace B
     {
         public static string Path => Program.DataPath + "settings";
 
-        // TODO Figure out why Togglables arent being deserialized properly
-        // they are saving to the file but not being loaded properly
-        // TODO USE DEBUG MODE UPON DESERIALIZATION OF THESE PROPERTIES TO SEE WHATS HAPPENING
         public Togglable CursorVisible;
         public Togglable DebugMode;
         public Togglable Censor;

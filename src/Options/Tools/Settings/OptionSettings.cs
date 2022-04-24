@@ -26,7 +26,7 @@ namespace B.Options.Tools.Settings
                         Window.SetSize(27, 14);
                         Cursor.y = 1;
                         var choice = Input.Choice.Create(OptionSettings.Title);
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '4'));
@@ -66,19 +66,19 @@ namespace B.Options.Tools.Settings
                     }
                     break;
 
-                case Stages.Color:
-                    {
-                        Window.Clear();
-                        Window.SetSize(20, 8);
-                        Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create("Color");
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Themes", '1'));
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Custom), "Customize", '2'));
-                        choice.AddSpacer();
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
-                        choice.Request();
-                    }
-                    break;
+                // case Stages.Color:
+                //     {
+                //         Window.Clear();
+                //         Window.SetSize(20, 8);
+                //         Cursor.Set(0, 1);
+                //         Input.Choice choice = Input.Choice.Create("Color");
+                //         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Themes", '1'));
+                //         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Custom), "Customize", '2'));
+                //         choice.AddSpacer();
+                //         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
+                //         choice.Request();
+                //     }
+                //     break;
 
                 case Stages.Color_Theme:
                     {
@@ -96,35 +96,35 @@ namespace B.Options.Tools.Settings
                             exitKeybind: Keybind.Create(() =>
                             {
                                 Input.ScrollIndex = 0;
-                                SetStage(Stages.Color);
+                                SetStage(Stages.MainMenu);
                             }, "Back", key: ConsoleKey.Escape));
                     }
                     break;
 
-                case Stages.Color_Custom:
-                    {
-                        Program.Settings.UpdateColors();
-                        Window.Clear();
-                        Window.SetSize(32, 27);
-                        ConsoleColor[] colors = Util.ConsoleColors;
-                        Cursor.y = 1;
-                        Input.RequestScroll(
-                            items: colors,
-                            getText: c => $" {c.ToString(),-12}",
-                            getTextColor: (c, i) => c,
-                            getBackgroundColor: (c, i) => (c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark")) ? ConsoleColor.White : ConsoleColor.Gray,
-                            title: "Colors",
-                            exitKeybind: Keybind.Create(() =>
-                            {
-                                Input.ScrollIndex = 0;
-                                SetStage(Stages.Color);
-                            }, "Exit", key: ConsoleKey.Escape));
-                        // TODO implement mutable ColorTheme in ProgramSettings to hold 'custom' background/foreground
-                        // extraKeybinds: new Keybind[] {
-                        // Keybind.Create(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
-                        // Keybind.Create(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2')});
-                    }
-                    break;
+                // case Stages.Color_Custom:
+                //     {
+                //         Program.Settings.UpdateColors();
+                //         Window.Clear();
+                //         Window.SetSize(32, 27);
+                //         ConsoleColor[] colors = Util.ConsoleColors;
+                //         Cursor.y = 1;
+                //         Input.RequestScroll(
+                //             items: colors,
+                //             getText: c => $" {c.ToString(),-12}",
+                //             getTextColor: (c, i) => c,
+                //             getBackgroundColor: (c, i) => (c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark")) ? ConsoleColor.White : ConsoleColor.Gray,
+                //             title: "Colors",
+                //             exitKeybind: Keybind.Create(() =>
+                //             {
+                //                 Input.ScrollIndex = 0;
+                //                 SetStage(Stages.Color);
+                //             }, "Exit", key: ConsoleKey.Escape));
+                //         // TODO implement mutable ColorTheme in ProgramSettings to hold 'custom' background/foreground
+                //         // extraKeybinds: new Keybind[] {
+                //         // Keybind.Create(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
+                //         // Keybind.Create(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2')});
+                //     }
+                //     break;
 
                 case Stages.Cursor:
                     {
@@ -205,7 +205,7 @@ namespace B.Options.Tools.Settings
                         Print(25, "High Surrogate", char.IsHighSurrogate(c));
                         Print(26, "Low Surrogate", char.IsLowSurrogate(c));
 
-                        // TOOD Input.RequestKey() or something?
+                        // TODO Input.RequestKey() or something?
                         Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape);
                         Input.RequestLine(keybinds: escapeKeybind); // This will at least allow you to exit out
                         // if (Input.Get().Key == ConsoleKey.Escape)
@@ -251,9 +251,9 @@ namespace B.Options.Tools.Settings
         {
             MainMenu,
             WindowSize,
-            Color,
+            // Color,
             Color_Theme,
-            Color_Custom,
+            // Color_Custom,
             Cursor,
             Cursor_Size,
             KeyPress,
