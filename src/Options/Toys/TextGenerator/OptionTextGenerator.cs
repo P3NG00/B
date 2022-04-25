@@ -34,20 +34,32 @@ namespace B.Options.Toys.TextGenerator
                         string output = fontInfo.Font.Render(Input.String);
                         // Copy to clipboard
                         Clipboard.Text = output;
-                        Window.SetSize(Window.SizeMax.x - 5, fontInfo.Font.Height + 12);
+                        int width = Window.SizeMax.x - 2;
+                        Window.SetSize(width, fontInfo.Font.Height + 13);
                         // Print info
                         Cursor.Set(2, 1);
                         Window.Print($"Input: \"{Input.String}\"");
                         Cursor.Set(2, 2);
                         Window.Print($"Font: {fontInfo.Name}");
-                        // Print output
-                        Cursor.Set(0, 4);
-                        output.Split("\r\n").ForEach(line =>
+                        // Check width of output
+                        string[] split = output.Split("\r\n");
+                        Cursor.y = 5;
+                        if (split[0].Length + 4 >= width)
+                        {
+                            // Too big, print message
+                            OutputPrint("Output is too long. Text has been copied to your clipboard to paste elsewhere.");
+                        }
+                        else
+                        {
+                            // Within width, print output
+                            split.ForEach(line => OutputPrint(line));
+                        }
+                        void OutputPrint(string s)
                         {
                             Cursor.x = 2;
-                            Window.Print(line);
+                            Window.Print(s);
                             Cursor.y++;
-                        });
+                        }
                         // Request
                         Cursor.y++;
                         Input.RequestLine(keybinds: new Keybind[] {

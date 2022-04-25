@@ -170,6 +170,9 @@ namespace B.Utils
         [DllImport(USER32)]
         private static extern bool SetWindowPos(int hWnd, long hWndInsertAfter, long x, long y, long cx, long cy, long wFlags);
 
+        // TODO https://www.pinvoke.net/default.aspx/user32.SetClipboardData
+        // TODO https://www.pinvoke.net/default.aspx/user32.GetClipboardData
+
         #endregion
     }
 }

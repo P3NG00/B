@@ -1,11 +1,11 @@
 using B.Utils;
 using B.Utils.Extensions;
-using B.Utils.Themes;
 
 namespace B.Inputs
 {
     // TODO move Keyboard and Mouse class under Input class.
     // TODO make Keyboard and Mouse inherit a new abstract class "Processor"?
+    // TODO make 1 Input.Initialize()
 
     public static class Input
     {

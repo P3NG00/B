@@ -64,7 +64,7 @@ namespace B.Inputs
         private static void MouseThreadLoop()
         {
             ProgramThread.Wait();
-
+            // Lock and process
             ProgramThread.Lock();
             Process();
             ProgramThread.Unlock();

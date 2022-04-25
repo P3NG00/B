@@ -42,7 +42,7 @@ namespace B.Inputs
         {
             // Get key
             LastInput = Console.ReadKey(true);
-
+            // Lock and process
             ProgramThread.Lock();
             Process();
             ProgramThread.Unlock();

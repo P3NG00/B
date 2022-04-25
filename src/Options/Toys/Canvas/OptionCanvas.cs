@@ -27,6 +27,8 @@ namespace B.Options.Toys.Canvas
 
         // TODO add image importing to canvas grid
 
+        // TODO allow drawing on canvas with mouse clicks/holds
+
         public OptionCanvas() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(OptionCanvas.DirectoryPath))
