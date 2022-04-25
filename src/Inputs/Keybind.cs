@@ -91,9 +91,6 @@ namespace B.Inputs
 
         public void Print()
         {
-            if (!Display)
-                return;
-
             Cursor.Position = Position;
             string keybindStr = ToString();
 
@@ -131,11 +128,24 @@ namespace B.Inputs
 
         public override string ToString()
         {
-            string preface = string.Empty;
-            if (HasModifier(ConsoleModifiers.Control)) preface += "Ctrl+";
-            if (HasModifier(ConsoleModifiers.Shift)) preface += "Shift+";
-            if (HasModifier(ConsoleModifiers.Alt)) preface += "Alt+";
-            return $"{preface}{(KeyChar.HasValue ? KeyChar.Value.ToString() : Key.ToString())}) {Description}";
+            string preface;
+
+            if (KeyChar.HasValue)
+                preface = KeyChar.Value.ToString();
+            else if (Key.HasValue)
+                preface = Key.Value.ToString();
+            else
+                preface = string.Empty;
+
+            if (HasModifier(ConsoleModifiers.Alt)) preface = "Alt+" + preface;
+            if (HasModifier(ConsoleModifiers.Shift)) preface = "Shift+" + preface;
+            if (HasModifier(ConsoleModifiers.Control)) preface = "Ctrl+" + preface;
+
+            if (!string.IsNullOrWhiteSpace(preface))
+                preface += ") ";
+
+            string fullString = preface + Description;
+            return fullString;
         }
 
         #endregion
@@ -144,7 +154,7 @@ namespace B.Inputs
 
         #region Universal Methods
 
-        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null) => new Keybind(action, description, keyChar, key, modifiers);
+        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null) => new Keybind(action, description, keyChar, key, modifiers);
 
         public static Keybind CreateOptionExit(IOption option)
         {
@@ -178,6 +188,25 @@ namespace B.Inputs
             };
 
             return new Keybind(confirmationAction, description, keyChar, key, modifiers);
+        }
+
+        public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)
+        {
+            if (position is null)
+                position = Cursor.Position;
+
+            // Register keybind
+            keybind.SetPosition(position);
+            Keybinds.Add(keybind);
+        }
+
+        public static void PrintRegisteredKeybinds()
+        {
+            Keybinds.ForEach(keybind =>
+            {
+                if (keybind.Display)
+                    keybind.Print();
+            });
         }
 
         #endregion

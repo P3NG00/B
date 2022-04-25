@@ -133,7 +133,7 @@ namespace B.Options.Tools.Settings
                         Cursor.Reset();
                         Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create("Cursor");
-                        choice.AddKeybind(Keybind.Create(() => Program.Settings.CursorVisible.Toggle(), $"Visibility - {Cursor.Visible,-5}", '1'));
+                        choice.AddKeybind(Keybind.Create(Program.Settings.CursorVisible.Toggle, $"Visibility - {Cursor.Visible,-5}", '1'));
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             Window.Clear();
@@ -174,47 +174,44 @@ namespace B.Options.Tools.Settings
 
                 case Stages.KeyPress:
                     {
-                        Window.SetSize(35, 30);
+                        Window.SetSize(35, 26);
                         ConsoleKeyInfo lastInput = Keyboard.LastInput;
                         ConsoleKey key = lastInput.Key;
                         char c = lastInput.KeyChar;
                         Cursor.Set(2, 1);
                         Window.Print(" Last Key Pressed ", PrintType.Title);
                         //    2
-                        Print(3, "Key", key);
-                        Print(4, "Key Num", (int)key);
-                        Print(5, "Key Char", c.Unformat());
-                        Print(6, "Key Char Num", (int)c);
+                        Print(3, "Key Char Num", (int)c);
+                        Print(4, "Key Char", c.Unformat());
+                        Print(5, "Key Num", (int)key);
+                        Print(6, "Key", key);
                         //    7
                         Print(8, "Control", lastInput.IsControlHeld());
                         Print(9, "Shift", lastInput.IsShiftHeld());
                         Print(10, "Alt", lastInput.IsAltHeld());
                         //    11
-                        Print(12, "Ascii", char.IsAscii(c));
-                        Print(13, "Control", char.IsControl(c));
-                        Print(14, "Digit", char.IsDigit(c));
-                        Print(15, "Letter", char.IsLetter(c));
-                        Print(16, "Lower", char.IsLower(c));
-                        Print(17, "Upper", char.IsUpper(c));
-                        Print(18, "Number", char.IsNumber(c));
-                        Print(19, "Punctuation", char.IsPunctuation(c));
-                        Print(20, "Seperator", char.IsSeparator(c));
-                        Print(21, "Symbol", char.IsSymbol(c));
-                        Print(22, "Whitespace", char.IsWhiteSpace(c));
+                        Print(12, "Punctuation", char.IsPunctuation(c));
+                        Print(13, "Whitespace", char.IsWhiteSpace(c));
+                        Print(14, "Seperator", char.IsSeparator(c));
+                        Print(15, "Control", char.IsControl(c));
+                        Print(16, "Symbol", char.IsSymbol(c));
+                        Print(17, "Number", char.IsNumber(c));
+                        Print(18, "Letter", char.IsLetter(c));
+                        Print(19, "Lower", char.IsLower(c));
+                        Print(20, "Upper", char.IsUpper(c));
+                        Print(21, "Digit", char.IsDigit(c));
+                        Print(22, "Ascii", char.IsAscii(c));
                         //    23
-                        Print(24, "Surrogate", char.IsSurrogate(c));
-                        Print(25, "High Surrogate", char.IsHighSurrogate(c));
-                        Print(26, "Low Surrogate", char.IsLowSurrogate(c));
-
-                        Cursor.Set(2, 28);
-                        Window.Print("Exit - Shift+Escape");
-                        Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape, modifiers: ConsoleModifiers.Shift);
+                        Cursor.y = 24;
+                        Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape, modifiers: ConsoleModifiers.Shift);
                         Input.RequestLine(keybinds: escapeKeybind);
 
                         void Print(int line, string title, object value)
                         {
                             string? output;
 
+                            // Get output from value.
+                            // Make false bools appear empty.
                             if (value is bool b && !b)
                                 output = string.Empty;
                             else
@@ -222,7 +219,7 @@ namespace B.Options.Tools.Settings
 
                             Cursor.x = 2;
                             Cursor.y = line;
-                            Window.Print($"{title}: {output,-10}");
+                            Window.Print($"{title}: {output,-12}");
                         }
                     }
                     break;

@@ -112,15 +112,16 @@ namespace B.Inputs
                 // Scroll through current page
                 for (int i = startIndex; i < endIndex; i++)
                 {
+                    int j = i;
                     Cursor.x = 1;
-                    Window.Print(Input.ScrollIndex == i ? '>' : ' ');
-                    T item = items.ElementAt(i);
+                    Window.Print(Input.ScrollIndex == j ? '>' : ' ');
+                    T item = items.ElementAt(j);
                     string text = getText(item);
-                    string output = string.Format("{0,-" + (text.Length + 1) + "}", text);
-                    ConsoleColor? colorText = getTextColor is null ? null : getTextColor(item, i);
-                    ConsoleColor? colorBG = getBackgroundColor is null ? null : getBackgroundColor(item, i);
+                    string output = string.Format("{0,-" + text.Length + "}", text);
+                    ConsoleColor? colorText = getTextColor?.Invoke(item, j);
+                    ConsoleColor? colorBG = getBackgroundColor?.Invoke(item, j);
                     Cursor.x = 3;
-                    Window.Print(output, new ColorPair(colorText, colorBG));
+                    Keybind.RegisterKeybind(Keybind.Create(() => ScrollIndex = j, output));
                     Cursor.y++;
                 }
 
@@ -208,39 +209,32 @@ namespace B.Inputs
 
         #region Input Entry Choice
 
-        private abstract class Entry
+        private interface IEntry
         {
             public virtual void Print() => Util.Void();
         }
 
-        private sealed class EntryKeybind : Entry
+        private sealed class EntryKeybind : IEntry
         {
             public Keybind Keybind { get; private set; }
 
             public EntryKeybind(Keybind keybind) => Keybind = keybind;
-
-            public void RegisterKeybind()
-            {
-                // Register keybind
-                Keybind.SetPosition(Cursor.Position);
-                Keybind.Keybinds.Add(Keybind);
-            }
         }
 
-        private sealed class EntrySpacer : Entry { }
+        private sealed class EntrySpacer : IEntry { }
 
-        private sealed class EntryText : Entry
+        private sealed class EntryText : IEntry
         {
             public Text Text { get; private set; }
 
             public EntryText(Text text) => Text = text;
 
-            public sealed override void Print() => Text.Print();
+            public void Print() => Text.Print();
         }
 
         public sealed class Choice
         {
-            private readonly List<Entry> _entries = new();
+            private readonly List<IEntry> _entries = new();
 
             private Choice(string? title = null)
             {
@@ -252,7 +246,7 @@ namespace B.Inputs
                 AddSpacer();
             }
 
-            private void Add(Entry entry)
+            private void Add(IEntry entry)
             {
                 if (entry is null)
                     throw new Exception("Entry cannot be null!");
@@ -271,12 +265,12 @@ namespace B.Inputs
             public ConsoleKeyInfo Request(Action? final = null)
             {
                 // Print entries
-                foreach (Entry entry in _entries)
+                foreach (var entry in _entries)
                 {
                     if (entry is EntryKeybind entryKeybind)
                     {
                         Cursor.x = 2;
-                        entryKeybind.RegisterKeybind();
+                        Keybind.RegisterKeybind(entryKeybind.Keybind);
 
                         if (!entryKeybind.Keybind.Display)
                             continue;

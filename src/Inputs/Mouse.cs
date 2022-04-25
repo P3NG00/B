@@ -95,7 +95,7 @@ namespace B.Inputs
             // Print Selectable Boxes
             // (skip if clicked)
             if (!leftClick)
-                Keybind.Keybinds.ForEach(keybind => keybind.Print());
+                Keybind.PrintRegisteredKeybinds();
 
             // Mouse Position Debug
             if (Program.Settings.DebugMode.Active)
@@ -105,11 +105,7 @@ namespace B.Inputs
                 Cursor.y = 0;
                 Cursor.x = Window.Width - Vector2.MaxStringLength;
                 Window.Print(' '.Loop(blankSpace));
-                PrintType printType = leftClick ? PrintType.Highlight : PrintType.General;
-                Window.Print(positionStr, printType);
-                // Slow thread briefly to display click flash
-                if (leftClick)
-                    ProgramThread.Wait(100);
+                Window.Print(positionStr);
             }
         }
 

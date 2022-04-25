@@ -18,7 +18,11 @@ namespace B
                 Monitor.Exit(_lock);
         }
 
-        public static void Wait(int milliseconds = 10) => Thread.Sleep(milliseconds);
+        public static void Wait(float seconds = 0.01f)
+        {
+            int milliseconds = (int)(seconds * 1000);
+            Thread.Sleep(milliseconds);
+        }
 
         public static Thread StartLoopedThread(string name, Action action, ThreadPriority priority)
         {
