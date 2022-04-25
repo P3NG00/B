@@ -121,7 +121,6 @@ namespace B.Options.Tools.Settings
                 //                 Input.ScrollIndex = 0;
                 //                 SetStage(Stages.Color);
                 //             }, "Exit", key: ConsoleKey.Escape));
-                //         // TODO implement mutable ColorTheme in ProgramSettings to hold 'custom' background/foreground
                 //         // extraKeybinds: new Keybind[] {
                 //         // Keybind.Create(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
                 //         // Keybind.Create(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2')});
@@ -209,14 +208,8 @@ namespace B.Options.Tools.Settings
 
                         Cursor.Set(2, 28);
                         Window.Print("Exit - Shift+Escape");
-
-                        // TODO Input.RequestKey() or something?
                         Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape, modifiers: ConsoleModifiers.Shift);
-
-                        // TODO this causes a hang because main thread and keyboard thread are waiting for each other to finish. look into thread value locking
-                        Input.RequestLine(keybinds: escapeKeybind); // This will at least allow you to exit out
-                        // if (Input.Get().Key == ConsoleKey.Escape)
-                        //     SetStage(Stages.MainMenu);
+                        Input.RequestLine(keybinds: escapeKeybind);
 
                         void Print(int line, string title, object value)
                         {

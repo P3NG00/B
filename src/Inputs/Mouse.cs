@@ -52,7 +52,7 @@ namespace B.Inputs
                 throw new Exception("Mouse Capture Thread already initialized!");
 
             // Start Mouse Tracking Thread
-            _thread = ProgramThread.StartLoopedThread("KeyboardThreadLoop", MouseThreadLoop);
+            _thread = ProgramThread.StartLoopedThread("MouseThreadLoop", MouseThreadLoop);
         }
 
         #endregion

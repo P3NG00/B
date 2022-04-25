@@ -125,6 +125,9 @@ namespace B
 
         private void Initialize()
         {
+            // Lock thread before others are even initialized
+            ProgramThread.Lock();
+
             // Set console settings
             Console.Title = Program.Title;
 
@@ -262,6 +265,7 @@ namespace B
 
         public static void HandleException(Exception? exception = null, Text? text = null)
         {
+            ProgramThread.Unlock();
             ProgramThread.Lock();
             Window.Clear();
             Window.SetSize(Window.SizeMax * 0.75f);
@@ -290,8 +294,6 @@ namespace B
                 pInst.SetStage(Levels.Group);
             else if (pInst.Stage == Levels.Group)
                 pInst.SetStage(Levels.Program);
-
-            ProgramThread.Unlock();
         }
 
         #endregion

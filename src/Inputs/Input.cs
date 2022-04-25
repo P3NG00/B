@@ -48,7 +48,6 @@ namespace B.Inputs
             ProgramThread.Lock();
             Action();
             Action = null!;
-            ProgramThread.Unlock();
             return Keyboard.LastInput;
         }
 
@@ -276,6 +275,7 @@ namespace B.Inputs
                 {
                     if (entry is EntryKeybind entryKeybind)
                     {
+                        Cursor.x = 2;
                         entryKeybind.RegisterKeybind();
 
                         if (!entryKeybind.Keybind.Display)
