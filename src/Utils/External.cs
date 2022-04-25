@@ -29,7 +29,6 @@ namespace B.Utils
         {
             DisableWindowResizing();
             DisableTextSelection();
-            // DisableWindowTitleBar(); // TODO need to implement way of moving window when using this
         }
 
         public static Vector2 GetRelativeMousePosition()
@@ -81,16 +80,6 @@ namespace B.Utils
 
             if (!SetConsoleMode(currentHandle, consoleMode))
                 throw new Exception("Failed to set console mode.");
-        }
-
-        // https://stackoverflow.com/a/2014514
-        private static void DisableWindowTitleBar()
-        {
-            int hWnd = FindWindow("ConsoleWindowClass", Program.Title);
-            long style = GetWindowLong(hWnd, -16L);
-            style &= ~(0b1100_0000_0000_0000_0000_0001L);
-            SetWindowLong(hWnd, -16L, style);
-            SetWindowPos(hWnd, 0L, 0L, 0L, 0L, 0L, 0x27L); // TODO try playing with 0x27L or -16L value to see if height can be adjusted
         }
 
         #endregion
@@ -159,18 +148,6 @@ namespace B.Utils
 
         [DllImport(USER32)]
         private static extern short GetKeyState(VirtualKeyStates nVirtKey);
-
-        [DllImport(USER32, EntryPoint = "GetWindowLongA")]
-        private static extern long GetWindowLong(long hWnd, long nIndex);
-
-        [DllImport(USER32, EntryPoint = "SetWindowLongA")]
-        private static extern long SetWindowLong(long hWnd, long nIndex, long dwNewLong);
-
-        [DllImport(USER32)]
-        private static extern int FindWindow(string lpClassName, string lpWindowName);
-
-        [DllImport(USER32)]
-        private static extern bool SetWindowPos(int hWnd, long hWndInsertAfter, long x, long y, long cx, long cy, long wFlags);
 
         #endregion
     }

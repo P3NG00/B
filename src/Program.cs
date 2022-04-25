@@ -135,7 +135,7 @@ namespace B
             if (OperatingSystem.IsWindows())
                 Console.TreatControlCAsInput = true;
 
-            // Attempt to Deserialize saved Settings before further initialization
+            // Attempt to Deserialize saved Settings before other initialization
             if (File.Exists(ProgramSettings.Path))
             {
                 try { Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
