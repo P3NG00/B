@@ -88,7 +88,7 @@ namespace B.Utils
         public static void WaitFor(Func<bool> condition)
         {
             while (!condition())
-                Thread.Sleep(10);
+                ProgramThread.Wait();
         }
     }
 }

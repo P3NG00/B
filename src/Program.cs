@@ -262,6 +262,7 @@ namespace B
 
         public static void HandleException(Exception? exception = null, Text? text = null)
         {
+            ProgramThread.Lock();
             Window.Clear();
             Window.SetSize(Window.SizeMax * 0.75f);
             // Cursor will always start at (2, 1)
@@ -280,6 +281,7 @@ namespace B
             }
 
             Input.WaitFor(ConsoleKey.F1);
+            ProgramThread.Lock();
             Window.Clear();
             Program pInst = Instance;
             pInst._selectedOption = null;
@@ -288,6 +290,8 @@ namespace B
                 pInst.SetStage(Levels.Group);
             else if (pInst.Stage == Levels.Group)
                 pInst.SetStage(Levels.Program);
+
+            ProgramThread.Unlock();
         }
 
         #endregion

@@ -149,7 +149,7 @@ namespace B.Options.Toys.Canvas
                         Cursor.Set(2, 3);
                         Window.Print('-'.Loop(Window.Width - 2));
                         // Move in Direction
-                        Input.Choice choice = Input.Choice.Create();
+                        var choice = Input.Choice.Create();
                         // TODO ADD DESCRIPTIONS AND DISPLAY KEYBINDS IN EDIT MODE
                         choice.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow));
                         choice.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow));
