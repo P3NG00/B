@@ -20,7 +20,7 @@ namespace B
 
         public static void Wait(int milliseconds = 10) => Thread.Sleep(milliseconds);
 
-        public static Thread StartLoopedThread(string name, Action action)
+        public static Thread StartLoopedThread(string name, Action action, ThreadPriority priority)
         {
             Thread thread = new(() =>
             {
@@ -28,6 +28,7 @@ namespace B
                     action();
             });
             thread.Name = name;
+            thread.Priority = priority;
             thread.IsBackground = true;
             thread.Start();
             return thread;

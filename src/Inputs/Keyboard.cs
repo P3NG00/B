@@ -29,7 +29,7 @@ namespace B.Inputs
                 throw new Exception("Mouse Capture Thread already initialized!");
 
             // Start thread to constantly accept keyboard input
-            _thread = ProgramThread.StartLoopedThread("KeyboardThreadLoop", KeyboardThreadLoop);
+            _thread = ProgramThread.StartLoopedThread("KeyboardThreadLoop", KeyboardThreadLoop, ThreadPriority.Normal);
         }
 
         #endregion
