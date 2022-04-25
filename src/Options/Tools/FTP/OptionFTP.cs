@@ -46,7 +46,7 @@ namespace B.Options.Tools.FTP
                 ca[l % ca.Length] = new char[] {'!', '?', '@', '#', '$', '%', '&', '*', '+', '=',
                                                 '~', 'X', 'O', 'Q', '§', '®', '¡', '¿', '©', '█',
                                                 '■', '"', '/', '·', '|', ':', ';', '<', '>', '-',
-                                                '\\'}.Random();
+                                                '\\', '\''}.Random();
                 return new string(ca);
             },
             // Bar Fill
@@ -54,10 +54,8 @@ namespace B.Options.Tools.FTP
             {
                 char[] ca = new char[9];
                 int fillDepth = l % (ca.Length + 1);
-
                 for (int i = 0; i < ca.Length; i++)
                     ca[i] = i < fillDepth ? '#' : '-';
-
                 return new string(ca);
             },
             // Spinner
@@ -145,7 +143,7 @@ namespace B.Options.Tools.FTP
                             else
                             {
                                 Window.Print(msg);
-                                Input.Get();
+                                Input.Get(); // TODO change this, its causing a loop
                                 Window.Clear();
                             }
                         }

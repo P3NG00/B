@@ -153,10 +153,8 @@ namespace B
             External.Initialize();
             // Initialize Utilities
             Util.Initialize();
-            // Initialize Mouse Capture Thread after Program.Settings has been been initialized
-            Mouse.Initialize();
-            // Initialize Keyboard Capture Thread
-            Keyboard.Initialize();
+            // Initialize Input after Program.Settings has been initialized because of Mouse class
+            Input.Initialize();
         }
 
         #endregion

@@ -97,7 +97,7 @@ namespace B.Inputs
             if (IsHighlighted)
                 Window.Print(keybindStr, PrintType.Highlight);
             else
-                Window.Print(keybindStr, PrintType.General);
+                Window.Print(keybindStr);
         }
 
         #endregion

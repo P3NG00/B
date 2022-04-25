@@ -35,6 +35,13 @@ namespace B.Inputs
 
         #region Universal Methods
 
+        public static void Initialize()
+        {
+            // Mouse needs to be initialized after Program.Settings has been initialized
+            Mouse.Initialize();
+            Keyboard.Initialize();
+        }
+
         public static void ResetString() => Input.String = string.Empty;
 
         public static ConsoleKeyInfo Get()
