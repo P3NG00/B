@@ -135,7 +135,8 @@ namespace B.Options.Games.Adventure
         {
             string[] sa = new string[dimensions.y];
             string s = ' '.Loop(dimensions.x);
-            Util.Loop(sa.Length, i => sa[i] = s);
+            for (int i = 0; i < sa.Length; i++)
+                sa[i] = s;
             return sa;
         }
     }

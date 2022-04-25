@@ -58,7 +58,8 @@ namespace B.Options.Games.MexicanTrain
             _dominoes.Shuffle();
 
             // Deal dominoes
-            Util.Loop(OptionMexicanTrain.DOMINO_START, () => _players.ForEach(player => player.TakeRandomFrom(_dominoes)));
+            for (int i = 0; i < OptionMexicanTrain.DOMINO_START; i++)
+                _players.ForEach(player => player.TakeRandomFrom(_dominoes));
         }
 
         public void HandleTurn()

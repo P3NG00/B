@@ -56,6 +56,14 @@ namespace B.Utils
             };
         }
 
+        public static void WaitFor(Func<bool> condition)
+        {
+            while (!condition())
+                ProgramThread.Wait();
+        }
+
+        public static void Void() { }
+
         public static ConsoleColor[] ConsoleColors => new ConsoleColor[]
         {
             ConsoleColor.White,
@@ -75,21 +83,5 @@ namespace B.Utils
             ConsoleColor.DarkRed,
             ConsoleColor.Red,
         };
-
-        public static void Void() { }
-
-        public static void Loop(int count, Action action) => Loop(count, i => action());
-
-        public static void Loop(int count, Action<int> actionIndexed)
-        {
-            for (int i = 0; i < count; i++)
-                actionIndexed(i);
-        }
-
-        public static void WaitFor(Func<bool> condition)
-        {
-            while (!condition())
-                ProgramThread.Wait();
-        }
     }
 }

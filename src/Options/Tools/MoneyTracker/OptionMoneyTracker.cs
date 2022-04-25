@@ -167,7 +167,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         if (amountAccounts > 0)
                         {
-                            Util.Loop(amountAccounts, i =>
+                            for (int i = 0; i < amountAccounts; i++)
                             {
                                 Account account = _accounts[i];
 
@@ -180,7 +180,7 @@ namespace B.Options.Tools.MoneyTracker
                                     account.Delete();
                                     SetStage(Stages.Account);
                                 }, $"Delete account {account.Name}?", account.Name, keyChar: (char)('1' + i)));
-                            });
+                            }
 
                             choice.AddSpacer();
                         }

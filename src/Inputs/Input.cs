@@ -3,10 +3,6 @@ using B.Utils.Extensions;
 
 namespace B.Inputs
 {
-    // TODO move Keyboard and Mouse class under Input class.
-    // TODO make Keyboard and Mouse inherit a new abstract class "Processor"?
-    // TODO make 1 Input.Initialize()
-
     public static class Input
     {
         #region Constants

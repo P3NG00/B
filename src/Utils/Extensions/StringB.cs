@@ -5,8 +5,8 @@ namespace B.Utils.Extensions
         public static string Loop(this string str, int times)
         {
             string s = string.Empty;
-            Action action = () => s += str;
-            Util.Loop(times, () => s += str);
+            for (int i = 0; i < times; i++)
+                s += str;
             return s;
         }
     }

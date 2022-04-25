@@ -81,7 +81,7 @@ namespace B.Inputs
             {
                 foreach (Keybind keybind in Keybind.Keybinds)
                 {
-                    if (keybind.IsHighlighted)
+                    if (keybind.IsHighlighted && keybind.Display)
                     {
                         Input.Action = keybind.Action;
                         break;

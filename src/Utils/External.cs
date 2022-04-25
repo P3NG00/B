@@ -131,6 +131,8 @@ namespace B.Utils
 
         #region External Methods
 
+        // https://www.pinvoke.net/
+
         [DllImport(USER32)]
         private static extern int DeleteMenu(IntPtr hMenu, int nPosition, int wFlags);
 

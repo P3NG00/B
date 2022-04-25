@@ -187,18 +187,17 @@ namespace B
                         Window.Clear();
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create($"{Program.Title}'s");
-                        Util.Loop(Program.OptionGroups.Length, i =>
+                        var choice = Input.Choice.Create($"{Program.Title}'s");
+                        for (int i = 0; i < Program.OptionGroups.Length; i++)
                         {
                             var optionGroup = Program.OptionGroups[i];
-                            Action action = () =>
+                            char c = (char)('1' + i);
+                            choice.AddKeybind(Keybind.Create(() =>
                             {
                                 _optionGroup = optionGroup;
                                 SetStage(Levels.Group);
-                            };
-                            char c = (char)('1' + i);
-                            choice.AddKeybind(Keybind.Create(action, optionGroup.GroupTitle, c));
-                        });
+                            }, optionGroup.GroupTitle, c));
+                        }
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
