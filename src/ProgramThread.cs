@@ -6,6 +6,8 @@ namespace B
 
         private static bool Locked => Monitor.IsEntered(_lock);
 
+        public static object LockObject => _lock;
+
         public static void Lock()
         {
             if (!Locked)

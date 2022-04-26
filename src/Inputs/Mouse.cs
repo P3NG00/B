@@ -65,9 +65,8 @@ namespace B.Inputs
         {
             ProgramThread.Wait();
             // Lock and process
-            ProgramThread.Lock();
-            Process();
-            ProgramThread.Unlock();
+            lock (ProgramThread.LockObject)
+                Process();
         }
 
         private static void Process()
