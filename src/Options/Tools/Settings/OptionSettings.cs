@@ -89,11 +89,11 @@ namespace B.Options.Tools.Settings
                         Program.Settings.ColorTheme = theme;
                         Program.Settings.UpdateColors();
                         Window.Clear();
-                        Window.SetSize(32, themes.Length + 8);
+                        Window.SetSize(28, themes.Length + 8);
                         Cursor.y = 1;
                         Input.RequestScroll(
                             items: themes,
-                            getText: theme => $" {theme.Title,-15}",
+                            getText: theme => theme.Title,
                             title: "Color Themes",
                             exitKeybind: Keybind.Create(() =>
                             {

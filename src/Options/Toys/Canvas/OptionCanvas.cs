@@ -254,6 +254,7 @@ namespace B.Options.Toys.Canvas
                         Window.Clear();
                         Window.SetSize(32, 26);
                         ConsoleColor[] colors = Util.ConsoleColors;
+                        Cursor.y = 1;
                         Input.RequestScroll(
                             items: colors,
                             getText: c => $" {c.ToString(),-12}",

@@ -1,5 +1,6 @@
 using B.Utils;
 using B.Utils.Extensions;
+using B.Utils.Themes;
 
 namespace B.Inputs
 {
@@ -124,6 +125,7 @@ namespace B.Inputs
                     ConsoleColor? colorText = getTextColor?.Invoke(item, j);
                     ConsoleColor? colorBG = getBackgroundColor?.Invoke(item, j);
                     Cursor.x = 3;
+                    // Regiser each entry as a Keybind
                     Keybind.RegisterKeybind(Keybind.Create(() => ScrollIndex = j, output));
                     Cursor.y++;
                 }

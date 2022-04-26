@@ -176,10 +176,8 @@ namespace B.Options.Tools.FTP
                             getText: file =>
                             {
                                 string s = file.Name;
-
                                 if (file.IsDirectory)
                                     s += "/";
-
                                 return s;
                             },
                             title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}",
