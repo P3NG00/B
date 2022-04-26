@@ -91,13 +91,10 @@ namespace B.Options.Tools.FTP
         {
             // Clear console to prevent console flashing during login
             Window.Clear();
-
             // Empty the input string
             Input.ResetString();
-
             // Select a random scrambler to show.
             _scrambler = OptionFTP._scramblers.Random();
-
             // If Download Path doesn't exist, create it.
             if (Directory.Exists(OptionFTP.DownloadPath))
                 Directory.CreateDirectory(OptionFTP.DownloadPath);

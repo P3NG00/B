@@ -262,6 +262,7 @@ namespace B
 
         public static void HandleException(Exception? exception = null, Text? text = null)
         {
+            // TODO Test if this actually helps
             ProgramThread.Unlock();
             ProgramThread.Lock();
             Window.Clear();

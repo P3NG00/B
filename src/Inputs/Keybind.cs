@@ -56,23 +56,11 @@ namespace B.Inputs
 
         private Keybind(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null)
         {
-            if (action is null)
-                Action = Util.Void;
-            else
-                Action = action;
-
+            Action = action ?? Util.Void;
             KeyChar = keyChar;
             Key = key;
-
-            if (description is null)
-                Description = string.Empty;
-            else
-                Description = description;
-
-            if (modifiers.HasValue)
-                _modifiers = modifiers.Value;
-            else
-                _modifiers = default;
+            Description = description ?? string.Empty;
+            _modifiers = modifiers ?? default;
         }
 
         #endregion
@@ -81,23 +69,14 @@ namespace B.Inputs
 
         #region Public Methods
 
-        public void SetPosition(Vector2 position)
-        {
-            if (Position is not null)
-                throw new Exception("Position already set!");
-
-            Position = position;
-        }
-
         public void Print()
         {
+            // Set cursor position
             Cursor.Position = Position;
+            // Get output
             string keybindStr = ToString();
-
-            if (IsHighlighted)
-                Window.Print(keybindStr, PrintType.Highlight);
-            else
-                Window.Print(keybindStr);
+            // Print & highlight
+            Window.Print(keybindStr, IsHighlighted ? PrintType.Highlight : PrintType.General);
         }
 
         #endregion
@@ -120,8 +99,8 @@ namespace B.Inputs
                 return this == keybind;
             else if (obj is ConsoleKeyInfo keyInfo)
                 return this == keyInfo;
-
-            return false;
+            else
+                return false;
         }
 
         public override int GetHashCode() => base.GetHashCode();
@@ -192,11 +171,16 @@ namespace B.Inputs
 
         public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)
         {
+            // Register check
+            if (keybind.Position is not null)
+                throw new Exception("Keybind already has a position!");
+
+            // Default position if not specified
             if (position is null)
                 position = Cursor.Position;
 
             // Register keybind
-            keybind.SetPosition(position);
+            keybind.Position = position;
             Keybinds.Add(keybind);
         }
 
