@@ -37,7 +37,7 @@ namespace B
 
         public void UpdateCursor()
         {
-            Cursor.Visible = CursorVisible.Active;
+            Cursor.Visible = CursorVisible;
             Cursor.Size = CursorSize;
         }
     }

@@ -138,7 +138,7 @@ namespace B.Options.Tools.FTP
 
                         void PrintError(string msg, Exception e)
                         {
-                            if (Program.Settings.DebugMode.Active)
+                            if (Program.Settings.DebugMode)
                                 Program.HandleException(e);
                             else
                             {

@@ -98,7 +98,7 @@ namespace B.Inputs
                 Keybind.PrintRegisteredKeybinds();
 
             // Mouse Position Debug
-            if (Program.Settings.DebugMode.Active)
+            if (Program.Settings.DebugMode)
             {
                 string positionStr = Position.ToString();
                 int blankSpace = Vector2.MaxStringLength - positionStr.Length;

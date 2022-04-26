@@ -10,7 +10,7 @@ namespace B.Options.Toys.BrainFuck
         private const int MAX_MEMORY_VIEW_LENGTH = 20;
 
         public static readonly string DirectoryPath = Program.DataPath + @"brainfuck\";
-        public static string Title => Program.Settings.Censor.Active ? "BrainF**k" : "BrainFuck";
+        public static string Title => Program.Settings.Censor ? "BrainF**k" : "BrainFuck";
 
         private List<BrainFuckProgram> _programs = new();
         private BrainFuckProgram _currentProgram = null!;
@@ -91,7 +91,7 @@ namespace B.Options.Toys.BrainFuck
                     {
                         if (_instructionIndex < _currentProgram.Instructions.Length)
                         {
-                            if (Program.Settings.DebugMode.Active)
+                            if (Program.Settings.DebugMode)
                             {
                                 int consoleWidth = 50;
                                 Window.Clear();

@@ -23,7 +23,7 @@ namespace B.Options.Toys.TextGenerator
                 return fontType;
             }).ToArray();
             // Sort array by name
-            System.Array.Sort(_fonts, (fontA, fontB) => fontA.Name.CompareTo(fontB.Name));
+            Array.Sort(_fonts, (fontA, fontB) => fontA.Name.CompareTo(fontB.Name));
         }
     }
 }

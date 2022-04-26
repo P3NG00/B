@@ -90,7 +90,7 @@ namespace B.Options.Games.Adventure
                         Grid currentGrid = OptionAdventure.CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;
 
-                        if (Program.Settings.DebugMode.Active)
+                        if (Program.Settings.DebugMode)
                         {
                             // Extra spaces are added to the end to clear leftover text
                             Window.PrintLine();

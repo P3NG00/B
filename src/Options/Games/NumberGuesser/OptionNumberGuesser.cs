@@ -52,7 +52,7 @@ namespace B.Options.Games.NumberGuesser
                         int? guess = Input.Int;
                         bool won = guess.HasValue && guess.Value == _numRandom;
                         int consoleHeight = 7;
-                        bool debug = Program.Settings.DebugMode.Active;
+                        bool debug = Program.Settings.DebugMode;
 
                         if (debug)
                             consoleHeight += 2;
