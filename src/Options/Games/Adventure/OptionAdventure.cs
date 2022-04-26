@@ -51,15 +51,15 @@ namespace B.Options.Games.Adventure
                         Window.SetSize(20, fileExists ? 8 : 7);
                         Cursor.Set(0, 1);
                         Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
+
                         if (fileExists)
                         {
                             choice.AddKeybind(Keybind.CreateConfirmation(() => InitGame(true), "Are you sure you want to override the current game?", "New Game", '1'));
                             choice.AddKeybind(Keybind.Create(() => InitGame(false), "Continue", '2'));
                         }
                         else
-                        {
                             choice.AddKeybind(Keybind.Create(() => InitGame(true), "New Game", '1'));
-                        }
+
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
@@ -84,29 +84,33 @@ namespace B.Options.Games.Adventure
 
                 case Stages.Game:
                     {
-                        // TODO rewrite and take into account different border styles
+                        // TODO use different border styles
 
-                        Cursor.Reset();
                         Grid currentGrid = OptionAdventure.CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;
+                        Cursor.Reset();
 
                         if (Program.Settings.DebugMode)
                         {
                             // Extra spaces are added to the end to clear leftover text
-                            Window.PrintLine();
-                            Window.PrintLine($" {currentGrid,-7}");
-                            Window.PrintLine($" Pos: {PlayerPosition,-8}");
+                            Cursor.Set(2, 1);
+                            Window.Print($"{currentGrid,-7}");
+                            Cursor.Set(2, 2);
+                            Window.Print($"Pos: {PlayerPosition,-8}");
                             consoleHeight += 3;
+                            Cursor.y++;
                         }
 
                         Window.SetSize(currentGrid.RealWidth + 8, consoleHeight);
                         string borderHorizontal = OptionAdventure.CHAR_BORDER_HORIZONTAL.Loop(currentGrid.Width);
-                        Window.PrintLine();
-                        Window.PrintLine($"  {OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
+                        Cursor.y++;
+                        Cursor.x = 2;
+                        Window.Print($"{OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
 
                         for (int y = currentGrid.Height - 1; y >= 0; y--)
                         {
-                            string s = CHAR_BORDER_VERTICAL;
+                            Cursor.y++;
+                            string s = string.Empty;
 
                             for (int x = 0; x < currentGrid.Width; x++)
                             {
@@ -120,21 +124,34 @@ namespace B.Options.Games.Adventure
                                     s += currentGrid.GetTile(pos).Chars;
                             }
 
-                            Window.PrintLine($"  {s + OptionAdventure.CHAR_BORDER_VERTICAL}");
+                            Cursor.x = 2;
+                            Window.Print(OptionAdventure.CHAR_BORDER_VERTICAL + s + OptionAdventure.CHAR_BORDER_VERTICAL);
                         }
 
-                        Window.PrintLine($"  {OptionAdventure.CHAR_CORNER_B}{borderHorizontal}{OptionAdventure.CHAR_CORNER_A}");
-                        Window.PrintLine();
-                        Window.PrintLine($"   > {OptionAdventure.Message}");
+                        Cursor.y++;
+                        Cursor.x = 2;
+                        Window.Print(OptionAdventure.CHAR_CORNER_B + borderHorizontal + OptionAdventure.CHAR_CORNER_A);
+                        Cursor.y += 2;
+                        Cursor.x = 3;
+                        Window.Print($"> {OptionAdventure.Message}");
+                        Cursor.y += 2;
+                        Cursor.x = 0;
                         OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
-                        Window.PrintLine();
                         string format = "{0,9}: {1,-5}";
-                        Window.PrintLine(string.Format(format, "Coins", OptionAdventure.Info.Coins));
-                        Window.PrintLine(string.Format(format, "Speed", OptionAdventure.Info.Speed));
-                        Window.PrintLine();
-                        Window.PrintLine("      Move) W A S D");
-                        Window.PrintLine("  Interact) Space");
-                        Window.PrintLine("     Speed) + -");
+                        Window.Print(string.Format(format, "Coins", OptionAdventure.Info.Coins));
+                        Cursor.y++;
+                        Cursor.x = 0;
+                        Window.Print(string.Format(format, "Speed", OptionAdventure.Info.Speed));
+                        Cursor.y += 2;
+                        Cursor.x = 6;
+                        Window.Print("Move) W A S D");
+                        Cursor.y++;
+                        Cursor.x = 2;
+                        Window.Print("Interact) Space");
+                        Cursor.y++;
+                        Cursor.x = 5;
+                        Window.Print("Speed) + -");
+                        Cursor.y++;
                         Input.Choice choice = Input.Choice.Create();
                         // TODO instead of creating and adding new keybinds every time, try creating and caching this in the constructor and just request it when necessary
                         choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8));

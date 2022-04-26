@@ -58,30 +58,6 @@ namespace B.Utils
             Program.Settings?.UpdateColors();
         }
 
-        [Obsolete("Use Print(Message, PrintType?) instead.")]
-        public static void PrintColor(object message, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
-        {
-            // Override colors if specified
-            if (colorText.HasValue) Console.ForegroundColor = colorText.Value;
-            if (colorBG.HasValue) Console.BackgroundColor = colorBG.Value;
-
-            // Print message
-            Console.Write(message);
-
-            // Restore old color values if overriden
-            Program.Settings?.UpdateColors();
-        }
-
-        // TODO remove this function when all references are gone
-        [Obsolete("Use Cursor.SetPosition and Window.Print instead.")]
-        public static void PrintLine(object message = null!, ConsoleColor? colorText = null, ConsoleColor? colorBG = null)
-        {
-            if (message != null)
-                Window.PrintColor(message, colorText: colorText, colorBG: colorBG);
-
-            Console.WriteLine();
-        }
-
         public static void Clear() => Console.Clear();
 
         #endregion

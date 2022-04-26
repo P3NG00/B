@@ -5,7 +5,9 @@ namespace B.Options.Games.Adventure
 {
     public sealed class AdventureInfo
     {
-        // TODO keep track of Tuple<gridId (int), coinPos (vector2)> to fix coin respawn on reload game
+        // TODO each grid will have a certain number of coins in it.
+        // TODO the coins in each grid will be loaded/saved using an int as a bitfield.
+        // TODO each grid will only have as many bits as the number of coins in it.
 
         public int GridID
         {
