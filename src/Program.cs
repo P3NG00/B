@@ -168,7 +168,7 @@ namespace B
             // Lock thread
             ProgramThread.TryLock();
             // Clear Keybinds
-            Keybind.Keybinds.Clear();
+            Keybind.ClearRegisteredKeybinds();
 
             // If directory doesn't exist, create it and add hidden attribute
             if (!Directory.Exists(Program.DataPath))

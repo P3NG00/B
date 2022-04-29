@@ -68,16 +68,7 @@ namespace B.Inputs
 
             // If clicked, attempt to activate keybind
             if (leftClick)
-            {
-                foreach (Keybind keybind in Keybind.Keybinds)
-                {
-                    if (keybind.IsHighlighted && keybind.Display)
-                    {
-                        Input.Action = keybind.Action;
-                        break;
-                    }
-                }
-            }
+                Keybind.FindKeybind(keybind => keybind.IsHighlighted && keybind.Display);
 
             // Update last mouse state
             _lastMouseDown = mouseDown;

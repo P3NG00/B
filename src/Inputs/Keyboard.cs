@@ -60,14 +60,7 @@ namespace B.Inputs
             }
 
             // Find keybind
-            foreach (Keybind keybind in Keybind.Keybinds)
-            {
-                if (keybind == LastInput)
-                {
-                    Input.Action = keybind.Action;
-                    break;
-                }
-            }
+            Keybind.FindKeybind(keybind => keybind == LastInput);
         }
 
         #endregion

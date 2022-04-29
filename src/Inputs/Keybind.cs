@@ -5,14 +5,6 @@ namespace B.Inputs
 {
     public sealed class Keybind
     {
-        #region Universal Properties
-
-        public static readonly List<Keybind> Keybinds = new();
-
-        #endregion
-
-
-
         #region Public Properties
 
         public readonly ConsoleKey? Key;
@@ -46,6 +38,7 @@ namespace B.Inputs
 
         #region Private Properties
 
+        private static readonly List<Keybind> _keybinds = new();
         private readonly ConsoleModifiers _modifiers;
 
         #endregion
@@ -154,6 +147,8 @@ namespace B.Inputs
         {
             Action confirmationAction = () =>
             {
+                ProgramThread.TryLock();
+                Keybind.ClearRegisteredKeybinds();
                 Window.Clear();
                 Window.SetSize(message.Length + 6, 7);
                 var choice = Input.Choice.Create(message);
@@ -162,6 +157,7 @@ namespace B.Inputs
                 choice.AddKeybind(Keybind.Create(action, "yes", key: ConsoleKey.Enter));
                 Cursor.y = 1;
                 choice.Request();
+                ProgramThread.TryLock();
                 // Clear window after confirmation
                 Window.Clear();
             };
@@ -181,17 +177,34 @@ namespace B.Inputs
 
             // Register keybind
             keybind.Position = position;
-            Keybinds.Add(keybind);
+            _keybinds.Add(keybind);
         }
 
         public static void PrintRegisteredKeybinds()
         {
-            Keybinds.ForEach(keybind =>
+            _keybinds.ForEach(keybind =>
             {
                 if (keybind.Display)
                     keybind.Print();
             });
         }
+
+        public static void FindKeybind(Func<Keybind, bool> condition)
+        {
+            foreach (Keybind keybind in _keybinds)
+            {
+                // If keybind satisfies condition
+                if (condition(keybind))
+                {
+                    // Set action to be triggered
+                    Input.Action = keybind.Action;
+                    // Finish method
+                    return;
+                }
+            }
+        }
+
+        public static void ClearRegisteredKeybinds() => _keybinds.Clear();
 
         #endregion
 
