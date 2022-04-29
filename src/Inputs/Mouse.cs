@@ -22,22 +22,14 @@ namespace B.Inputs
         {
             get
             {
-                // Position of the mouse cursor relative to the beginning of the text window (top-left corner)
-                Vector2 mousePosRelativeToTextWindow = External.GetRelativeMousePosition() - TextBeginOffset;
+                // This represents the offset from the true top left corner of
+                // the window to the top-left corner of where the text begins.
+                Vector2 textBeginOffset = new Vector2(1, 2) * Window.CharSize;
+                Vector2 mousePosRelativeToTextWindow = External.GetRelativeMousePosition() - textBeginOffset;
                 Vector2 scaledRelativeMousePos = mousePosRelativeToTextWindow / Window.CharSize;
                 return scaledRelativeMousePos;
             }
         }
-
-        #endregion
-
-
-
-        #region Private Properties
-
-        // This represents the offset from the true top left corner of
-        // the window to the top-left corner of where the text begins.
-        private static Vector2 TextBeginOffset => new Vector2(1, 2) * Window.CharSize;
 
         #endregion
 
@@ -65,8 +57,7 @@ namespace B.Inputs
         {
             ProgramThread.Wait();
             // Lock and process
-            lock (ProgramThread.LockObject)
-                Process();
+            ProgramThread.Lock(Process);
         }
 
         private static void Process()
@@ -75,7 +66,7 @@ namespace B.Inputs
             bool mouseDown = External.GetLeftMouseButtonDown();
             bool leftClick = mouseDown && !_lastMouseDown;
 
-            // If clicked, attempt to activate highlighted box
+            // If clicked, attempt to activate keybind
             if (leftClick)
             {
                 foreach (Keybind keybind in Keybind.Keybinds)
@@ -91,7 +82,7 @@ namespace B.Inputs
             // Update last mouse state
             _lastMouseDown = mouseDown;
 
-            // Print Selectable Boxes
+            // Print keybinds
             // (skip if clicked)
             if (!leftClick)
                 Keybind.PrintRegisteredKeybinds();

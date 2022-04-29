@@ -43,8 +43,7 @@ namespace B.Inputs
             // Get key
             LastInput = Console.ReadKey(true);
             // Lock and process
-            lock (ProgramThread.LockObject)
-                Process();
+            ProgramThread.Lock(Process);
         }
 
         private static void Process()

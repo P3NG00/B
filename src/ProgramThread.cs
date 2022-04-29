@@ -8,13 +8,19 @@ namespace B
 
         public static object LockObject => _lock;
 
-        public static void Lock()
+        public static void Lock(Action action)
+        {
+            lock (_lock)
+                action();
+        }
+
+        public static void TryLock()
         {
             if (!Locked)
                 Monitor.Enter(_lock);
         }
 
-        public static void Unlock()
+        public static void TryUnlock()
         {
             if (Locked)
                 Monitor.Exit(_lock);
@@ -22,7 +28,7 @@ namespace B
 
         public static void Wait(float seconds = 0.01f)
         {
-            int milliseconds = (int)(seconds * 1000);
+            int milliseconds = (int)(seconds * 1000f);
             Thread.Sleep(milliseconds);
         }
 

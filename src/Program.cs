@@ -126,7 +126,7 @@ namespace B
         private void Initialize()
         {
             // Lock thread before others are even initialized
-            ProgramThread.Lock();
+            ProgramThread.TryLock();
 
             // Set console settings
             Console.Title = Program.Title;
@@ -166,7 +166,7 @@ namespace B
         public override void Loop()
         {
             // Lock thread
-            ProgramThread.Lock();
+            ProgramThread.TryLock();
             // Clear Keybinds
             Keybind.Keybinds.Clear();
 
@@ -238,7 +238,7 @@ namespace B
                         {
                             _selectedOption = null;
                             SetStage(Levels.Group);
-                            ProgramThread.Unlock();
+                            ProgramThread.TryUnlock();
                         }
                     }
                     break;
@@ -263,8 +263,8 @@ namespace B
         public static void HandleException(Exception? exception = null, Text? text = null)
         {
             // TODO Test if this actually helps
-            ProgramThread.Unlock();
-            ProgramThread.Lock();
+            ProgramThread.TryUnlock();
+            ProgramThread.TryLock();
             Window.Clear();
             Window.SetSize(Window.SizeMax * 0.75f);
             // Cursor will always start at (2, 1)
@@ -283,7 +283,7 @@ namespace B
             }
 
             Input.WaitFor(ConsoleKey.F1);
-            ProgramThread.Lock();
+            ProgramThread.TryLock();
             Window.Clear();
             Program pInst = Instance;
             pInst._selectedOption = null;

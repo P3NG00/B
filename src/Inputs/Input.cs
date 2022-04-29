@@ -47,9 +47,9 @@ namespace B.Inputs
 
         public static ConsoleKeyInfo Get()
         {
-            ProgramThread.Unlock();
+            ProgramThread.TryUnlock();
             Util.WaitFor(() => Action is not null);
-            ProgramThread.Lock();
+            ProgramThread.TryLock();
             Action();
             Action = null!;
             return Keyboard.LastInput;
