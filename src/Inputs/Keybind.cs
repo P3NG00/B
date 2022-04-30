@@ -167,16 +167,12 @@ namespace B.Inputs
 
         public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)
         {
-            // Register check
-            if (keybind.Position is not null)
-                throw new Exception("Keybind already has a position!");
-
-            // Default position if not specified
+            // Use cursor position if not specified
             if (position is null)
                 position = Cursor.Position;
-
-            // Register keybind
+            // Set keybind position
             keybind.Position = position;
+            // Add keybind
             _keybinds.Add(keybind);
         }
 

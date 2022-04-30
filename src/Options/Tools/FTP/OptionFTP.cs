@@ -139,8 +139,9 @@ namespace B.Options.Tools.FTP
                                 Program.HandleException(e);
                             else
                             {
+                                Cursor.x = 1;
                                 Window.Print(msg);
-                                Input.Get(); // TODO change this, its causing a loop
+                                Input.Get();
                                 Window.Clear();
                             }
                         }
@@ -231,8 +232,10 @@ namespace B.Options.Tools.FTP
         private void Download(SftpFile file)
         {
             if (file.IsDirectory)
+            {
                 foreach (SftpFile subFile in _client.ListDirectory(file.FullName))
                     Download(subFile);
+            }
             else
             {
                 string path = OptionFTP.DownloadPath + file.FullName.Substring(1);

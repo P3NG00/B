@@ -1,6 +1,5 @@
 using B.Utils;
 using B.Utils.Extensions;
-using B.Utils.Themes;
 
 namespace B.Inputs
 {
@@ -47,11 +46,11 @@ namespace B.Inputs
 
         public static ConsoleKeyInfo Get()
         {
+            Action = null!;
             ProgramThread.TryUnlock();
             Util.WaitFor(() => Action is not null);
             ProgramThread.TryLock();
             Action();
-            Action = null!;
             return Keyboard.LastInput;
         }
 

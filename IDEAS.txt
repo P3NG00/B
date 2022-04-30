@@ -1,9 +1,4 @@
 
-Keybinds:
-
-Allow for key modifier (Shift, Ctrl, Alt) by using ConsoleKeyInfo in place of ConsoleKey.
-Allow for multiple keys using the same bind by allowing an array of KeyChars or Keys.
-
 
 
 Adventure Grid:
@@ -18,12 +13,6 @@ Store last 'Max Number' setting.
 
 
 
-Color Themes:
-
-Add more color variations for things like Input Option Titles, Selected Scroll Index, etc.
-
-
-
 General:
 
 Program needs testing with different types of systems.
@@ -31,12 +20,16 @@ Program needs testing with different types of systems.
         Smaller displays
         Different OS types
 
+
+
 Make OptionTODO.
 
-Use the Eval package downloaded to create and easy expression calculator.
 
-Add Multithreading to allow for "Loading Screen" during long loading times.
 
 Add MCBackup Option to make backing up saves from any instance in specified multimc directory?
 
+
+
 // TODO create penguin.bat runner in c#
+
+// TODO steam game id starter
