@@ -262,8 +262,7 @@ namespace B
 
         public static void HandleException(Exception? exception = null, Text? text = null)
         {
-            // TODO Test if this actually helps
-            ProgramThread.TryUnlock();
+            // Ensure thread is locked while processing
             ProgramThread.TryLock();
             Window.Clear();
             Window.SetSize(Window.SizeMax * 0.75f);
@@ -282,7 +281,13 @@ namespace B
                 Window.Print(exception, new ColorPair(ConsoleColor.White, ConsoleColor.Black));
             }
 
-            Input.WaitFor(ConsoleKey.F1);
+            Cursor.x = 2;
+            Cursor.y += 2;
+            var choice = Input.Choice.Create();
+            choice.AddKeybind(Keybind.Create(Util.Void, "Press any key to continue..."));
+            // Thread will unlock while waiting for input
+            choice.Request();
+            // Thread will lock while processing
             ProgramThread.TryLock();
             Window.Clear();
             Program pInst = Instance;
