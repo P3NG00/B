@@ -29,19 +29,23 @@ namespace B.Options.Toys.Canvas
         private Input.Choice _choiceCanvasDrawing;
 
         // TODO add image importing to canvas grid
-
         // TODO allow drawing on canvas with mouse clicks/holds
 
         public OptionCanvas() : base(Stages.MainMenu)
         {
+            // Create directory if it doesn't exist
             if (!Directory.Exists(OptionCanvas.DirectoryPath))
                 Directory.CreateDirectory(OptionCanvas.DirectoryPath);
             else
             {
+                // If directory exists, iterate through each file in it
                 foreach (string filePath in Directory.GetFiles(OptionCanvas.DirectoryPath))
                 {
+                    // Deserialize file as CanvasInfo
                     CanvasInfo info = Data.Deserialize<CanvasInfo>(filePath);
+                    // Set canvas info's title to the file name
                     info.Title = Path.GetFileNameWithoutExtension(filePath);
+                    // Add to canvas list
                     _canvases.Add(info);
                 }
             }
@@ -65,7 +69,6 @@ namespace B.Options.Toys.Canvas
 
                         case Stages.Create_Size_Width:
                             {
-                                // TODO change to width
                                 int? width = Input.Int;
 
                                 if (width.HasValue && width.Value >= OptionCanvas.CANVAS_SIZE_MIN.x)
@@ -135,7 +138,7 @@ namespace B.Options.Toys.Canvas
                 }, key: ConsoleKey.Escape)};
 
             _choiceCanvasDrawing = Input.Choice.Create();
-            // TODO ADD DESCRIPTIONS AND DISPLAY KEYBINDS IN EDIT MODE
+            // TODO print things like "use wasd for ..." and "arrow keys for "
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow));
