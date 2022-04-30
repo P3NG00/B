@@ -25,6 +25,9 @@ namespace B.Options.Toys.Canvas
         private Vector2 _brushSize = Vector2.One;
         private Vector2 _cursorPos = Vector2.Zero;
 
+        private Keybind[] _keybindsCreationStage;
+        private Input.Choice _choiceCanvasDrawing;
+
         // TODO add image importing to canvas grid
 
         // TODO allow drawing on canvas with mouse clicks/holds
@@ -41,6 +44,169 @@ namespace B.Options.Toys.Canvas
                     info.Title = Path.GetFileNameWithoutExtension(filePath);
                     _canvases.Add(info);
                 }
+            }
+
+            _keybindsCreationStage = new Keybind[] {
+                // ConsoleKey.Enter
+                Keybind.Create(() =>
+                {
+                    switch (Stage)
+                    {
+                        case Stages.Create_Name:
+                            {
+                                if (!string.IsNullOrWhiteSpace(Input.String) && !_canvases.FromEach(c => c.Title).Contains(Input.String))
+                                {
+                                    _canvas.Title = Input.String.Trim();
+                                    Input.ResetString();
+                                    SetStage(Stages.Create_Size_Width);
+                                }
+                            }
+                            break;
+
+                        case Stages.Create_Size_Width:
+                            {
+                                // TODO change to width
+                                int? width = Input.Int;
+
+                                if (width.HasValue && width.Value >= OptionCanvas.CANVAS_SIZE_MIN.x)
+                                {
+                                    _canvas.Colors = new ConsoleColor[width.Value][];
+                                    Input.ResetString();
+                                    SetStage(Stages.Create_Size_Height);
+                                }
+                            }
+                            break;
+
+                        case Stages.Create_Size_Height:
+                            {
+                                int? height = Input.Int;
+
+                                if (height.HasValue && height.Value >= OptionCanvas.CANVAS_SIZE_MIN.y)
+                                {
+                                    int width = _canvas.Colors.Length;
+                                    _canvas.Colors = new ConsoleColor[height.Value][];
+
+                                    for (int i = 0; i < _canvas.Colors.Length; i++)
+                                    {
+                                        ConsoleColor[] row = new ConsoleColor[width];
+                                        Array.Fill(row, ConsoleColor.White);
+                                        _canvas.Colors[i] = row;
+                                    }
+
+                                    Input.ResetString();
+                                    Window.Clear();
+                                    SetStage(Stages.Edit);
+                                }
+                            }
+                            break;
+                    }
+                }, key: ConsoleKey.Enter),
+                // ConsoleKey.Escape
+                Keybind.Create(() =>
+                {
+                    switch (Stage)
+                    {
+                        case Stages.Create_Name:
+                            {
+                                _canvas = null!;
+                                Input.ResetString();
+                                SetStage(Stages.MainMenu);
+                            }
+                            break;
+
+                        case Stages.Create_Size_Width:
+                            {
+                                Input.String = _canvas.Title;
+                                Cursor.Set(2, 5);
+                                Window.Print(' '.Loop(33));
+                                SetStage(Stages.Create_Name);
+                            }
+                            break;
+
+                        case Stages.Create_Size_Height:
+                            {
+                                Input.String = _canvas.Colors.Length.ToString();
+                                Cursor.Set(2, 6);
+                                Window.Print(' '.Loop(33));
+                                SetStage(Stages.Create_Size_Width);
+                            }
+                            break;
+                    }
+                }, key: ConsoleKey.Escape)};
+
+            _choiceCanvasDrawing = Input.Choice.Create();
+            // TODO ADD DESCRIPTIONS AND DISPLAY KEYBINDS IN EDIT MODE
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Right), keyChar: 'd', key: ConsoleKey.RightArrow));
+            // Paint in Direction
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Up), keyChar: '8'));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Down), keyChar: '2'));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Left), keyChar: '4'));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Right), keyChar: '6'));
+            // Paint
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(Paint, key: ConsoleKey.Spacebar));
+            // Resize Brush 
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, modifiers: ConsoleModifiers.Control));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, modifiers: ConsoleModifiers.Control));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, modifiers: ConsoleModifiers.Control));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, modifiers: ConsoleModifiers.Control));
+            // Color Select
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() =>
+            {
+                _lastConsoleWindow = new(0, 0, 0, 0);
+                SetStage(Stages.ColorSelect);
+            }, key: ConsoleKey.F1));
+            // Exit
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() =>
+            {
+                if (!_canvases.Contains(_canvas))
+                    _canvases.Add(_canvas);
+
+                Save();
+                _lastConsoleWindow = new(0, 0, 0, 0);
+                _brushSize = Vector2.One;
+                _cursorPos = Vector2.Zero;
+                SetStage(Stages.List);
+            }, key: ConsoleKey.Escape));
+
+            // Local functions
+            void Paint()
+            {
+                for (int y = 0; y < _brushSize.y; y++)
+                {
+                    for (int x = 0; x < _brushSize.x; x++)
+                    {
+                        Vector2 pos = _cursorPos + new Vector2(x, y);
+                        _canvas.Color(pos) = _color;
+                        Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
+                        Window.Print(' ', new ColorPair(colorBack: _color));
+                    }
+                }
+
+                Cursor.Position = _cursorPos;
+            }
+            void PaintDirection(Direction direction)
+            {
+                MoveCursor(direction);
+                Paint();
+            }
+            void ResizeBrush(Direction direction) => MoveVec(ref _brushSize, direction);
+            void MoveCursor(Direction direction) => MoveVec(ref _cursorPos, direction);
+            void MoveVec(ref Vector2 vec, Direction direction)
+            {
+                Vector2 dirVec;
+
+                switch (direction)
+                {
+                    // Since coordinates start from top-left corner, up and down are flipped to move appropriately.
+                    case Direction.Up: dirVec = Vector2.Down; break; // Move up (y - 1 or Vector2.Down)
+                    case Direction.Down: dirVec = Vector2.Up; break; // Move down (y + 1 or Vector2.Up)
+                    default: dirVec = direction; break;
+                }
+
+                vec.Move(dirVec);
             }
         }
 
@@ -150,46 +316,8 @@ namespace B.Options.Toys.Canvas
                         // Print border
                         Cursor.Set(2, 3);
                         Window.Print('-'.Loop(Window.Width - 2));
-                        // Move in Direction
-                        var choice = Input.Choice.Create();
-                        // TODO ADD DESCRIPTIONS AND DISPLAY KEYBINDS IN EDIT MODE
-                        // TODO cache this choice and only request() it here
-                        choice.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow));
-                        choice.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow));
-                        choice.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow));
-                        choice.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Right), keyChar: 'd', key: ConsoleKey.RightArrow));
-                        // Paint in Direction
-                        choice.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Up), keyChar: '8'));
-                        choice.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Down), keyChar: '2'));
-                        choice.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Left), keyChar: '4'));
-                        choice.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Right), keyChar: '6'));
-                        // Paint
-                        choice.AddKeybind(Keybind.Create(() => Paint(), key: ConsoleKey.Spacebar));
-                        // Resize Brush 
-                        choice.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, modifiers: ConsoleModifiers.Control));
-                        choice.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, modifiers: ConsoleModifiers.Control));
-                        choice.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, modifiers: ConsoleModifiers.Control));
-                        choice.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, modifiers: ConsoleModifiers.Control));
-                        // Color Select
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            _lastConsoleWindow = new(0, 0, 0, 0);
-                            SetStage(Stages.ColorSelect);
-                        }, key: ConsoleKey.F1));
-                        // Exit
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            if (!_canvases.Contains(_canvas))
-                                _canvases.Add(_canvas);
-
-                            Save();
-                            _lastConsoleWindow = new(0, 0, 0, 0);
-                            _brushSize = Vector2.One;
-                            _cursorPos = Vector2.Zero;
-                            SetStage(Stages.List);
-                        }, key: ConsoleKey.Escape));
-                        // Set cursor position in request
-                        choice.Request(() =>
+                        // Request input and reposition cursor
+                        _choiceCanvasDrawing.Request(() =>
                         {
                             // Make cursor big and visible
                             Cursor.Size = 100;
@@ -204,44 +332,6 @@ namespace B.Options.Toys.Canvas
                         _cursorPos = _cursorPos.Clamp(Vector2.Zero, maxCanvasPos);
                         // Fix brush size
                         _brushSize = _brushSize.Clamp(Vector2.One, maxCanvasPos);
-
-                        // Local functions
-                        void Paint()
-                        {
-                            for (int y = 0; y < _brushSize.y; y++)
-                            {
-                                for (int x = 0; x < _brushSize.x; x++)
-                                {
-                                    Vector2 pos = _cursorPos + new Vector2(x, y);
-                                    _canvas.Color(pos) = _color;
-                                    Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
-                                    Window.Print(' ', new ColorPair(colorBack: _color));
-                                }
-                            }
-
-                            Cursor.Position = _cursorPos;
-                        }
-                        void PaintDirection(Direction direction)
-                        {
-                            MoveCursor(direction);
-                            Paint();
-                        }
-                        void ResizeBrush(Direction direction) => MoveVec(ref _brushSize, direction);
-                        void MoveCursor(Direction direction) => MoveVec(ref _cursorPos, direction);
-                        void MoveVec(ref Vector2 vec, Direction direction)
-                        {
-                            Vector2 dirVec;
-
-                            switch (direction)
-                            {
-                                // Since coordinates start from top-left corner, up and down are flipped to move appropriately.
-                                case Direction.Up: dirVec = Vector2.Down; break; // Move up (y - 1 or Vector2.Down)
-                                case Direction.Down: dirVec = Vector2.Up; break; // Move down (y + 1 or Vector2.Up)
-                                default: dirVec = direction; break;
-                            }
-
-                            vec.Move(dirVec);
-                        }
                     }
                     break;
 
@@ -283,7 +373,8 @@ namespace B.Options.Toys.Canvas
             Cursor.Set(2, 1);
             Window.Print("New Canvas");
             Cursor.Set(2, 3);
-            PrintNewCanvasInfo("Name", Stage == Stages.Create_Name ? Input.String : _canvas.Title);
+            // Print canvas name or current input
+            PrintCreationStageInfo("Name", Stage == Stages.Create_Name ? Input.String : _canvas.Title);
 
             if (Stage != Stages.Create_Name)
             {
@@ -295,99 +386,20 @@ namespace B.Options.Toys.Canvas
                 else if (Stage == Stages.Create_Size_Height)
                     print = _canvas.Colors.Length.ToString();
 
-                PrintNewCanvasInfo("Width", print);
+                PrintCreationStageInfo("Width", print);
             }
 
             if (Stage == Stages.Create_Size_Height)
             {
                 Cursor.Set(2, 6);
-                PrintNewCanvasInfo("Height", Input.String);
+                PrintCreationStageInfo("Height", Input.String);
             }
 
-            Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH,
-                // TODO cache this keybind in constructor and only apply it here
-                Keybind.Create(() =>
-                {
-                    switch (Stage)
-                    {
-                        case Stages.Create_Name:
-                            {
-                                if (!string.IsNullOrWhiteSpace(Input.String) && !_canvases.FromEach(c => c.Title).Contains(Input.String))
-                                {
-                                    _canvas.Title = Input.String.Trim();
-                                    Input.ResetString();
-                                    SetStage(Stages.Create_Size_Width);
-                                }
-                            }
-                            break;
+            // Request line input
+            Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH, _keybindsCreationStage);
 
-                        case Stages.Create_Size_Width:
-                            {
-                                // TODO change to width
-                                int? width = Input.Int;
-
-                                if (width.HasValue && width.Value >= OptionCanvas.CANVAS_SIZE_MIN.x)
-                                {
-                                    _canvas.Colors = new ConsoleColor[width.Value][];
-                                    Input.ResetString();
-                                    SetStage(Stages.Create_Size_Height);
-                                }
-                            }
-                            break;
-
-                        case Stages.Create_Size_Height:
-                            {
-                                int? height = Input.Int;
-
-                                if (height.HasValue && height.Value >= OptionCanvas.CANVAS_SIZE_MIN.y)
-                                {
-                                    int width = _canvas.Colors.Length;
-                                    _canvas.Colors = new ConsoleColor[height.Value][];
-
-                                    for (int i = 0; i < _canvas.Colors.Length; i++)
-                                    {
-                                        ConsoleColor[] row = new ConsoleColor[width];
-                                        Array.Fill(row, ConsoleColor.White);
-                                        _canvas.Colors[i] = row;
-                                    }
-
-                                    Input.ResetString();
-                                    Window.Clear();
-                                    SetStage(Stages.Edit);
-                                }
-                            }
-                            break;
-                    }
-                }, key: ConsoleKey.Enter),
-                Keybind.Create(() =>
-                {
-                    switch (Stage)
-                    {
-                        case Stages.Create_Name:
-                            {
-                                _canvas = null!;
-                                Input.ResetString();
-                                SetStage(Stages.MainMenu);
-                            }
-                            break;
-
-                        case Stages.Create_Size_Width:
-                            {
-                                Input.String = _canvas.Title;
-                                SetStage(Stages.Create_Name);
-                            }
-                            break;
-
-                        case Stages.Create_Size_Height:
-                            {
-                                Input.String = _canvas.Colors.Length.ToString();
-                                SetStage(Stages.Create_Size_Width);
-                            }
-                            break;
-                    }
-                }, key: ConsoleKey.Escape));
-
-            void PrintNewCanvasInfo(string preface, string value) => Window.Print($"{preface}: {value,-OptionCanvas.MAX_INPUT_LENGTH}");
+            // Local function
+            void PrintCreationStageInfo(string preface, string value) => Window.Print($"{preface}: {value,-OptionCanvas.MAX_INPUT_LENGTH}");
         }
 
         private enum CreationStage
