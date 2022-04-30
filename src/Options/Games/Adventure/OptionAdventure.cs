@@ -34,11 +34,33 @@ namespace B.Options.Games.Adventure
             set => OptionAdventure.Info.Position = value;
         }
 
+        private Input.Choice _choiceGame;
+
         static OptionAdventure() => OptionAdventure.InitializeGrids();
 
-        public OptionAdventure() : base(Stages.MainMenu) { }
+        public OptionAdventure() : base(Stages.MainMenu)
+        {
+            _choiceGame = Input.Choice.Create();
+            _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8));
+            _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4));
+            _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2));
+            _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6));
+            _choiceGame.AddKeybind(Keybind.Create(() => Interact(Direction.Up), key: ConsoleKey.UpArrow));
+            _choiceGame.AddKeybind(Keybind.Create(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow));
+            _choiceGame.AddKeybind(Keybind.Create(() => Interact(Direction.Down), key: ConsoleKey.DownArrow));
+            _choiceGame.AddKeybind(Keybind.Create(() => Interact(Direction.Right), key: ConsoleKey.RightArrow));
+            _choiceGame.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add));
+            _choiceGame.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract));
+            _choiceGame.AddSpacer();
+            _choiceGame.AddKeybind(Keybind.Create(() =>
+            {
+                Save();
+                SetStage(Stages.MainMenu);
+            }, "Quit", key: ConsoleKey.Escape));
+        }
 
         // TODO implement some color printing (examples: tiles, player, coins, doors, border, text, etc.)
+        // TODO add option in adventure to enable/disable color printing
 
         public override void Loop()
         {
@@ -152,25 +174,7 @@ namespace B.Options.Games.Adventure
                         Cursor.x = 5;
                         Window.Print("Speed) + -");
                         Cursor.y++;
-                        Input.Choice choice = Input.Choice.Create();
-                        // TODO instead of creating and adding new keybinds every time, try creating and caching this in the constructor and just request it when necessary
-                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8));
-                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4));
-                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2));
-                        choice.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Right), keyChar: 'd', key: ConsoleKey.NumPad6));
-                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Up), key: ConsoleKey.UpArrow));
-                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow));
-                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Down), key: ConsoleKey.DownArrow));
-                        choice.AddKeybind(Keybind.Create(() => Interact(Direction.Right), key: ConsoleKey.RightArrow));
-                        choice.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add));
-                        choice.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract));
-                        choice.AddSpacer();
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            Save();
-                            SetStage(Stages.MainMenu);
-                        }, "Quit", key: ConsoleKey.Escape));
-                        choice.Request();
+                        _choiceGame.Request();
                     }
                     break;
             }
