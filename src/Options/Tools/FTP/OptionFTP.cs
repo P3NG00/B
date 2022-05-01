@@ -235,7 +235,7 @@ namespace B.Options.Tools.FTP
                         string title = $"{file.FullName} | {file.Attributes.Size} bytes";
                         Window.SetSize(title.Length + 6, 8);
                         Cursor.Set(2, 1);
-                        Input.Choice choice = Input.Choice.Create(title);
+                        Choice choice = new(title);
                         choice.AddKeybind(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
                         choice.AddKeybind(CreateConfirmKeybindForCurrent());
                         choice.AddSpacer();

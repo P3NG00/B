@@ -49,7 +49,7 @@ namespace B.Options.Toys.Canvas
         private Vector2 _cursorPos = Vector2.Zero;
 
         private Keybind[] _keybindsCreationStage;
-        private Input.Choice _choiceCanvasDrawing;
+        private Choice _choiceCanvasDrawing;
 
         #endregion
 
@@ -163,7 +163,7 @@ namespace B.Options.Toys.Canvas
                     }
                 }, key: ConsoleKey.Escape)};
 
-            _choiceCanvasDrawing = Input.Choice.Create();
+            _choiceCanvasDrawing = new();
             // TODO print things like "use wasd for ..." and "arrow keys for "
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow));
@@ -259,7 +259,7 @@ namespace B.Options.Toys.Canvas
                         Window.Clear();
                         Window.SetSize(20, hasCanvases ? 8 : 7);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create(OptionCanvas.Title);
+                        Choice choice = new(OptionCanvas.Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             _canvas = new();

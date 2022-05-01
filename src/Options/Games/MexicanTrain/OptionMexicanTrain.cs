@@ -53,7 +53,7 @@ namespace B.Options.Games.MexicanTrain
                         Window.Clear();
                         Window.SetSize(34, 7);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create(OptionMexicanTrain.Title);
+                        Choice choice = new(OptionMexicanTrain.Title);
                         choice.AddText(new Text($"Press <{PLAYERS_MIN}-{PLAYERS_MAX}> to select players."));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));

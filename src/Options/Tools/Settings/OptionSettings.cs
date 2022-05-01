@@ -13,7 +13,7 @@ namespace B.Options.Tools.Settings
     {
         #region TODOs
 
-        // TODO re-implement custom color selectin
+        // TODO re-implement custom color selecting
 
         #endregion
 
@@ -54,7 +54,7 @@ namespace B.Options.Tools.Settings
                         Window.Clear();
                         Window.SetSize(27, 14);
                         Cursor.y = 1;
-                        var choice = Input.Choice.Create(OptionSettings.Title);
+                        Choice choice = new(OptionSettings.Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
@@ -85,7 +85,7 @@ namespace B.Options.Tools.Settings
                         Window.Print($"Detected Max Size: {Window.SizeMax}");
                         Cursor.Set(0, 1);
                         Window.Print($"Current Size: {_size}");
-                        Input.Choice choice = Input.Choice.Create();
+                        Choice choice = new();
                         choice.AddKeybind(Keybind.Create(() => _size.x++, keyChar: '8', key: ConsoleKey.RightArrow));
                         choice.AddKeybind(Keybind.Create(() => _size.x--, keyChar: '2', key: ConsoleKey.LeftArrow));
                         choice.AddKeybind(Keybind.Create(() => _size.y++, keyChar: '6', key: ConsoleKey.DownArrow));
@@ -161,7 +161,7 @@ namespace B.Options.Tools.Settings
                         Window.SetSize(25, 8);
                         Cursor.Reset();
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create("Cursor");
+                        Choice choice = new("Cursor");
                         choice.AddKeybind(Keybind.Create(Program.Settings.CursorVisible.Toggle, $"Visibility - {Cursor.Visible,-5}", '1'));
                         choice.AddKeybind(Keybind.Create(() =>
                         {
@@ -178,7 +178,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.SetSize(23, 10);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create($"Cursor Size - {Cursor.Size,-3}");
+                        Choice choice = new($"Cursor Size - {Cursor.Size,-3}");
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size++, "+1", key: ConsoleKey.UpArrow));
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size--, "-1", key: ConsoleKey.DownArrow));
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size += 10, "+10", key: ConsoleKey.RightArrow));
@@ -258,7 +258,7 @@ namespace B.Options.Tools.Settings
                         Window.Clear();
                         Window.SetSize(20, 10);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create("Delete Data");
+                        Choice choice = new("Delete Data");
                         choice.AddKeybind(CreateDeleteKeybind(() => File.Delete(OptionAdventure.FilePath), OptionAdventure.Title, '1'));
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionBrainFuck.DirectoryPath, true), OptionBrainFuck.Title, '2'));
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), OptionMoneyTracker.Title, '3'));

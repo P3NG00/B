@@ -58,7 +58,7 @@ namespace B.Options.Games.NumberGuesser
                         Window.Clear();
                         Window.SetSize(20, 8);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create(OptionNumberGuesser.Title);
+                        Choice choice = new(OptionNumberGuesser.Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             _numRandom = Util.Random.Next(_numMax) + 1;
@@ -129,7 +129,7 @@ namespace B.Options.Games.NumberGuesser
                         Window.Clear();
                         Window.SetSize(20, 7);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create("Settings");
+                        Choice choice = new("Settings");
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             Input.String = _numMax.ToString();

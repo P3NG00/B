@@ -57,7 +57,7 @@ namespace B.Options.Games.Adventure
         #region Private Variables
 
         private static Grid[] _grids = new Grid[0];
-        private Input.Choice _choiceGame;
+        private Choice _choiceGame;
 
         #endregion
 
@@ -81,7 +81,7 @@ namespace B.Options.Games.Adventure
 
         public OptionAdventure() : base(Stages.MainMenu)
         {
-            _choiceGame = Input.Choice.Create();
+            _choiceGame = new();
             _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8));
             _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4));
             _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Down), keyChar: 's', key: ConsoleKey.NumPad2));
@@ -116,7 +116,7 @@ namespace B.Options.Games.Adventure
                         Window.Clear();
                         Window.SetSize(20, fileExists ? 8 : 7);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create(OptionAdventure.Title);
+                        Choice choice = new(OptionAdventure.Title);
 
                         if (fileExists)
                         {

@@ -190,7 +190,7 @@ namespace B
                         Window.Clear();
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
                         Cursor.Set(0, 1);
-                        var choice = Input.Choice.Create($"{Program.Title}'s");
+                        Choice choice = new($"{Program.Title}'s");
                         for (int i = 0; i < Program.OptionGroups.Length; i++)
                         {
                             var optionGroup = Program.OptionGroups[i];
@@ -213,7 +213,7 @@ namespace B
                         Window.Clear();
                         Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create(_optionGroup.GroupTitle);
+                        Choice choice = new(_optionGroup.GroupTitle);
                         _optionGroup.OptionTypes.ForEach((optionType, i) =>
                         {
                             string title = (string)optionType.GetProperty("Title")?.GetValue(null)!;
@@ -290,7 +290,7 @@ namespace B
 
             Cursor.x = 2;
             Cursor.y += 2;
-            var choice = Input.Choice.Create();
+            Choice choice = new();
             choice.AddKeybind(Keybind.Create(Util.Void, "Press any key to continue..."));
             // Thread will unlock while waiting for input
             choice.Request();

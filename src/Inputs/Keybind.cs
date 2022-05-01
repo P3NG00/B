@@ -152,7 +152,7 @@ namespace B.Inputs
                 Keybind.ClearRegisteredKeybinds();
                 Window.Clear();
                 Window.SetSize(message.Length + 6, 7);
-                var choice = Input.Choice.Create(message);
+                Choice choice = new(message);
                 choice.AddKeybind(Keybind.Create(description: "NO", key: ConsoleKey.Escape));
                 choice.AddSpacer();
                 choice.AddKeybind(Keybind.Create(action, "yes", key: ConsoleKey.Enter));

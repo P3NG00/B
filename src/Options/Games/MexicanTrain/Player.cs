@@ -18,7 +18,7 @@ namespace B.Options.Games.MexicanTrain
         // Returns if the player's turn is over
         public virtual bool HandleTurn()
         {
-            Input.Choice choice = Input.Choice.Create();
+            Choice choice = new();
             // choice.AddKeybind(); // TODO
             choice.Request();
 

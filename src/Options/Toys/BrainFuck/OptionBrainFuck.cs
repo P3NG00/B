@@ -80,7 +80,7 @@ namespace B.Options.Toys.BrainFuck
                         Window.Clear();
                         Window.SetSize(20, 7);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create(OptionBrainFuck.Title);
+                        Choice choice = new(OptionBrainFuck.Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             Input.ScrollIndex = 0;

@@ -65,7 +65,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.Clear();
                         Window.SetSize(20, consoleHeight);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create(OptionMoneyTracker.Title);
+                        Choice choice = new(OptionMoneyTracker.Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Account", '1'));
 
                         if (selected)
@@ -93,7 +93,7 @@ namespace B.Options.Tools.MoneyTracker
                             Cursor.Set(0, 4);
                         }
 
-                        Input.Choice choice = Input.Choice.Create("Account");
+                        Choice choice = new("Account");
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account_Create), "Create", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account_Select), "Select", '2'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account_Remove), "Remove", '3'));
@@ -154,7 +154,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create();
+                        Choice choice = new();
 
                         // TODO turn into Input.RequestScroll because accounts can reach more than single digit numbers on a keyboard
                         if (amountAccounts > 0)
@@ -188,7 +188,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create("Remove Account");
+                        Choice choice = new("Remove Account");
 
                         if (amountAccounts > 0)
                         {
@@ -220,7 +220,7 @@ namespace B.Options.Tools.MoneyTracker
                         Window.Clear();
                         Window.SetSize(20, 10);
                         Cursor.Set(0, 1);
-                        Input.Choice choice = Input.Choice.Create("Transaction");
+                        Choice choice = new("Transaction");
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             SetStage(Stages.Transaction_View);
