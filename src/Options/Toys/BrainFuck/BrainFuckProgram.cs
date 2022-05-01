@@ -5,8 +5,16 @@ namespace B.Options.Toys.BrainFuck
 {
     public sealed class BrainFuckProgram
     {
+        #region Public Properties
+
         public readonly string Title;
         public readonly char[] Instructions;
+
+        #endregion
+
+
+
+        #region Constructors
 
         public BrainFuckProgram(string title, string fullFilePath)
         {
@@ -17,6 +25,12 @@ namespace B.Options.Toys.BrainFuck
                     .ReplaceLineEndings(string.Empty)
                     .ToCharArray();
         }
+
+        #endregion
+
+
+
+        #region Public Methods
 
         public void HandleStep(in byte[] memory, ref uint memoryIndex, ref uint instructionIndex, ref uint bracketDepth, ref string output)
         {
@@ -89,5 +103,7 @@ namespace B.Options.Toys.BrainFuck
                     break;
             }
         }
+
+        #endregion
     }
 }

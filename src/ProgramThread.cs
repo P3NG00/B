@@ -2,11 +2,32 @@ namespace B
 {
     public static class ProgramThread
     {
+        #region Private Variables
+
+        // This object is used for thread-locking.
         private static object _lock = new();
+
+        #endregion
+
+
+
+        #region Universal Properties
+
+        public static object LockObject => _lock;
+
+        #endregion
+
+
+
+        #region Private Properties
 
         private static bool Locked => Monitor.IsEntered(_lock);
 
-        public static object LockObject => _lock;
+        #endregion
+
+
+
+        #region Universal Methods
 
         public static void Lock(Action action)
         {
@@ -45,5 +66,7 @@ namespace B
             thread.Start();
             return thread;
         }
+
+        #endregion
     }
 }

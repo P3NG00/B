@@ -1,11 +1,23 @@
 using B.Inputs;
 using B.Utils;
+using B.Utils.Enums;
 using B.Utils.Extensions;
 
 namespace B.Options.Games.Adventure
 {
     public sealed class OptionAdventure : Option<OptionAdventure.Stages>
     {
+        #region TODOs
+
+        // TODO implement some color printing (examples: tiles, player, coins, doors, border, text, etc.)
+        // TODO add option in adventure to enable/disable color printing
+
+        #endregion
+
+
+
+        #region Constants
+
         public const string CHAR_EMPTY = "  ";
         public const string CHAR_PLAYER = "()";
         public const string CHAR_DOOR = "[]";
@@ -18,15 +30,40 @@ namespace B.Options.Games.Adventure
         public const string CHAR_CORNER_B = @"\\";
         public const string MESSAGE_EMPTY = "...";
 
-        public static string Title => "Adventure!";
+        #endregion
 
-        public static readonly string FilePath = Program.DataPath + "adventure";
+
+
+        #region Public Properties
+
+        public static string Title => "Adventure!";
+        // TODO change to file inside of folder instead of root data folder
+        public static string FilePath => Program.DataPath + "adventure";
+        public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
+
+        #endregion
+
+
+
+        #region Universal Variables
 
         public static string Message = OptionAdventure.MESSAGE_EMPTY;
         public static AdventureInfo Info = new();
 
-        public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
+        #endregion
+
+
+
+        #region Private Variables
+
         private static Grid[] _grids = new Grid[0];
+        private Input.Choice _choiceGame;
+
+        #endregion
+
+
+
+        #region Private Properties
 
         private Vector2 PlayerPosition
         {
@@ -34,7 +71,11 @@ namespace B.Options.Games.Adventure
             set => OptionAdventure.Info.Position = value;
         }
 
-        private Input.Choice _choiceGame;
+        #endregion
+
+
+
+        #region Constructors
 
         static OptionAdventure() => OptionAdventure.InitializeGrids();
 
@@ -59,8 +100,11 @@ namespace B.Options.Games.Adventure
             }, "Quit", key: ConsoleKey.Escape));
         }
 
-        // TODO implement some color printing (examples: tiles, player, coins, doors, border, text, etc.)
-        // TODO add option in adventure to enable/disable color printing
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -180,6 +224,14 @@ namespace B.Options.Games.Adventure
             }
         }
 
+        public override void Save() => Data.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
+
+        #endregion
+
+
+
+        #region Private Methods
+
         private void MovePlayer(Direction direction)
         {
             bool stop = false;
@@ -203,6 +255,12 @@ namespace B.Options.Games.Adventure
         }
 
         private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(PlayerPosition + direction);
+
+        #endregion
+
+
+
+        #region Universal Methods
 
         public static void InitializeGrids()
         {
@@ -255,12 +313,18 @@ namespace B.Options.Games.Adventure
                 grid.Seal();
         }
 
-        public override void Save() => Data.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
+        #endregion
+
+
+
+        #region Enums
 
         public enum Stages
         {
             MainMenu,
             Game,
         }
+
+        #endregion
     }
 }

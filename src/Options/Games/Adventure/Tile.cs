@@ -2,7 +2,24 @@ namespace B.Options.Games.Adventure
 {
     public sealed class Tile
     {
+        #region Private Variables
+
         private static readonly Dictionary<char, Tile> TileMap = new();
+
+        #endregion
+
+
+
+        #region Public Properties
+
+        public readonly string Chars;
+        public readonly TileTypes TileType;
+
+        #endregion
+
+
+
+        #region Constructors
 
         static Tile()
         {
@@ -13,9 +30,6 @@ namespace B.Options.Games.Adventure
             TileMap.Add('i', new(OptionAdventure.CHAR_INTERACTABLE, TileTypes.Interactable));
         }
 
-        public readonly string Chars;
-        public readonly TileTypes TileType;
-
         public Tile(string chars, TileTypes tileType)
         {
             if (chars.Length != 2)
@@ -24,6 +38,32 @@ namespace B.Options.Games.Adventure
             Chars = chars;
             TileType = tileType;
         }
+
+        #endregion
+
+
+
+        #region Override Methods
+
+        public sealed override string ToString() => $"Tile: chars:'{Chars}', stopMovement: {TileType.StopsMovement()}, isInteractable: {TileType.IsInteractable()}";
+
+        #endregion
+
+
+
+        #region Operator Overrides
+
+        public static explicit operator Tile(char c)
+        {
+            try { return TileMap[c]; }
+            catch (ArgumentException) { throw new ArgumentException($"Invalid tile character \"{c}\""); }
+        }
+
+        #endregion
+
+
+
+        #region Enums
 
         public enum TileTypes
         {
@@ -34,13 +74,7 @@ namespace B.Options.Games.Adventure
             Interactable
         }
 
-        public sealed override string ToString() => $"Tile: chars:'{Chars}', stopMovement: {TileType.StopsMovement()}, isInteractable: {TileType.IsInteractable()}";
-
-        public static explicit operator Tile(char c)
-        {
-            try { return TileMap[c]; }
-            catch (ArgumentException) { throw new ArgumentException($"Invalid tile character \"{c}\""); }
-        }
+        #endregion
     }
 
     public static class TileTypeFunc

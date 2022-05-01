@@ -1,24 +1,62 @@
+using B.Utils.Enums;
 using B.Utils.Themes;
 
 namespace B.Utils
 {
     public static class Util
     {
-        // Private
+        #region Private Variables
+
         private static ColorTheme[] _colorThemes = null!;
 
-        // Universal Properties
+        #endregion
+
+
+
+        #region Universal Properties
+
         public static Random Random { get; private set; } = new();
+        public static ColorTheme[] ColorThemes => _colorThemes;
         public static ColorTheme ThemeDefault => new ColorTheme("Default",
             new PrintPair(PrintType.General, new(ConsoleColor.Black, ConsoleColor.White)),
             new PrintPair(PrintType.Title, new(ConsoleColor.Black, ConsoleColor.Gray)));
+        public static ConsoleColor[] ConsoleColors => new ConsoleColor[]
+        {
+            ConsoleColor.White,
+            ConsoleColor.Gray,
+            ConsoleColor.DarkGray,
+            ConsoleColor.Black,
+            ConsoleColor.DarkMagenta,
+            ConsoleColor.Magenta,
+            ConsoleColor.DarkBlue,
+            ConsoleColor.Blue,
+            ConsoleColor.DarkCyan,
+            ConsoleColor.Cyan,
+            ConsoleColor.DarkGreen,
+            ConsoleColor.Green,
+            ConsoleColor.DarkYellow,
+            ConsoleColor.Yellow,
+            ConsoleColor.DarkRed,
+            ConsoleColor.Red,
+        };
 
-        // Universal Getters
-        public static ColorTheme[] ColorThemes => _colorThemes;
+        #endregion
 
-        // Universal Functions
+
+
+        #region Universal Methods
+
+        public static void Void() { }
+
+        public static void WaitFor(Func<bool> condition)
+        {
+            while (!condition())
+                ProgramThread.Wait();
+        }
+
         public static void Initialize()
         {
+            // Init check
             if (_colorThemes is not null)
                 throw new Exception("Util already initialized!");
 
@@ -65,32 +103,6 @@ namespace B.Utils
             };
         }
 
-        public static void WaitFor(Func<bool> condition)
-        {
-            while (!condition())
-                ProgramThread.Wait();
-        }
-
-        public static void Void() { }
-
-        public static ConsoleColor[] ConsoleColors => new ConsoleColor[]
-        {
-            ConsoleColor.White,
-            ConsoleColor.Gray,
-            ConsoleColor.DarkGray,
-            ConsoleColor.Black,
-            ConsoleColor.DarkMagenta,
-            ConsoleColor.Magenta,
-            ConsoleColor.DarkBlue,
-            ConsoleColor.Blue,
-            ConsoleColor.DarkCyan,
-            ConsoleColor.Cyan,
-            ConsoleColor.DarkGreen,
-            ConsoleColor.Green,
-            ConsoleColor.DarkYellow,
-            ConsoleColor.Yellow,
-            ConsoleColor.DarkRed,
-            ConsoleColor.Red,
-        };
+        #endregion
     }
 }

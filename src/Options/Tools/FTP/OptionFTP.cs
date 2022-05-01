@@ -10,16 +10,31 @@ namespace B.Options.Tools.FTP
 {
     public sealed class OptionFTP : Option<OptionFTP.Stages>
     {
+        #region Constants
+
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int WIDTH = 140;
         private const string SERVER_IP = "***REMOVED***";
         private const string SERVER_USER = "***REMOVED***";
         private const int SERVER_PORT = 22;
 
+        #endregion
+
+
+
+        #region Universal Properties
+
         public static string Title => "FTP";
 
+        #endregion
+
+
+
+        #region Private Properties
+
         private static string DownloadPath => Environment.CurrentDirectory + @"\download\";
-        private static Func<int, string>[] _scramblers = new Func<int, string>[]
+        private SftpFile CurrentFile => _files[Input.ScrollIndex];
+        private static Func<int, string>[] _scramblers => new Func<int, string>[]
         {
             // Center Waves
             l => new string[]
@@ -69,10 +84,6 @@ namespace B.Options.Tools.FTP
                     "· · ·",
                 }.FromRemainder(l),
         };
-
-        private Func<int, string> _scrambler;
-        private SftpClient _client = null!;
-        private SftpFile[] _files = null!;
         private string Path
         {
             get => _path;
@@ -82,10 +93,24 @@ namespace B.Options.Tools.FTP
                 RefreshFiles();
             }
         }
+
+        #endregion
+
+
+
+        #region Private Variables
+
+        private Func<int, string> _scrambler;
+        private SftpClient _client = null!;
+        private SftpFile[] _files = null!;
         private string _path = string.Empty;
         private Stages _lastStage = Stages.Navigate;
 
-        private SftpFile CurrentFile => _files[Input.ScrollIndex];
+        #endregion
+
+
+
+        #region Constructors
 
         public OptionFTP() : base(Stages.Login)
         {
@@ -99,6 +124,12 @@ namespace B.Options.Tools.FTP
             if (Directory.Exists(OptionFTP.DownloadPath))
                 Directory.CreateDirectory(OptionFTP.DownloadPath);
         }
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -216,6 +247,20 @@ namespace B.Options.Tools.FTP
             }
         }
 
+        public override void Quit()
+        {
+            if (_client != null && _client.IsConnected)
+                _client.Disconnect();
+
+            base.Quit();
+        }
+
+        #endregion
+
+
+
+        #region Private Methods
+
         private void RefreshFiles()
         {
             _files = _client.ListDirectory(Path).OrderBy(x => !x.IsDirectory).ToArray();
@@ -292,6 +337,12 @@ namespace B.Options.Tools.FTP
                 Path = Path.Substring(0, Path.LastIndexOf('/'));
         }
 
+        #endregion
+
+
+
+        #region Enums
+
         public enum Stages
         {
             Login,
@@ -299,12 +350,6 @@ namespace B.Options.Tools.FTP
             FileInteract,
         }
 
-        public override void Quit()
-        {
-            if (_client != null && _client.IsConnected)
-                _client.Disconnect();
-
-            base.Quit();
-        }
+        #endregion
     }
 }

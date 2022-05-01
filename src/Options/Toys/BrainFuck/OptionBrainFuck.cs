@@ -6,11 +6,33 @@ namespace B.Options.Toys.BrainFuck
 {
     public sealed class OptionBrainFuck : Option<OptionBrainFuck.Stages>
     {
+        #region TODOs
+
+        // TODO add 'editor' mode
+
+        #endregion
+
+
+
+        #region Constants
+
         private const string FILE_EXTENSION = "*bf";
         private const int MAX_MEMORY_VIEW_LENGTH = 20;
 
-        public static readonly string DirectoryPath = Program.DataPath + @"brainfuck\";
+        #endregion
+
+
+
+        #region Universal Properties
+
+        public static string DirectoryPath => Program.DataPath + @"brainfuck\";
         public static string Title => Program.Settings.Censor ? "BrainF**k" : "BrainFuck";
+
+        #endregion
+
+
+
+        #region Private Variables
 
         private List<BrainFuckProgram> _programs = new();
         private BrainFuckProgram _currentProgram = null!;
@@ -28,6 +50,12 @@ namespace B.Options.Toys.BrainFuck
         // Total Step Counter
         private uint _stepCounter = 0;
 
+        #endregion
+
+
+
+        #region Constructors
+
         public OptionBrainFuck() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(OptionBrainFuck.DirectoryPath))
@@ -37,7 +65,11 @@ namespace B.Options.Toys.BrainFuck
                     _programs.Add(new BrainFuckProgram(Path.GetFileNameWithoutExtension(filePath), filePath));
         }
 
-        // TODO add 'editor' mode
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -186,12 +218,24 @@ namespace B.Options.Toys.BrainFuck
             base.SetStage(stage);
         }
 
+        #endregion
+
+
+
+        #region Private Variables
+
         private void HandleStep()
         {
             _currentProgram.HandleStep(in _memory, ref _memoryIndex, ref _instructionIndex, ref _bracketDepth, ref _output);
             _instructionIndex++;
             _stepCounter++;
         }
+
+        #endregion
+
+
+
+        #region Enums
 
         public enum Stages
         {
@@ -200,5 +244,7 @@ namespace B.Options.Toys.BrainFuck
             Run,
             MemoryView,
         }
+
+        #endregion
     }
 }

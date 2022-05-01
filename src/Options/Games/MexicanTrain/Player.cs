@@ -5,7 +5,15 @@ namespace B.Options.Games.MexicanTrain
 {
     public class Player
     {
+        #region Private Variables
+
         private List<Domino> _hand = new();
+
+        #endregion
+
+
+
+        #region Public Methods
 
         // Returns if the player's turn is over
         public virtual bool HandleTurn()
@@ -30,5 +38,7 @@ namespace B.Options.Games.MexicanTrain
 
             return false;
         }
+
+        #endregion
     }
 }

@@ -1,10 +1,11 @@
-using B.Utils;
 using B.Utils.Extensions;
 
 namespace B.Options.Games.MexicanTrain
 {
     public sealed class MexicanTrainInfo
     {
+        #region Private Variables
+
         // Main domino pool
         private List<Domino> _dominoes = new();
         // Mexican train
@@ -16,8 +17,20 @@ namespace B.Options.Games.MexicanTrain
         // Round counter
         private int _round = OptionMexicanTrain.DOMINO_MAX; // TODO count down the rounds
 
+        #endregion
+
+
+
+        #region Public Properties
+
         // Amount of players in game
         public int Players => _players.Length;
+
+        #endregion
+
+
+
+        #region Constructors
 
         public MexicanTrainInfo(int amountOfPlayers)
         {
@@ -33,6 +46,12 @@ namespace B.Options.Games.MexicanTrain
             for (int i = 1; i < amountOfPlayers; i++)
                 _players[i] = new PlayerAI();
         }
+
+        #endregion
+
+
+
+        #region Public Methods
 
         public void SetupGame()
         {
@@ -73,5 +92,7 @@ namespace B.Options.Games.MexicanTrain
             if (finishedTurn)
                 _player = (_player + 1) % Players;
         }
+
+        #endregion
     }
 }

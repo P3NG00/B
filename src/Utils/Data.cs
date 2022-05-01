@@ -4,11 +4,19 @@ namespace B.Utils
 {
     public static class Data
     {
+        #region Private Variables
+
         private static readonly JsonSerializer _serializer = new()
         {
             Formatting = Formatting.Indented,
             ObjectCreationHandling = ObjectCreationHandling.Replace,
         };
+
+        #endregion
+
+
+
+        #region Universal Methods
 
         public static void Serialize<T>(string filePath, T objectToWrite)
         {
@@ -21,5 +29,7 @@ namespace B.Utils
             using (StreamReader file = File.OpenText(filePath))
                 return (T)_serializer.Deserialize(file, typeof(T))!;
         }
+
+        #endregion
     }
 }

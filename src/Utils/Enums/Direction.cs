@@ -1,4 +1,4 @@
-namespace B.Utils
+namespace B.Utils.Enums
 {
     public enum Direction
     {

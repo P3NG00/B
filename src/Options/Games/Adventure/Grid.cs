@@ -5,9 +5,17 @@ namespace B.Options.Games.Adventure
 {
     public sealed class Grid
     {
+        #region Public Properties
+
         public int RealWidth => Width * 2;
         public readonly int Width;
         public readonly int Height;
+
+        #endregion
+
+
+
+        #region Private Variables
 
         private readonly Dictionary<Vector2, Action> _interactionDict = new();
         private readonly Dictionary<Vector2, (int, Vector2)> _doorDict = new();
@@ -18,6 +26,12 @@ namespace B.Options.Games.Adventure
         private readonly int _initInteractables = 0;
         private readonly int _initDoors = 0;
         private bool _seald = false;
+
+        #endregion
+
+
+
+        #region Constructors
 
         public Grid(string[] raw)
         {
@@ -57,6 +71,12 @@ namespace B.Options.Games.Adventure
                 }
             }
         }
+
+        #endregion
+
+
+
+        #region Public Methods
 
         public Tile GetTile(Vector2 pos) => _tileGrid[pos.y][pos.x];
 
@@ -129,7 +149,19 @@ namespace B.Options.Games.Adventure
             dict.Add(pos, obj);
         }
 
+        #endregion
+
+
+
+        #region Override Methods
+
         public sealed override string ToString() => $"Grid: {Width}x{Height}";
+
+        #endregion
+
+
+
+        #region Universal Methods
 
         public static string[] CreateGrid(Vector2 dimensions)
         {
@@ -139,5 +171,7 @@ namespace B.Options.Games.Adventure
                 sa[i] = s;
             return sa;
         }
+
+        #endregion
     }
 }

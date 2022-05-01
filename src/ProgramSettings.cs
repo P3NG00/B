@@ -1,17 +1,32 @@
 using B.Utils;
+using B.Utils.Enums;
 using B.Utils.Themes;
 
 namespace B
 {
     public sealed class ProgramSettings
     {
+        #region Universal Properties
+
         public static string Path => Program.DataPath + "settings";
+
+        #endregion
+
+
+
+        #region Public Variables
 
         public Togglable CursorVisible;
         public Togglable DebugMode;
         public Togglable Censor;
         public ColorTheme ColorTheme;
         public int CursorSize;
+
+        #endregion
+
+
+
+        #region Constructor
 
         public ProgramSettings()
         {
@@ -21,6 +36,12 @@ namespace B
             ColorTheme = Util.ThemeDefault;
             CursorSize = 100;
         }
+
+        #endregion
+
+
+
+        #region Public Methods
 
         public void Initialize()
         {
@@ -40,5 +61,7 @@ namespace B
             Cursor.Visible = CursorVisible;
             Cursor.Size = CursorSize;
         }
+
+        #endregion
     }
 }

@@ -1,11 +1,19 @@
 using System.Drawing;
+using B.Utils.Enums;
 
 namespace B.Utils
 {
-    [Serializable]
     public sealed class Vector2
     {
+        #region Constants
+
         public const int MaxStringLength = 11;
+
+        #endregion
+
+
+
+        #region Universal Properties
 
         public static Vector2 Up => new(0, 1);
         public static Vector2 Left => new(-1, 0);
@@ -14,10 +22,20 @@ namespace B.Utils
         public static Vector2 Zero => new(0);
         public static Vector2 One => new(1);
 
+        #endregion
+
+
+
+        #region Public Variables
+
         public int x;
         public int y;
 
-        public Vector2 Copy() => new(this);
+        #endregion
+
+
+
+        #region Constructor
 
         public Vector2() : this(0) { }
 
@@ -31,11 +49,23 @@ namespace B.Utils
 
         public Vector2(Vector2 vec) : this(vec.x, vec.y) { }
 
+        #endregion
+
+
+
+        #region Public Methods
+
         public void Move(Vector2 vec)
         {
             x += vec.x;
             y += vec.y;
         }
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public override bool Equals(object? obj) => obj is Vector2 && this == (Vector2)obj;
 
@@ -43,9 +73,21 @@ namespace B.Utils
 
         public override string ToString() => $"({x},{y})";
 
+        #endregion
+
+
+
+        #region Universal Methods
+
         public static Vector2 Min(Vector2 vecA, Vector2 vecB) => new(Math.Min(vecA.x, vecB.x), Math.Min(vecA.y, vecB.y));
 
         public static Vector2 Max(Vector2 vecA, Vector2 vecB) => new(Math.Max(vecA.x, vecB.x), Math.Max(vecA.y, vecB.y));
+
+        #endregion
+
+
+
+        #region Operator Overrides
 
         public static Vector2 operator +(Vector2 vecA, Vector2 vecB) => new(vecA.x + vecB.x, vecA.y + vecB.y);
 
@@ -78,5 +120,7 @@ namespace B.Utils
                 default: return Vector2.Zero;
             }
         }
+
+        #endregion
     }
 }

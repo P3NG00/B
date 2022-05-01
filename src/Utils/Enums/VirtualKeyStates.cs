@@ -1,8 +1,8 @@
-namespace B.Utils
+namespace B.Utils.Enums
 {
     // https://www.pinvoke.net/default.aspx/user32.GetKeyState
 
-    enum VirtualKeyStates
+    public enum VirtualKeyStates
     {
         VK_LBUTTON = 0x01,
         VK_RBUTTON = 0x02,

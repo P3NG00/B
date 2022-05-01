@@ -2,9 +2,23 @@ namespace B.Options.Tools.Backup
 {
     public sealed class OptionBackup : Option<OptionBackup.Stages>
     {
+        #region Universal Properties
+
         public static string Title => "Backup";
 
+        #endregion
+
+
+
+        #region Constructors
+
         public OptionBackup() : base(Stages.MainMenu) { }
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -27,10 +41,18 @@ namespace B.Options.Tools.Backup
             // }
         }
 
+        #endregion
+
+
+
+        #region Enums
+
         public enum Stages
         {
             MainMenu,
             MC,
         }
+
+        #endregion
     }
 }

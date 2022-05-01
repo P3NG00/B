@@ -4,13 +4,13 @@ namespace B.Utils
 {
     public static class Cursor
     {
+        #region Universal Properties
+
         public static Vector2 Position
         {
             get => new(x, y);
-            set => Console.SetCursorPosition(value.x, value.y);
+            set => Set(value.x, value.y);
         }
-
-        public static void Set(int x, int y) => Position = new(x, y);
 
         public static int x
         {
@@ -44,6 +44,15 @@ namespace B.Utils
             set => Console.CursorVisible = value;
         }
 
+        #endregion
+
+
+        #region Universal Methods
+
         public static void Reset() => Console.SetCursorPosition(0, 0);
+
+        public static void Set(int x, int y) => Console.SetCursorPosition(x, y);
+
+        #endregion
     }
 }

@@ -6,15 +6,29 @@ namespace B.Options.Toys.Canvas
 {
     public sealed class CanvasInfo
     {
+        #region Public Variables
+
         [JsonIgnore] public string Title = string.Empty;
         public ConsoleColor[][] Colors = null!;
 
         [JsonIgnore] public string FilePath => OptionCanvas.DirectoryPath + Title;
         [JsonIgnore] public Vector2 Size => new(Colors[0].Length, Colors.Length);
 
+        #endregion
+
+
+
+        #region Public Properties
+
         // Use these as Color Getter and Setter
         public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
         public ref ConsoleColor Color(Vector2 pos) => ref Colors[pos.y][pos.x];
+
+        #endregion
+
+
+
+        #region Public Methods
 
         public void Draw(Vector2? offset = null)
         {
@@ -42,5 +56,7 @@ namespace B.Options.Toys.Canvas
 
             Cursor.Reset();
         }
+
+        #endregion
     }
 }

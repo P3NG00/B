@@ -6,9 +6,23 @@ namespace B.Options.Toys.TextGenerator
 {
     public static class Fonts
     {
-        private static readonly FontType[] _fonts;
+        #region Universal Properties
 
         public static FontType[] FontArray => _fonts;
+
+        #endregion
+
+
+
+        #region Private Variables
+
+        private static readonly FontType[] _fonts;
+
+        #endregion
+
+
+
+        #region Constructors
 
         static Fonts()
         {
@@ -25,5 +39,7 @@ namespace B.Options.Toys.TextGenerator
             // Sort array by name
             Array.Sort(_fonts, (fontA, fontB) => fontA.Name.CompareTo(fontB.Name));
         }
+
+        #endregion
     }
 }

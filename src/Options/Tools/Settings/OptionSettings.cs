@@ -3,6 +3,7 @@ using B.Options.Games.Adventure;
 using B.Options.Tools.MoneyTracker;
 using B.Options.Toys.BrainFuck;
 using B.Utils;
+using B.Utils.Enums;
 using B.Utils.Extensions;
 using B.Utils.Themes;
 
@@ -10,13 +11,39 @@ namespace B.Options.Tools.Settings
 {
     public sealed class OptionSettings : Option<OptionSettings.Stages>
     {
+        #region TODOs
+
+        // TODO re-implement custom color selectin
+
+        #endregion
+
+
+
+        #region Universal Properties
+
         public static string Title => "Settings";
+
+        #endregion
+
+
+
+        #region Private Variables
 
         private Vector2 _size = new(40, 20);
 
+        #endregion
+
+
+
+        #region Constructors
+
         public OptionSettings() : base(Stages.MainMenu) { }
 
-        // TODO re-implement custom color selecting
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -246,6 +273,12 @@ namespace B.Options.Tools.Settings
             }
         }
 
+        #endregion
+
+
+
+        #region Enums
+
         public enum Stages
         {
             MainMenu,
@@ -258,5 +291,7 @@ namespace B.Options.Tools.Settings
             KeyPress,
             DeleteData,
         }
+
+        #endregion
     }
 }

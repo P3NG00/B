@@ -6,15 +6,34 @@ namespace B.Options.Tools.MoneyTracker
 {
     public sealed class OptionMoneyTracker : Option<OptionMoneyTracker.Stages>
     {
+        #region Constants
+
         private const int MAX_TRANSACTIONS_PER_PAGE = 50;
 
-        public static string Title => "Money Tracker";
+        #endregion
 
-        public static readonly string DirectoryPath = Program.DataPath + @"accounts\";
+
+
+        #region Universal Properties
+
+        public static string Title => "Money Tracker";
+        public static string DirectoryPath => Program.DataPath + @"accounts\";
+
+        #endregion
+
+
+
+        #region Private Variables
 
         private List<Account> _accounts = new();
         private Transaction? _tempTransaction;
         private Account? _selectedAccount;
+
+        #endregion
+
+
+
+        #region Constructors
 
         public OptionMoneyTracker() : base(Stages.MainMenu)
         {
@@ -24,6 +43,12 @@ namespace B.Options.Tools.MoneyTracker
                 foreach (string filePath in Directory.GetFiles(OptionMoneyTracker.DirectoryPath))
                     AddAccount(Path.GetFileNameWithoutExtension(filePath), true);
         }
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -271,6 +296,24 @@ namespace B.Options.Tools.MoneyTracker
             }
         }
 
+        public override void Save()
+        {
+            foreach (Account account in _accounts)
+                account.Save();
+        }
+
+        public override void Quit()
+        {
+            Save();
+            base.Quit();
+        }
+
+        #endregion
+
+
+
+        #region Private Methods
+
         private Account AddAccount(string name, bool deserialize = false)
         {
             Account account;
@@ -345,17 +388,11 @@ namespace B.Options.Tools.MoneyTracker
             }
         }
 
-        public override void Save()
-        {
-            foreach (Account account in _accounts)
-                account.Save();
-        }
+        #endregion
 
-        public override void Quit()
-        {
-            Save();
-            base.Quit();
-        }
+
+
+        #region Enums
 
         public enum Stages
         {
@@ -371,5 +408,7 @@ namespace B.Options.Tools.MoneyTracker
             Transaction_Delete,
             Transaction_Edit,
         }
+
+        #endregion
     }
 }

@@ -5,19 +5,44 @@ namespace B.Options.Games.MexicanTrain
 {
     public sealed class OptionMexicanTrain : Option<OptionMexicanTrain.Stages>
     {
+        #region Constants
+
         public const int DOMINO_MAX = 12;
         public const int PLAYERS_MIN = 2;
         public const int PLAYERS_MAX = 8;
         public const int DOMINO_START = 10; // TODO change to take into account the number of players
 
-        public static string Title => "Mexican Train";
+        #endregion
 
+
+
+        #region Universal Properties
+
+        public static string Title => "Mexican Train";
         // TODO implement saving/loading
         public static string FilePath => Program.DataPath + "mexicanTrain";
 
+        #endregion
+
+
+
+        #region Private Variables
+
         private MexicanTrainInfo _info = null!;
 
+        #endregion
+
+
+
+        #region Constructors
+
         public OptionMexicanTrain() : base(Stages.MainMenu) { }
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -66,10 +91,18 @@ namespace B.Options.Games.MexicanTrain
             }
         }
 
+        #endregion
+
+
+
+        #region Enums
+
         public enum Stages
         {
             MainMenu,
             Game,
         }
+
+        #endregion
     }
 }

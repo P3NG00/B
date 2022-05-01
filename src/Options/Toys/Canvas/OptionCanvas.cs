@@ -1,5 +1,6 @@
 using B.Inputs;
 using B.Utils;
+using B.Utils.Enums;
 using B.Utils.Extensions;
 using B.Utils.Themes;
 
@@ -7,16 +8,38 @@ namespace B.Options.Toys.Canvas
 {
     public sealed class OptionCanvas : Option<OptionCanvas.Stages>
     {
-        public static string Title => "Canvas";
-        public static Vector2 CANVAS_BORDER_PAD => new(2, 1);
+        #region TODOs
+
+        // TODO add image importing to canvas grid
+        // TODO allow drawing on canvas with mouse clicks/holds
+
+        #endregion
+
+
+        #region Constants
 
         private const int MAX_INPUT_LENGTH = 25;
         private const int MAX_CANVASES_PER_PAGE = 10;
 
+        #endregion
+
+
+
+        #region Universal Properties
+
+        public static string Title => "Canvas";
+        public static Vector2 CANVAS_BORDER_PAD => new(2, 1);
+
+        public static string DirectoryPath => Program.DataPath + @"canvas\";
+
+        #endregion
+
+
+
+        #region Private Variables
+
         private static Vector2 CANVAS_SIZE_MIN => new(20, 10);
         private static Vector2 CURSOR_POS_MIN => new(0, 4);
-
-        public static readonly string DirectoryPath = Program.DataPath + @"canvas\";
 
         private (int x, int y, int width, int height) _lastConsoleWindow = new(0, 0, 0, 0); // TODO replace with better way to see when screen needs to be fully reprinted
         private List<CanvasInfo> _canvases = new();
@@ -28,8 +51,11 @@ namespace B.Options.Toys.Canvas
         private Keybind[] _keybindsCreationStage;
         private Input.Choice _choiceCanvasDrawing;
 
-        // TODO add image importing to canvas grid
-        // TODO allow drawing on canvas with mouse clicks/holds
+        #endregion
+
+
+
+        #region Constructors
 
         public OptionCanvas() : base(Stages.MainMenu)
         {
@@ -217,6 +243,12 @@ namespace B.Options.Toys.Canvas
             }
         }
 
+        #endregion
+
+
+
+        #region Override Methods
+
         public override void Loop()
         {
             switch (Stage)
@@ -374,6 +406,12 @@ namespace B.Options.Toys.Canvas
 
         public override void Save() => Data.Serialize(_canvas.FilePath, _canvas);
 
+        #endregion
+
+
+
+        #region Private Methods
+
         private void ShowCreationStage()
         {
             Window.SetSize(35, 8);
@@ -409,6 +447,12 @@ namespace B.Options.Toys.Canvas
             void PrintCreationStageInfo(string preface, string value) => Window.Print($"{preface}: {value,-OptionCanvas.MAX_INPUT_LENGTH}");
         }
 
+        #endregion
+
+
+
+        #region Enums
+
         private enum CreationStage
         {
             Name,
@@ -427,5 +471,7 @@ namespace B.Options.Toys.Canvas
             Edit,
             ColorSelect,
         }
+
+        #endregion
     }
 }

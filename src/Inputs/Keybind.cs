@@ -1,5 +1,6 @@
 using B.Options;
 using B.Utils;
+using B.Utils.Enums;
 
 namespace B.Inputs
 {

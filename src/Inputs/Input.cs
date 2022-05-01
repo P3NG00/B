@@ -1,4 +1,5 @@
 using B.Utils;
+using B.Utils.Enums;
 using B.Utils.Extensions;
 
 namespace B.Inputs
@@ -212,6 +213,8 @@ namespace B.Inputs
 
 
         #region Input Entry Choice
+
+        // TODO move Choice into own class
 
         private interface IEntry
         {

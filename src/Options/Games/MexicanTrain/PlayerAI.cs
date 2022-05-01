@@ -2,6 +2,8 @@ namespace B.Options.Games.MexicanTrain
 {
     public sealed class PlayerAI : Player
     {
+        #region Override Methods
+
         public override bool HandleTurn()
         {
             // TODO
@@ -21,5 +23,7 @@ namespace B.Options.Games.MexicanTrain
             // TODO remove placeholder return
             return false;
         }
+
+        #endregion
     }
 }

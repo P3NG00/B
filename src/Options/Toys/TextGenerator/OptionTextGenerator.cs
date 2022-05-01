@@ -6,13 +6,26 @@ namespace B.Options.Toys.TextGenerator
 {
     public sealed class OptionTextGenerator : Option<OptionTextGenerator.Stages>
     {
+        #region Universal Properties
+
         public static string Title => "Text Generator";
+
+        #endregion
+
+
+
+        #region Private Variables
 
         // Current Font from Index
         private FontType FontInfo => Fonts.FontArray[_fontIndex];
-
         // Index of current Font
         private int _fontIndex = 0;
+
+        #endregion
+
+
+
+        #region Constructors
 
         public OptionTextGenerator() : base(Stages.Text)
         {
@@ -21,6 +34,12 @@ namespace B.Options.Toys.TextGenerator
             // Select random font
             SelectRandomFont();
         }
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public sealed override void Loop()
         {
@@ -100,12 +119,26 @@ namespace B.Options.Toys.TextGenerator
             }
         }
 
+        #endregion
+
+
+
+        #region Private Methods
+
         private void SelectRandomFont() => _fontIndex = Fonts.FontArray.RandomIndex();
+
+        #endregion
+
+
+
+        #region Enums
 
         public enum Stages
         {
             Text,
             FontSelect,
         }
+
+        #endregion
     }
 }

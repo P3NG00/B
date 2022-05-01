@@ -5,9 +5,17 @@ namespace B.Options.Games.Adventure
 {
     public sealed class AdventureInfo
     {
+        #region TODOs
+
         // TODO each grid will have a certain number of coins in it.
         // TODO the coins in each grid will be loaded/saved using an int as a bitfield.
         // TODO each grid will only have as many bits as the number of coins in it.
+
+        #endregion
+
+
+
+        #region Public Properties
 
         public int GridID
         {
@@ -28,10 +36,24 @@ namespace B.Options.Games.Adventure
             set => _speed = value.Clamp(1, 25);
         }
 
+        #endregion
+
+
+
+        #region Public Variables
+
         public Vector2 Position = new();
         public int Coins = 0;
 
+        #endregion
+
+
+
+        #region Private Variables
+
         private int _speed = 1;
         private int _gridID = 0;
+
+        #endregion
     }
 }

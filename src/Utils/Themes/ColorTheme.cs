@@ -1,3 +1,4 @@
+using B.Utils.Enums;
 using B.Utils.Extensions;
 using Newtonsoft.Json;
 
@@ -5,14 +6,34 @@ namespace B.Utils.Themes
 {
     public sealed class ColorTheme
     {
+        #region Public Variables
+
         // This does not need to be serialized.
         [JsonIgnore] public readonly string Title;
+
+        #endregion
+
+
+
+        #region Public Properties
 
         // This variable is kept public for serialization purposes.
         public List<PrintPair> PrintPairs { get; private set; } = new();
 
+        #endregion
+
+
+
+        #region Private Variables
+
         // This variable is kept as an easy reference to the PrintPair for PrintType.General.
         private PrintPair _PrintType_GeneralPair;
+
+        #endregion
+
+
+
+        #region Constructor
 
         public ColorTheme(string title, params PrintPair[] printPairs)
         {
@@ -62,12 +83,26 @@ namespace B.Utils.Themes
             }
         }
 
+        #endregion
+
+
+
+        #region Public Methods
+
+        public ColorPair this[PrintType type] => GetPrintPair(type, _PrintType_GeneralPair).ColorPair;
+
+        #endregion
+
+
+
+        #region Private Methods
+
         private PrintPair GetPrintPair(PrintType printType, PrintPair defaultPair = null!)
         {
             try { return PrintPairs.First(printPair => printPair.PrintType == printType); }
             catch (Exception) { return defaultPair; }
         }
 
-        public ColorPair this[PrintType type] => GetPrintPair(type, _PrintType_GeneralPair).ColorPair;
+        #endregion
     }
 }

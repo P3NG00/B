@@ -6,9 +6,23 @@ namespace B.Options.Games.NumberGuesser
 {
     public sealed class OptionNumberGuesser : Option<OptionNumberGuesser.Stages>
     {
+        #region Constants
+
         private const int GUESS_LENGTH = 9;
 
+        #endregion
+
+
+
+        #region Universal Properties
+
         public static string Title => "Number Guesser";
+
+        #endregion
+
+
+
+        #region Private Variables
 
         private static readonly string[] _winMessages = new string[]
         {
@@ -21,7 +35,19 @@ namespace B.Options.Games.NumberGuesser
         private int _numMax = 100;
         private int _numRandom;
 
+        #endregion
+
+
+
+        #region Constructors
+
         public OptionNumberGuesser() : base(Stages.MainMenu) { }
+
+        #endregion
+
+
+
+        #region Override Methods
 
         public override void Loop()
         {
@@ -140,6 +166,12 @@ namespace B.Options.Games.NumberGuesser
             }
         }
 
+        #endregion
+
+
+
+        #region Enums
+
         public enum Stages
         {
             MainMenu,
@@ -147,5 +179,7 @@ namespace B.Options.Games.NumberGuesser
             Settings,
             Settings_MaxNumber,
         }
+
+        #endregion
     }
 }
