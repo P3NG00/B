@@ -1,6 +1,7 @@
 namespace B.Utils
 {
     // https://www.pinvoke.net/default.aspx/user32.GetKeyState
+
     enum VirtualKeyStates
     {
         VK_LBUTTON = 0x01,

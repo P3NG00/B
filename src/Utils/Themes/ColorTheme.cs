@@ -5,11 +5,14 @@ namespace B.Utils.Themes
 {
     public sealed class ColorTheme
     {
+        // This does not need to be serialized.
         [JsonIgnore] public readonly string Title;
 
-        // This variables is kept public for serialization purposes
+        // This variable is kept public for serialization purposes.
         public List<PrintPair> PrintPairs { get; private set; } = new();
-        private PrintPair _printTypeGeneralPairReference;
+
+        // This variable is kept as an easy reference to the PrintPair for PrintType.General.
+        private PrintPair _PrintType_GeneralPair;
 
         public ColorTheme(string title, params PrintPair[] printPairs)
         {
@@ -43,7 +46,8 @@ namespace B.Utils.Themes
             if (generalPair is null)
                 throw new Exception("ColorTheme must contain a PrintPair with PrintType 'General'!");
 
-            _printTypeGeneralPairReference = generalPair;
+            // Set reference of general pair.
+            _PrintType_GeneralPair = generalPair;
 
             // Check if highlight was specified.
             if (!hasHighlightPair)
@@ -58,12 +62,12 @@ namespace B.Utils.Themes
             }
         }
 
-        private PrintPair GetPrintPair(PrintType printType)
+        private PrintPair GetPrintPair(PrintType printType, PrintPair defaultPair = null!)
         {
             try { return PrintPairs.First(printPair => printPair.PrintType == printType); }
-            catch (Exception) { return null!; }
+            catch (Exception) { return defaultPair; }
         }
 
-        public ColorPair this[PrintType type] => PrintPairs.FirstOrDefault(printPair => printPair.PrintType == type, _printTypeGeneralPairReference).ColorPair;
+        public ColorPair this[PrintType type] => GetPrintPair(type, _PrintType_GeneralPair).ColorPair;
     }
 }

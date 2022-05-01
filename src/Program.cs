@@ -125,7 +125,10 @@ namespace B
 
         private void Initialize()
         {
-            // Lock thread before others are even initialized
+            // Print 'Loading' message while program initializes.
+            Window.Print("Loading...");
+
+            // Lock thread before others are initialized.
             ProgramThread.TryLock();
 
             // Set console settings
@@ -135,7 +138,7 @@ namespace B
             if (OperatingSystem.IsWindows())
                 Console.TreatControlCAsInput = true;
 
-            // Attempt to Deserialize saved Settings before other initialization
+            // Attempt to Deserialize saved Settings before further initialization
             if (File.Exists(ProgramSettings.Path))
             {
                 try { Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
@@ -151,9 +154,11 @@ namespace B
 
             // Initialize other window properties
             External.Initialize();
+
             // Initialize Utilities
             Util.Initialize();
-            // Initialize Input after Program.Settings has been initialized because of Mouse class
+
+            // Initialize Input after Program.Settings has been initialized due to Mouse class
             Input.Initialize();
         }
 
@@ -204,6 +209,7 @@ namespace B
 
                 case Levels.Group:
                     {
+                        // Display selected group level options
                         Window.Clear();
                         Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
                         Cursor.Set(0, 1);
@@ -232,6 +238,7 @@ namespace B
 
                 case Levels.Option:
                     {
+                        // Run option
                         if (_selectedOption is not null && _selectedOption.IsRunning)
                             _selectedOption.Loop();
                         else
