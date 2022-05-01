@@ -68,6 +68,7 @@ namespace B.Options.Tools.Settings
                     }
                     break;
 
+                // TODO
                 // case Stages.Color:
                 //     {
                 //         Window.Clear();
@@ -103,6 +104,7 @@ namespace B.Options.Tools.Settings
                     }
                     break;
 
+                // TODO
                 // case Stages.Color_Custom:
                 //     {
                 //         Program.Settings.UpdateColors();
@@ -248,9 +250,9 @@ namespace B.Options.Tools.Settings
         {
             MainMenu,
             WindowSize,
-            // Color,
+            // Color, // TODO
             Color_Theme,
-            // Color_Custom,
+            // Color_Custom, // TODO
             Cursor,
             Cursor_Size,
             KeyPress,

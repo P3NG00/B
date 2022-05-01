@@ -16,7 +16,7 @@ namespace B.Utils
 
         #region Cache
 
-        // This is cached because it is used in GetRelativeMousePosition()
+        // This is cached in Initialize() because it is used in GetRelativeMousePosition()
         private static IntPtr _consoleHandle;
 
         #endregion
@@ -40,17 +40,19 @@ namespace B.Utils
             return new Vector2(x, y);
         }
 
-        public static bool GetLeftMouseButtonDown()
-        {
-            // private const int KEY_PRESSED = 0x8000;
-            return Convert.ToBoolean(GetKeyState(VirtualKeyStates.VK_LBUTTON) & 0x8000);
-        }
+        public static bool GetLeftMouseButtonDown() => GetKeyStatePressed(VirtualKeyStates.VK_LBUTTON);
 
         #endregion
 
 
 
         #region Private Methods
+
+        private static bool GetKeyStatePressed(VirtualKeyStates key)
+        {
+            // private const int KEY_PRESSED = 0x8000;
+            return Convert.ToBoolean(GetKeyState(key) & 0x8000);
+        }
 
         // https://social.msdn.microsoft.com/Forums/vstudio/en-US/1aa43c6c-71b9-42d4-aa00-60058a85f0eb/c-console-window-disable-resize?forum=csharpgeneral
         private static void DisableWindowResizing()
@@ -70,15 +72,15 @@ namespace B.Utils
         private static void DisableTextSelection()
         {
             // -10 is the standard input device
-            IntPtr currentHandle = GetStdHandle(-10);
+            IntPtr handle = GetStdHandle(-10);
 
-            if (!GetConsoleMode(currentHandle, out uint consoleMode))
+            if (!GetConsoleMode(handle, out uint consoleMode))
                 throw new Exception("Failed to get console mode.");
 
             // 0b1000000 (quick edit mode)
             consoleMode &= ~(uint)(0b100_0000);
 
-            if (!SetConsoleMode(currentHandle, consoleMode))
+            if (!SetConsoleMode(handle, consoleMode))
                 throw new Exception("Failed to set console mode.");
         }
 
@@ -102,7 +104,6 @@ namespace B.Utils
             public int y;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         private struct Rect
         {
             public int Left;
@@ -128,7 +129,16 @@ namespace B.Utils
         [DllImport(USER32)]
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
-        [DllImport(KERNEL32, ExactSpelling = true)]
+        [DllImport(USER32)]
+        private static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
+
+        [DllImport(USER32)]
+        private static extern bool GetCursorPos(out Point lpPoint);
+
+        [DllImport(USER32)]
+        private static extern short GetKeyState(VirtualKeyStates nVirtKey);
+
+        [DllImport(KERNEL32)]
         private static extern IntPtr GetConsoleWindow();
 
         [DllImport(KERNEL32)]
@@ -139,15 +149,6 @@ namespace B.Utils
 
         [DllImport(KERNEL32)]
         private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
-
-        [DllImport(USER32)]
-        private static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
-
-        [DllImport(USER32)]
-        private static extern bool GetCursorPos(out Point lpPoint);
-
-        [DllImport(USER32)]
-        private static extern short GetKeyState(VirtualKeyStates nVirtKey);
 
         #endregion
     }

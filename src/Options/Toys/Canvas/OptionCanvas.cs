@@ -192,7 +192,11 @@ namespace B.Options.Toys.Canvas
             }
             void PaintDirection(Direction direction)
             {
+                // Paint on current position
+                Paint();
+                // Move cursor
                 MoveCursor(direction);
+                // Paint on new position
                 Paint();
             }
             void ResizeBrush(Direction direction) => MoveVec(ref _brushSize, direction);

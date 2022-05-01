@@ -22,6 +22,10 @@ namespace B.Utils
             if (_colorThemes is not null)
                 throw new Exception("Util already initialized!");
 
+            // When creating color themes:
+            // PrintType.General MUST be defined or exception will be thrown.
+            // If PrintType.Highlight is not defined, it will be created automatically as an inverted version of PrintType.General.
+            // All other PrintTypes are optional.
             _colorThemes = new ColorTheme[]
             {
                 ThemeDefault,
@@ -46,15 +50,15 @@ namespace B.Utils
                 new("Sunshine",
                     new PrintPair(PrintType.General, new(ConsoleColor.DarkYellow, ConsoleColor.Yellow)),
                     new PrintPair(PrintType.Highlight, new(ConsoleColor.DarkYellow, ConsoleColor.White))),
-                new("Streetlight",
-                    new PrintPair(PrintType.General, new(ConsoleColor.Yellow, ConsoleColor.Black)),
-                    new PrintPair(PrintType.Title, new(ConsoleColor.Yellow, ConsoleColor.DarkGray))),
                 new("Salmon",
                     new PrintPair(PrintType.General, new(ConsoleColor.Yellow, ConsoleColor.Red)),
                     new PrintPair(PrintType.Title, new(ConsoleColor.Yellow, ConsoleColor.DarkRed))),
                 new("Creeper",
                     new PrintPair(PrintType.General, new(ConsoleColor.Black, ConsoleColor.Green)),
                     new PrintPair(PrintType.Title, new(ConsoleColor.Black, ConsoleColor.White))),
+                new("Streetlight",
+                    new PrintPair(PrintType.General, new(ConsoleColor.Yellow, ConsoleColor.Black)),
+                    new PrintPair(PrintType.Title, new(ConsoleColor.Yellow, ConsoleColor.DarkGray))),
                 new("Hacker",
                     new PrintPair(PrintType.General, new(ConsoleColor.Green, ConsoleColor.Black)),
                     new PrintPair(PrintType.Title, new(ConsoleColor.Black, ConsoleColor.Green))),
