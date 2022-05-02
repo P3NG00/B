@@ -30,7 +30,9 @@ namespace B.Options.Games.OptionCheckers
 
         public override void Loop()
         {
-            throw new NotImplementedException(); // TODO REMOVE
+            // TODO
+
+            throw new NotImplementedException();
 
             // switch (Stage)
             // {

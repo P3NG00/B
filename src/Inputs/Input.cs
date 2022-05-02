@@ -166,16 +166,8 @@ namespace B.Inputs
                     extraKeybinds.ForEach(keybind => choice.AddKeybind(keybind));
                 }
 
-                // If exit keybind...
-                if (exitKeybind is not null)
-                {
-                    // Add spacer from previous output if keybind is meant to be displayed
-                    if (exitKeybind.ToString() is not null)
-                        choice.AddSpacer();
-
-                    // Add exit keybind
-                    choice.AddKeybind(exitKeybind);
-                }
+                // Add exit keybind
+                AddExitKeybind();
 
                 // Get page index before it's modified
                 int previousPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
@@ -201,11 +193,26 @@ namespace B.Inputs
                 Window.Print("No entries.");
                 Cursor.y += 2;
                 extraKeybinds.ForEach(keybind => choice.AddKeybind(keybind));
-                choice.AddKeybind(exitKeybind);
+                AddExitKeybind();
                 keyInfo = choice.Request();
             }
 
             return keyInfo;
+
+            // Local functions
+            void AddExitKeybind()
+            {
+                // If exit keybind...
+                if (exitKeybind is not null)
+                {
+                    // Add spacer from previous output if keybind is meant to be displayed
+                    if (exitKeybind.Display)
+                        choice.AddSpacer();
+
+                    // Add exit keybind
+                    choice.AddKeybind(exitKeybind);
+                }
+            }
         }
 
         #endregion

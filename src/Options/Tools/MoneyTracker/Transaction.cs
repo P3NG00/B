@@ -8,14 +8,5 @@ namespace B.Options.Tools.MoneyTracker
         public decimal Amount = 0m;
 
         #endregion
-
-
-
-        #region Constructors
-
-        // TODO test and put comment if true "this needs to be here for serialization/deserialization purposes"
-        public Transaction() { }
-
-        #endregion
     }
 }

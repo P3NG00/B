@@ -80,7 +80,7 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Account:
                     {
                         Window.Clear();
-                        bool selected = _selectedAccount != null;
+                        bool selected = _selectedAccount is not null;
                         Window.SetSize(24, selected ? 12 : 9);
                         Cursor.Set(0, 1);
 
@@ -145,7 +145,7 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Account_Select:
                     {
-                        int consoleHeight = 3;
+                        int consoleHeight = 5;
                         int amountAccounts = _accounts.Count;
 
                         if (amountAccounts > 0)
@@ -153,27 +153,16 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.Clear();
                         Window.SetSize(27, consoleHeight);
-                        Cursor.Set(0, 1);
-                        Choice choice = new();
-
-                        // TODO turn into Input.RequestScroll because accounts can reach more than single digit numbers on a keyboard
-                        if (amountAccounts > 0)
-                        {
-                            for (int i = 0; i < amountAccounts; i++)
+                        Cursor.y = 1;
+                        Input.RequestScroll(
+                            items: _accounts,
+                            getText: account => account.Name,
+                            exitKeybind: Keybind.Create(() =>
                             {
-                                Account account = _accounts[i];
-                                choice.AddKeybind(Keybind.Create(() =>
-                                {
-                                    _selectedAccount = account;
-                                    SetStage(Stages.Account);
-                                }, account.Name, keyChar: (char)('1' + i)));
-                            }
-
-                            choice.AddSpacer();
-                        }
-
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Back", key: ConsoleKey.Escape));
-                        choice.Request();
+                                _selectedAccount = _accounts[Input.ScrollIndex];
+                                SetStage(Stages.Account);
+                            }, "Select", key: ConsoleKey.Escape)
+                        );
                     }
                     break;
 
@@ -218,22 +207,17 @@ namespace B.Options.Tools.MoneyTracker
                 case Stages.Transaction:
                     {
                         Window.Clear();
-                        Window.SetSize(20, 10);
+                        Window.SetSize(20, 9);
                         Cursor.Set(0, 1);
                         Choice choice = new("Transaction");
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            SetStage(Stages.Transaction_View);
-                            Window.Clear();
-                        }, "View", '1'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_View), "View", '1'));
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             Input.ResetString();
                             _tempTransaction = new();
                             SetStage(Stages.Transaction_Add_Amount);
                         }, "Add", '2'));
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_Delete), "Delete", '3'));
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_Edit), "Edit", '4'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_Edit), "Edit", '3'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();
@@ -242,13 +226,14 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction_View:
                     {
+                        Window.Clear();
                         Window.SetSize(
                             (Input.DECIMAL_LENGTH * 2) + _selectedAccount!.Decimals + 9,
-                            Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 9);
+                            Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 10);
                         Cursor.y = 1;
                         Input.RequestScroll(
                             items: _selectedAccount.Transactions,
-                            getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
+                            getText: ViewTransactionFromSelectedAccount,
                             maxEntriesPerPage: OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
                             exitKeybind: Keybind.Create(() =>
                             {
@@ -262,7 +247,8 @@ namespace B.Options.Tools.MoneyTracker
                                     // Checking before decrementing to avoid underflowing to max value
                                     if (_selectedAccount.Decimals != 0)
                                         _selectedAccount.Decimals--;
-                                }, "Decrease Decimals", '-')});
+                                }, "Decrease Decimals", '-'),
+                                Keybind.CreateConfirmation(() => _selectedAccount!.Transactions.RemoveAt(Input.ScrollIndex), "Delete this transaction?", "Delete", key: ConsoleKey.Delete)});
                     }
                     break;
 
@@ -270,27 +256,12 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction_Add_Description: ShowTransactionStage(); break;
 
-                case Stages.Transaction_Delete:
-                    {
-                        throw new NotImplementedException();
-                        // Window.Clear();
-                        // Window.SetSize(31, _selectedAccount!.Transactions.Count + 4);
-                        // Util.PrintLine();
-                        // Util.PrintLine("  Delete");
-                        // _selectedAccount.PrintTransactions(); // TODO
-
-                        // Util.GetKey();
-                        // TODO add keybinds to delete a transaction
-                        // SetStage(Stages.Transaction);
-                    }
-                // break;
-
                 case Stages.Transaction_Edit:
                     {
+                        // TODO add keybind in Transaction_View to go to transaction edit from selected transaction
                         throw new NotImplementedException();
                         // Window.Clear();
                         // SetStage(Stages.Transaction);
-                        // TODO
                     }
                     // break;
             }
@@ -328,6 +299,14 @@ namespace B.Options.Tools.MoneyTracker
 
             _accounts.Add(account);
             return account;
+        }
+
+        private string ViewTransactionFromSelectedAccount(Transaction transaction)
+        {
+            if (_selectedAccount is null)
+                throw new Exception("Attempted to get transaction from invalid account!");
+
+            return string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description);
         }
 
         private void ShowTransactionStage()
@@ -405,7 +384,6 @@ namespace B.Options.Tools.MoneyTracker
             Transaction_View,
             Transaction_Add_Amount,
             Transaction_Add_Description,
-            Transaction_Delete,
             Transaction_Edit,
         }
 

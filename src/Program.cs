@@ -271,6 +271,7 @@ namespace B
         {
             // Ensure thread is locked while processing
             ProgramThread.TryLock();
+            Keybind.ClearRegisteredKeybinds();
             Window.Clear();
             Window.SetSize(Window.SizeMax * 0.75f);
             // Cursor will always start at (2, 1)

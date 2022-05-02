@@ -22,6 +22,8 @@ namespace B.Options.Tools.Backup
 
         public override void Loop()
         {
+            // TODO
+
             throw new NotImplementedException();
 
             // switch (Stage)
@@ -29,13 +31,6 @@ namespace B.Options.Tools.Backup
             //     case Stages.MainMenu:
             //         {
             //             Window.ClearAndSetSize(20, 10);
-            //             // TODO
-            //         }
-            //         break;
-
-            //     case Stages.MC:
-            //         {
-            //             // TODO
             //         }
             //         break;
             // }
@@ -50,7 +45,6 @@ namespace B.Options.Tools.Backup
         public enum Stages
         {
             MainMenu,
-            MC,
         }
 
         #endregion
