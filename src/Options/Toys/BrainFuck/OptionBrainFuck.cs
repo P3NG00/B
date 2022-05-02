@@ -1,5 +1,6 @@
 using B.Inputs;
 using B.Utils;
+using B.Utils.Enums;
 using B.Utils.Extensions;
 
 namespace B.Options.Toys.BrainFuck
@@ -176,29 +177,45 @@ namespace B.Options.Toys.BrainFuck
                     {
                         if (_instructionIndex < _currentProgram.Instructions.Length)
                         {
-                            // TODO add to bottom/top of window, display the instructions with the current instruction highlighted and centered
-
-                            int consoleWidth = 20;
-                            Window.SetSize(consoleWidth, 29);
-                            Cursor.Set(2, 1);
-                            Window.Print("Memory View");
+                            Input.ScrollIndex = (int)_memoryIndex;
+                            int consoleWidth = 21;
+                            int widthBordered = consoleWidth - 2;
+                            Window.SetSize(consoleWidth, 31);
+                            Cursor.Set(4, 1);
+                            Window.Print(" Memory View ", PrintType.Title);
                             // Column 1 - Byte
                             // Column 2 - Char
                             // Column 3 - Hex
-                            string format = "{0,-6}{1,-6}{2,-2}";
-                            Cursor.Set(3, 3);
-                            Window.Print($"{string.Format(format, "byte", "char", "hex")}");
+                            string edge = '-'.Loop(widthBordered);
+                            Cursor.Set(1, 2);
+                            Window.Print(edge);
+                            Cursor.Set(1, 3);
+                            // Print instructions
+                            int instructionIndex = (int)_instructionIndex;
+                            int start = instructionIndex - (consoleWidth / 2) + 1;
+                            int end = start + widthBordered;
+                            for (int index = start; index < end; index++)
+                            {
+                                if (index >= 0 && index < _currentProgram.Instructions.Length)
+                                    Window.Print(_currentProgram.Instructions[index], index == instructionIndex ? PrintType.Highlight : PrintType.General);
+                                else
+                                    Window.Print(' ');
+                            }
                             Cursor.Set(1, 4);
-                            Window.Print($"{'-'.Loop(consoleWidth - 2)}");
-                            Cursor.Set(0, 5);
-                            Input.ScrollIndex = (int)_memoryIndex;
+                            Window.Print(edge);
+                            Cursor.Set(1, 5);
+                            string format = "{0,-6}{1,-6}{2,-2}";
+                            Window.Print($" {string.Format(format, "byte", "char", "hex")}");
+                            Cursor.Set(1, 6);
+                            Window.Print(edge);
+                            Cursor.Set(0, 7);
                             Input.RequestScroll(
                                 items: _memory,
                                 getText: b => string.Format(format, b, ((char)b).Unformat(), $"{b,2:X}"),
                                 maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {
-                                    Keybind.Create(() => HandleStep(), "Step", key: ConsoleKey.Spacebar),
+                                    Keybind.Create(HandleStep, "Step", key: ConsoleKey.Spacebar),
                                     Keybind.Create(() =>
                                     {
                                         Input.ScrollIndex = 0;
@@ -214,7 +231,9 @@ namespace B.Options.Toys.BrainFuck
 
         protected override void SetStage(Stages stage)
         {
-            if (stage == Stages.List) Window.Clear();
+            if (stage == Stages.List)
+                Window.Clear();
+
             base.SetStage(stage);
         }
 
