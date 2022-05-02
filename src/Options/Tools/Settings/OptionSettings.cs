@@ -259,7 +259,7 @@ namespace B.Options.Tools.Settings
                         Window.SetSize(20, 10);
                         Cursor.Set(0, 1);
                         Choice choice = new("Delete Data");
-                        choice.AddKeybind(CreateDeleteKeybind(() => File.Delete(OptionAdventure.FilePath), OptionAdventure.Title, '1'));
+                        choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionAdventure.DirectoryPath, true), OptionAdventure.Title, '1'));
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionBrainFuck.DirectoryPath, true), OptionBrainFuck.Title, '2'));
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), OptionMoneyTracker.Title, '3'));
                         choice.AddKeybind(CreateDeleteKeybind(() => File.Delete(ProgramSettings.Path), OptionSettings.Title, '4'));

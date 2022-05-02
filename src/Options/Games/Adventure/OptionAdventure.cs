@@ -37,8 +37,8 @@ namespace B.Options.Games.Adventure
         #region Public Properties
 
         public static string Title => "Adventure!";
-        // TODO change to file inside of folder instead of root data folder
-        public static string FilePath => Program.DataPath + "adventure";
+        public static string DirectoryPath => Program.DataPath + @"adventure\";
+        public static string FilePath => DirectoryPath + "save";
         public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
 
         #endregion
@@ -81,6 +81,9 @@ namespace B.Options.Games.Adventure
 
         public OptionAdventure() : base(Stages.MainMenu)
         {
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
+
             _choiceGame = new();
             _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Up), keyChar: 'w', key: ConsoleKey.NumPad8));
             _choiceGame.AddKeybind(Keybind.Create(() => MovePlayer(Direction.Left), keyChar: 'a', key: ConsoleKey.NumPad4));
@@ -140,7 +143,7 @@ namespace B.Options.Games.Adventure
                                 PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
                             }
                             else
-                                OptionAdventure.Info = Data.Deserialize<AdventureInfo>(OptionAdventure.FilePath)!;
+                                OptionAdventure.Info = Data.Deserialize<AdventureInfo>(OptionAdventure.FilePath);
 
                             Window.Clear();
                             SetStage(Stages.Game);

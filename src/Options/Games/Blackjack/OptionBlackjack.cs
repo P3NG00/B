@@ -35,7 +35,6 @@ namespace B.Options.Games.Blackjack
         public enum Stages
         {
             MainMenu,
-            // TODO
         }
 
         #endregion

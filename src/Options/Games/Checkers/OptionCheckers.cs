@@ -2,14 +2,6 @@ namespace B.Options.Games.OptionCheckers
 {
     public sealed class OptionCheckers : Option<OptionCheckers.Stages>
     {
-        #region TODOs
-
-        // TODO - intended to be a checkers game. 2 player / 1 vs AI
-
-        #endregion
-
-
-
         #region Universal Properties
 
         public static string Title => "Checkers";
@@ -30,7 +22,7 @@ namespace B.Options.Games.OptionCheckers
 
         public override void Loop()
         {
-            // TODO
+            // TODO - intended to be a checkers game. 2 player / 1 vs AI
 
             throw new NotImplementedException();
 
