@@ -103,6 +103,7 @@ namespace B.Options.Toys.TextGenerator
 
                 case Stages.FontSelect:
                     {
+                        Cursor.y = 1;
                         Window.SetSize(27, 55);
                         Input.RequestScroll(
                             items: Fonts.FontArray,

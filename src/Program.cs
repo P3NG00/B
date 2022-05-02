@@ -227,8 +227,7 @@ namespace B
                                 SetStage(Levels.Option);
                             };
                             char c = (char)('1' + i);
-                            Keybind keybind = Keybind.Create(createInstanceAction, title, c);
-                            choice.AddKeybind(keybind);
+                            choice.AddKeybind(Keybind.Create(createInstanceAction, title, c));
                         });
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));

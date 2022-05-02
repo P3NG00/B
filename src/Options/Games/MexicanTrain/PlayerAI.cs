@@ -6,6 +6,8 @@ namespace B.Options.Games.MexicanTrain
 
         public override bool HandleTurn()
         {
+            throw new NotImplementedException();
+
             // TODO
 
             // TODO find all playable dominos in hand
@@ -17,11 +19,6 @@ namespace B.Options.Games.MexicanTrain
             // TODO play the highest ranked path
 
             // TODO if cannot play, take a domino from the pool
-
-
-
-            // TODO remove placeholder return
-            return false;
         }
 
         #endregion

@@ -203,9 +203,9 @@ namespace B.Options.Games.Adventure
                         Cursor.y += 2;
                         Cursor.x = 3;
                         Window.Print($"> {OptionAdventure.Message}");
+                        OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
                         Cursor.y += 2;
                         Cursor.x = 0;
-                        OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
                         string format = "{0,9}: {1,-5}";
                         Window.Print(string.Format(format, "Coins", OptionAdventure.Info.Coins));
                         Cursor.y++;
