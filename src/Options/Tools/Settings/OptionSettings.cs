@@ -59,8 +59,7 @@ namespace B.Options.Tools.Settings
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
                         choice.Request();
-
-                        // Local Method
+                        // Local function
                         void ClearSetStage(Stages stage)
                         {
                             Window.Clear();
@@ -253,7 +252,7 @@ namespace B.Options.Tools.Settings
                         Cursor.y = 24;
                         Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape, modifiers: ConsoleModifiers.Shift);
                         Input.RequestLine(keybinds: escapeKeybind);
-
+                        // Local function
                         void Print(int line, string title, object value)
                         {
                             string? output;
@@ -285,7 +284,7 @@ namespace B.Options.Tools.Settings
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();
-
+                        // Local function
                         Keybind CreateDeleteKeybind(Action deleteAction, string title, char num) => Keybind.CreateConfirmation(deleteAction, $"Delete saved data for {title}?", title, num);
                     }
                     break;

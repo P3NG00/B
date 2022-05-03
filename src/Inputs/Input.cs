@@ -125,7 +125,6 @@ namespace B.Inputs
                     string output = string.Format("{0,-" + text.Length + "}", text);
                     ConsoleColor? colorText = getTextColor?.Invoke(item, j);
                     ConsoleColor? colorBG = getBackgroundColor?.Invoke(item, j);
-                    // TODO use colorText and colorBG???
                     Cursor.x = 3;
                     // Regiser each entry as a Keybind
                     Keybind.RegisterKeybind(Keybind.Create(() => ScrollIndex = j, output, colorPair: new(colorText, colorBG)));
