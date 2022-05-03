@@ -229,14 +229,6 @@ namespace B.Options.Toys.BrainFuck
             }
         }
 
-        protected override void SetStage(Stages stage)
-        {
-            if (stage == Stages.List)
-                Window.Clear();
-
-            base.SetStage(stage);
-        }
-
         #endregion
 
 

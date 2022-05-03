@@ -47,7 +47,6 @@ namespace B.Options.Toys.TextGenerator
             {
                 case Stages.Text:
                     {
-                        Window.Clear();
                         var fontInfo = FontInfo;
                         // Create output
                         string output = fontInfo.Font.Render(Input.String);
@@ -87,7 +86,6 @@ namespace B.Options.Toys.TextGenerator
                             Keybind.Create(SelectRandomFont, "Random Font", key: ConsoleKey.F5),
                             Keybind.Create(() =>
                             {
-                                Window.Clear();
                                 Input.ScrollIndex = _fontIndex;
                                 SetStage(Stages.FontSelect);
                             }, "Select Font", key: ConsoleKey.F1),

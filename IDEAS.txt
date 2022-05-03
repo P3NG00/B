@@ -38,3 +38,7 @@ Process gtav = new Process();
 gtav.StartInfo.FileName = @steamPath;
 gtav.StartInfo.Arguments = "-applaunch 271590 -StraightIntoFreemode";
 gtav.Start(); 
+
+// TODO
+// TODO go through all screens and click an empty part of the screen. if the screen flashes once, remove Window.Clear() in the appropriate area
+// TODO

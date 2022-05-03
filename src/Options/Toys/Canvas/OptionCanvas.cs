@@ -11,7 +11,6 @@ namespace B.Options.Toys.Canvas
         #region TODOs
 
         // TODO add image importing to canvas grid
-        // TODO allow drawing on canvas with mouse clicks/holds
 
         #endregion
 
@@ -41,11 +40,13 @@ namespace B.Options.Toys.Canvas
         private static Vector2 CANVAS_SIZE_MIN => new(20, 10);
         private static Vector2 CURSOR_POS_MIN => new(0, 4);
 
-        private (int x, int y, int width, int height) _lastConsoleWindow = new(0, 0, 0, 0); // TODO replace with better way to see when screen needs to be fully reprinted
+        private bool _drawn = false;
         private List<CanvasInfo> _canvases = new();
         private CanvasInfo _canvas = null!;
         private ConsoleColor _color = ConsoleColor.Black;
+        // The size of the brush
         private Vector2 _brushSize = Vector2.One;
+        // The location of the cursor on the canvas
         private Vector2 _cursorPos = Vector2.Zero;
 
         private Keybind[] _keybindsCreationStage;
@@ -123,7 +124,6 @@ namespace B.Options.Toys.Canvas
                                     }
 
                                     Input.ResetString();
-                                    Window.Clear();
                                     SetStage(Stages.Edit);
                                 }
                             }
@@ -170,10 +170,10 @@ namespace B.Options.Toys.Canvas
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Right), keyChar: 'd', key: ConsoleKey.RightArrow));
             // Paint in Direction
-            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Up), keyChar: '8'));
-            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Down), keyChar: '2'));
-            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Left), keyChar: '4'));
-            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintDirection(Direction.Right), keyChar: '6'));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintInDirection(Direction.Up), keyChar: '8'));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintInDirection(Direction.Down), keyChar: '2'));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintInDirection(Direction.Left), keyChar: '4'));
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintInDirection(Direction.Right), keyChar: '6'));
             // Paint
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(Paint, key: ConsoleKey.Spacebar));
             // Resize Brush 
@@ -184,7 +184,6 @@ namespace B.Options.Toys.Canvas
             // Color Select
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() =>
             {
-                _lastConsoleWindow = new(0, 0, 0, 0);
                 SetStage(Stages.ColorSelect);
             }, key: ConsoleKey.F1));
             // Exit
@@ -194,53 +193,12 @@ namespace B.Options.Toys.Canvas
                     _canvases.Add(_canvas);
 
                 Save();
-                _lastConsoleWindow = new(0, 0, 0, 0);
                 _brushSize = Vector2.One;
                 _cursorPos = Vector2.Zero;
+                // Reset MouseInputType when leaving edit mode.
+                Mouse.InputType = Mouse.MouseInputType.Click;
                 SetStage(Stages.List);
             }, key: ConsoleKey.Escape));
-
-            // Local functions
-            void Paint()
-            {
-                for (int y = 0; y < _brushSize.y; y++)
-                {
-                    for (int x = 0; x < _brushSize.x; x++)
-                    {
-                        Vector2 pos = _cursorPos + new Vector2(x, y);
-                        _canvas.Color(pos) = _color;
-                        Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
-                        Window.Print(' ', new ColorPair(colorBack: _color));
-                    }
-                }
-
-                Cursor.Position = _cursorPos;
-            }
-            void PaintDirection(Direction direction)
-            {
-                // Paint on current position
-                Paint();
-                // Move cursor
-                MoveCursor(direction);
-                // Paint on new position
-                Paint();
-            }
-            void ResizeBrush(Direction direction) => MoveVec(ref _brushSize, direction);
-            void MoveCursor(Direction direction) => MoveVec(ref _cursorPos, direction);
-            void MoveVec(ref Vector2 vec, Direction direction)
-            {
-                Vector2 dirVec;
-
-                switch (direction)
-                {
-                    // Since coordinates start from top-left corner, up and down are flipped to move appropriately.
-                    case Direction.Up: dirVec = Vector2.Down; break; // Move up (y - 1 or Vector2.Down)
-                    case Direction.Down: dirVec = Vector2.Up; break; // Move down (y + 1 or Vector2.Up)
-                    default: dirVec = direction; break;
-                }
-
-                vec.Move(dirVec);
-            }
         }
 
         #endregion
@@ -249,14 +207,13 @@ namespace B.Options.Toys.Canvas
 
         #region Override Methods
 
-        public override void Loop()
+        public sealed override void Loop()
         {
             switch (Stage)
             {
                 case Stages.MainMenu:
                     {
                         bool hasCanvases = !_canvases.IsEmpty();
-                        Window.Clear();
                         Window.SetSize(20, hasCanvases ? 8 : 7);
                         Cursor.Set(0, 1);
                         Choice choice = new(OptionCanvas.Title);
@@ -264,7 +221,6 @@ namespace B.Options.Toys.Canvas
                         {
                             _canvas = new();
                             Input.ResetString();
-                            Window.Clear();
                             SetStage(Stages.Create_Name);
                         }, "Create", '1'));
 
@@ -285,7 +241,6 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.List:
                     {
-                        Window.Clear();
                         Window.SetSize(32, _canvases.Count + 12);
                         _canvas = _canvases[Input.ScrollIndex];
                         Cursor.y = 1;
@@ -337,11 +292,11 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.Edit:
                     {
-                        var consoleWindow = (Console.WindowLeft, Console.WindowTop, Console.WindowWidth, Console.WindowHeight);
+                        // TODO check if mouse is held and paint where it is hovering
 
-                        if (consoleWindow != _lastConsoleWindow)
+                        if (!_drawn)
                         {
-                            _lastConsoleWindow = consoleWindow;
+                            _drawn = true;
                             _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
                         }
 
@@ -354,7 +309,7 @@ namespace B.Options.Toys.Canvas
                         Window.Print($"Brush: {_brushSize,-10}");
                         // Print border
                         Cursor.Set(2, 3);
-                        Window.Print('-'.Loop(Window.Width - 2));
+                        Window.Print('-'.Loop(Window.Width - 4));
                         // Request input and reposition cursor
                         _choiceCanvasDrawing.Request(() =>
                         {
@@ -364,19 +319,33 @@ namespace B.Options.Toys.Canvas
                             // Set to brush position
                             Cursor.Position = _cursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
                         });
+                        // Find location of mouse on canvas
+                        Vector2 mousePosOnCanvas = Mouse.Position - OptionCanvas.CURSOR_POS_MIN - OptionCanvas.CANVAS_BORDER_PAD;
+                        // Check for mouse input
+                        if (Mouse.LeftButtonDown)
+                        {
+                            // Check if mouse is in canvas
+                            bool inX = mousePosOnCanvas.x >= 0 && mousePosOnCanvas.x < _canvas.Width;
+                            bool inY = mousePosOnCanvas.y >= 0 && mousePosOnCanvas.y < _canvas.Height;
+                            if (inX && inY)
+                            {
+                                // Move cursor
+                                _cursorPos = mousePosOnCanvas;
+                                // Paint
+                                Paint();
+                            }
+                        }
                         // Update cursor settings
                         Program.Settings.UpdateCursor();
-                        Vector2 maxCanvasPos = _canvas.Size - Vector2.One;
                         // Fix cursor position
-                        _cursorPos = _cursorPos.Clamp(Vector2.Zero, maxCanvasPos);
+                        _cursorPos = _cursorPos.Clamp(Vector2.Zero, _canvas.Size - Vector2.One);
                         // Fix brush size
-                        _brushSize = _brushSize.Clamp(Vector2.One, maxCanvasPos);
+                        _brushSize = _brushSize.Clamp(Vector2.One, _canvas.Size);
                     }
                     break;
 
                 case Stages.ColorSelect:
                     {
-                        Window.Clear();
                         Window.SetSize(32, 26);
                         ConsoleColor[] colors = Util.ConsoleColors;
                         Cursor.y = 1;
@@ -404,7 +373,17 @@ namespace B.Options.Toys.Canvas
             }
         }
 
-        public override void Save() => Data.Serialize(_canvas.FilePath, _canvas);
+        public sealed override void Save() => Data.Serialize(_canvas.FilePath, _canvas);
+
+        protected sealed override void SetStage(Stages stage)
+        {
+            // Set MouseInputType if editing a canvas
+            if (stage == Stages.Edit)
+                Mouse.InputType = Mouse.MouseInputType.Hold;
+
+            _drawn = false;
+            base.SetStage(stage);
+        }
 
         #endregion
 
@@ -445,6 +424,55 @@ namespace B.Options.Toys.Canvas
 
             // Local function
             void PrintCreationStageInfo(string preface, string value) => Window.Print($"{preface}: {value,-OptionCanvas.MAX_INPUT_LENGTH}");
+        }
+
+        private void Paint()
+        {
+            // TODO account for canvas edges
+            int endX = Math.Min(_cursorPos.x + _brushSize.x, _canvas.Size.x);
+            int endY = Math.Min(_cursorPos.y + _brushSize.y, _canvas.Size.y);
+
+            for (int y = _cursorPos.y; y < endY; y++)
+            {
+                for (int x = _cursorPos.x; x < endX; x++)
+                {
+                    Vector2 pos = new(x, y);
+                    _canvas.Color(pos) = _color;
+                    Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
+                    Window.Print(' ', new ColorPair(colorBack: _color));
+                }
+            }
+
+            Cursor.Position = _cursorPos;
+        }
+
+        private void PaintInDirection(Direction direction)
+        {
+            // Paint on current position
+            Paint();
+            // Move cursor
+            MoveCursor(direction);
+            // Paint on new position
+            Paint();
+        }
+
+        private void ResizeBrush(Direction direction) => MoveVec(ref _brushSize, direction);
+
+        private void MoveCursor(Direction direction) => MoveVec(ref _cursorPos, direction);
+
+        private void MoveVec(ref Vector2 vec, Direction direction)
+        {
+            Vector2 dirVec;
+
+            switch (direction)
+            {
+                // Since coordinates start from top-left corner, up and down are flipped to move appropriately.
+                case Direction.Up: dirVec = Vector2.Down; break; // Move up (y - 1 or Vector2.Down)
+                case Direction.Down: dirVec = Vector2.Up; break; // Move down (y + 1 or Vector2.Up)
+                default: dirVec = direction; break;
+            }
+
+            vec.Move(dirVec);
         }
 
         #endregion

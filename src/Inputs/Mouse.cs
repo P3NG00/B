@@ -5,10 +5,10 @@ namespace B.Inputs
 {
     public static class Mouse
     {
-        #region Private Variables
+        #region Universal Variables
 
-        private static bool _lastMouseDown = false;
-        private static Thread _thread = null!;
+        // Used to determine what type of mouse input should be passed
+        public static volatile MouseInputType InputType = MouseInputType.Click;
 
         #endregion
 
@@ -30,6 +30,18 @@ namespace B.Inputs
                 return scaledRelativeMousePos;
             }
         }
+
+        public static bool LeftButtonDown => _lastLeftButtonDown;
+
+        #endregion
+
+
+
+        #region Private Variables
+
+        private static bool _lastLeftButtonDown = false;
+        private static bool _lastLeftButtonClick = false;
+        private static Thread _thread = null!;
 
         #endregion
 
@@ -55,7 +67,10 @@ namespace B.Inputs
 
         private static void MouseThreadLoop()
         {
-            ProgramThread.Wait();
+            // If mouse was clicked, wait to help prevent 
+            if (_lastLeftButtonClick)
+                ProgramThread.Wait(0.1f);
+
             // Lock and process
             ProgramThread.Lock(Process);
         }
@@ -63,19 +78,26 @@ namespace B.Inputs
         private static void Process()
         {
             // First check for mouse click
-            bool mouseDown = External.GetLeftMouseButtonDown();
-            bool leftClick = mouseDown && !_lastMouseDown;
+            bool currentLeftButton = External.GetLeftMouseButtonDown();
+            // Compare last mouse state with new mouse state
+            _lastLeftButtonClick = currentLeftButton && !_lastLeftButtonDown;
+            // Update last mouse state
+            _lastLeftButtonDown = currentLeftButton;
 
             // If clicked, attempt to activate keybind
-            if (leftClick)
-                Keybind.FindKeybind(keybind => keybind.IsHighlighted && keybind.Display);
-
-            // Update last mouse state
-            _lastMouseDown = mouseDown;
+            if (_lastLeftButtonClick)
+            {
+                // Set to void to ensure a click is passed
+                Input.Action = Util.Void;
+                // Attempt to find highlighted keybind
+                Keybind.FindKeybind(keybind => keybind.IsHighlighted);
+            }
+            else if (InputType == MouseInputType.Hold && _lastLeftButtonDown && Input.Action is null)
+                Input.Action = Util.Void;
 
             // Print keybinds
             // (skip if clicked)
-            if (!leftClick)
+            if (!_lastLeftButtonClick)
                 Keybind.PrintRegisteredKeybinds();
 
             // Mouse Position Debug
@@ -88,6 +110,18 @@ namespace B.Inputs
                 Window.Print(' '.Loop(blankSpace));
                 Window.Print(positionStr);
             }
+        }
+
+        #endregion
+
+
+
+        #region Enums
+
+        public enum MouseInputType
+        {
+            Click,
+            Hold,
         }
 
         #endregion

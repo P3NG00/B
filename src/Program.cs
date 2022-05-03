@@ -156,6 +156,9 @@ namespace B
 
             // Initialize Input after Program.Settings has been initialized due to Mouse class
             Input.Initialize();
+
+            // Clear window
+            Window.Clear();
         }
 
         #endregion
@@ -164,7 +167,7 @@ namespace B
 
         #region Override Methods
 
-        public override void Loop()
+        public sealed override void Loop()
         {
             // Lock thread
             ProgramThread.TryLock();
@@ -183,7 +186,6 @@ namespace B
                 case Levels.Program:
                     {
                         // Display main menu options
-                        Window.Clear();
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
                         Cursor.Set(0, 1);
                         Choice choice = new($"{Program.Title}'s");
@@ -206,7 +208,6 @@ namespace B
                 case Levels.Group:
                     {
                         // Display selected group level options
-                        Window.Clear();
                         Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
                         Cursor.Set(0, 1);
                         Choice choice = new(_optionGroup.GroupTitle);
@@ -247,7 +248,7 @@ namespace B
             }
         }
 
-        public override void Quit()
+        public sealed override void Quit()
         {
             // If quit is pressed in Levels.Group go back to Levels.Program
             if (Stage == Levels.Group)
@@ -292,7 +293,6 @@ namespace B
             choice.Request();
             // Thread will lock while processing
             ProgramThread.TryLock();
-            Window.Clear();
             Program pInst = Instance;
             pInst._selectedOption = null;
 

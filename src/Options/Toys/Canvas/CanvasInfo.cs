@@ -24,6 +24,9 @@ namespace B.Options.Toys.Canvas
         public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
         public ref ConsoleColor Color(Vector2 pos) => ref Colors[pos.y][pos.x];
 
+        public int Width => Colors[0].Length;
+        public int Height => Colors.Length;
+
         #endregion
 
 

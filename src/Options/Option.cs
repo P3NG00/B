@@ -1,3 +1,5 @@
+using B.Utils;
+
 namespace B.Options
 {
     public abstract class Option<T> : IOption where T : Enum
@@ -21,7 +23,11 @@ namespace B.Options
 
         #region Protected Methods
 
-        protected virtual void SetStage(T stage) => Stage = stage;
+        protected virtual void SetStage(T stage)
+        {
+            Window.Clear();
+            Stage = stage;
+        }
 
         #endregion
 

@@ -21,6 +21,9 @@ namespace B.Inputs
         {
             get
             {
+                if (!Display)
+                    return false;
+
                 if (Position is null)
                     throw new Exception("Cannot highlight Keybind without a position set!");
 
