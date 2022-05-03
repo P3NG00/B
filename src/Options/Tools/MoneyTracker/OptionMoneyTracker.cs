@@ -62,7 +62,6 @@ namespace B.Options.Tools.MoneyTracker
                         if (selected)
                             consoleHeight++;
 
-                        Window.Clear();
                         Window.SetSize(20, consoleHeight);
                         Cursor.Set(0, 1);
                         Choice choice = new(OptionMoneyTracker.Title);
@@ -79,7 +78,6 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Account:
                     {
-                        Window.Clear();
                         bool selected = _selectedAccount is not null;
                         Window.SetSize(24, selected ? 12 : 9);
                         Cursor.Set(0, 1);
@@ -105,7 +103,6 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Account_Create:
                     {
-                        Window.Clear();
                         Window.SetSize(42, 5);
                         Cursor.Set(2, 1);
                         Window.Print($"New Account Name: {Input.String}");
@@ -151,7 +148,6 @@ namespace B.Options.Tools.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Window.Clear();
                         Window.SetSize(27, consoleHeight);
                         Cursor.y = 1;
                         Input.RequestScroll(
@@ -174,7 +170,6 @@ namespace B.Options.Tools.MoneyTracker
                         if (amountAccounts > 0)
                             consoleHeight += amountAccounts + 1;
 
-                        Window.Clear();
                         Window.SetSize(27, consoleHeight);
                         Cursor.Set(0, 1);
                         Choice choice = new("Remove Account");
@@ -206,7 +201,6 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction:
                     {
-                        Window.Clear();
                         Window.SetSize(20, 9);
                         Cursor.Set(0, 1);
                         Choice choice = new("Transaction");
@@ -226,7 +220,6 @@ namespace B.Options.Tools.MoneyTracker
 
                 case Stages.Transaction_View:
                     {
-                        Window.Clear();
                         Window.SetSize(
                             (Input.DECIMAL_LENGTH * 2) + _selectedAccount!.Decimals + 9,
                             Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 10);
@@ -260,7 +253,6 @@ namespace B.Options.Tools.MoneyTracker
                     {
                         // TODO add keybind in Transaction_View to go to transaction edit from selected transaction
                         throw new NotImplementedException();
-                        // Window.Clear();
                         // SetStage(Stages.Transaction);
                     }
                     // break;
@@ -311,7 +303,6 @@ namespace B.Options.Tools.MoneyTracker
 
         private void ShowTransactionStage()
         {
-            Window.Clear();
             Window.SetSize(4 + Input.DECIMAL_LENGTH, 7);
             Cursor.Set(2, 1);
             Window.Print("Amount:");

@@ -78,7 +78,6 @@ namespace B.Options.Toys.BrainFuck
             {
                 case Stages.MainMenu:
                     {
-                        Window.Clear();
                         Window.SetSize(20, 7);
                         Cursor.Set(0, 1);
                         Choice choice = new(OptionBrainFuck.Title);
@@ -127,7 +126,6 @@ namespace B.Options.Toys.BrainFuck
                             if (Program.Settings.DebugMode)
                             {
                                 int consoleWidth = 50;
-                                Window.Clear();
                                 Window.SetSize(consoleWidth, 25);
                                 Cursor.Set(0, 0);
                                 Window.Print(_output);
@@ -146,12 +144,7 @@ namespace B.Options.Toys.BrainFuck
 
                                 switch (Input.Get().Key)
                                 {
-                                    case ConsoleKey.F1:
-                                        {
-                                            Window.Clear();
-                                            SetStage(Stages.MemoryView);
-                                        }; break;
-
+                                    case ConsoleKey.F1: SetStage(Stages.MemoryView); break;
                                     case ConsoleKey.Escape: SetStage(Stages.List); break;
                                 }
                             }

@@ -116,7 +116,6 @@ namespace B.Options.Games.Adventure
                 case Stages.MainMenu:
                     {
                         bool fileExists = File.Exists(OptionAdventure.FilePath);
-                        Window.Clear();
                         Window.SetSize(20, fileExists ? 8 : 7);
                         Cursor.Set(0, 1);
                         Choice choice = new(OptionAdventure.Title);
@@ -145,7 +144,6 @@ namespace B.Options.Games.Adventure
                             else
                                 OptionAdventure.Info = Data.Deserialize<AdventureInfo>(OptionAdventure.FilePath);
 
-                            Window.Clear();
                             SetStage(Stages.Game);
                         }
                     }

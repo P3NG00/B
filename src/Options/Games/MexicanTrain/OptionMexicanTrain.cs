@@ -50,7 +50,6 @@ namespace B.Options.Games.MexicanTrain
             {
                 case Stages.MainMenu:
                     {
-                        Window.Clear();
                         Window.SetSize(34, 7);
                         Cursor.Set(0, 1);
                         Choice choice = new(OptionMexicanTrain.Title);
@@ -77,7 +76,6 @@ namespace B.Options.Games.MexicanTrain
 
                 case Stages.Game:
                     {
-                        Window.Clear();
                         Window.SetSize(60, 20);
                         Cursor.Set(2, 1);
                         Window.Print($"Players: {_info.Players}");

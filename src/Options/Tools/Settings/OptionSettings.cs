@@ -44,7 +44,6 @@ namespace B.Options.Tools.Settings
             {
                 case Stages.MainMenu:
                     {
-                        Window.Clear();
                         Window.SetSize(27, 14);
                         Cursor.y = 1;
                         Choice choice = new(OptionSettings.Title);
@@ -71,7 +70,6 @@ namespace B.Options.Tools.Settings
                 case Stages.WindowSize:
                     {
                         _size = _size.Clamp(Window.SizeMin, Window.SizeMax);
-                        Window.Clear();
                         Window.SetSize(_size);
                         Cursor.Set(0, 0);
                         Window.Print($"Detected Max Size: {Window.SizeMax}");
@@ -89,7 +87,6 @@ namespace B.Options.Tools.Settings
 
                 case Stages.Color:
                     {
-                        Window.Clear();
                         Window.SetSize(20, 8);
                         Cursor.Set(0, 1);
                         Choice choice = new("Color");
@@ -153,7 +150,6 @@ namespace B.Options.Tools.Settings
 
                 case Stages.Color_Custom_PrintType:
                     {
-                        Window.Clear();
                         Window.SetSize(27, 11);
                         Cursor.y = 1;
                         bool exiting = false;
@@ -181,11 +177,7 @@ namespace B.Options.Tools.Settings
                         Cursor.Set(0, 1);
                         Choice choice = new("Cursor");
                         choice.AddKeybind(Keybind.Create(Program.Settings.CursorVisible.Toggle, $"Visibility - {Cursor.Visible,-5}", '1'));
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            Window.Clear();
-                            SetStage(Stages.Cursor_Size);
-                        }, "Size", '2'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Cursor_Size), "Size", '2'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();
@@ -202,11 +194,7 @@ namespace B.Options.Tools.Settings
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size += 10, "+10", key: ConsoleKey.RightArrow));
                         choice.AddKeybind(Keybind.Create(() => Cursor.Size -= 10, "-10", key: ConsoleKey.LeftArrow));
                         choice.AddSpacer();
-                        choice.AddKeybind(Keybind.Create(() =>
-                        {
-                            Window.Clear();
-                            SetStage(Stages.Cursor);
-                        }, "Back", key: ConsoleKey.Escape));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Cursor), "Back", key: ConsoleKey.Escape));
                         choice.Request(() =>
                         {
                             // Show cursor for changing
@@ -273,7 +261,6 @@ namespace B.Options.Tools.Settings
 
                 case Stages.DeleteData:
                     {
-                        Window.Clear();
                         Window.SetSize(20, 10);
                         Cursor.Set(0, 1);
                         Choice choice = new("Delete Data");

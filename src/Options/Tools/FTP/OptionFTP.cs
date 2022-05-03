@@ -14,6 +14,7 @@ namespace B.Options.Tools.FTP
 
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int WIDTH = 140;
+        // TODO move IP, USER, PORT to a serializable 'Profile' class or something so it's not hardcoded
         private const string SERVER_IP = "***REMOVED***";
         private const string SERVER_USER = "***REMOVED***";
         private const int SERVER_PORT = 22;
@@ -114,8 +115,6 @@ namespace B.Options.Tools.FTP
 
         public OptionFTP() : base(Stages.Login)
         {
-            // Clear console to prevent console flashing during login
-            Window.Clear();
             // Empty the input string
             Input.ResetString();
             // Select a random scrambler to show.
@@ -188,7 +187,7 @@ namespace B.Options.Tools.FTP
                         List<Keybind> keybinds = new();
                         if (entryAmount != 0)
                         {
-                            keybinds.Add(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
+                            keybinds.Add(Keybind.Create(DownloadCurrent, "Download", key: ConsoleKey.PageDown));
                             keybinds.Add(CreateConfirmKeybindForCurrent());
                             keybinds.Add(Keybind.Create(() =>
                                 {
@@ -230,18 +229,16 @@ namespace B.Options.Tools.FTP
                 case Stages.FileInteract:
                     {
                         _lastStage = Stage;
-                        Window.Clear();
                         SftpFile file = CurrentFile;
                         string title = $"{file.FullName} | {file.Attributes.Size} bytes";
                         Window.SetSize(title.Length + 6, 8);
                         Cursor.Set(2, 1);
                         Choice choice = new(title);
-                        choice.AddKeybind(Keybind.Create(() => DownloadCurrent(), "Download", key: ConsoleKey.PageDown));
+                        choice.AddKeybind(Keybind.Create(DownloadCurrent, "Download", key: ConsoleKey.PageDown));
                         choice.AddKeybind(CreateConfirmKeybindForCurrent());
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape));
                         choice.Request();
-                        Window.Clear();
                     }
                     break;
             }
@@ -301,12 +298,13 @@ namespace B.Options.Tools.FTP
                     Window.Print("%");
                     _client.DownloadFile(file.FullName, stream, l =>
                     {
-                        Cursor.Set(4, 5);
                         double percentage = (double)l / (double)file.Attributes.Size;
                         percentage *= 100d;
                         int progress = (int)Math.Ceiling(percentage);
+                        Cursor.Set(4, 5);
                         Window.Print($"{progress,3}");
                     });
+                    Window.Clear();
                 }
             }
         }
