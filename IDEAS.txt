@@ -33,3 +33,8 @@ Add MCBackup Option to make backing up saves from any instance in specified mult
 // TODO create penguin.bat runner in c#
 
 // TODO steam game id starter
+Process gtav = new Process();
+// need path of steam
+gtav.StartInfo.FileName = @steamPath;
+gtav.StartInfo.Arguments = "-applaunch 271590 -StraightIntoFreemode";
+gtav.Start(); 

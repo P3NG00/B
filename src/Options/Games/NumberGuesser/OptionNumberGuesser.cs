@@ -17,6 +17,8 @@ namespace B.Options.Games.NumberGuesser
         #region Universal Properties
 
         public static string Title => "Number Guesser";
+        public static string DirectoryPath => Program.DataPath + @"numberGuesser\";
+        public static string FilePath => DirectoryPath + "last";
 
         #endregion
 
@@ -41,7 +43,13 @@ namespace B.Options.Games.NumberGuesser
 
         #region Constructors
 
-        public OptionNumberGuesser() : base(Stages.MainMenu) { }
+        public OptionNumberGuesser() : base(Stages.MainMenu)
+        {
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
+            else if (File.Exists(FilePath))
+                _numMax = Data.Deserialize<int>(FilePath);
+        }
 
         #endregion
 
@@ -164,6 +172,14 @@ namespace B.Options.Games.NumberGuesser
                     }
                     break;
             }
+        }
+
+        public sealed override void Save() => Data.Serialize(FilePath, _numMax);
+
+        public sealed override void Quit()
+        {
+            Save();
+            base.Quit();
         }
 
         #endregion

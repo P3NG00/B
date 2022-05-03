@@ -133,21 +133,15 @@ namespace B.Inputs
                 // If navigation keybinds...
                 if (navigationKeybinds)
                 {
-                    // Add message
                     choice.AddText(new Text("Use Up/Down to navigate"));
-                    // Scroll up
                     choice.AddKeybind(Keybind.Create(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow));
-                    // Scroll down
                     choice.AddKeybind(Keybind.Create(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow));
-                    // Scroll previous page
+                    // Window is cleared in Left/Right keybinds because the page will always need to be re-printed.
                     choice.AddKeybind(Keybind.Create(() =>
                     {
                         Input.ScrollIndex += maxEntriesAdjusted;
-                        // Window is cleared here since it is only detected
-                        // later if you crossed from the ends of the pages
                         Window.Clear();
                     }, key: ConsoleKey.RightArrow));
-                    // Scroll next page
                     choice.AddKeybind(Keybind.Create(() =>
                     {
                         Input.ScrollIndex -= maxEntriesAdjusted;
@@ -168,21 +162,16 @@ namespace B.Inputs
 
                 // Add exit keybind
                 AddExitKeybind();
-
                 // Get page index before it's modified
                 int previousPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
-
                 // Request input
                 Cursor.y++;
                 keyInfo = choice.Request();
-
                 // Fix index if it's out of bounds
                 Input.ScrollIndex = Input.ScrollIndex.Clamp(0, itemCount - 1);
-
                 // Get page indexes after it's modified
                 int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
-
                 // If scrolling into new page, clear console
                 if ((previousPageIndex == oneLessThanMax && newPageIndex == 0) || (previousPageIndex == 0 && newPageIndex == oneLessThanMax))
                     Window.Clear();

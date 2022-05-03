@@ -55,6 +55,7 @@ namespace B.Options.Tools.Settings
                         Window.SetSize(27, 14);
                         Cursor.y = 1;
                         Choice choice = new(OptionSettings.Title);
+                        // TODO when custom colors are re-implemented, replace Stages.Color_Theme
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
