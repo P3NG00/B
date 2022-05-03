@@ -7,7 +7,14 @@ namespace B.Utils.Themes
         #region Public Properties
 
         public PrintType PrintType { get; private set; }
-        public ColorPair ColorPair { get; private set; }
+
+        #endregion
+
+
+
+        #region Public Variables
+
+        public ColorPair ColorPair;
 
         #endregion
 

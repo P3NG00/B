@@ -31,11 +31,7 @@ namespace B
 
         #region Code Entry Point
 
-        public static void Main()
-        {
-            Program program = new Program();
-            program.Start();
-        }
+        public static void Main() => new Program().Start();
 
         #endregion
 

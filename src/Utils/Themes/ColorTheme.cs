@@ -89,7 +89,11 @@ namespace B.Utils.Themes
 
         #region Public Methods
 
-        public ColorPair this[PrintType type] => GetPrintPair(type, _PrintType_GeneralPair).ColorPair;
+        public ColorPair this[PrintType type]
+        {
+            get => GetPrintPair(type, _PrintType_GeneralPair).ColorPair;
+            set => GetPrintPair(type, _PrintType_GeneralPair).ColorPair = value;
+        }
 
         #endregion
 

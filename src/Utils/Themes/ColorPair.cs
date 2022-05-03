@@ -2,10 +2,10 @@ namespace B.Utils.Themes
 {
     public sealed class ColorPair
     {
-        #region Public Properties
+        #region Public Variables
 
-        public ConsoleColor? ColorText { get; private set; }
-        public ConsoleColor? ColorBack { get; private set; }
+        public ConsoleColor? ColorText;
+        public ConsoleColor? ColorBack;
 
         #endregion
 

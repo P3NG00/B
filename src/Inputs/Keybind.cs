@@ -1,6 +1,7 @@
 using B.Options;
 using B.Utils;
 using B.Utils.Enums;
+using B.Utils.Themes;
 
 namespace B.Inputs
 {
@@ -12,6 +13,7 @@ namespace B.Inputs
         public readonly char? KeyChar;
         public readonly string Description;
         public readonly Action Action;
+        public readonly ColorPair? ColorPair;
 
         public Vector2 Position { get; private set; } = null!;
 
@@ -48,13 +50,14 @@ namespace B.Inputs
 
         #region Constructor
 
-        private Keybind(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null)
+        private Keybind(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
         {
             Action = action ?? Util.Void;
             KeyChar = keyChar;
             Key = key;
             Description = description ?? string.Empty;
             _modifiers = modifiers ?? default;
+            ColorPair = colorPair;
         }
 
         #endregion
@@ -70,7 +73,12 @@ namespace B.Inputs
             // Get output
             string keybindStr = ToString();
             // Print & highlight
-            Window.Print(keybindStr, IsHighlighted ? PrintType.Highlight : PrintType.General);
+            if (IsHighlighted)
+                Window.Print(keybindStr, PrintType.Highlight);
+            else if (ColorPair is null)
+                Window.Print(keybindStr);
+            else
+                Window.Print(keybindStr, ColorPair);
         }
 
         #endregion
@@ -127,7 +135,7 @@ namespace B.Inputs
 
         #region Universal Methods
 
-        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null) => new Keybind(action, description, keyChar, key, modifiers);
+        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null) => new Keybind(action, description, keyChar, key, modifiers, colorPair);
 
         public static Keybind CreateOptionExit(IOption option)
         {
@@ -144,7 +152,7 @@ namespace B.Inputs
             return new Keybind(option.Quit, phrase, key: ConsoleKey.Escape);
         }
 
-        public static Keybind CreateConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null)
+        public static Keybind CreateConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
         {
             Action confirmationAction = () =>
             {
@@ -163,11 +171,14 @@ namespace B.Inputs
                 Window.Clear();
             };
 
-            return new Keybind(confirmationAction, description, keyChar, key, modifiers);
+            return new Keybind(confirmationAction, description, keyChar, key, modifiers, colorPair);
         }
 
         public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)
         {
+            // Register check
+            if (_keybinds.Contains(keybind))
+                throw new Exception("Keybind already registered!");
             // Use cursor position if not specified
             if (position is null)
                 position = Cursor.Position;

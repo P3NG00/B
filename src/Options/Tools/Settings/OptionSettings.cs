@@ -11,14 +11,6 @@ namespace B.Options.Tools.Settings
 {
     public sealed class OptionSettings : Option<OptionSettings.Stages>
     {
-        #region TODOs
-
-        // TODO re-implement custom color selecting
-
-        #endregion
-
-
-
         #region Universal Properties
 
         public static string Title => "Settings";
@@ -30,6 +22,7 @@ namespace B.Options.Tools.Settings
         #region Private Variables
 
         private Vector2 _size = new(40, 20);
+        private PrintType _customEditingPrintType = PrintType.General;
 
         #endregion
 
@@ -55,8 +48,7 @@ namespace B.Options.Tools.Settings
                         Window.SetSize(27, 14);
                         Cursor.y = 1;
                         Choice choice = new(OptionSettings.Title);
-                        // TODO when custom colors are re-implemented, replace Stages.Color_Theme
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Color", '1'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '4'));
@@ -96,20 +88,19 @@ namespace B.Options.Tools.Settings
                     }
                     break;
 
-                // TODO
-                // case Stages.Color:
-                //     {
-                //         Window.Clear();
-                //         Window.SetSize(20, 8);
-                //         Cursor.Set(0, 1);
-                //         Input.Choice choice = Input.Choice.Create("Color");
-                //         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Themes", '1'));
-                //         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Custom), "Customize", '2'));
-                //         choice.AddSpacer();
-                //         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
-                //         choice.Request();
-                //     }
-                //     break;
+                case Stages.Color:
+                    {
+                        Window.Clear();
+                        Window.SetSize(20, 8);
+                        Cursor.Set(0, 1);
+                        Choice choice = new("Color");
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Theme), "Themes", '1'));
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color_Custom), "Customize", '2'));
+                        choice.AddSpacer();
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
+                        choice.Request();
+                    }
+                    break;
 
                 case Stages.Color_Theme:
                     {
@@ -132,30 +123,57 @@ namespace B.Options.Tools.Settings
                     }
                     break;
 
-                // TODO
-                // case Stages.Color_Custom:
-                //     {
-                //         Program.Settings.UpdateColors();
-                //         Window.Clear();
-                //         Window.SetSize(32, 27);
-                //         ConsoleColor[] colors = Util.ConsoleColors;
-                //         Cursor.y = 1;
-                //         Input.RequestScroll(
-                //             items: colors,
-                //             getText: c => $" {c.ToString(),-12}",
-                //             getTextColor: (c, i) => c,
-                //             getBackgroundColor: (c, i) => (c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark")) ? ConsoleColor.White : ConsoleColor.Gray,
-                //             title: "Colors",
-                //             exitKeybind: Keybind.Create(() =>
-                //             {
-                //                 Input.ScrollIndex = 0;
-                //                 SetStage(Stages.Color);
-                //             }, "Exit", key: ConsoleKey.Escape));
-                //         // extraKeybinds: new Keybind[] {
-                //         // Keybind.Create(() => Program.Settings.ColorBackground = colors[Input.ScrollIndex], "Set Background", '1'),
-                //         // Keybind.Create(() => Program.Settings.ColorText = colors[Input.ScrollIndex], "Set Foreground", '2')});
-                //     }
-                //     break;
+                case Stages.Color_Custom:
+                    {
+                        Program.Settings.UpdateColors();
+                        Window.Clear();
+                        Window.SetSize(32, 28);
+                        Cursor.y = 1;
+                        ConsoleColor[] colors = Util.ConsoleColors;
+                        Input.RequestScroll(
+                            items: colors,
+                            getText: c => $" {c.ToString(),-12}",
+                            getTextColor: (c, i) => c,
+                            getBackgroundColor: (c, i) => (c == ConsoleColor.Black || c == ConsoleColor.Gray || c.ToString().StartsWith("Dark")) ? ConsoleColor.White : ConsoleColor.Gray,
+                            title: $"PrintType: {_customEditingPrintType}",
+                            exitKeybind: Keybind.Create(() =>
+                            {
+                                Input.ScrollIndex = 0;
+                                SetStage(Stages.Color);
+                            }, "Exit", key: ConsoleKey.Escape),
+                            extraKeybinds: new Keybind[] {
+                                Keybind.Create(() => Program.Settings.ColorTheme[_customEditingPrintType].ColorBack = colors[Input.ScrollIndex], "Set Background", '1'),
+                                Keybind.Create(() => Program.Settings.ColorTheme[_customEditingPrintType].ColorText = colors[Input.ScrollIndex], "Set Foreground", '2'),
+                                Keybind.Create(() =>
+                                {
+                                    Input.ScrollIndex = (int)_customEditingPrintType;
+                                    SetStage(Stages.Color_Custom_PrintType);
+                                }, "Change Print Type", key: ConsoleKey.F1)});
+                    }
+                    break;
+
+                case Stages.Color_Custom_PrintType:
+                    {
+                        Window.Clear();
+                        Window.SetSize(27, 11);
+                        Cursor.y = 1;
+                        bool exiting = false;
+                        Input.RequestScroll(
+                            items: Enum.GetValues<PrintType>(),
+                            getText: pt => pt.ToString(),
+                            title: "Print Types",
+                            exitKeybind: Keybind.Create(() =>
+                            {
+                                exiting = true;
+                                Input.ScrollIndex = 0;
+                                SetStage(Stages.Color_Custom);
+                            }, "Back", key: ConsoleKey.Escape)
+                        );
+
+                        if (!exiting)
+                            _customEditingPrintType = (PrintType)Input.ScrollIndex;
+                    }
+                    break;
 
                 case Stages.Cursor:
                     {
@@ -284,9 +302,10 @@ namespace B.Options.Tools.Settings
         {
             MainMenu,
             WindowSize,
-            // Color, // TODO
+            Color,
             Color_Theme,
-            // Color_Custom, // TODO
+            Color_Custom,
+            Color_Custom_PrintType,
             Cursor,
             Cursor_Size,
             KeyPress,
