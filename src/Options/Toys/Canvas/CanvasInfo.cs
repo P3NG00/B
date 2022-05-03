@@ -11,9 +11,6 @@ namespace B.Options.Toys.Canvas
         [JsonIgnore] public string Title = string.Empty;
         public ConsoleColor[][] Colors = null!;
 
-        [JsonIgnore] public string FilePath => OptionCanvas.DirectoryPath + Title;
-        [JsonIgnore] public Vector2 Size => new(Colors[0].Length, Colors.Length);
-
         #endregion
 
 
@@ -24,8 +21,10 @@ namespace B.Options.Toys.Canvas
         public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
         public ref ConsoleColor Color(Vector2 pos) => ref Colors[pos.y][pos.x];
 
-        public int Width => Colors[0].Length;
-        public int Height => Colors.Length;
+        [JsonIgnore] public string FilePath => OptionCanvas.DirectoryPath + Title;
+        [JsonIgnore] public Vector2 Size => new(Width, Height);
+        [JsonIgnore] public int Width => Colors[0].Length;
+        [JsonIgnore] public int Height => Colors.Length;
 
         #endregion
 
@@ -40,7 +39,6 @@ namespace B.Options.Toys.Canvas
             if (offset is not null)
                 windowSize += offset;
 
-            Window.Clear();
             Window.SetSize(windowSize);
 
             for (int y = 0; y < Size.y; y++)

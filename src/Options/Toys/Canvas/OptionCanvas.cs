@@ -292,14 +292,6 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.Edit:
                     {
-                        // TODO check if mouse is held and paint where it is hovering
-
-                        if (!_drawn)
-                        {
-                            _drawn = true;
-                            _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
-                        }
-
                         // Print top info
                         Cursor.Set(2, 0);
                         Window.Print($"Color: {_color,-11}");
@@ -307,7 +299,13 @@ namespace B.Options.Toys.Canvas
                         Window.Print($"Position: {_cursorPos,-10}");
                         Cursor.Set(2, 2);
                         Window.Print($"Brush: {_brushSize,-10}");
-                        // Print border
+                        // Print canvas if necessary
+                        if (!_drawn)
+                        {
+                            _drawn = true;
+                            _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
+                        }
+                        // Print border after drawing canvas because it will change the size of the Window
                         Cursor.Set(2, 3);
                         Window.Print('-'.Loop(Window.Width - 4));
                         // Request input and reposition cursor
@@ -319,11 +317,11 @@ namespace B.Options.Toys.Canvas
                             // Set to brush position
                             Cursor.Position = _cursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
                         });
-                        // Find location of mouse on canvas
-                        Vector2 mousePosOnCanvas = Mouse.Position - OptionCanvas.CURSOR_POS_MIN - OptionCanvas.CANVAS_BORDER_PAD;
                         // Check for mouse input
                         if (Mouse.LeftButtonDown)
                         {
+                            // Find location of mouse on canvas
+                            Vector2 mousePosOnCanvas = Mouse.Position - OptionCanvas.CURSOR_POS_MIN - OptionCanvas.CANVAS_BORDER_PAD;
                             // Check if mouse is in canvas
                             bool inX = mousePosOnCanvas.x >= 0 && mousePosOnCanvas.x < _canvas.Width;
                             bool inY = mousePosOnCanvas.y >= 0 && mousePosOnCanvas.y < _canvas.Height;
