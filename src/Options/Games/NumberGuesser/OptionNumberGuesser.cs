@@ -65,7 +65,7 @@ namespace B.Options.Games.NumberGuesser
                     {
                         Window.SetSize(20, 8);
                         Cursor.Set(0, 1);
-                        Choice choice = new(OptionNumberGuesser.Title);
+                        Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             _numRandom = Util.Random.Next(_numMax) + 1;
@@ -109,7 +109,7 @@ namespace B.Options.Games.NumberGuesser
                         else if (guess > _numRandom)
                             guessMessage = "TOO HIGH!!!";
                         else
-                            guessMessage = OptionNumberGuesser._winMessages.Random();
+                            guessMessage = _winMessages.Random();
 
                         Cursor.NextLine(2, 2);
                         Window.Print(guessMessage);
@@ -123,7 +123,7 @@ namespace B.Options.Games.NumberGuesser
                         {
                             Cursor.NextLine(2, 2);
                             Window.Print("Enter a Number!");
-                            Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
+                            Input.RequestLine(GUESS_LENGTH, Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
                         }
                     }
                     break;
@@ -151,7 +151,7 @@ namespace B.Options.Games.NumberGuesser
                         Window.Print($"Max - {Input.String}");
                         Cursor.Set(2, 3);
                         Window.Print("Enter Max Number");
-                        Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH,
+                        Input.RequestLine(GUESS_LENGTH,
                             Keybind.Create(() =>
                             {
                                 int? numMax = Input.Int;

@@ -65,12 +65,12 @@ namespace B.Options.Toys.Canvas
         public OptionCanvas() : base(Stages.MainMenu)
         {
             // Create directory if it doesn't exist
-            if (!Directory.Exists(OptionCanvas.DirectoryPath))
-                Directory.CreateDirectory(OptionCanvas.DirectoryPath);
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
             else
             {
                 // If directory exists, iterate through each file in it
-                foreach (string filePath in Directory.GetFiles(OptionCanvas.DirectoryPath))
+                foreach (string filePath in Directory.GetFiles(DirectoryPath))
                 {
                     // Deserialize file as CanvasInfo
                     CanvasInfo info = Data.Deserialize<CanvasInfo>(filePath);
@@ -102,7 +102,7 @@ namespace B.Options.Toys.Canvas
                             {
                                 int? width = Input.Int;
 
-                                if (width.HasValue && width.Value >= OptionCanvas.CANVAS_SIZE_MIN.x)
+                                if (width.HasValue && width.Value >= CANVAS_SIZE_MIN.x)
                                 {
                                     _canvas.Colors = new ConsoleColor[width.Value][];
                                     Input.ResetString();
@@ -115,7 +115,7 @@ namespace B.Options.Toys.Canvas
                             {
                                 int? height = Input.Int;
 
-                                if (height.HasValue && height.Value >= OptionCanvas.CANVAS_SIZE_MIN.y)
+                                if (height.HasValue && height.Value >= CANVAS_SIZE_MIN.y)
                                 {
                                     int width = _canvas.Colors.Length;
                                     _canvas.Colors = new ConsoleColor[height.Value][];
@@ -220,7 +220,7 @@ namespace B.Options.Toys.Canvas
                         bool hasCanvases = !_canvases.IsEmpty();
                         Window.SetSize(20, hasCanvases ? 8 : 7);
                         Cursor.Set(0, 1);
-                        Choice choice = new(OptionCanvas.Title);
+                        Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             _canvas = new();
@@ -252,7 +252,7 @@ namespace B.Options.Toys.Canvas
                             items: _canvases,
                             getText: canvas => canvas.Title,
                             title: "Canvases",
-                            maxEntriesPerPage: OptionCanvas.MAX_CANVASES_PER_PAGE,
+                            maxEntriesPerPage: MAX_CANVASES_PER_PAGE,
                             exitKeybind: Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape),
                             extraKeybinds: new Keybind[] {
                                 Keybind.Create(() =>
@@ -434,10 +434,10 @@ namespace B.Options.Toys.Canvas
             }
 
             // Request line input
-            Input.RequestLine(OptionCanvas.MAX_INPUT_LENGTH, _keybindsCreationStage);
+            Input.RequestLine(MAX_INPUT_LENGTH, _keybindsCreationStage);
 
             // Local function
-            void PrintCreationStageInfo(string preface, string value) => Window.Print($"{preface}: {value,-OptionCanvas.MAX_INPUT_LENGTH}");
+            void PrintCreationStageInfo(string preface, string value) => Window.Print($"{preface}: {value,-MAX_INPUT_LENGTH}");
         }
 
         private void Paint()

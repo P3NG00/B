@@ -37,10 +37,10 @@ namespace B.Options.Tools.MoneyTracker
 
         public OptionMoneyTracker() : base(Stages.MainMenu)
         {
-            if (!Directory.Exists(OptionMoneyTracker.DirectoryPath))
-                Directory.CreateDirectory(OptionMoneyTracker.DirectoryPath);
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
             else
-                foreach (string filePath in Directory.GetFiles(OptionMoneyTracker.DirectoryPath))
+                foreach (string filePath in Directory.GetFiles(DirectoryPath))
                     AddAccount(Path.GetFileNameWithoutExtension(filePath), true);
         }
 
@@ -64,7 +64,7 @@ namespace B.Options.Tools.MoneyTracker
 
                         Window.SetSize(20, consoleHeight);
                         Cursor.Set(0, 1);
-                        Choice choice = new(OptionMoneyTracker.Title);
+                        Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Account", '1'));
 
                         if (selected)
@@ -111,7 +111,7 @@ namespace B.Options.Tools.MoneyTracker
                             {
                                 if (Input.String.Length > 0)
                                 {
-                                    string filePath = OptionMoneyTracker.DirectoryPath + Input.String;
+                                    string filePath = DirectoryPath + Input.String;
 
                                     if (!File.Exists(filePath))
                                     {
@@ -221,12 +221,12 @@ namespace B.Options.Tools.MoneyTracker
                     {
                         Window.SetSize(
                             (Input.DECIMAL_LENGTH * 2) + _selectedAccount!.Decimals + 9,
-                            Math.Min(_selectedAccount.Transactions.Count, OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE) + 10);
+                            Math.Min(_selectedAccount.Transactions.Count, MAX_TRANSACTIONS_PER_PAGE) + 10);
                         Cursor.y = 1;
                         Input.RequestScroll(
                             items: _selectedAccount.Transactions,
                             getText: ViewTransactionFromSelectedAccount,
-                            maxEntriesPerPage: OptionMoneyTracker.MAX_TRANSACTIONS_PER_PAGE,
+                            maxEntriesPerPage: MAX_TRANSACTIONS_PER_PAGE,
                             exitKeybind: Keybind.Create(() =>
                             {
                                 Input.ScrollIndex = 0;
@@ -283,7 +283,7 @@ namespace B.Options.Tools.MoneyTracker
             Account account;
 
             if (deserialize)
-                account = Data.Deserialize<Account>(OptionMoneyTracker.DirectoryPath + name);
+                account = Data.Deserialize<Account>(DirectoryPath + name);
             else
             {
                 account = new(name);

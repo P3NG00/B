@@ -155,7 +155,7 @@ namespace B.Inputs
                 default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
             }
 
-            return Keybind.Create(option.Quit, phrase, key: ConsoleKey.Escape);
+            return Create(option.Quit, phrase, key: ConsoleKey.Escape);
         }
 
         public static Keybind CreateConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
@@ -163,13 +163,13 @@ namespace B.Inputs
             Action confirmationAction = () =>
             {
                 ProgramThread.TryLock();
-                Keybind.ClearRegisteredKeybinds();
+                ClearRegisteredKeybinds();
                 Window.Clear();
                 Window.SetSize(message.Length + 6, 7);
                 Choice choice = new(message);
-                choice.AddKeybind(Keybind.Create(description: "NO", key: ConsoleKey.Escape));
+                choice.AddKeybind(Create(description: "NO", key: ConsoleKey.Escape));
                 choice.AddSpacer();
-                choice.AddKeybind(Keybind.Create(action, "yes", key: ConsoleKey.Enter));
+                choice.AddKeybind(Create(action, "yes", key: ConsoleKey.Enter));
                 Cursor.y = 1;
                 choice.Request();
                 ProgramThread.TryLock();
@@ -177,7 +177,7 @@ namespace B.Inputs
                 Window.Clear();
             };
 
-            return Keybind.Create(confirmationAction, description, keyChar, key, modifiers, colorPair);
+            return Create(confirmationAction, description, keyChar, key, modifiers, colorPair);
         }
 
         public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)

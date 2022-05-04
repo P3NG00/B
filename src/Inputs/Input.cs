@@ -26,8 +26,8 @@ namespace B.Inputs
 
         #region Universal Properties
 
-        public static decimal? Decimal => decimal.TryParse(Input.String, out decimal num) ? num : null;
-        public static int? Int => int.TryParse(Input.String, out int num) ? num : null;
+        public static decimal? Decimal => decimal.TryParse(String, out decimal num) ? num : null;
+        public static int? Int => int.TryParse(String, out int num) ? num : null;
         public static int MaxEntries => Window.SizeMax.y - 21;
 
         #endregion
@@ -43,7 +43,7 @@ namespace B.Inputs
             Keyboard.Initialize();
         }
 
-        public static void ResetString() => Input.String = string.Empty;
+        public static void ResetString() => String = string.Empty;
 
         public static ConsoleKeyInfo Get()
         {
@@ -63,7 +63,7 @@ namespace B.Inputs
                 Window.Print($"Press {key} to continue...");
             }
 
-            Util.WaitFor(() => Input.Get().Key == key);
+            Util.WaitFor(() => Get().Key == key);
         }
 
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)
@@ -73,11 +73,11 @@ namespace B.Inputs
             ConsoleKeyInfo keyInfo = choice.Request();
 
             if (keyInfo.Key == ConsoleKey.Backspace)
-                Input.String = Input.String.Substring(0, Math.Max(0, Input.String.Length - 1));
+                String = String.Substring(0, Math.Max(0, String.Length - 1));
             else if (keyInfo.Key == ConsoleKey.Delete)
                 ResetString();
-            else if (!char.IsControl(keyInfo.KeyChar) && Input.String.Length < maxLength)
-                Input.String += keyInfo.KeyChar;
+            else if (!char.IsControl(keyInfo.KeyChar) && String.Length < maxLength)
+                String += keyInfo.KeyChar;
         }
 
         // This will reset cursor position for each entry printed.
@@ -109,15 +109,16 @@ namespace B.Inputs
             if (maxEntriesAdjusted > 0 && itemCount > 0)
             {
                 // Get indexes of current page
-                int startIndex = Input.ScrollIndex - (Input.ScrollIndex % maxEntriesAdjusted);
+                int startIndex = ScrollIndex - (ScrollIndex % maxEntriesAdjusted);
                 int endIndex = Math.Min(startIndex + maxEntriesAdjusted, itemCount);
 
                 // Scroll through current page
                 for (int i = startIndex; i < endIndex; i++)
                 {
+                    // 'j' caches 'i' because it will change before being referenced later
                     int j = i;
                     Cursor.x = 1;
-                    Window.Print(Input.ScrollIndex == j ? '>' : ' ');
+                    Window.Print(ScrollIndex == j ? '>' : ' ');
                     T item = items.ElementAt(j);
                     string text = getText(item);
                     string output = string.Format("{0,-" + text.Length + "}", text);
@@ -133,17 +134,17 @@ namespace B.Inputs
                 if (navigationKeybinds)
                 {
                     choice.AddText(new Text("Use Up/Down to navigate"));
-                    choice.AddKeybind(Keybind.Create(() => Input.ScrollIndex--, key: ConsoleKey.UpArrow));
-                    choice.AddKeybind(Keybind.Create(() => Input.ScrollIndex++, key: ConsoleKey.DownArrow));
+                    choice.AddKeybind(Keybind.Create(() => ScrollIndex--, key: ConsoleKey.UpArrow));
+                    choice.AddKeybind(Keybind.Create(() => ScrollIndex++, key: ConsoleKey.DownArrow));
                     // Window is cleared in Left/Right keybinds because the page will always need to be re-printed.
                     choice.AddKeybind(Keybind.Create(() =>
                     {
-                        Input.ScrollIndex += maxEntriesAdjusted;
+                        ScrollIndex += maxEntriesAdjusted;
                         Window.Clear();
                     }, key: ConsoleKey.RightArrow));
                     choice.AddKeybind(Keybind.Create(() =>
                     {
-                        Input.ScrollIndex -= maxEntriesAdjusted;
+                        ScrollIndex -= maxEntriesAdjusted;
                         Window.Clear();
                     }, key: ConsoleKey.LeftArrow));
                 }
@@ -162,14 +163,14 @@ namespace B.Inputs
                 // Add exit keybind
                 AddExitKeybind();
                 // Get page index before it's modified
-                int previousPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
+                int previousPageIndex = ScrollIndex % maxEntriesAdjusted;
                 // Request input
                 Cursor.NextLine();
                 keyInfo = choice.Request();
                 // Fix index if it's out of bounds
-                Input.ScrollIndex = Input.ScrollIndex.Clamp(0, itemCount - 1);
+                ScrollIndex = ScrollIndex.Clamp(0, itemCount - 1);
                 // Get page indexes after it's modified
-                int newPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
+                int newPageIndex = ScrollIndex % maxEntriesAdjusted;
                 int oneLessThanMax = maxEntriesAdjusted - 1;
                 // If scrolling into new page, clear console
                 if ((previousPageIndex == oneLessThanMax && newPageIndex == 0) || (previousPageIndex == 0 && newPageIndex == oneLessThanMax))

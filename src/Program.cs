@@ -115,7 +115,7 @@ namespace B
             }
 
             // Save before exiting
-            try { Data.Serialize(ProgramSettings.Path, Program.Settings); }
+            try { Data.Serialize(ProgramSettings.Path, Settings); }
             catch (Exception e) { HandleException(e); }
         }
 
@@ -128,7 +128,7 @@ namespace B
             ProgramThread.TryLock();
 
             // Set console settings
-            Console.Title = Program.Title;
+            Console.Title = Title;
 
             // Console input ctrl+c override
             if (OperatingSystem.IsWindows())
@@ -137,16 +137,16 @@ namespace B
             // Attempt to Deserialize saved Settings before further initialization
             if (File.Exists(ProgramSettings.Path))
             {
-                try { Program.Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
+                try { Settings = Data.Deserialize<ProgramSettings>(ProgramSettings.Path); }
                 catch (Exception) { }
             }
 
             // If Settings not initialized, default
-            if (Program.Settings is null)
-                Program.Settings = new ProgramSettings();
+            if (Settings is null)
+                Settings = new ProgramSettings();
 
-            // Initialize Settings after Program.Settings has been created
-            Program.Settings.Initialize();
+            // Initialize Settings after Settings has been created
+            Settings.Initialize();
 
             // Initialize other window properties
             External.Initialize();
@@ -154,7 +154,7 @@ namespace B
             // Initialize Utilities
             Util.Initialize();
 
-            // Initialize Input after Program.Settings has been initialized due to Mouse class
+            // Initialize Input after Settings has been initialized due to Mouse class
             Input.Initialize();
 
             // Clear window
@@ -175,9 +175,9 @@ namespace B
             Keybind.ClearRegisteredKeybinds();
 
             // If directory doesn't exist, create it and add hidden attribute
-            if (!Directory.Exists(Program.DataPath))
+            if (!Directory.Exists(DataPath))
             {
-                DirectoryInfo mainDirectory = Directory.CreateDirectory(Program.DataPath);
+                DirectoryInfo mainDirectory = Directory.CreateDirectory(DataPath);
                 mainDirectory.Attributes |= FileAttributes.Hidden;
             }
 
@@ -186,12 +186,12 @@ namespace B
                 case Stages.Program:
                     {
                         // Display main menu options
-                        Window.SetSize(22, Program.OptionGroups.Length + 6);
+                        Window.SetSize(22, OptionGroups.Length + 6);
                         Cursor.Set(0, 1);
-                        Choice choice = new($"{Program.Title}'s");
-                        for (int i = 0; i < Program.OptionGroups.Length; i++)
+                        Choice choice = new($"{Title}'s");
+                        for (int i = 0; i < OptionGroups.Length; i++)
                         {
-                            var optionGroup = Program.OptionGroups[i];
+                            var optionGroup = OptionGroups[i];
                             char c = (char)('1' + i);
                             choice.AddKeybind(Keybind.Create(() =>
                             {

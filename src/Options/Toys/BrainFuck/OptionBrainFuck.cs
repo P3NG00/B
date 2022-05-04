@@ -59,10 +59,10 @@ namespace B.Options.Toys.BrainFuck
 
         public OptionBrainFuck() : base(Stages.MainMenu)
         {
-            if (!Directory.Exists(OptionBrainFuck.DirectoryPath))
-                Directory.CreateDirectory(OptionBrainFuck.DirectoryPath);
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
             else
-                foreach (string filePath in Directory.GetFiles(OptionBrainFuck.DirectoryPath, OptionBrainFuck.FILE_EXTENSION))
+                foreach (string filePath in Directory.GetFiles(DirectoryPath, FILE_EXTENSION))
                     _programs.Add(new BrainFuckProgram(Path.GetFileNameWithoutExtension(filePath), filePath));
         }
 
@@ -80,7 +80,7 @@ namespace B.Options.Toys.BrainFuck
                     {
                         Window.SetSize(20, 7);
                         Cursor.Set(0, 1);
-                        Choice choice = new(OptionBrainFuck.Title);
+                        Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() =>
                         {
                             Input.ScrollIndex = 0;
@@ -99,7 +99,7 @@ namespace B.Options.Toys.BrainFuck
                         Input.RequestScroll(
                             items: _programs,
                             getText: program => program.Title,
-                            title: $"{OptionBrainFuck.Title} Programs",
+                            title: $"{Title} Programs",
                             exitKeybind: Keybind.Create(() =>
                             {
                                 Input.ScrollIndex = 0;
@@ -206,7 +206,7 @@ namespace B.Options.Toys.BrainFuck
                             Input.RequestScroll(
                                 items: _memory,
                                 getText: b => string.Format(format, b, ((char)b).Unformat(), $"{b,2:X}"),
-                                maxEntriesPerPage: OptionBrainFuck.MAX_MEMORY_VIEW_LENGTH,
+                                maxEntriesPerPage: MAX_MEMORY_VIEW_LENGTH,
                                 navigationKeybinds: false,
                                 extraKeybinds: new Keybind[] {
                                     Keybind.Create(HandleStep, "Step", key: ConsoleKey.Spacebar),

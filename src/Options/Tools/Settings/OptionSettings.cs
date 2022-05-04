@@ -46,7 +46,7 @@ namespace B.Options.Tools.Settings
                     {
                         Window.SetSize(27, 14);
                         Cursor.y = 1;
-                        Choice choice = new(OptionSettings.Title);
+                        Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
@@ -270,7 +270,7 @@ namespace B.Options.Tools.Settings
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionAdventure.DirectoryPath, true), OptionAdventure.Title, '1'));
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionBrainFuck.DirectoryPath, true), OptionBrainFuck.Title, '2'));
                         choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(OptionMoneyTracker.DirectoryPath, true), OptionMoneyTracker.Title, '3'));
-                        choice.AddKeybind(CreateDeleteKeybind(() => File.Delete(ProgramSettings.Path), OptionSettings.Title, '4'));
+                        choice.AddKeybind(CreateDeleteKeybind(() => File.Delete(ProgramSettings.Path), Title, '4'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();

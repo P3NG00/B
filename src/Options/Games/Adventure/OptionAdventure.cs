@@ -39,7 +39,7 @@ namespace B.Options.Games.Adventure
         public static string Title => "Adventure!";
         public static string DirectoryPath => Program.DataPath + @"adventure\";
         public static string FilePath => DirectoryPath + "save";
-        public static Grid CurrentGrid => OptionAdventure._grids[OptionAdventure.Info.GridID];
+        public static Grid CurrentGrid => _grids[Info.GridID];
 
         #endregion
 
@@ -47,7 +47,7 @@ namespace B.Options.Games.Adventure
 
         #region Universal Variables
 
-        public static string Message = OptionAdventure.MESSAGE_EMPTY;
+        public static string Message = MESSAGE_EMPTY;
         public static AdventureInfo Info = new();
 
         #endregion
@@ -67,8 +67,8 @@ namespace B.Options.Games.Adventure
 
         private Vector2 PlayerPosition
         {
-            get => OptionAdventure.Info.Position;
-            set => OptionAdventure.Info.Position = value;
+            get => Info.Position;
+            set => Info.Position = value;
         }
 
         #endregion
@@ -77,7 +77,7 @@ namespace B.Options.Games.Adventure
 
         #region Constructors
 
-        static OptionAdventure() => OptionAdventure.InitializeGrids();
+        static OptionAdventure() => InitializeGrids();
 
         public OptionAdventure() : base(Stages.MainMenu)
         {
@@ -93,8 +93,8 @@ namespace B.Options.Games.Adventure
             _choiceGame.AddKeybind(Keybind.Create(() => Interact(Direction.Left), key: ConsoleKey.LeftArrow));
             _choiceGame.AddKeybind(Keybind.Create(() => Interact(Direction.Down), key: ConsoleKey.DownArrow));
             _choiceGame.AddKeybind(Keybind.Create(() => Interact(Direction.Right), key: ConsoleKey.RightArrow));
-            _choiceGame.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed++, key: ConsoleKey.Add));
-            _choiceGame.AddKeybind(Keybind.Create(() => OptionAdventure.Info.Speed--, key: ConsoleKey.Subtract));
+            _choiceGame.AddKeybind(Keybind.Create(() => Info.Speed++, key: ConsoleKey.Add));
+            _choiceGame.AddKeybind(Keybind.Create(() => Info.Speed--, key: ConsoleKey.Subtract));
             _choiceGame.AddSpacer();
             _choiceGame.AddKeybind(Keybind.Create(() =>
             {
@@ -115,10 +115,10 @@ namespace B.Options.Games.Adventure
             {
                 case Stages.MainMenu:
                     {
-                        bool fileExists = File.Exists(OptionAdventure.FilePath);
+                        bool fileExists = File.Exists(FilePath);
                         Window.SetSize(20, fileExists ? 8 : 7);
                         Cursor.Set(0, 1);
-                        Choice choice = new(OptionAdventure.Title);
+                        Choice choice = new(Title);
 
                         if (fileExists)
                         {
@@ -137,12 +137,12 @@ namespace B.Options.Games.Adventure
                         {
                             if (newGame)
                             {
-                                OptionAdventure.Info = new();
-                                Grid currentGrid = OptionAdventure.CurrentGrid;
+                                Info = new();
+                                Grid currentGrid = CurrentGrid;
                                 PlayerPosition = new(currentGrid.Width / 2, currentGrid.Height / 2);
                             }
                             else
-                                OptionAdventure.Info = Data.Deserialize<AdventureInfo>(OptionAdventure.FilePath);
+                                Info = Data.Deserialize<AdventureInfo>(FilePath);
 
                             SetStage(Stages.Game);
                         }
@@ -153,7 +153,7 @@ namespace B.Options.Games.Adventure
                     {
                         // TODO use different border styles
 
-                        Grid currentGrid = OptionAdventure.CurrentGrid;
+                        Grid currentGrid = CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;
                         Cursor.Reset();
 
@@ -169,9 +169,9 @@ namespace B.Options.Games.Adventure
                         }
 
                         Window.SetSize(currentGrid.RealWidth + 8, consoleHeight);
-                        string borderHorizontal = OptionAdventure.CHAR_BORDER_HORIZONTAL.Loop(currentGrid.Width);
+                        string borderHorizontal = CHAR_BORDER_HORIZONTAL.Loop(currentGrid.Width);
                         Cursor.NextLine(2);
-                        Window.Print($"{OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
+                        Window.Print($"{CHAR_CORNER_A}{borderHorizontal}{CHAR_CORNER_B}");
 
                         for (int y = currentGrid.Height - 1; y >= 0; y--)
                         {
@@ -182,27 +182,27 @@ namespace B.Options.Games.Adventure
                                 Vector2 pos = new(x, y);
 
                                 if (pos == PlayerPosition)
-                                    s += OptionAdventure.CHAR_PLAYER;
+                                    s += CHAR_PLAYER;
                                 else if (currentGrid.HasCoinAt(pos))
-                                    s += OptionAdventure.CHAR_COIN;
+                                    s += CHAR_COIN;
                                 else
                                     s += currentGrid.GetTile(pos).Chars;
                             }
 
                             Cursor.NextLine(2);
-                            Window.Print(OptionAdventure.CHAR_BORDER_VERTICAL + s + OptionAdventure.CHAR_BORDER_VERTICAL);
+                            Window.Print(CHAR_BORDER_VERTICAL + s + CHAR_BORDER_VERTICAL);
                         }
 
                         Cursor.NextLine(2);
-                        Window.Print(OptionAdventure.CHAR_CORNER_B + borderHorizontal + OptionAdventure.CHAR_CORNER_A);
+                        Window.Print(CHAR_CORNER_B + borderHorizontal + CHAR_CORNER_A);
                         Cursor.NextLine(3, 2);
-                        Window.Print($"> {OptionAdventure.Message}");
-                        OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
+                        Window.Print($"> {Message}");
+                        Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", MESSAGE_EMPTY);
                         Cursor.NextLine(lines: 2);
                         string format = "{0,9}: {1,-5}";
-                        Window.Print(string.Format(format, "Coins", OptionAdventure.Info.Coins));
+                        Window.Print(string.Format(format, "Coins", Info.Coins));
                         Cursor.NextLine();
-                        Window.Print(string.Format(format, "Speed", OptionAdventure.Info.Speed));
+                        Window.Print(string.Format(format, "Speed", Info.Speed));
                         Cursor.NextLine(6, 2);
                         Window.Print("Move) W A S D");
                         Cursor.NextLine(2);
@@ -216,7 +216,7 @@ namespace B.Options.Games.Adventure
             }
         }
 
-        public override void Save() => Data.Serialize(OptionAdventure.FilePath, OptionAdventure.Info);
+        public override void Save() => Data.Serialize(FilePath, Info);
 
         #endregion
 
@@ -228,10 +228,10 @@ namespace B.Options.Games.Adventure
         {
             bool stop = false;
 
-            for (int i = 0; i < OptionAdventure.Info.Speed && !stop; i++)
+            for (int i = 0; i < Info.Speed && !stop; i++)
             {
                 Vector2 newPos = PlayerPosition + direction;
-                Grid currentGrid = OptionAdventure.CurrentGrid;
+                Grid currentGrid = CurrentGrid;
 
                 if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
                 {
@@ -246,7 +246,7 @@ namespace B.Options.Games.Adventure
             }
         }
 
-        private void Interact(Direction direction) => OptionAdventure.CurrentGrid.Interact(PlayerPosition + direction);
+        private void Interact(Direction direction) => CurrentGrid.Interact(PlayerPosition + direction);
 
         #endregion
 
@@ -263,7 +263,7 @@ namespace B.Options.Games.Adventure
             // 'i' | TILE_INTERACTABLE
 
             // Initialize Grid Array
-            OptionAdventure._grids = new Grid[3];
+            _grids = new Grid[3];
 
             // Grid 0
             string[] sa = Grid.CreateGrid(new(15));
@@ -273,8 +273,8 @@ namespace B.Options.Games.Adventure
             sa[7] = "   w       w  d";
             sa[3] = "   w   c   w   ";
             sa[1] = " wwwwwwwwwwwww ";
-            OptionAdventure._grids[0] = new(sa);
-            OptionAdventure._grids[0].AddInteraction(new(7, 11), () => OptionAdventure.Message = "You touched it!");
+            _grids[0] = new(sa);
+            _grids[0].AddInteraction(new(7, 11), () => Message = "You touched it!");
 
             // Grid 1
             sa = Grid.CreateGrid(new(17, 21));
@@ -288,20 +288,20 @@ namespace B.Options.Games.Adventure
             sa[6] = " w     w w     w ";
             sa[5] = " w             w ";
             sa[4] = " www         www ";
-            OptionAdventure._grids[1] = new(sa);
+            _grids[1] = new(sa);
 
             // Grid 2
             sa = Grid.CreateGrid(new(13, 9));
             sa[4] = "           i ";
-            OptionAdventure._grids[2] = new(sa);
-            OptionAdventure._grids[2].AddInteraction(new(11, 4), () => OptionAdventure.Message = "The End...?");
+            _grids[2] = new(sa);
+            _grids[2].AddInteraction(new(11, 4), () => Message = "The End...?");
 
             // Add Doors after initializing each room
-            OptionAdventure._grids[0].AddDoor(new(14, 7), new(1, new(8)));
-            OptionAdventure._grids[1].AddDoor(new(8, 13), new(2, new(1, 4)));
+            _grids[0].AddDoor(new(14, 7), new(1, new(8)));
+            _grids[1].AddDoor(new(8, 13), new(2, new(1, 4)));
 
             // Seal Grids (meant for checking if all doors and interactions are implemented)
-            foreach (Grid grid in OptionAdventure._grids)
+            foreach (Grid grid in _grids)
                 grid.Seal();
         }
 
