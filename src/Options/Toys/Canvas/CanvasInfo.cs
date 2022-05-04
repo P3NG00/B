@@ -32,30 +32,20 @@ namespace B.Options.Toys.Canvas
 
         #region Public Methods
 
-        public void Draw(Vector2? offset = null)
+        public void Draw()
         {
-            Vector2 windowSize = Size + (OptionCanvas.CANVAS_BORDER_PAD * 2);
+            Vector2 topLeft = Cursor.Position;
 
-            if (offset is not null)
-                windowSize += offset;
-
-            Window.SetSize(windowSize);
-
-            for (int y = 0; y < Size.y; y++)
+            for (int y = 0; y < Height; y++)
             {
-                for (int x = 0; x < Size.x; x++)
+                for (int x = 0; x < Width; x++)
                 {
-                    Vector2 newPos = new Vector2(x, y) + OptionCanvas.CANVAS_BORDER_PAD;
-
-                    if (offset is not null)
-                        newPos += offset;
-
-                    Cursor.Position = newPos;
-                    Window.Print(' ', new ColorPair(colorBack: Color(x, y)));
+                    Vector2 canvasPos = new(x, y);
+                    Vector2 windowPos = new Vector2(x, y) + topLeft;
+                    Cursor.Position = windowPos;
+                    Window.Print(' ', new ColorPair(colorBack: Color(canvasPos)));
                 }
             }
-
-            Cursor.Reset();
         }
 
         #endregion

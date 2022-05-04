@@ -19,6 +19,7 @@ namespace B.Options.Toys.Canvas
 
         private const int MAX_INPUT_LENGTH = 25;
         private const int MAX_CANVASES_PER_PAGE = 10;
+        private const int CANVAS_EDIT_HEIGHT = 4;
 
         #endregion
 
@@ -27,8 +28,6 @@ namespace B.Options.Toys.Canvas
         #region Universal Properties
 
         public static string Title => "Canvas";
-        public static Vector2 CANVAS_BORDER_PAD => new(2, 1);
-
         public static string DirectoryPath => Program.DataPath + @"canvas\";
 
         #endregion
@@ -37,20 +36,25 @@ namespace B.Options.Toys.Canvas
 
         #region Private Variables
 
+        private static Vector2 CANVAS_BORDER_PAD => new(2, 1);
         private static Vector2 CANVAS_SIZE_MIN => new(20, 10);
-        private static Vector2 CURSOR_POS_MIN => new(0, 4);
 
-        private bool _drawn = false;
+        // List of canvases
         private List<CanvasInfo> _canvases = new();
+        // The current canvas
         private CanvasInfo _canvas = null!;
+        // The current painting color
         private ConsoleColor _color = ConsoleColor.Black;
         // The size of the brush
         private Vector2 _brushSize = Vector2.One;
         // The location of the cursor on the canvas
         private Vector2 _cursorPos = Vector2.Zero;
-
+        // Keybinds for creation stages
         private Keybind[] _keybindsCreationStage;
+        // Choice for drawing on the canvas
         private Choice _choiceCanvasDrawing;
+        // Whether the canvas has been drawn
+        private bool _drawn = false;
 
         #endregion
 
@@ -278,6 +282,8 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.View:
                     {
+                        Window.SetSize(_canvas.Size + (CANVAS_BORDER_PAD * 2));
+                        Cursor.Position = CANVAS_BORDER_PAD;
                         _canvas.Draw();
                         Input.WaitFor(ConsoleKey.Escape, true);
                         SetStage(Stages.List);
@@ -292,6 +298,9 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.Edit:
                     {
+                        Vector2 windowSize = _canvas.Size + (CANVAS_BORDER_PAD * 2);
+                        windowSize.y += CANVAS_EDIT_HEIGHT;
+                        Window.SetSize(windowSize);
                         // Print top info
                         Cursor.Set(2, 0);
                         Window.Print($"Color: {_color,-11}");
@@ -303,7 +312,10 @@ namespace B.Options.Toys.Canvas
                         if (!_drawn)
                         {
                             _drawn = true;
-                            _canvas.Draw(OptionCanvas.CURSOR_POS_MIN);
+                            Vector2 cursorPos = CANVAS_BORDER_PAD;
+                            cursorPos.y += CANVAS_EDIT_HEIGHT;
+                            Cursor.Position = cursorPos;
+                            _canvas.Draw();
                         }
                         // Print border after drawing canvas because it will change the size of the Window
                         Cursor.Set(2, 3);
@@ -315,13 +327,16 @@ namespace B.Options.Toys.Canvas
                             Cursor.Size = 100;
                             Cursor.Visible = true;
                             // Set to brush position
-                            Cursor.Position = _cursorPos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
+                            Vector2 cursorPos = _cursorPos + CANVAS_BORDER_PAD;
+                            cursorPos.y += CANVAS_EDIT_HEIGHT;
+                            Cursor.Position = cursorPos;
                         });
                         // Check for mouse input
                         if (Mouse.LeftButtonDown)
                         {
                             // Find location of mouse on canvas
-                            Vector2 mousePosOnCanvas = Mouse.Position - OptionCanvas.CURSOR_POS_MIN - OptionCanvas.CANVAS_BORDER_PAD;
+                            Vector2 mousePosOnCanvas = Mouse.Position - CANVAS_BORDER_PAD;
+                            mousePosOnCanvas.y -= CANVAS_EDIT_HEIGHT;
                             // Check if mouse is in canvas
                             bool inX = mousePosOnCanvas.x >= 0 && mousePosOnCanvas.x < _canvas.Width;
                             bool inY = mousePosOnCanvas.y >= 0 && mousePosOnCanvas.y < _canvas.Height;
@@ -426,17 +441,24 @@ namespace B.Options.Toys.Canvas
 
         private void Paint()
         {
-            // TODO account for canvas edges
-            int endX = Math.Min(_cursorPos.x + _brushSize.x, _canvas.Size.x);
-            int endY = Math.Min(_cursorPos.y + _brushSize.y, _canvas.Size.y);
+            int xStart = _cursorPos.x;
+            int yStart = _cursorPos.y;
+            // Account for edge of canvas
+            int xEnd = Math.Min(xStart + _brushSize.x, _canvas.Size.x);
+            int yEnd = Math.Min(yStart + _brushSize.y, _canvas.Size.y);
 
-            for (int y = _cursorPos.y; y < endY; y++)
+            for (int y = yStart; y < yEnd; y++)
             {
-                for (int x = _cursorPos.x; x < endX; x++)
+                for (int x = xStart; x < xEnd; x++)
                 {
-                    Vector2 pos = new(x, y);
-                    _canvas.Color(pos) = _color;
-                    Cursor.Position = pos + OptionCanvas.CURSOR_POS_MIN + OptionCanvas.CANVAS_BORDER_PAD;
+                    // Update color on canvas
+                    Vector2 canvasPos = new(x, y);
+                    _canvas.Color(canvasPos) = _color;
+                    // Set position of cursor
+                    Vector2 cursorPos = canvasPos + CANVAS_BORDER_PAD;
+                    cursorPos.y += CANVAS_EDIT_HEIGHT;
+                    Cursor.Position = cursorPos;
+                    // Print color
                     Window.Print(' ', new ColorPair(colorBack: _color));
                 }
             }

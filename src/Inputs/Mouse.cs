@@ -83,23 +83,20 @@ namespace B.Inputs
             _lastLeftButtonClick = currentLeftButton && !_lastLeftButtonDown;
             // Update last mouse state
             _lastLeftButtonDown = currentLeftButton;
-
             // If clicked, attempt to activate keybind
-            if (_lastLeftButtonClick)
+            if (_lastLeftButtonDown)
             {
-                // Set to void to ensure a click is passed
-                Input.Action = Util.Void;
-                // Attempt to find highlighted keybind
-                Keybind.FindKeybind(keybind => keybind.IsHighlighted);
+                // If valid mouse input, set action to void to process input
+                if (InputType == MouseInputType.Hold && Input.Action is null)
+                    Input.Action = Util.Void;
+                // If left mouse button clicked, test for keybind to activate
+                if (_lastLeftButtonClick)
+                    Keybind.FindKeybind(keybind => keybind.IsHighlighted);
             }
-            else if (InputType == MouseInputType.Hold && _lastLeftButtonDown && Input.Action is null)
-                Input.Action = Util.Void;
-
             // Print keybinds
             // (skip if clicked)
             if (!_lastLeftButtonClick)
                 Keybind.PrintRegisteredKeybinds();
-
             // Mouse Position Debug
             if (Program.Settings.DebugMode)
             {
