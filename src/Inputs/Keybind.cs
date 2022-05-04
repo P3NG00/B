@@ -9,12 +9,6 @@ namespace B.Inputs
     {
         #region Public Properties
 
-        public readonly ConsoleKey? Key;
-        public readonly char? KeyChar;
-        public readonly string Description;
-        public readonly Action Action;
-        public readonly ColorPair? ColorPair;
-
         public Vector2 Position { get; private set; } = null!;
 
         public bool IsHighlighted
@@ -36,7 +30,7 @@ namespace B.Inputs
             }
         }
 
-        public bool Display => !string.IsNullOrWhiteSpace(Description);
+        public bool Display => !string.IsNullOrWhiteSpace(_description);
 
         #endregion
 
@@ -45,23 +39,21 @@ namespace B.Inputs
         #region Private Properties
 
         private static readonly List<Keybind> _keybinds = new();
-        private readonly ConsoleModifiers _modifiers;
+
+        private ConsoleKey? _key;
+        private char? _keyChar;
+        private string _description = null!;
+        private Action _action = null!;
+        private ColorPair? _colorPair;
+        private ConsoleModifiers _modifiers;
 
         #endregion
 
 
 
-        #region Constructor
+        #region Constructors
 
-        private Keybind(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
-        {
-            Action = action ?? Util.Void;
-            KeyChar = keyChar;
-            Key = key;
-            Description = description ?? string.Empty;
-            _modifiers = modifiers ?? default;
-            ColorPair = colorPair;
-        }
+        private Keybind() { }
 
         #endregion
 
@@ -78,10 +70,10 @@ namespace B.Inputs
             // Print & highlight
             if (IsHighlighted)
                 Window.Print(keybindStr, PrintType.Highlight);
-            else if (ColorPair is null)
+            else if (_colorPair is null)
                 Window.Print(keybindStr);
             else
-                Window.Print(keybindStr, ColorPair);
+                Window.Print(keybindStr, _colorPair);
         }
 
         #endregion
@@ -114,10 +106,10 @@ namespace B.Inputs
         {
             string preface;
 
-            if (KeyChar.HasValue)
-                preface = KeyChar.Value.ToString();
-            else if (Key.HasValue)
-                preface = Key.Value.ToString();
+            if (_keyChar.HasValue)
+                preface = _keyChar.Value.ToString();
+            else if (_key.HasValue)
+                preface = _key.Value.ToString();
             else
                 preface = string.Empty;
 
@@ -130,7 +122,7 @@ namespace B.Inputs
             if (!string.IsNullOrWhiteSpace(preface))
                 preface += ") ";
 
-            return preface + Description;
+            return preface + _description;
         }
 
         #endregion
@@ -139,7 +131,17 @@ namespace B.Inputs
 
         #region Universal Methods
 
-        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null) => new Keybind(action, description, keyChar, key, modifiers, colorPair);
+        public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
+        {
+            Keybind keybind = new();
+            keybind._action = action ?? Util.Void;
+            keybind._keyChar = keyChar;
+            keybind._key = key;
+            keybind._description = description ?? string.Empty;
+            keybind._modifiers = modifiers ?? default;
+            keybind._colorPair = colorPair;
+            return keybind;
+        }
 
         public static Keybind CreateOptionExit(IOption option)
         {
@@ -153,7 +155,7 @@ namespace B.Inputs
                 default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
             }
 
-            return new Keybind(option.Quit, phrase, key: ConsoleKey.Escape);
+            return Keybind.Create(option.Quit, phrase, key: ConsoleKey.Escape);
         }
 
         public static Keybind CreateConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
@@ -175,7 +177,7 @@ namespace B.Inputs
                 Window.Clear();
             };
 
-            return new Keybind(confirmationAction, description, keyChar, key, modifiers, colorPair);
+            return Keybind.Create(confirmationAction, description, keyChar, key, modifiers, colorPair);
         }
 
         public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)
@@ -209,7 +211,7 @@ namespace B.Inputs
                 if (condition(keybind))
                 {
                     // Set action to be triggered
-                    Input.Action = keybind.Action;
+                    Input.Action = keybind._action;
                     // Finish method
                     return;
                 }
@@ -226,9 +228,9 @@ namespace B.Inputs
 
         public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo)
         {
-            bool isKey = keybind.Key == keyInfo.Key;
+            bool isKey = keybind._key == keyInfo.Key;
             bool isKeyChar;
-            char? keychar = keybind.KeyChar;
+            char? keychar = keybind._keyChar;
 
             if (keychar.HasValue)
                 isKeyChar = keychar.Value == keyInfo.KeyChar;
