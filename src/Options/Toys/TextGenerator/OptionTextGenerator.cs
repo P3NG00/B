@@ -112,7 +112,8 @@ namespace B.Options.Toys.TextGenerator
                             {
                                 _fontIndex = Input.ScrollIndex;
                                 SetStage(Stages.Text);
-                            }, "Select", key: ConsoleKey.Enter));
+                            }, "Select", key: ConsoleKey.Enter)
+                        );
                     }
                     break;
             }

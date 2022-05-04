@@ -222,7 +222,8 @@ namespace B.Options.Tools.FTP
                                 else
                                     PreviousDirectory();
                             }, "Exit", key: ConsoleKey.Escape),
-                            extraKeybinds: keybinds.ToArray());
+                            extraKeybinds: keybinds.ToArray()
+                        );
                     }
                     break;
 

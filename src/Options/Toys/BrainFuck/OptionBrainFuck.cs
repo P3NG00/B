@@ -115,7 +115,8 @@ namespace B.Options.Toys.BrainFuck
                                 _bracketDepth = 0;
                                 _stepCounter = 0;
                                 SetStage(Stages.Run);
-                            }, "Run", key: ConsoleKey.Enter));
+                            }, "Run", key: ConsoleKey.Enter)
+                        );
                     }
                     break;
 
@@ -213,7 +214,9 @@ namespace B.Options.Toys.BrainFuck
                                     {
                                         Input.ScrollIndex = 0;
                                         SetStage(Stages.Run);
-                                    }, "Back", key: ConsoleKey.F1)});
+                                    }, "Back", key: ConsoleKey.F1)
+                                }
+                            );
                         }
                         else
                             SetStage(Stages.Run);

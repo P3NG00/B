@@ -240,7 +240,9 @@ namespace B.Options.Tools.MoneyTracker
                                     if (_selectedAccount.Decimals != 0)
                                         _selectedAccount.Decimals--;
                                 }, "Decrease Decimals", '-'),
-                                Keybind.CreateConfirmation(() => _selectedAccount!.Transactions.RemoveAt(Input.ScrollIndex), "Delete this transaction?", "Delete", key: ConsoleKey.Delete)});
+                                Keybind.CreateConfirmation(() => _selectedAccount!.Transactions.RemoveAt(Input.ScrollIndex), "Delete this transaction?", "Delete", key: ConsoleKey.Delete)
+                            }
+                        );
                     }
                     break;
 

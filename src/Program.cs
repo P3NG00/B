@@ -19,7 +19,7 @@ using B.Utils.Themes;
 
 namespace B
 {
-    public sealed class Program : Option<Program.Levels>
+    public sealed class Program : Option<Program.Stages>
     {
         #region Constants
 
@@ -82,7 +82,7 @@ namespace B
 
         #region Constructor
 
-        public Program() : base(Levels.Program)
+        public Program() : base(Stages.Program)
         {
             if (Instance is null)
                 Instance = this;
@@ -183,7 +183,7 @@ namespace B
 
             switch (Stage)
             {
-                case Levels.Program:
+                case Stages.Program:
                     {
                         // Display main menu options
                         Window.SetSize(22, Program.OptionGroups.Length + 6);
@@ -196,7 +196,7 @@ namespace B
                             choice.AddKeybind(Keybind.Create(() =>
                             {
                                 _optionGroup = optionGroup;
-                                SetStage(Levels.Group);
+                                SetStage(Stages.Group);
                             }, optionGroup.GroupTitle, c));
                         }
                         choice.AddSpacer();
@@ -205,7 +205,7 @@ namespace B
                     }
                     break;
 
-                case Levels.Group:
+                case Stages.Group:
                     {
                         // Display selected group level options
                         Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
@@ -221,7 +221,7 @@ namespace B
                             Action createInstanceAction = () =>
                             {
                                 _selectedOption = optionType.Instantiate<IOption>();
-                                SetStage(Levels.Option);
+                                SetStage(Stages.Option);
                             };
                             char c = (char)('1' + i);
                             choice.AddKeybind(Keybind.Create(createInstanceAction, title, c));
@@ -232,7 +232,7 @@ namespace B
                     }
                     break;
 
-                case Levels.Option:
+                case Stages.Option:
                     {
                         // Run option
                         if (_selectedOption is not null && _selectedOption.IsRunning)
@@ -240,7 +240,7 @@ namespace B
                         else
                         {
                             _selectedOption = null;
-                            SetStage(Levels.Group);
+                            SetStage(Stages.Group);
                             ProgramThread.TryUnlock();
                         }
                     }
@@ -251,8 +251,8 @@ namespace B
         public sealed override void Quit()
         {
             // If quit is pressed in Levels.Group go back to Levels.Program
-            if (Stage == Levels.Group)
-                SetStage(Levels.Program);
+            if (Stage == Stages.Group)
+                SetStage(Stages.Program);
             else
                 base.Quit();
         }
@@ -294,10 +294,10 @@ namespace B
             Program pInst = Instance;
             pInst._selectedOption = null;
 
-            if (pInst.Stage == Levels.Option)
-                pInst.SetStage(Levels.Group);
-            else if (pInst.Stage == Levels.Group)
-                pInst.SetStage(Levels.Program);
+            if (pInst.Stage == Stages.Option)
+                pInst.SetStage(Stages.Group);
+            else if (pInst.Stage == Stages.Group)
+                pInst.SetStage(Stages.Program);
         }
 
         #endregion
@@ -306,7 +306,7 @@ namespace B
 
         #region Enum
 
-        public enum Levels
+        public enum Stages
         {
             Program,
             Group,

@@ -115,7 +115,8 @@ namespace B.Options.Tools.Settings
                             {
                                 Input.ScrollIndex = 0;
                                 SetStage(Stages.MainMenu);
-                            }, "Back", key: ConsoleKey.Escape));
+                            }, "Back", key: ConsoleKey.Escape)
+                        );
                     }
                     break;
 
@@ -144,7 +145,9 @@ namespace B.Options.Tools.Settings
                                 {
                                     Input.ScrollIndex = (int)_customEditingPrintType;
                                     SetStage(Stages.Color_Custom_PrintType);
-                                }, "Change Print Type", key: ConsoleKey.F1)});
+                                }, "Change Print Type", key: ConsoleKey.F1)
+                            }
+                        );
                     }
                     break;
 

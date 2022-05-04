@@ -121,15 +121,16 @@ namespace B.Inputs
             else
                 preface = string.Empty;
 
-            if (HasModifier(ConsoleModifiers.Alt)) preface = "Alt+" + preface;
-            if (HasModifier(ConsoleModifiers.Shift)) preface = "Shift+" + preface;
-            if (HasModifier(ConsoleModifiers.Control)) preface = "Ctrl+" + preface;
-
+            if (HasModifier(ConsoleModifiers.Alt))
+                preface = "Alt+" + preface;
+            if (HasModifier(ConsoleModifiers.Shift))
+                preface = "Shift+" + preface;
+            if (HasModifier(ConsoleModifiers.Control))
+                preface = "Ctrl+" + preface;
             if (!string.IsNullOrWhiteSpace(preface))
                 preface += ") ";
 
-            string fullString = preface + Description;
-            return fullString;
+            return preface + Description;
         }
 
         #endregion
@@ -146,9 +147,9 @@ namespace B.Inputs
 
             switch (Program.Instance.Stage)
             {
-                case Program.Levels.Program: phrase = "Quit"; break;
-                case Program.Levels.Group: phrase = "Back"; break;
-                case Program.Levels.Option: phrase = "Exit"; break;
+                case Program.Stages.Program: phrase = "Quit"; break;
+                case Program.Stages.Group: phrase = "Back"; break;
+                case Program.Stages.Option: phrase = "Exit"; break;
                 default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
             }
 

@@ -276,7 +276,8 @@ namespace B.Options.Toys.Canvas
                                     if (_canvases.IsEmpty())
                                         SetStage(Stages.MainMenu);
                                 }, $"Delete {_canvas.Title}?", "Delete", key: ConsoleKey.Delete),
-                            });
+                            }
+                        );
                     }
                     break;
 
