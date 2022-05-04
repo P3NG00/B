@@ -17,10 +17,6 @@ namespace B.Options.Toys.Canvas
 
         #region Public Properties
 
-        // Use these as Color Getter and Setter
-        public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
-        public ref ConsoleColor Color(Vector2 pos) => ref Colors[pos.y][pos.x];
-
         [JsonIgnore] public string FilePath => OptionCanvas.DirectoryPath + Title;
         [JsonIgnore] public Vector2 Size => new(Width, Height);
         [JsonIgnore] public int Width => Colors[0].Length;
@@ -31,6 +27,10 @@ namespace B.Options.Toys.Canvas
 
 
         #region Public Methods
+
+        // Use these as Color Getter and Setter
+        public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
+        public ref ConsoleColor Color(Vector2 pos) => ref Colors[pos.y][pos.x];
 
         public void Draw()
         {
