@@ -59,8 +59,7 @@ namespace B.Inputs
         {
             if (!silent)
             {
-                Cursor.x = 1;
-                Cursor.y += 2;
+                Cursor.NextLine(1, 2);
                 Window.Print($"Press {key} to continue...");
             }
 
@@ -104,7 +103,7 @@ namespace B.Inputs
             {
                 Cursor.x = 2;
                 Window.Print($" {title} ", PrintType.Title);
-                Cursor.y += 2;
+                Cursor.NextLine(lines: 2);
             }
 
             if (maxEntriesAdjusted > 0 && itemCount > 0)
@@ -127,7 +126,7 @@ namespace B.Inputs
                     Cursor.x = 3;
                     // Regiser each entry as a Keybind
                     Keybind.RegisterKeybind(Keybind.Create(() => ScrollIndex = j, output, colorPair: new(colorText, colorBG)));
-                    Cursor.y++;
+                    Cursor.NextLine();
                 }
 
                 // If navigation keybinds...
@@ -165,7 +164,7 @@ namespace B.Inputs
                 // Get page index before it's modified
                 int previousPageIndex = Input.ScrollIndex % maxEntriesAdjusted;
                 // Request input
-                Cursor.y++;
+                Cursor.NextLine();
                 keyInfo = choice.Request();
                 // Fix index if it's out of bounds
                 Input.ScrollIndex = Input.ScrollIndex.Clamp(0, itemCount - 1);
@@ -180,7 +179,7 @@ namespace B.Inputs
             {
                 Cursor.x = 2;
                 Window.Print("No entries.");
-                Cursor.y += 2;
+                Cursor.NextLine(lines: 2);
                 extraKeybinds.ForEach(keybind => choice.AddKeybind(keybind));
                 AddExitKeybind();
                 keyInfo = choice.Request();

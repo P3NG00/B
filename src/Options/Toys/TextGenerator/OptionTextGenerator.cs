@@ -76,10 +76,10 @@ namespace B.Options.Toys.TextGenerator
                         {
                             Cursor.x = 2;
                             Window.Print(s);
-                            Cursor.y++;
+                            Cursor.NextLine();
                         }
                         // Request
-                        Cursor.y++;
+                        Cursor.NextLine();
                         Input.RequestLine(keybinds: new Keybind[] {
                             Keybind.Create(() => _fontIndex++, "Next Font", key: ConsoleKey.DownArrow),
                             Keybind.Create(() => _fontIndex--, "Prev Font", key: ConsoleKey.UpArrow),

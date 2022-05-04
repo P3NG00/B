@@ -280,13 +280,11 @@ namespace B
 
             if (exception is not null)
             {
-                Cursor.x = 2;
-                Cursor.y += 2;
+                Cursor.NextLine(2, 2);
                 Window.Print(exception, new ColorPair(ConsoleColor.White, ConsoleColor.Black));
             }
 
-            Cursor.x = 2;
-            Cursor.y += 2;
+            Cursor.NextLine(2, 2);
             Choice choice = new();
             choice.AddKeybind(Keybind.Create(Util.Void, "Press any key to continue..."));
             // Thread will unlock while waiting for input

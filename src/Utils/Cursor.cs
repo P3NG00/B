@@ -53,6 +53,12 @@ namespace B.Utils
 
         public static void Set(int x, int y) => Console.SetCursorPosition(x, y);
 
+        public static void NextLine(int x = 0, int lines = 1)
+        {
+            Cursor.y += lines;
+            Cursor.x = x;
+        }
+
         #endregion
     }
 }

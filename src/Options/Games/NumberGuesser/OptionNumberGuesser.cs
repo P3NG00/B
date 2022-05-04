@@ -111,8 +111,7 @@ namespace B.Options.Games.NumberGuesser
                         else
                             guessMessage = OptionNumberGuesser._winMessages.Random();
 
-                        Cursor.x = 2;
-                        Cursor.y += 2;
+                        Cursor.NextLine(2, 2);
                         Window.Print(guessMessage);
 
                         if (won)
@@ -122,8 +121,7 @@ namespace B.Options.Games.NumberGuesser
                         }
                         else
                         {
-                            Cursor.x = 2;
-                            Cursor.y += 2;
+                            Cursor.NextLine(2, 2);
                             Window.Print("Enter a Number!");
                             Input.RequestLine(OptionNumberGuesser.GUESS_LENGTH, Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
                         }

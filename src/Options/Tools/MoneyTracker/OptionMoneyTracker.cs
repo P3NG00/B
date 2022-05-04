@@ -117,8 +117,7 @@ namespace B.Options.Tools.MoneyTracker
                                     {
                                         Account account = AddAccount(Path.GetFileNameWithoutExtension(filePath));
                                         _selectedAccount = account;
-                                        Cursor.x = 2;
-                                        Cursor.y += 2;
+                                        Cursor.NextLine(2, 2);
                                         Window.Print($"\"{Input.String}\" created!");
                                         Input.ResetString();
                                         SetStage(Stages.Account);

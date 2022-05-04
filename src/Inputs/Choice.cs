@@ -69,7 +69,7 @@ namespace B.Inputs
 
                 Cursor.x = 2;
                 entry.Print();
-                Cursor.y++;
+                Cursor.NextLine();
             }
 
             // Do any last input

@@ -40,8 +40,10 @@ namespace B.Options.Toys.Canvas
             {
                 for (int x = 0; x < Width; x++)
                 {
+                    // Find positions
                     Vector2 canvasPos = new(x, y);
-                    Vector2 windowPos = new Vector2(x, y) + topLeft;
+                    Vector2 windowPos = canvasPos + topLeft;
+                    // Print appropriate color at position
                     Cursor.Position = windowPos;
                     Window.Print(' ', new ColorPair(colorBack: Color(canvasPos)));
                 }

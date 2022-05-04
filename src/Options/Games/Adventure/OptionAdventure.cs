@@ -165,18 +165,16 @@ namespace B.Options.Games.Adventure
                             Cursor.Set(2, 2);
                             Window.Print($"Pos: {PlayerPosition,-8}");
                             consoleHeight += 3;
-                            Cursor.y++;
+                            Cursor.NextLine();
                         }
 
                         Window.SetSize(currentGrid.RealWidth + 8, consoleHeight);
                         string borderHorizontal = OptionAdventure.CHAR_BORDER_HORIZONTAL.Loop(currentGrid.Width);
-                        Cursor.y++;
-                        Cursor.x = 2;
+                        Cursor.NextLine(2);
                         Window.Print($"{OptionAdventure.CHAR_CORNER_A}{borderHorizontal}{OptionAdventure.CHAR_CORNER_B}");
 
                         for (int y = currentGrid.Height - 1; y >= 0; y--)
                         {
-                            Cursor.y++;
                             string s = string.Empty;
 
                             for (int x = 0; x < currentGrid.Width; x++)
@@ -191,34 +189,27 @@ namespace B.Options.Games.Adventure
                                     s += currentGrid.GetTile(pos).Chars;
                             }
 
-                            Cursor.x = 2;
+                            Cursor.NextLine(2);
                             Window.Print(OptionAdventure.CHAR_BORDER_VERTICAL + s + OptionAdventure.CHAR_BORDER_VERTICAL);
                         }
 
-                        Cursor.y++;
-                        Cursor.x = 2;
+                        Cursor.NextLine(2);
                         Window.Print(OptionAdventure.CHAR_CORNER_B + borderHorizontal + OptionAdventure.CHAR_CORNER_A);
-                        Cursor.y += 2;
-                        Cursor.x = 3;
+                        Cursor.NextLine(3, 2);
                         Window.Print($"> {OptionAdventure.Message}");
                         OptionAdventure.Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", OptionAdventure.MESSAGE_EMPTY);
-                        Cursor.y += 2;
-                        Cursor.x = 0;
+                        Cursor.NextLine(lines: 2);
                         string format = "{0,9}: {1,-5}";
                         Window.Print(string.Format(format, "Coins", OptionAdventure.Info.Coins));
-                        Cursor.y++;
-                        Cursor.x = 0;
+                        Cursor.NextLine();
                         Window.Print(string.Format(format, "Speed", OptionAdventure.Info.Speed));
-                        Cursor.y += 2;
-                        Cursor.x = 6;
+                        Cursor.NextLine(6, 2);
                         Window.Print("Move) W A S D");
-                        Cursor.y++;
-                        Cursor.x = 2;
+                        Cursor.NextLine(2);
                         Window.Print("Interact) Space");
-                        Cursor.y++;
-                        Cursor.x = 5;
+                        Cursor.NextLine(5);
                         Window.Print("Speed) + -");
-                        Cursor.y++;
+                        Cursor.NextLine();
                         _choiceGame.Request();
                     }
                     break;
