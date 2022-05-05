@@ -77,9 +77,9 @@ namespace B.Inputs
 
         private static void Process()
         {
-            // First check for mouse click
+            // Check state of mouse button
             bool currentLeftButton = External.GetLeftMouseButtonDown();
-            // Compare last mouse state with new mouse state
+            // Compare last mouse state with new mouse state to determine if a click occurred
             _lastLeftButtonClick = currentLeftButton && !_lastLeftButtonDown;
             // Update last mouse state
             _lastLeftButtonDown = currentLeftButton;
@@ -93,18 +93,20 @@ namespace B.Inputs
                 if (_lastLeftButtonClick)
                     Keybind.FindKeybind(keybind => keybind.IsHighlighted);
             }
-            // Print keybinds
-            // (skip if clicked)
+            // Print keybinds (skip if clicked)
             if (!_lastLeftButtonClick)
                 Keybind.PrintRegisteredKeybinds();
-            // Mouse Position Debug
+            // Mouse Position Debug display
             if (Program.Settings.DebugMode)
             {
                 string positionStr = Position.ToString();
-                int blankSpace = Vector2.MaxStringLength - positionStr.Length;
+                int blankSpace = Vector2.MAX_STRING_LENGTH - positionStr.Length;
+                // Top-right of text window
                 Cursor.y = 0;
-                Cursor.x = Window.Width - Vector2.MaxStringLength;
+                Cursor.x = Window.Width - Vector2.MAX_STRING_LENGTH;
+                // Overwrite area of text
                 Window.Print(' '.Loop(blankSpace));
+                // Display mouse position
                 Window.Print(positionStr);
             }
         }

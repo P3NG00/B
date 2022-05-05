@@ -1,4 +1,3 @@
-using System.Drawing;
 using B.Utils.Enums;
 
 namespace B.Utils
@@ -7,7 +6,7 @@ namespace B.Utils
     {
         #region Constants
 
-        public const int MaxStringLength = 11;
+        public const int MAX_STRING_LENGTH = 11;
 
         #endregion
 

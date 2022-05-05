@@ -241,13 +241,11 @@ namespace B.Options.Tools.Settings
                         Print(22, "Ascii", char.IsAscii(c));
                         //    23
                         Cursor.y = 24;
-                        Keybind escapeKeybind = Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape, modifiers: ConsoleModifiers.Shift);
-                        Input.RequestLine(keybinds: escapeKeybind);
+                        Input.RequestLine(keybinds: Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape, modifiers: ConsoleModifiers.Shift));
                         // Local function
                         void Print(int line, string title, object value)
                         {
                             string? output;
-
                             // Get output from value.
                             // Make false bools appear empty.
                             if (value is bool b && !b)

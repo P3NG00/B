@@ -36,7 +36,7 @@ namespace B.Inputs
 
 
 
-        #region Private Properties
+        #region Private Variables
 
         private static readonly List<Keybind> _keybinds = new();
 
@@ -46,6 +46,8 @@ namespace B.Inputs
         private Action _action = null!;
         private ColorPair? _colorPair;
         private ConsoleModifiers _modifiers;
+        // This is used to print the keybind only when necessary
+        private bool? _lastHighlighted = null;
 
         #endregion
 
@@ -53,6 +55,7 @@ namespace B.Inputs
 
         #region Constructors
 
+        // This is here to ensure keybinds are created through the Universal methods
         private Keybind() { }
 
         #endregion
@@ -63,17 +66,38 @@ namespace B.Inputs
 
         public void Print()
         {
-            // Set cursor position
-            Cursor.Position = Position;
             // Get output
             string keybindStr = ToString();
-            // Print & highlight
-            if (IsHighlighted)
-                Window.Print(keybindStr, PrintType.Highlight);
-            else if (_colorPair is null)
-                Window.Print(keybindStr);
-            else
-                Window.Print(keybindStr, _colorPair);
+            // Get current highlight status
+            bool highlighted = IsHighlighted;
+            // Compare to last highlight status
+            if (!_lastHighlighted.HasValue || (!highlighted && _lastHighlighted.Value))
+            {
+                if (_colorPair is null)
+                    PrintAction(() => Window.Print(keybindStr));
+                else
+                    PrintAction(() => Window.Print(keybindStr, _colorPair));
+            }
+            else if (highlighted && !_lastHighlighted.Value)
+                PrintAction(() => Window.Print(keybindStr, PrintType.Highlight));
+            // Update last highlight status
+            _lastHighlighted = highlighted;
+
+            // Local Method
+            void PrintAction(Action printAction)
+            {
+                // Cache cursor info
+                Vector2 cursorPos = Cursor.Position;
+                bool cursorVisible = Cursor.Visible;
+                // Modify cursor
+                Cursor.Visible = false;
+                Cursor.Position = Position;
+                // Print action
+                printAction();
+                // Restore cursor
+                Cursor.Position = cursorPos;
+                Cursor.Visible = cursorVisible;
+            }
         }
 
         #endregion

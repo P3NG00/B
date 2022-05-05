@@ -19,7 +19,7 @@ namespace B.Options.Toys.Canvas
 
         private const int MAX_INPUT_LENGTH = 25;
         private const int MAX_CANVASES_PER_PAGE = 10;
-        private const int CANVAS_EDIT_HEIGHT = 4;
+        private const int CANVAS_EDIT_HEIGHT = 5;
 
         #endregion
 
@@ -128,6 +128,7 @@ namespace B.Options.Toys.Canvas
                                     }
 
                                     Input.ResetString();
+                                    Save();
                                     SetStage(Stages.Edit);
                                 }
                             }
@@ -190,7 +191,9 @@ namespace B.Options.Toys.Canvas
             {
                 SetStage(Stages.ColorSelect);
             }, key: ConsoleKey.F1));
-            // Exit
+            // Save
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(Save, "Save", key: ConsoleKey.S, modifiers: ConsoleModifiers.Control));
+            // Save & Quit
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() =>
             {
                 if (!_canvases.Contains(_canvas))
@@ -202,7 +205,7 @@ namespace B.Options.Toys.Canvas
                 // Reset MouseInputType when leaving edit mode.
                 Mouse.InputType = Mouse.MouseInputType.Click;
                 SetStage(Stages.List);
-            }, key: ConsoleKey.Escape));
+            }, "Save & Quit", key: ConsoleKey.Escape));
         }
 
         #endregion
@@ -300,28 +303,30 @@ namespace B.Options.Toys.Canvas
                 case Stages.Edit:
                     {
                         Vector2 windowSize = _canvas.Size + (CANVAS_BORDER_PAD * 2);
-                        windowSize.y += CANVAS_EDIT_HEIGHT;
+                        windowSize.y += CANVAS_EDIT_HEIGHT + 3;
                         Window.SetSize(windowSize);
                         // Print top info
-                        Cursor.Set(2, 0);
-                        Window.Print($"Color: {_color,-11}");
                         Cursor.Set(2, 1);
-                        Window.Print($"Position: {_cursorPos,-10}");
+                        Window.Print($"Color: {_color,-11}");
                         Cursor.Set(2, 2);
+                        Window.Print($"Position: {_cursorPos,-10}");
+                        Cursor.Set(2, 3);
                         Window.Print($"Brush: {_brushSize,-10}");
                         // Print canvas if necessary
+                        Vector2 cursorPos;
                         if (!_drawn)
                         {
                             _drawn = true;
-                            Vector2 cursorPos = CANVAS_BORDER_PAD;
+                            cursorPos = CANVAS_BORDER_PAD;
                             cursorPos.y += CANVAS_EDIT_HEIGHT;
                             Cursor.Position = cursorPos;
                             _canvas.Draw();
+                            // Print border after drawing canvas because it will change the size of the Window
+                            Cursor.Set(2, 4);
+                            Window.Print('-'.Loop(Window.Width - 4));
                         }
-                        // Print border after drawing canvas because it will change the size of the Window
-                        Cursor.Set(2, 3);
-                        Window.Print('-'.Loop(Window.Width - 4));
                         // Request input and reposition cursor
+                        Cursor.y = (CANVAS_BORDER_PAD.y * 2) + _canvas.Height + CANVAS_EDIT_HEIGHT;
                         _choiceCanvasDrawing.Request(() =>
                         {
                             // Make cursor big and visible

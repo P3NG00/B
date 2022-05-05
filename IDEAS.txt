@@ -38,3 +38,7 @@ Process gtav = new Process();
 gtav.StartInfo.FileName = @steamPath;
 gtav.StartInfo.Arguments = "-applaunch 271590 -StraightIntoFreemode";
 gtav.Start(); 
+
+// TODO process watcher, update every second or so with all computer process StartInfo
+
+// TODO pc spec getter
