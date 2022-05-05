@@ -135,7 +135,8 @@ namespace B.Options.Tools.MoneyTracker
                             {
                                 Input.ResetString();
                                 SetStage(Stages.Account);
-                            }, key: ConsoleKey.Escape));
+                            }, key: ConsoleKey.Escape)
+                        );
                     }
                     break;
 
@@ -329,7 +330,8 @@ namespace B.Options.Tools.MoneyTracker
                         _tempTransaction = null;
                         Input.ResetString();
                         SetStage(Stages.Transaction);
-                    }, key: ConsoleKey.Escape));
+                    }, key: ConsoleKey.Escape)
+                );
             }
             else
             {
@@ -355,7 +357,8 @@ namespace B.Options.Tools.MoneyTracker
                         _tempTransaction.Description = Input.String;
                         Input.String = _tempTransaction.Amount.ToString();
                         SetStage(Stages.Transaction_Add_Amount);
-                    }, key: ConsoleKey.Escape));
+                    }, key: ConsoleKey.Escape)
+                );
             }
         }
 

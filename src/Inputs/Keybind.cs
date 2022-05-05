@@ -167,16 +167,19 @@ namespace B.Inputs
             return keybind;
         }
 
-        public static Keybind CreateOptionExit(IOption option)
+        public static Keybind CreateOptionExit(IOption option, bool hide = false)
         {
-            string phrase = string.Empty;
+            string? phrase = null;
 
-            switch (Program.Instance.Stage)
+            if (!hide)
             {
-                case Program.Stages.Program: phrase = "Quit"; break;
-                case Program.Stages.Group: phrase = "Back"; break;
-                case Program.Stages.Option: phrase = "Exit"; break;
-                default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
+                switch (Program.Instance.Stage)
+                {
+                    case Program.Stages.Program: phrase = "Quit"; break;
+                    case Program.Stages.Group: phrase = "Back"; break;
+                    case Program.Stages.Option: phrase = "Exit"; break;
+                    default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
+                }
             }
 
             return Create(option.Quit, phrase, key: ConsoleKey.Escape);
@@ -242,7 +245,11 @@ namespace B.Inputs
             }
         }
 
-        public static void ClearRegisteredKeybinds() => _keybinds.Clear();
+        public static void ClearRegisteredKeybinds()
+        {
+            _keybinds.Clear();
+            Mouse.MarkKeybindsForRedraw();
+        }
 
         #endregion
 

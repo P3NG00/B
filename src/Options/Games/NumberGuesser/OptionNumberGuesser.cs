@@ -162,7 +162,8 @@ namespace B.Options.Games.NumberGuesser
                                     SetStage(Stages.Settings);
                                 }
                             }, key: ConsoleKey.Enter),
-                            Keybind.Create(() => SetStage(Stages.Settings), key: ConsoleKey.Escape));
+                            Keybind.Create(() => SetStage(Stages.Settings), key: ConsoleKey.Escape)
+                        );
                     }
                     break;
             }

@@ -42,6 +42,7 @@ namespace B.Inputs
         private static bool _lastLeftButtonDown = false;
         private static bool _lastLeftButtonClick = false;
         private static Thread _thread = null!;
+        private static Vector2 _lastMousePos = Vector2.Zero;
 
         #endregion
 
@@ -59,6 +60,9 @@ namespace B.Inputs
             _thread = ProgramThread.StartLoopedThread(nameof(MouseThreadLoop), MouseThreadLoop, ThreadPriority.BelowNormal);
         }
 
+        // This resets the variable used to check if the mouse has moved to check the keybind highlights
+        public static void MarkKeybindsForRedraw() => _lastMousePos = Vector2.Zero;
+
         #endregion
 
 
@@ -67,10 +71,8 @@ namespace B.Inputs
 
         private static void MouseThreadLoop()
         {
-            // If mouse was clicked, wait to help prevent 
-            if (_lastLeftButtonClick)
-                ProgramThread.Wait(0.1f);
-
+            // Wait thread
+            ProgramThread.Wait(_lastLeftButtonClick ? 0.1f : 0.01f);
             // Lock and process
             ProgramThread.Lock(Process);
         }
@@ -93,9 +95,13 @@ namespace B.Inputs
                 if (_lastLeftButtonClick)
                     Keybind.FindKeybind(keybind => keybind.IsHighlighted);
             }
-            // Print keybinds (skip if clicked)
-            if (!_lastLeftButtonClick)
+            // Get mouse position
+            Vector2 mousePos = Position;
+            // Print keybinds if mouse moved and not clicked
+            if (mousePos != _lastMousePos && !_lastLeftButtonClick)
                 Keybind.PrintRegisteredKeybinds();
+            // Update last mouse position
+            _lastMousePos = mousePos;
             // Mouse Position Debug display
             if (Program.Settings.DebugMode)
             {

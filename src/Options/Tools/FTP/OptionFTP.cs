@@ -161,7 +161,8 @@ namespace B.Options.Tools.FTP
                                 catch (SocketException e) { PrintError("Can't connect", e); }
                                 catch (SshConnectionException e) { PrintError("Error", e); }
                             }, key: ConsoleKey.Enter),
-                            Keybind.Create(() => Quit(), key: ConsoleKey.Escape));
+                            Keybind.CreateOptionExit(this, true)
+                        );
 
                         void PrintError(string msg, Exception e)
                         {
@@ -199,8 +200,8 @@ namespace B.Options.Tools.FTP
                                         SetStage(Stages.FileInteract);
                                 }, "Select", key: ConsoleKey.Enter));
                         }
-                        keybinds.Add(Keybind.Create(() => RefreshFiles(), "Refresh", key: ConsoleKey.F5));
-                        keybinds.Add(Keybind.Create(() => PreviousDirectory(), "Back", key: ConsoleKey.Backspace));
+                        keybinds.Add(Keybind.Create(RefreshFiles, "Refresh", key: ConsoleKey.F5));
+                        keybinds.Add(Keybind.Create(PreviousDirectory, "Back", key: ConsoleKey.Backspace));
                         Cursor.y = 1;
                         Input.RequestScroll(
                             items: _files,

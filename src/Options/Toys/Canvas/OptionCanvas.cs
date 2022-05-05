@@ -169,7 +169,7 @@ namespace B.Options.Toys.Canvas
                 }, key: ConsoleKey.Escape)};
 
             _choiceCanvasDrawing = new();
-            // TODO print things like "use wasd for ..." and "arrow keys for "
+            // TODO add text entries to print things like "use wasd for ..." and "arrow keys for "
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow));
@@ -181,12 +181,12 @@ namespace B.Options.Toys.Canvas
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => PaintInDirection(Direction.Right), keyChar: '6'));
             // Paint
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(Paint, key: ConsoleKey.Spacebar));
-            // Resize Brush 
+            // Resize Brush
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Up), key: ConsoleKey.UpArrow, modifiers: ConsoleModifiers.Control));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, modifiers: ConsoleModifiers.Control));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, modifiers: ConsoleModifiers.Control));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, modifiers: ConsoleModifiers.Control));
-            // Color Select
+            // Color Select // TODO display keybind with description
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() =>
             {
                 SetStage(Stages.ColorSelect);
