@@ -218,13 +218,11 @@ namespace B
                             if (title is null)
                                 throw new Exception($"{optionType.Name} has no 'Title' property.");
 
-                            Action createInstanceAction = () =>
+                            choice.AddKeybind(Keybind.Create(() =>
                             {
                                 _selectedOption = optionType.Instantiate<IOption>();
                                 SetStage(Stages.Option);
-                            };
-                            char c = (char)('1' + i);
-                            choice.AddKeybind(Keybind.Create(createInstanceAction, title, c));
+                            }, title, (char)('1' + i)));
                         });
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateOptionExit(this));
@@ -237,7 +235,9 @@ namespace B
                         // Run option
                         if (_selectedOption is not null && _selectedOption.IsRunning)
                             _selectedOption.Loop();
-                        else
+
+                        // Check option
+                        if (_selectedOption is null || !_selectedOption.IsRunning)
                         {
                             _selectedOption = null;
                             SetStage(Stages.Group);
@@ -269,7 +269,7 @@ namespace B
             ProgramThread.TryLock();
             Keybind.ClearRegisteredKeybinds();
             Window.Clear();
-            Window.SetSize(Window.SizeMax * 0.75f);
+            Window.Size = Window.SizeMax * 0.75f;
             // Cursor will always start at (2, 1)
             Cursor.Set(2, 1);
 
@@ -286,7 +286,7 @@ namespace B
 
             Cursor.NextLine(2, 2);
             Choice choice = new();
-            choice.AddKeybind(Keybind.Create(Util.Void, "Press any key to continue..."));
+            choice.AddKeybind(Keybind.Create(description: "Press any key to continue..."));
             // Thread will unlock while waiting for input
             choice.Request();
             // Thread will lock while processing

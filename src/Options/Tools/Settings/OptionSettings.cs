@@ -70,7 +70,7 @@ namespace B.Options.Tools.Settings
                 case Stages.WindowSize:
                     {
                         _size = _size.Clamp(Window.SizeMin, Window.SizeMax);
-                        Window.SetSize(_size);
+                        Window.Size = _size;
                         Cursor.Set(0, 0);
                         Window.Print($"Detected Max Size: {Window.SizeMax}");
                         Cursor.Set(0, 1);

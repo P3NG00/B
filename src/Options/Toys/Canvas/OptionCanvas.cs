@@ -286,7 +286,7 @@ namespace B.Options.Toys.Canvas
 
                 case Stages.View:
                     {
-                        Window.SetSize(_canvas.Size + (CANVAS_BORDER_PAD * 2));
+                        Window.Size = _canvas.Size + (CANVAS_BORDER_PAD * 2);
                         Cursor.Position = CANVAS_BORDER_PAD;
                         _canvas.Draw();
                         Input.WaitFor(ConsoleKey.Escape, true);
@@ -336,7 +336,7 @@ namespace B.Options.Toys.Canvas
                     {
                         Vector2 windowSize = _canvas.Size + (CANVAS_BORDER_PAD * 2);
                         windowSize.y += CANVAS_EDIT_HEIGHT + 3;
-                        Window.SetSize(windowSize);
+                        Window.Size = windowSize;
                         // Print top info
                         Cursor.Set(2, 1);
                         Window.Print($"Color: {_color,-11}");

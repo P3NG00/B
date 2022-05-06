@@ -40,12 +40,12 @@ namespace B.Inputs
 
         private static readonly List<Keybind> _keybinds = new();
 
-        private ConsoleKey? _key;
-        private char? _keyChar;
+        private ConsoleModifiers _modifiers;
         private string _description = null!;
         private Action _action = null!;
         private ColorPair? _colorPair;
-        private ConsoleModifiers _modifiers;
+        private ConsoleKey? _key;
+        private char? _keyChar;
         // Last highlight state cache
         private bool? _lastHighlighted = null;
 
@@ -160,12 +160,12 @@ namespace B.Inputs
         public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
         {
             Keybind keybind = new();
-            keybind._action = action ?? Util.Void;
-            keybind._keyChar = keyChar;
-            keybind._key = key;
             keybind._description = description ?? string.Empty;
             keybind._modifiers = modifiers ?? default;
+            keybind._action = action ?? Util.Void;
             keybind._colorPair = colorPair;
+            keybind._keyChar = keyChar;
+            keybind._key = key;
             return keybind;
         }
 
@@ -180,7 +180,7 @@ namespace B.Inputs
                     case Program.Stages.Program: phrase = "Quit"; break;
                     case Program.Stages.Group: phrase = "Back"; break;
                     case Program.Stages.Option: phrase = "Exit"; break;
-                    default: throw new Exception($"Invalid Program Stage: {Program.Instance.Stage}");
+                    default: throw new Exception($"Invalid Program Stage");
                 }
             }
 

@@ -7,14 +7,18 @@ namespace B.Utils
     {
         #region Universal Properties
 
-        // This represents the size of one char in the console
-        public static Vector2 CharSize => new(8, 16);
+        // The current size of the window
+        public static Vector2 Size
+        {
+            get => new(Width, Height);
+            set => SetSize(value.x, value.y);
+        }
         // The minimum size of the window
         public static Vector2 SizeMin => new(16, 2);
         // The maximum size of the window
         public static Vector2 SizeMax => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
-        // The current size of the window
-        public static Vector2 Size => new(Width, Height);
+        // This represents the size of one char in the console
+        public static Vector2 CharSize => new(8, 16);
         // The height of the window
         public static int Height => Console.WindowHeight;
         // The width of the window
@@ -25,8 +29,6 @@ namespace B.Utils
 
 
         #region Universal Methods
-
-        public static void SetSize(Vector2 size) => SetSize(size.x, size.y);
 
         public static void SetSize(int width, int height)
         {
