@@ -12,12 +12,9 @@ namespace B.Options.Tools.FTP
     {
         #region Constants
 
+        private const int MAX_LENGTH_PROFILE_INPUT = 20;
         private const int MAX_LENGTH_PASSWORD = 50;
         private const int WIDTH = 140;
-        // TODO move IP, USER, PORT to a serializable 'Profile' class or something so it's not hardcoded
-        private const string SERVER_IP = "***REMOVED***";
-        private const string SERVER_USER = "***REMOVED***";
-        private const int SERVER_PORT = 22;
 
         #endregion
 
@@ -26,6 +23,7 @@ namespace B.Options.Tools.FTP
         #region Universal Properties
 
         public static string Title => "FTP";
+        public static string DirectoryPath => Program.DataPath + @"ftp\";
 
         #endregion
 
@@ -34,7 +32,6 @@ namespace B.Options.Tools.FTP
         #region Private Properties
 
         private static string DownloadPath => Environment.CurrentDirectory + @"\download\";
-        private SftpFile CurrentFile => _files[Input.ScrollIndex];
         private static Func<int, string>[] _scramblers => new Func<int, string>[]
         {
             // Center Waves
@@ -85,12 +82,14 @@ namespace B.Options.Tools.FTP
                     "· · ·",
                 }.FromRemainder(l),
         };
-        private string Path
+
+        private SftpFile CurrentFile => _files[Input.ScrollIndex];
+        private string CurrentPath
         {
-            get => _path;
+            get => _currentPath;
             set
             {
-                _path = value;
+                _currentPath = value;
                 RefreshFiles();
             }
         }
@@ -101,11 +100,12 @@ namespace B.Options.Tools.FTP
 
         #region Private Variables
 
+        private List<ServerProfile> _profiles = new();
+        private string _currentPath = string.Empty;
+        private ServerProfile _currentProfile = null!;
         private Func<int, string> _scrambler;
         private SftpClient _client = null!;
         private SftpFile[] _files = null!;
-        private string _path = string.Empty;
-        private Stages _lastStage = Stages.Navigate;
 
         #endregion
 
@@ -113,15 +113,27 @@ namespace B.Options.Tools.FTP
 
         #region Constructors
 
-        public OptionFTP() : base(Stages.Login)
+        public OptionFTP() : base(Stages.Profile)
         {
             // Empty the input string
             Input.ResetString();
             // Select a random scrambler to show.
-            _scrambler = OptionFTP._scramblers.Random();
+            _scrambler = _scramblers.Random();
             // If Download Path doesn't exist, create it.
-            if (Directory.Exists(OptionFTP.DownloadPath))
-                Directory.CreateDirectory(OptionFTP.DownloadPath);
+            if (Directory.Exists(DownloadPath))
+                Directory.CreateDirectory(DownloadPath);
+            // Check save data
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
+            else
+            {
+                foreach (var file in Directory.GetFiles(DirectoryPath))
+                {
+                    var profile = Data.Deserialize<ServerProfile>(file);
+                    profile.Name = Path.GetFileNameWithoutExtension(file);
+                    _profiles.Add(profile);
+                }
+            }
         }
 
         #endregion
@@ -130,25 +142,199 @@ namespace B.Options.Tools.FTP
 
         #region Override Methods
 
-        public override void Loop()
+        public sealed override void Loop()
         {
             switch (Stage)
             {
+                case Stages.Profile:
+                    {
+                        // TODO
+
+
+                        bool hasProfiles = _profiles.Count > 0;
+                        int consoleHeight = hasProfiles ? _profiles.Count + 12 : 10;
+                        Window.SetSize(27, consoleHeight); // TODO make height account for more than 1 profile
+                        Cursor.y = 1;
+                        List<Keybind> keybinds = new();
+                        keybinds.Add(Keybind.Create(() =>
+                        {
+                            // Setup profile creation
+                            _currentProfile = new();
+                            SetStage(Stages.Profile_Create);
+                        }, "Create", key: ConsoleKey.F1));
+
+                        if (hasProfiles)
+                        {
+                            keybinds.Add(Keybind.CreateConfirmation(() =>
+                            {
+                                ServerProfile profile = _profiles[Input.ScrollIndex];
+                                File.Delete(profile.Path);
+                                _profiles.Remove(profile);
+                            }, $"Remove {_profiles[Input.ScrollIndex].Name}?", "Delete", key: ConsoleKey.Delete));
+                        }
+
+                        keybinds.Add(Keybind.Create(() =>
+                        {
+                            // Load profile
+                            _currentProfile = _profiles[Input.ScrollIndex];
+                            SetStage(Stages.Login);
+                        }, "Login", key: ConsoleKey.Enter));
+
+                        Input.RequestScroll(
+                            items: _profiles,
+                            getText: profile => profile.Name,
+                            title: "Profiles",
+                            exitKeybind: Keybind.CreateOptionExit(this),
+                            extraKeybinds: keybinds.ToArray()
+                        );
+                    }
+                    break;
+
+                case Stages.Profile_Create:
+                case Stages.Profile_Create_IP:
+                case Stages.Profile_Create_Port:
+                case Stages.Profile_Create_User:
+                    {
+                        Window.SetSize(31, 9);
+                        PrintCreationInfo(1, "Title", Stage == Stages.Profile_Create ? Input.String : _currentProfile.Name);
+                        if (Stage >= Stages.Profile_Create_IP)
+                            PrintCreationInfo(2, "IP", Stage == Stages.Profile_Create_IP ? Input.String : _currentProfile.IP);
+                        if (Stage >= Stages.Profile_Create_Port)
+                            PrintCreationInfo(3, "Port", Stage == Stages.Profile_Create_Port ? Input.String : _currentProfile.Port);
+                        if (Stage >= Stages.Profile_Create_User)
+                            PrintCreationInfo(4, "User", Input.String);
+
+                        // TODO cache keybinds upon OptionFTP init
+                        Keybind[] keybinds = new Keybind[]
+                        {
+                            // ConsoleKey.Enter
+                            Keybind.Create(() =>
+                            {
+                                switch (Stage)
+                                {
+                                    case Stages.Profile_Create:
+                                        {
+                                            string name = Input.String;
+
+                                            if (!String.IsNullOrWhiteSpace(name))
+                                            {
+                                                _currentProfile.Name = name;
+                                                Input.ResetString();
+                                                SetStage(Stages.Profile_Create_IP);
+                                            }
+                                        }
+                                        break;
+
+                                    case Stages.Profile_Create_IP:
+                                        {
+                                            string ip = Input.String;
+
+                                            if (!String.IsNullOrWhiteSpace(ip))
+                                            {
+                                                _currentProfile.IP = ip;
+                                                Input.ResetString();
+                                                SetStage(Stages.Profile_Create_Port);
+                                            }
+                                        }
+                                        break;
+
+                                    case Stages.Profile_Create_Port:
+                                        {
+                                            int? port = Input.Int;
+
+                                            if (port.HasValue)
+                                            {
+                                                _currentProfile.Port = port.Value;
+                                                Input.ResetString();
+                                                SetStage(Stages.Profile_Create_User);
+                                            }
+                                        }
+                                        break;
+
+                                    case Stages.Profile_Create_User:
+                                        {
+                                            string username = Input.String;
+
+                                            if (!String.IsNullOrWhiteSpace(username))
+                                            {
+                                                _currentProfile.Username = username;
+                                                Input.ResetString();
+                                                _profiles.Add(_currentProfile);
+                                                SetStage(Stages.Profile);
+                                            }
+                                        }
+                                        break;
+                                }
+                            }, "Next", key: ConsoleKey.Enter),
+                            // ConsoleKey.Escape
+                            Keybind.Create(() =>
+                            {
+                                switch (Stage)
+                                {
+                                    case Stages.Profile_Create:
+                                        {
+                                            _currentProfile = null!;
+                                            SetStage(Stages.Profile);
+                                        }
+                                        break;
+
+                                    case Stages.Profile_Create_IP:
+                                        {
+                                            Input.String = _currentProfile.Name;
+                                            SetStage(Stages.Profile_Create);
+                                        }
+                                        break;
+
+                                    case Stages.Profile_Create_Port:
+                                        {
+                                            Input.String = _currentProfile.IP;
+                                            SetStage(Stages.Profile_Create_IP);
+                                        }
+                                        break;
+
+                                    case Stages.Profile_Create_User:
+                                        {
+                                            Input.String = _currentProfile.Port.ToString();
+                                            SetStage(Stages.Profile_Create_Port);
+                                        }
+                                        break;
+                                }
+                            }, "Previous", key: ConsoleKey.Escape)
+                        };
+
+                        // Request user input
+                        Cursor.y = 6;
+                        Input.RequestLine(MAX_LENGTH_PROFILE_INPUT, keybinds);
+
+                        // Local functions
+                        void PrintCreationInfo(int line, string inputName, object inputValue)
+                        {
+                            Cursor.Set(2, line);
+                            Window.Print($"{inputName}: {inputValue,-MAX_LENGTH_PROFILE_INPUT}");
+                        }
+                    }
+                    break;
+
                 case Stages.Login:
                     {
                         int consoleWidth = 16;
-                        Window.SetSize(consoleWidth, 5);
+                        Window.SetSize(consoleWidth, 7);
                         Cursor.Set(5, 1);
                         Window.Print("Login");
                         string scrambled = _scrambler(Input.String.Length);
                         int textStart = (int)((consoleWidth / 2f) - (scrambled.Length / 2f));
                         Cursor.Set(textStart, 2);
                         Window.Print(scrambled);
-                        Cursor.Set(0, 3);
-                        Input.RequestLine(OptionFTP.MAX_LENGTH_PASSWORD,
+                        Cursor.Set(0, 4);
+                        // TODO add descriptions to exit/login keybinds and make height taller to account for that space
+                        Input.RequestLine(MAX_LENGTH_PASSWORD,
                             Keybind.Create(() =>
                             {
-                                _client = new(OptionFTP.SERVER_IP, OptionFTP.SERVER_PORT, OptionFTP.SERVER_USER, Input.String);
+                                string profileUser = _currentProfile.Username;
+                                string profileIP = _currentProfile.IP;
+                                int profilePort = _currentProfile.Port;
+                                _client = new(profileIP, profilePort, profileUser, Input.String);
+                                _client.KeepAliveInterval = TimeSpan.FromSeconds(10);
                                 Input.ResetString();
 
                                 try
@@ -157,19 +343,21 @@ namespace B.Options.Tools.FTP
                                     RefreshFiles();
                                     SetStage(Stages.Navigate);
                                 }
-                                catch (SshAuthenticationException e) { PrintError("Wrong password", e); }
+                                catch (SshAuthenticationException e) { PrintError("Incorrect Auth", e); }
                                 catch (SocketException e) { PrintError("Can't connect", e); }
                                 catch (SshConnectionException e) { PrintError("Error", e); }
-                            }, key: ConsoleKey.Enter),
-                            Keybind.CreateOptionExit(this, true)
+                            }, "Login", key: ConsoleKey.Enter),
+                            Keybind.Create(() => SetStage(Stages.Profile), "Back", key: ConsoleKey.Escape)
                         );
 
+                        // Local functions
                         void PrintError(string msg, Exception e)
                         {
                             if (Program.Settings.DebugMode)
                                 Program.HandleException(e);
                             else
                             {
+                                // TODO after adding descriptions to keybinds, might need to change where error is printed
                                 Cursor.x = 1;
                                 Window.Print(msg);
                                 Input.Get();
@@ -181,10 +369,9 @@ namespace B.Options.Tools.FTP
 
                 case Stages.Navigate:
                     {
-                        _lastStage = Stage;
                         int entryAmount = _files.Length;
                         int consoleHeight = Math.Min(entryAmount, Input.MaxEntries) + 14;
-                        Window.SetSize(OptionFTP.WIDTH, consoleHeight);
+                        Window.SetSize(WIDTH, consoleHeight);
                         List<Keybind> keybinds = new();
                         if (entryAmount != 0)
                         {
@@ -195,10 +382,11 @@ namespace B.Options.Tools.FTP
                                     SftpFile currentFile = CurrentFile;
 
                                     if (currentFile.IsDirectory)
-                                        Path += "/" + currentFile.Name;
+                                        CurrentPath += "/" + currentFile.Name;
                                     else
                                         SetStage(Stages.FileInteract);
-                                }, "Select", key: ConsoleKey.Enter));
+                                }, "Select", key: ConsoleKey.Enter)
+                            );
                         }
                         keybinds.Add(Keybind.Create(RefreshFiles, "Refresh", key: ConsoleKey.F5));
                         keybinds.Add(Keybind.Create(PreviousDirectory, "Back", key: ConsoleKey.Backspace));
@@ -212,13 +400,13 @@ namespace B.Options.Tools.FTP
                                     s += "/";
                                 return s;
                             },
-                            title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{Path}'",-98}",
+                            title: $"{$"index: ({Input.ScrollIndex + 1} / {entryAmount}) | path > '{CurrentPath}'",-98}",
                             exitKeybind: Keybind.Create(() =>
                             {
-                                if (Path == string.Empty)
+                                if (CurrentPath == string.Empty)
                                 {
                                     Input.ScrollIndex = 0;
-                                    Quit();
+                                    SetStage(Stages.Profile);
                                 }
                                 else
                                     PreviousDirectory();
@@ -230,7 +418,6 @@ namespace B.Options.Tools.FTP
 
                 case Stages.FileInteract:
                     {
-                        _lastStage = Stage;
                         SftpFile file = CurrentFile;
                         string title = $"{file.FullName} | {file.Attributes.Size} bytes";
                         Window.SetSize(title.Length + 6, 8);
@@ -246,11 +433,14 @@ namespace B.Options.Tools.FTP
             }
         }
 
-        public override void Quit()
+        public sealed override void Save() => _profiles.ForEach(profile => Data.Serialize(DirectoryPath + profile.Name, profile));
+
+        public sealed override void Quit()
         {
             if (_client != null && _client.IsConnected)
                 _client.Disconnect();
 
+            Save();
             base.Quit();
         }
 
@@ -262,7 +452,8 @@ namespace B.Options.Tools.FTP
 
         private void RefreshFiles()
         {
-            _files = _client.ListDirectory(Path).OrderBy(x => !x.IsDirectory).ToArray();
+            // Get file list from server in current path with folders first.
+            _files = _client.ListDirectory(CurrentPath).OrderBy(x => !x.IsDirectory).ToArray();
             Input.ScrollIndex = 0;
             Window.Clear();
         }
@@ -276,13 +467,10 @@ namespace B.Options.Tools.FTP
         private void Download(SftpFile file)
         {
             if (file.IsDirectory)
-            {
-                foreach (SftpFile subFile in _client.ListDirectory(file.FullName))
-                    Download(subFile);
-            }
+                _client.ListDirectory(file.FullName).ForEach(Download);
             else
             {
-                string path = OptionFTP.DownloadPath + file.FullName.Substring(1);
+                string path = DownloadPath + file.FullName.Substring(1);
                 DirectoryInfo? newFileDir = new FileInfo(path).Directory;
 
                 if (newFileDir != null)
@@ -291,7 +479,7 @@ namespace B.Options.Tools.FTP
                 using (Stream stream = File.Open(path, FileMode.Create))
                 {
                     Window.Clear();
-                    Window.SetSize(OptionFTP.WIDTH, 7);
+                    Window.SetSize(WIDTH, 7);
                     Cursor.Set(2, 1);
                     Window.Print("Downloading...");
                     Cursor.Set(2, 3);
@@ -333,8 +521,8 @@ namespace B.Options.Tools.FTP
 
         private void PreviousDirectory()
         {
-            if (Path != string.Empty)
-                Path = Path.Substring(0, Path.LastIndexOf('/'));
+            if (CurrentPath != string.Empty)
+                CurrentPath = CurrentPath.Substring(0, CurrentPath.LastIndexOf('/'));
         }
 
         #endregion
@@ -345,6 +533,11 @@ namespace B.Options.Tools.FTP
 
         public enum Stages
         {
+            Profile,
+            Profile_Create,
+            Profile_Create_IP,
+            Profile_Create_Port,
+            Profile_Create_User,
             Login,
             Navigate,
             FileInteract,

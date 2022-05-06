@@ -25,6 +25,7 @@ namespace B.Options
 
         protected virtual void SetStage(T stage)
         {
+            // Window is cleared when stage is changed because no stages need visual info from the last
             Window.Clear();
             Stage = stage;
         }

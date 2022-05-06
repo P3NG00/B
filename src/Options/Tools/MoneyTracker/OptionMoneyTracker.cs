@@ -247,9 +247,66 @@ namespace B.Options.Tools.MoneyTracker
                     }
                     break;
 
-                case Stages.Transaction_Add_Amount: ShowTransactionStage(); break;
+                case Stages.Transaction_Add_Amount:
+                case Stages.Transaction_Add_Description:
+                    {
+                        Window.SetSize(4 + Input.DECIMAL_LENGTH, 7);
+                        Cursor.Set(2, 1);
+                        Window.Print("Amount:");
+                        Cursor.Set(2, 2);
 
-                case Stages.Transaction_Add_Description: ShowTransactionStage(); break;
+                        if (Stage == Stages.Transaction_Add_Amount)
+                        {
+                            Window.Print(Input.String);
+                            Input.RequestLine(Input.DECIMAL_LENGTH,
+                                Keybind.Create(() =>
+                                {
+                                    decimal? amount = Input.Decimal;
+
+                                    if (amount.HasValue)
+                                    {
+                                        _tempTransaction!.Amount = amount.Value;
+                                        Input.String = _tempTransaction.Description;
+                                        SetStage(Stages.Transaction_Add_Description);
+                                    }
+                                }, key: ConsoleKey.Enter),
+                                Keybind.Create(() =>
+                                {
+                                    _tempTransaction = null;
+                                    Input.ResetString();
+                                    SetStage(Stages.Transaction);
+                                }, key: ConsoleKey.Escape)
+                            );
+                        }
+                        else
+                        {
+                            Window.Print(_tempTransaction!.Amount);
+                            Cursor.Set(2, 4);
+                            Window.Print("Description:");
+                            Cursor.Set(2, 5);
+                            Window.Print(Input.String);
+                            Input.RequestLine(Input.DECIMAL_LENGTH,
+                                Keybind.Create(() =>
+                                {
+                                    if (Input.String.Length > 0)
+                                    {
+                                        _tempTransaction.Description = Input.String.Trim();
+                                        _selectedAccount!.Transactions.Add(_tempTransaction);
+                                        _tempTransaction = null;
+                                        Input.ResetString();
+                                        SetStage(Stages.Transaction);
+                                    }
+                                }, key: ConsoleKey.Enter),
+                                Keybind.Create(() =>
+                                {
+                                    _tempTransaction.Description = Input.String;
+                                    Input.String = _tempTransaction.Amount.ToString();
+                                    SetStage(Stages.Transaction_Add_Amount);
+                                }, key: ConsoleKey.Escape)
+                            );
+                        }
+                    }
+                    break;
 
                 case Stages.Transaction_Edit:
                     {
@@ -301,65 +358,6 @@ namespace B.Options.Tools.MoneyTracker
                 throw new Exception("Attempted to get transaction from invalid account!");
 
             return string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description);
-        }
-
-        private void ShowTransactionStage()
-        {
-            Window.SetSize(4 + Input.DECIMAL_LENGTH, 7);
-            Cursor.Set(2, 1);
-            Window.Print("Amount:");
-            Cursor.Set(2, 2);
-
-            if (Stage == Stages.Transaction_Add_Amount)
-            {
-                Window.Print(Input.String);
-                Input.RequestLine(Input.DECIMAL_LENGTH,
-                    Keybind.Create(() =>
-                    {
-                        decimal? amount = Input.Decimal;
-
-                        if (amount.HasValue)
-                        {
-                            _tempTransaction!.Amount = amount.Value;
-                            Input.String = _tempTransaction.Description;
-                            SetStage(Stages.Transaction_Add_Description);
-                        }
-                    }, key: ConsoleKey.Enter),
-                    Keybind.Create(() =>
-                    {
-                        _tempTransaction = null;
-                        Input.ResetString();
-                        SetStage(Stages.Transaction);
-                    }, key: ConsoleKey.Escape)
-                );
-            }
-            else
-            {
-                Window.Print(_tempTransaction!.Amount);
-                Cursor.Set(2, 4);
-                Window.Print("Description:");
-                Cursor.Set(2, 5);
-                Window.Print(Input.String);
-                Input.RequestLine(Input.DECIMAL_LENGTH,
-                    Keybind.Create(() =>
-                    {
-                        if (Input.String.Length > 0)
-                        {
-                            _tempTransaction.Description = Input.String.Trim();
-                            _selectedAccount!.Transactions.Add(_tempTransaction);
-                            _tempTransaction = null;
-                            Input.ResetString();
-                            SetStage(Stages.Transaction);
-                        }
-                    }, key: ConsoleKey.Enter),
-                    Keybind.Create(() =>
-                    {
-                        _tempTransaction.Description = Input.String;
-                        Input.String = _tempTransaction.Amount.ToString();
-                        SetStage(Stages.Transaction_Add_Amount);
-                    }, key: ConsoleKey.Escape)
-                );
-            }
         }
 
         #endregion

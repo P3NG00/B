@@ -31,6 +31,7 @@ namespace B.Inputs
             }
         }
 
+        public static bool KeybindsNeedRedraw => _lastMousePos == Vector2.Zero;
         public static bool LeftButtonDown => _lastLeftButtonDown;
 
         #endregion

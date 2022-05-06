@@ -121,12 +121,11 @@ namespace B.Inputs
                     Window.Print(ScrollIndex == j ? '>' : ' ');
                     T item = items.ElementAt(j);
                     string text = getText(item);
-                    string output = string.Format("{0,-" + text.Length + "}", text);
                     ConsoleColor? colorText = getTextColor?.Invoke(item, j);
                     ConsoleColor? colorBG = getBackgroundColor?.Invoke(item, j);
                     Cursor.x = 3;
                     // Regiser each entry as a Keybind
-                    Keybind.RegisterKeybind(Keybind.Create(() => ScrollIndex = j, output, colorPair: new(colorText, colorBG)));
+                    Keybind.RegisterKeybind(Keybind.Create(() => ScrollIndex = j, text, colorPair: new(colorText, colorBG)));
                     Cursor.NextLine();
                 }
 

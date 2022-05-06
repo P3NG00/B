@@ -294,11 +294,43 @@ namespace B.Options.Toys.Canvas
                     }
                     break;
 
-                case Stages.Create_Name: ShowCreationStage(); break;
+                case Stages.Create_Name:
+                case Stages.Create_Size_Width:
+                case Stages.Create_Size_Height:
+                    {
+                        Window.SetSize(35, 8);
+                        Cursor.Set(2, 1);
+                        Window.Print("New Canvas");
+                        Cursor.Set(2, 3);
+                        // Print canvas name or current input
+                        PrintCreationStageInfo("Name", Stage == Stages.Create_Name ? Input.String : _canvas.Title);
 
-                case Stages.Create_Size_Width: ShowCreationStage(); break;
+                        if (Stage != Stages.Create_Name)
+                        {
+                            Cursor.Set(2, 5);
+                            string print = string.Empty;
 
-                case Stages.Create_Size_Height: ShowCreationStage(); break;
+                            if (Stage == Stages.Create_Size_Width)
+                                print = Input.String;
+                            else if (Stage == Stages.Create_Size_Height)
+                                print = _canvas.Colors.Length.ToString();
+
+                            PrintCreationStageInfo("Width", print);
+                        }
+
+                        if (Stage == Stages.Create_Size_Height)
+                        {
+                            Cursor.Set(2, 6);
+                            PrintCreationStageInfo("Height", Input.String);
+                        }
+
+                        // Request line input
+                        Input.RequestLine(MAX_INPUT_LENGTH, _keybindsCreationStage);
+
+                        // Local function
+                        void PrintCreationStageInfo(string preface, string value) => Window.Print($"{preface}: {value,-MAX_INPUT_LENGTH}");
+                    }
+                    break;
 
                 case Stages.Edit:
                     {
@@ -409,41 +441,6 @@ namespace B.Options.Toys.Canvas
 
 
         #region Private Methods
-
-        private void ShowCreationStage()
-        {
-            Window.SetSize(35, 8);
-            Cursor.Set(2, 1);
-            Window.Print("New Canvas");
-            Cursor.Set(2, 3);
-            // Print canvas name or current input
-            PrintCreationStageInfo("Name", Stage == Stages.Create_Name ? Input.String : _canvas.Title);
-
-            if (Stage != Stages.Create_Name)
-            {
-                Cursor.Set(2, 5);
-                string print = string.Empty;
-
-                if (Stage == Stages.Create_Size_Width)
-                    print = Input.String;
-                else if (Stage == Stages.Create_Size_Height)
-                    print = _canvas.Colors.Length.ToString();
-
-                PrintCreationStageInfo("Width", print);
-            }
-
-            if (Stage == Stages.Create_Size_Height)
-            {
-                Cursor.Set(2, 6);
-                PrintCreationStageInfo("Height", Input.String);
-            }
-
-            // Request line input
-            Input.RequestLine(MAX_INPUT_LENGTH, _keybindsCreationStage);
-
-            // Local function
-            void PrintCreationStageInfo(string preface, string value) => Window.Print($"{preface}: {value,-MAX_INPUT_LENGTH}");
-        }
 
         private void Paint()
         {

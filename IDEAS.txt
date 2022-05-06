@@ -7,12 +7,6 @@ Allow variable in Grid initialization to allow for different visual grid borders
 
 
 
-Number Guesser:
-
-Store last 'Max Number' setting.
-
-
-
 General:
 
 Program needs testing with different types of systems.
@@ -42,3 +36,6 @@ gtav.Start();
 // TODO process watcher, update every second or so with all computer process StartInfo
 
 // TODO pc spec getter
+
+// TODO create PC tree indexer
+// this index each drive recursively subdirectories and files

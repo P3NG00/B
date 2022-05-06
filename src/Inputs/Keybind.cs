@@ -46,7 +46,7 @@ namespace B.Inputs
         private Action _action = null!;
         private ColorPair? _colorPair;
         private ConsoleModifiers _modifiers;
-        // This is used to print the keybind only when necessary
+        // Last highlight state cache
         private bool? _lastHighlighted = null;
 
         #endregion
@@ -71,14 +71,16 @@ namespace B.Inputs
             // Get current highlight status
             bool highlighted = IsHighlighted;
             // Compare to last highlight status
-            if (!_lastHighlighted.HasValue || (!highlighted && _lastHighlighted.Value))
+            // Check 'overrides' (reasons to re-print regardless of last state)
+            bool overrides = !_lastHighlighted.HasValue || Mouse.KeybindsNeedRedraw;
+            if (!highlighted && (overrides || _lastHighlighted!.Value))
             {
                 if (_colorPair is null)
                     PrintAction(() => Window.Print(keybindStr));
                 else
                     PrintAction(() => Window.Print(keybindStr, _colorPair));
             }
-            else if (highlighted && !_lastHighlighted.Value)
+            else if (highlighted && (overrides || !_lastHighlighted!.Value))
                 PrintAction(() => Window.Print(keybindStr, PrintType.Highlight));
             // Update last highlight status
             _lastHighlighted = highlighted;
