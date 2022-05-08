@@ -1,26 +1,26 @@
 ﻿using B.Inputs;
-using B.Options;
-using B.Options.Games.Adventure;
-using B.Options.Games.Blackjack;
-using B.Options.Games.MadLibs;
-using B.Options.Games.MexicanTrain;
-using B.Options.Games.NumberGuesser;
-using B.Options.Games.OptionCheckers;
-using B.Options.Tools.Backup;
-using B.Options.Tools.FTP;
-using B.Options.Tools.Indexer;
-using B.Options.Tools.MoneyTracker;
-using B.Options.Tools.Settings;
-using B.Options.Toys.BrainFuck;
-using B.Options.Toys.Canvas;
-using B.Options.Toys.TextGenerator;
+using B.Modules;
+using B.Modules.Games.Adventure;
+using B.Modules.Games.Blackjack;
+using B.Modules.Games.MadLibs;
+using B.Modules.Games.MexicanTrain;
+using B.Modules.Games.NumberGuesser;
+using B.Modules.Games.Checkers;
+using B.Modules.Tools.Backup;
+using B.Modules.Tools.FTP;
+using B.Modules.Tools.Indexer;
+using B.Modules.Tools.MoneyTracker;
+using B.Modules.Tools.Settings;
+using B.Modules.Toys.BrainFuck;
+using B.Modules.Toys.Canvas;
+using B.Modules.Toys.TextGenerator;
 using B.Utils;
 using B.Utils.Extensions;
 using B.Utils.Themes;
 
 namespace B
 {
-    public sealed class Program : Option<Program.Stages>
+    public sealed class Program : Module<Program.Stages>
     {
         #region Constants
 
@@ -50,33 +50,33 @@ namespace B
 
         #region Private Variables
 
-        // Option Groups
-        private static (string GroupTitle, Type[] OptionTypes)[] OptionGroups => new (string, Type[])[]
+        // Module Groups
+        private static (string GroupTitle, Type[] ModuleTypes)[] ModuleGroups => new (string, Type[])[]
         {
             ("Games", new Type[] {
-                typeof(OptionAdventure),
-                typeof(OptionMexicanTrain),
-                typeof(OptionBlackjack),
-                typeof(OptionCheckers),
-                typeof(OptionMadLibs),
-                typeof(OptionNumberGuesser),
+                typeof(ModuleAdventure),
+                typeof(ModuleMexicanTrain),
+                typeof(ModuleBlackjack),
+                typeof(ModuleCheckers),
+                typeof(ModuleMadLibs),
+                typeof(ModuleNumberGuesser),
             }),
             ("Toys", new Type[] {
-                typeof(OptionCanvas),
-                typeof(OptionBrainFuck),
-                typeof(OptionTextGenerator),
+                typeof(ModuleCanvas),
+                typeof(ModuleBrainFuck),
+                typeof(ModuleTextGenerator),
             }),
             ("Tools", new Type[] {
-                typeof(OptionFTP),
-                typeof(OptionBackup),
-                typeof(OptionMoneyTracker),
-                typeof(OptionIndexer),
-                typeof(OptionSettings),
+                typeof(ModuleFTP),
+                typeof(ModuleBackup),
+                typeof(ModuleMoneyTracker),
+                typeof(ModuleIndexer),
+                typeof(ModuleSettings),
             }),
         };
 
-        private (string GroupTitle, Type[] OptionTypes) _optionGroup;
-        private IOption? _selectedOption = null;
+        private (string GroupTitle, Type[] ModuleTypes) _moduleGroup;
+        private IModule? _selectedModule = null;
 
         #endregion
 
@@ -187,61 +187,61 @@ namespace B
             {
                 case Stages.Program:
                     {
-                        // Display main menu options
-                        Window.SetSize(22, OptionGroups.Length + 6);
+                        // Display main menu modules
+                        Window.SetSize(22, ModuleGroups.Length + 6);
                         Cursor.Set(0, 1);
                         Choice choice = new($"{Title}'s");
-                        for (int i = 0; i < OptionGroups.Length; i++)
+                        for (int i = 0; i < ModuleGroups.Length; i++)
                         {
-                            var optionGroup = OptionGroups[i];
+                            var moduleGroup = ModuleGroups[i];
                             char c = (char)('1' + i);
                             choice.AddKeybind(Keybind.Create(() =>
                             {
-                                _optionGroup = optionGroup;
+                                _moduleGroup = moduleGroup;
                                 SetStage(Stages.Group);
-                            }, optionGroup.GroupTitle, c));
+                            }, moduleGroup.GroupTitle, c));
                         }
                         choice.AddSpacer();
-                        choice.AddKeybind(Keybind.CreateOptionExit(this));
+                        choice.AddKeybind(Keybind.CreateModuleExit(this));
                         choice.Request();
                     }
                     break;
 
                 case Stages.Group:
                     {
-                        // Display selected group level options
-                        Window.SetSize(22, _optionGroup.OptionTypes.Length + 6);
+                        // Display selected group level modules
+                        Window.SetSize(22, _moduleGroup.ModuleTypes.Length + 6);
                         Cursor.Set(0, 1);
-                        Choice choice = new(_optionGroup.GroupTitle);
-                        _optionGroup.OptionTypes.ForEach((optionType, i) =>
+                        Choice choice = new(_moduleGroup.GroupTitle);
+                        _moduleGroup.ModuleTypes.ForEach((moduleType, i) =>
                         {
-                            string title = (string)optionType.GetProperty("Title")?.GetValue(null)!;
+                            string title = (string)moduleType.GetProperty("Title")?.GetValue(null)!;
 
                             if (title is null)
-                                throw new Exception($"{optionType.Name} has no 'Title' property.");
+                                throw new Exception($"{moduleType.Name} has no 'Title' property.");
 
                             choice.AddKeybind(Keybind.Create(() =>
                             {
-                                _selectedOption = optionType.Instantiate<IOption>();
-                                SetStage(Stages.Option);
+                                _selectedModule = moduleType.Instantiate<IModule>();
+                                SetStage(Stages.Module);
                             }, title, (char)('1' + i)));
                         });
                         choice.AddSpacer();
-                        choice.AddKeybind(Keybind.CreateOptionExit(this));
+                        choice.AddKeybind(Keybind.CreateModuleExit(this));
                         choice.Request();
                     }
                     break;
 
-                case Stages.Option:
+                case Stages.Module:
                     {
-                        // Run option
-                        if (_selectedOption is not null && _selectedOption.IsRunning)
-                            _selectedOption.Loop();
+                        // Run module
+                        if (_selectedModule is not null && _selectedModule.IsRunning)
+                            _selectedModule.Loop();
 
-                        // Check option
-                        if (_selectedOption is null || !_selectedOption.IsRunning)
+                        // Check module
+                        if (_selectedModule is null || !_selectedModule.IsRunning)
                         {
-                            _selectedOption = null;
+                            _selectedModule = null;
                             SetStage(Stages.Group);
                             ProgramThread.TryUnlock();
                         }
@@ -294,9 +294,9 @@ namespace B
             // Thread will lock while processing
             ProgramThread.TryLock();
             Program pInst = Instance;
-            pInst._selectedOption = null;
+            pInst._selectedModule = null;
 
-            if (pInst.Stage == Stages.Option)
+            if (pInst.Stage == Stages.Module)
                 pInst.SetStage(Stages.Group);
             else if (pInst.Stage == Stages.Group)
                 pInst.SetStage(Stages.Program);
@@ -312,7 +312,7 @@ namespace B
         {
             Program,
             Group,
-            Option,
+            Module,
         }
 
         #endregion

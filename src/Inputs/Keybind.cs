@@ -1,4 +1,4 @@
-using B.Options;
+using B.Modules;
 using B.Utils;
 using B.Utils.Enums;
 using B.Utils.Themes;
@@ -169,7 +169,7 @@ namespace B.Inputs
             return keybind;
         }
 
-        public static Keybind CreateOptionExit(IOption option, bool hide = false)
+        public static Keybind CreateModuleExit(IModule option, bool hide = false)
         {
             string? phrase = null;
 
@@ -179,7 +179,7 @@ namespace B.Inputs
                 {
                     case Program.Stages.Program: phrase = "Quit"; break;
                     case Program.Stages.Group: phrase = "Back"; break;
-                    case Program.Stages.Option: phrase = "Exit"; break;
+                    case Program.Stages.Module: phrase = "Exit"; break;
                     default: throw new Exception($"Invalid Program Stage");
                 }
             }
