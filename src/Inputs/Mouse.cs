@@ -58,7 +58,7 @@ namespace B.Inputs
                 throw new Exception("Mouse Capture Thread already initialized!");
 
             // Start Mouse Tracking Thread
-            _thread = ProgramThread.StartLoopedThread(nameof(MouseThreadLoop), MouseThreadLoop, ThreadPriority.BelowNormal);
+            _thread = ProgramThread.StartLoopedThread(nameof(MouseThreadLoop), MouseThreadLoop, priority: ThreadPriority.BelowNormal);
         }
 
         // This resets the variable used to check if the mouse has moved to check the keybind highlights

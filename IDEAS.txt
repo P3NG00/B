@@ -24,6 +24,10 @@ Add MCBackup Option to make backing up saves from any instance in specified mult
 
 
 
+Make sure all overridden methods are sealed.
+
+
+
 // TODO create penguin.bat runner in c#
 
 // TODO steam game id starter

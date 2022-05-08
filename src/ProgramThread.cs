@@ -53,18 +53,26 @@ namespace B
             Thread.Sleep(milliseconds);
         }
 
-        public static Thread StartLoopedThread(string name, Action action, ThreadPriority priority)
+        public static Thread StartThread(string name, Action action, ThreadPriority priority = ThreadPriority.Normal)
         {
-            Thread thread = new(() =>
-            {
-                while (Program.Instance.IsRunning)
-                    action();
-            });
+            Thread thread = new Thread(new ThreadStart(action));
             thread.Name = name;
             thread.Priority = priority;
             thread.IsBackground = true;
             thread.Start();
             return thread;
+        }
+
+        public static Thread StartLoopedThread(string name, Action actionToLoop, Func<bool>? loopCondition = null, ThreadPriority priority = ThreadPriority.Normal)
+        {
+            if (loopCondition is null)
+                loopCondition = () => Program.Instance.IsRunning;
+
+            return StartThread(name, () =>
+            {
+                while (loopCondition())
+                    actionToLoop();
+            }, priority);
         }
 
         #endregion

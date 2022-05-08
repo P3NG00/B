@@ -153,7 +153,7 @@ namespace B.Options.Tools.FTP
 
                         bool hasProfiles = _profiles.Count > 0;
                         int consoleHeight = hasProfiles ? _profiles.Count + 12 : 10;
-                        Window.SetSize(27, consoleHeight); // TODO make height account for more than 1 profile
+                        Window.SetSize(27, consoleHeight);
                         Cursor.y = 1;
                         List<Keybind> keybinds = new();
                         keybinds.Add(Keybind.Create(() =>

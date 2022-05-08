@@ -52,6 +52,10 @@ namespace B.Options.Tools.Settings
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '4'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.DeleteData), "Delete Data", '5'));
+                        // TODO add more data deletions
+                        // TODO FTP
+                        // TODO Number Guesser
+                        // TODO Indexer
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(Program.Settings.Censor.Toggle, $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10));
                         choice.AddKeybind(Keybind.Create(Program.Settings.DebugMode.Toggle, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12));

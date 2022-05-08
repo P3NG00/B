@@ -8,6 +8,7 @@ using B.Options.Games.NumberGuesser;
 using B.Options.Games.OptionCheckers;
 using B.Options.Tools.Backup;
 using B.Options.Tools.FTP;
+using B.Options.Tools.Indexer;
 using B.Options.Tools.MoneyTracker;
 using B.Options.Tools.Settings;
 using B.Options.Toys.BrainFuck;
@@ -69,6 +70,7 @@ namespace B
                 typeof(OptionFTP),
                 typeof(OptionBackup),
                 typeof(OptionMoneyTracker),
+                typeof(OptionIndexer),
                 typeof(OptionSettings),
             }),
         };

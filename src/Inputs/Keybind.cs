@@ -187,15 +187,15 @@ namespace B.Inputs
             return Create(option.Quit, phrase, key: ConsoleKey.Escape);
         }
 
-        public static Keybind CreateConfirmation(Action action, string message, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
+        public static Keybind CreateConfirmation(Action action, string deletionMessage, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
         {
-            Action confirmationAction = () =>
+            return Create(() =>
             {
                 ProgramThread.TryLock();
                 ClearRegisteredKeybinds();
                 Window.Clear();
-                Window.SetSize(message.Length + 6, 7);
-                Choice choice = new(message);
+                Window.SetSize(deletionMessage.Length + 6, 7);
+                Choice choice = new(deletionMessage);
                 choice.AddKeybind(Create(description: "NO", key: ConsoleKey.Escape));
                 choice.AddSpacer();
                 choice.AddKeybind(Create(action, "yes", key: ConsoleKey.Enter));
@@ -204,9 +204,7 @@ namespace B.Inputs
                 ProgramThread.TryLock();
                 // Clear window after confirmation
                 Window.Clear();
-            };
-
-            return Create(confirmationAction, description, keyChar, key, modifiers, colorPair);
+            }, description, keyChar, key, modifiers, colorPair);
         }
 
         public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)
