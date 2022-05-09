@@ -1,7 +1,4 @@
 using B.Inputs;
-using B.Modules.Games.Adventure;
-using B.Modules.Tools.MoneyTracker;
-using B.Modules.Toys.BrainFuck;
 using B.Utils;
 using B.Utils.Enums;
 using B.Utils.Extensions;
@@ -51,11 +48,6 @@ namespace B.Modules.Tools.Settings
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
                         choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '4'));
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.DeleteData), "Delete Data", '5'));
-                        // TODO add more data deletions
-                        // TODO FTP
-                        // TODO Number Guesser
-                        // TODO Indexer
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.Censor, "Censor", key: ConsoleKey.F10));
                         choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.DebugMode, "Debug Mode", key: ConsoleKey.F12));
@@ -263,23 +255,6 @@ namespace B.Modules.Tools.Settings
                         }
                     }
                     break;
-
-                case Stages.DeleteData:
-                    {
-                        Window.SetSize(20, 10);
-                        Cursor.Set(0, 1);
-                        Choice choice = new("Delete Data");
-                        choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(ModuleAdventure.DirectoryPath, true), ModuleAdventure.Title, '1'));
-                        choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(ModuleBrainFuck.DirectoryPath, true), ModuleBrainFuck.Title, '2'));
-                        choice.AddKeybind(CreateDeleteKeybind(() => Directory.Delete(ModuleMoneyTracker.DirectoryPath, true), ModuleMoneyTracker.Title, '3'));
-                        choice.AddKeybind(CreateDeleteKeybind(() => File.Delete(ProgramSettings.Path), Title, '4'));
-                        choice.AddSpacer();
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
-                        choice.Request();
-                        // Local function
-                        Keybind CreateDeleteKeybind(Action deleteAction, string title, char num) => Keybind.CreateConfirmation(deleteAction, $"Delete saved data for {title}?", title, num);
-                    }
-                    break;
             }
         }
 
@@ -300,7 +275,6 @@ namespace B.Modules.Tools.Settings
             Cursor,
             Cursor_Size,
             KeyPress,
-            DeleteData,
         }
 
         #endregion
