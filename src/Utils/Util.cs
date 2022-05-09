@@ -54,6 +54,12 @@ namespace B.Utils
                 ProgramThread.Wait();
         }
 
+        public static void WaitFor(Func<bool> condition, float seconds)
+        {
+            while (!condition())
+                ProgramThread.Wait(seconds);
+        }
+
         public static void Initialize()
         {
             // Init check

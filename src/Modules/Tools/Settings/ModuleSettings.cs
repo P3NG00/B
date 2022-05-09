@@ -57,8 +57,8 @@ namespace B.Modules.Tools.Settings
                         // TODO Number Guesser
                         // TODO Indexer
                         choice.AddSpacer();
-                        choice.AddKeybind(Keybind.Create(Program.Settings.Censor.Toggle, $"Censor - {Program.Settings.Censor.Active}", key: ConsoleKey.F10));
-                        choice.AddKeybind(Keybind.Create(Program.Settings.DebugMode.Toggle, $"Debug Mode - {Program.Settings.DebugMode.Active}", key: ConsoleKey.F12));
+                        choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.Censor, "Censor", key: ConsoleKey.F10));
+                        choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.DebugMode, "Debug Mode", key: ConsoleKey.F12));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateModuleExit(this));
                         choice.Request();

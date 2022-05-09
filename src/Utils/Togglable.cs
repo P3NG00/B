@@ -1,11 +1,12 @@
+using Newtonsoft.Json;
+
 namespace B.Utils
 {
     public sealed class Togglable
     {
         #region Public Variables
 
-        // This must stay a variable for deserialization purposes.
-        public bool Active = false;
+        [JsonIgnore] public bool Enabled => _enabled;
 
         #endregion
 
@@ -13,7 +14,16 @@ namespace B.Utils
 
         #region Private Variables
 
+        [JsonProperty] private bool _enabled;
         private Action<bool>? _onToggle;
+
+        #endregion
+
+
+
+        #region Constructors
+
+        public Togglable(bool defaultValue = false) => _enabled = defaultValue;
 
         #endregion
 
@@ -23,10 +33,12 @@ namespace B.Utils
 
         public void SetOnChangeAction(Action<bool> onToggle) => _onToggle = onToggle;
 
+        public void SetOnChangeAction(Action onToggle) => SetOnChangeAction(b => onToggle());
+
         public void Toggle()
         {
-            Active = !Active;
-            _onToggle?.Invoke(Active);
+            _enabled = !_enabled;
+            _onToggle?.Invoke(_enabled);
         }
 
         #endregion
@@ -35,7 +47,7 @@ namespace B.Utils
 
         #region Operator Overrides
 
-        public static implicit operator bool(Togglable togglable) => togglable.Active;
+        public static implicit operator bool(Togglable togglable) => togglable.Enabled;
 
         #endregion
     }

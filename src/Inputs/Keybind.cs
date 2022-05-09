@@ -187,7 +187,9 @@ namespace B.Inputs
             return Create(option.Quit, phrase, key: ConsoleKey.Escape);
         }
 
-        public static Keybind CreateConfirmation(Action action, string deletionMessage, string? description = null, char? keyChar = null, ConsoleKey key = default(ConsoleKey), ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
+        public static Keybind CreateTogglable(Togglable togglable, string title, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null) => Create(togglable.Toggle, $"{title}: {togglable.Enabled,-5}", keyChar, key, modifiers, colorPair);
+
+        public static Keybind CreateConfirmation(Action action, string deletionMessage, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
         {
             return Create(() =>
             {

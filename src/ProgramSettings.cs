@@ -47,8 +47,8 @@ namespace B
         {
             // These are set outside of constructor because these are not serializable.
             // Since they are not serializable, they need to be re-initialized every time the program is run instead of being saved.
-            CursorVisible.SetOnChangeAction(b => UpdateCursor());
-            DebugMode.SetOnChangeAction(b => Window.Clear());
+            CursorVisible.SetOnChangeAction(UpdateCursor);
+            DebugMode.SetOnChangeAction(Window.Clear);
 
             UpdateColors();
             UpdateCursor();
