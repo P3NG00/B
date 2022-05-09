@@ -1,4 +1,4 @@
-﻿using B.Inputs;
+using B.Inputs;
 using B.Modules;
 using B.Modules.Games.Adventure;
 using B.Modules.Games.Blackjack;
@@ -136,6 +136,13 @@ namespace B
             if (OperatingSystem.IsWindows())
                 Console.TreatControlCAsInput = true;
 
+            // If directory doesn't exist, create it and add hidden attribute
+            if (!Directory.Exists(DataPath))
+            {
+                DirectoryInfo mainDirectory = Directory.CreateDirectory(DataPath);
+                mainDirectory.Attributes |= FileAttributes.Hidden;
+            }
+
             // Attempt to Deserialize saved Settings before further initialization
             if (File.Exists(ProgramSettings.Path))
             {
@@ -175,13 +182,6 @@ namespace B
             ProgramThread.TryLock();
             // Clear Keybinds
             Keybind.ClearRegisteredKeybinds();
-
-            // If directory doesn't exist, create it and add hidden attribute
-            if (!Directory.Exists(DataPath))
-            {
-                DirectoryInfo mainDirectory = Directory.CreateDirectory(DataPath);
-                mainDirectory.Attributes |= FileAttributes.Hidden;
-            }
 
             switch (Stage)
             {
@@ -301,6 +301,8 @@ namespace B
             else if (pInst.Stage == Stages.Group)
                 pInst.SetStage(Stages.Program);
         }
+
+        public static bool IsModuleOfType<T>() where T : IModule => Instance._selectedModule is T;
 
         #endregion
 
