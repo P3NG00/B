@@ -86,10 +86,10 @@ namespace B
 
         public Program() : base(Stages.Program)
         {
-            if (Instance is null)
-                Instance = this;
-            else
+            if (Instance is not null)
                 throw new Exception("Program already instantiated.");
+
+            Instance = this;
         }
 
         #endregion
@@ -194,15 +194,14 @@ namespace B
                         Window.SetSize(22, ModuleGroups.Length + 6);
                         Cursor.Set(0, 1);
                         Choice choice = new($"{Title}'s");
-                        for (int i = 0; i < ModuleGroups.Length; i++)
+                        char c = '1';
+                        foreach (var group in ModuleGroups)
                         {
-                            var moduleGroup = ModuleGroups[i];
-                            char c = (char)('1' + i);
                             choice.AddKeybind(Keybind.Create(() =>
                             {
-                                _moduleGroup = moduleGroup;
+                                _moduleGroup = group;
                                 SetStage(Stages.Group);
-                            }, moduleGroup.GroupTitle, c));
+                            }, group.GroupTitle, c++));
                         }
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateModuleExit(this));

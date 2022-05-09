@@ -24,6 +24,7 @@ namespace B.Modules.Tools.FTP
 
         public static string Title => "FTP";
         public static string DirectoryPath => Program.DataPath + @"ftp\";
+        public static string DownloadPath => Environment.CurrentDirectory + @"\download\";
 
         #endregion
 
@@ -31,7 +32,6 @@ namespace B.Modules.Tools.FTP
 
         #region Private Properties
 
-        private static string DownloadPath => Environment.CurrentDirectory + @"\download\";
         private static Func<int, string>[] _scramblers => new Func<int, string>[]
         {
             // Center Waves
@@ -100,6 +100,8 @@ namespace B.Modules.Tools.FTP
 
         #region Private Variables
 
+        private readonly Keybind[] _profileCreationKeybinds;
+
         private List<ServerProfile> _profiles = new();
         private string _currentPath = string.Empty;
         private ServerProfile _currentProfile = null!;
@@ -134,6 +136,103 @@ namespace B.Modules.Tools.FTP
                     _profiles.Add(profile);
                 }
             }
+            // Create keybinds
+            _profileCreationKeybinds = new Keybind[]
+            {
+                // ConsoleKey.Enter
+                Keybind.Create(() =>
+                {
+                    switch (Stage)
+                    {
+                        case Stages.Profile_Create:
+                            {
+                                string name = Input.String;
+
+                                if (!String.IsNullOrWhiteSpace(name))
+                                {
+                                    _currentProfile.Name = name;
+                                    Input.ResetString();
+                                    SetStage(Stages.Profile_Create_IP);
+                                }
+                            }
+                            break;
+
+                        case Stages.Profile_Create_IP:
+                            {
+                                string ip = Input.String;
+
+                                if (!String.IsNullOrWhiteSpace(ip))
+                                {
+                                    _currentProfile.IP = ip;
+                                    Input.ResetString();
+                                    SetStage(Stages.Profile_Create_Port);
+                                }
+                            }
+                            break;
+
+                        case Stages.Profile_Create_Port:
+                            {
+                                int? port = Input.Int;
+
+                                if (port.HasValue)
+                                {
+                                    _currentProfile.Port = port.Value;
+                                    Input.ResetString();
+                                    SetStage(Stages.Profile_Create_User);
+                                }
+                            }
+                            break;
+
+                        case Stages.Profile_Create_User:
+                            {
+                                string username = Input.String;
+
+                                if (!String.IsNullOrWhiteSpace(username))
+                                {
+                                    _currentProfile.Username = username;
+                                    Input.ResetString();
+                                    _profiles.Add(_currentProfile);
+                                    SetStage(Stages.Profile);
+                                }
+                            }
+                            break;
+                    }
+                }, "Next", key: ConsoleKey.Enter),
+                // ConsoleKey.Escape
+                Keybind.Create(() =>
+                {
+                    switch (Stage)
+                    {
+                        case Stages.Profile_Create:
+                            {
+                                _currentProfile = null!;
+                                SetStage(Stages.Profile);
+                            }
+                            break;
+
+                        case Stages.Profile_Create_IP:
+                            {
+                                Input.String = _currentProfile.Name;
+                                SetStage(Stages.Profile_Create);
+                            }
+                            break;
+
+                        case Stages.Profile_Create_Port:
+                            {
+                                Input.String = _currentProfile.IP;
+                                SetStage(Stages.Profile_Create_IP);
+                            }
+                            break;
+
+                        case Stages.Profile_Create_User:
+                            {
+                                Input.String = _currentProfile.Port.ToString();
+                                SetStage(Stages.Profile_Create_Port);
+                            }
+                            break;
+                    }
+                }, "Previous", key: ConsoleKey.Escape)
+            };
         }
 
         #endregion
@@ -148,9 +247,6 @@ namespace B.Modules.Tools.FTP
             {
                 case Stages.Profile:
                     {
-                        // TODO
-
-
                         bool hasProfiles = _profiles.Count > 0;
                         int consoleHeight = hasProfiles ? _profiles.Count + 12 : 10;
                         Window.SetSize(27, consoleHeight);
@@ -170,6 +266,7 @@ namespace B.Modules.Tools.FTP
                                 ServerProfile profile = _profiles[Input.ScrollIndex];
                                 File.Delete(profile.Path);
                                 _profiles.Remove(profile);
+                                Input.ScrollIndex = 0;
                             }, $"Remove {_profiles[Input.ScrollIndex].Name}?", "Delete", key: ConsoleKey.Delete));
                         }
 
@@ -204,107 +301,9 @@ namespace B.Modules.Tools.FTP
                         if (Stage >= Stages.Profile_Create_User)
                             PrintCreationInfo(4, "User", Input.String);
 
-                        // TODO cache keybinds upon OptionFTP init
-                        Keybind[] keybinds = new Keybind[]
-                        {
-                            // ConsoleKey.Enter
-                            Keybind.Create(() =>
-                            {
-                                switch (Stage)
-                                {
-                                    case Stages.Profile_Create:
-                                        {
-                                            string name = Input.String;
-
-                                            if (!String.IsNullOrWhiteSpace(name))
-                                            {
-                                                _currentProfile.Name = name;
-                                                Input.ResetString();
-                                                SetStage(Stages.Profile_Create_IP);
-                                            }
-                                        }
-                                        break;
-
-                                    case Stages.Profile_Create_IP:
-                                        {
-                                            string ip = Input.String;
-
-                                            if (!String.IsNullOrWhiteSpace(ip))
-                                            {
-                                                _currentProfile.IP = ip;
-                                                Input.ResetString();
-                                                SetStage(Stages.Profile_Create_Port);
-                                            }
-                                        }
-                                        break;
-
-                                    case Stages.Profile_Create_Port:
-                                        {
-                                            int? port = Input.Int;
-
-                                            if (port.HasValue)
-                                            {
-                                                _currentProfile.Port = port.Value;
-                                                Input.ResetString();
-                                                SetStage(Stages.Profile_Create_User);
-                                            }
-                                        }
-                                        break;
-
-                                    case Stages.Profile_Create_User:
-                                        {
-                                            string username = Input.String;
-
-                                            if (!String.IsNullOrWhiteSpace(username))
-                                            {
-                                                _currentProfile.Username = username;
-                                                Input.ResetString();
-                                                _profiles.Add(_currentProfile);
-                                                SetStage(Stages.Profile);
-                                            }
-                                        }
-                                        break;
-                                }
-                            }, "Next", key: ConsoleKey.Enter),
-                            // ConsoleKey.Escape
-                            Keybind.Create(() =>
-                            {
-                                switch (Stage)
-                                {
-                                    case Stages.Profile_Create:
-                                        {
-                                            _currentProfile = null!;
-                                            SetStage(Stages.Profile);
-                                        }
-                                        break;
-
-                                    case Stages.Profile_Create_IP:
-                                        {
-                                            Input.String = _currentProfile.Name;
-                                            SetStage(Stages.Profile_Create);
-                                        }
-                                        break;
-
-                                    case Stages.Profile_Create_Port:
-                                        {
-                                            Input.String = _currentProfile.IP;
-                                            SetStage(Stages.Profile_Create_IP);
-                                        }
-                                        break;
-
-                                    case Stages.Profile_Create_User:
-                                        {
-                                            Input.String = _currentProfile.Port.ToString();
-                                            SetStage(Stages.Profile_Create_Port);
-                                        }
-                                        break;
-                                }
-                            }, "Previous", key: ConsoleKey.Escape)
-                        };
-
                         // Request user input
                         Cursor.y = 6;
-                        Input.RequestLine(MAX_LENGTH_PROFILE_INPUT, keybinds);
+                        Input.RequestLine(MAX_LENGTH_PROFILE_INPUT, _profileCreationKeybinds);
 
                         // Local functions
                         void PrintCreationInfo(int line, string inputName, object inputValue)
