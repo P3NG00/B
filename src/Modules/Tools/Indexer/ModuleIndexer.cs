@@ -1,4 +1,3 @@
-using System.Data;
 using B.Inputs;
 using B.Utils;
 using B.Utils.Enums;
@@ -11,6 +10,8 @@ namespace B.Modules.Tools.Indexer
 
         public static string Title => "Indexer";
         public static string DirectoryPath => Program.DataPath + @"indexer\";
+        public static string DirectoryDrivesPath => DirectoryPath + @"drives\";
+        public static string SettingsPath => DirectoryPath + "settings";
 
         #endregion
 
@@ -18,7 +19,8 @@ namespace B.Modules.Tools.Indexer
 
         #region Private Variables
 
-        private static Thread[] _indexThreads = null!;
+        private static IndexSettings Settings = null!;
+        private static List<DriveIndexer> _driveIndexers = new();
 
         #endregion
 
@@ -26,17 +28,13 @@ namespace B.Modules.Tools.Indexer
 
         #region Private Properties
 
-        private bool HasStartedIndexing => _indexThreads is not null;
         private bool IsIndexing
         {
             get
             {
-                if (!HasStartedIndexing)
-                    return false;
-
-                foreach (var thread in _indexThreads)
+                foreach (var driveIndexer in _driveIndexers)
                 {
-                    if (thread.IsAlive)
+                    if (driveIndexer.Indexing)
                         return true;
                 }
 
@@ -50,12 +48,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Constructors
 
-        public ModuleIndexer() : base(Stages.MainMenu)
-        {
-            // Directory check
-            if (!Directory.Exists(DirectoryPath))
-                Directory.CreateDirectory(DirectoryPath);
-        }
+        public ModuleIndexer() : base(Stages.MainMenu) { }
 
         #endregion
 
@@ -69,41 +62,50 @@ namespace B.Modules.Tools.Indexer
             {
                 case Stages.MainMenu:
                     {
-                        Window.SetSize(24, 7);
+                        Vector2 windowSize = new(29, 7);
                         Choice choice = new(Title);
 
-                        if (!HasStartedIndexing)
+                        if (!IsIndexing)
                         {
+                            windowSize.y += _driveIndexers.Count + 2;
+                            Window.Size = windowSize;
+
+                            foreach (var driveIndexer in _driveIndexers)
+                            {
+                                string label = $"{driveIndexer.Drive.Name} ({driveIndexer.Drive.VolumeLabel})";
+                                choice.AddKeybind(Keybind.CreateTogglable(driveIndexer.Index, label));
+                            }
+
+                            choice.AddSpacer();
+                            // Keybind to begin indexing drives
                             choice.AddKeybind(Keybind.CreateConfirmation(() =>
                             {
-                                // Get all ready drives
-                                // TODO add togglable to index network drives (make it only changable when index watcher thread is not running)
-                                var drives = DriveInfo.GetDrives().Where(drive => drive.IsReady && drive.DriveType != DriveType.Network).ToArray();
-                                _indexThreads = new Thread[drives.Length];
                                 // Start threads to scan each drive
-                                for (int i = 0; i < drives.Length; i++)
-                                {
-                                    int j = i;
-                                    var drive = drives[j];
-                                    _indexThreads[j] = ProgramThread.StartThread($"Indexer{drive.VolumeLabel}", () => BeginIndex(drive), ThreadPriority.Highest);
-                                }
+                                _driveIndexers.ForEach(driveIndexer => driveIndexer.BeginIndex());
                                 // Start thread to watch for end of indexing
-                                ProgramThread.StartLoopedThread("IndexWatcher", () =>
+                                ProgramThread.StartThread("IndexWatcher", () =>
                                 {
-                                    if (!IsIndexing)
+                                    Util.WaitFor(() => !IsIndexing, 0.5f);
+                                    // If on indexing screen, ensure text gets cleared
+                                    if (Program.IsModuleOfType<ModuleIndexer>())
                                     {
-                                        _indexThreads = null!;
-                                        // Action needs to be set to refresh the current window
-                                        // TODO make this only happen when in the appropriate window because this will just refresh whatever window you're on when it finishes.
+                                        Window.Clear();
                                         Input.Action = Util.Void;
                                     }
-
-                                    ProgramThread.Wait(1f);
-                                }, () => HasStartedIndexing);
-                            }, "Begin indexing drives?", "Start Indexing...", '1'));
+                                });
+                            }, "Begin indexing selected drives?", "Begin Indexing", '1'));
+                            // Keybind to toggle indexing of network drives
+                            choice.AddKeybind(Keybind.CreateTogglable(Settings.IndexNetworkDrives, "Network Drives", '9'));
                         }
                         else
+                        {
+                            Window.Size = windowSize;
+
+                            // TODO display info about indexing
+                            // TODO display all drives in list with percentage of complete it's done indexing
+
                             choice.AddText(new("Indexing...", PrintType.Highlight));
+                        }
 
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateModuleExit(this));
@@ -114,41 +116,59 @@ namespace B.Modules.Tools.Indexer
             }
         }
 
+        public sealed override void Save() => Data.Serialize(SettingsPath, Settings);
+
+        public sealed override void Quit()
+        {
+            Save();
+            base.Quit();
+        }
+
+        #endregion
+
+
+
+        #region Universal Methods
+
+        public static void Initialize()
+        {
+            // Directory check
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
+            if (!Directory.Exists(DirectoryDrivesPath))
+                Directory.CreateDirectory(DirectoryDrivesPath);
+            // Load settings
+            Settings = File.Exists(SettingsPath) ? Data.Deserialize<IndexSettings>(SettingsPath) : new();
+            // Set togglable function
+            Settings.IndexNetworkDrives.SetOnChangeAction(() =>
+            {
+                UpdateDriveIndexers();
+                Window.Clear();
+            });
+            // Update drives
+            UpdateDriveIndexers();
+
+            // TODO make indexer run on startup on drives that haven't been checked before. use default settings: non-network drives
+        }
+
         #endregion
 
 
 
         #region Private Methods
 
-        private void BeginIndex(DriveInfo drive)
+        private static void UpdateDriveIndexers()
         {
-            IndexInfo index = new();
-            Index(drive.RootDirectory, in index);
-            Data.Serialize(DirectoryPath + drive.VolumeLabel + ".txt", index);
-        }
-
-        private void Index(DirectoryInfo directory, in IndexInfo index)
-        {
-            // TODO test that empty folders are indexed too
-
-            // Search subdirectories
-            foreach (var subdir in directory.GetDirectories())
-            {
-                try
-                {
-                    // Index subdirectories
-                    Index(subdir, in index);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    // Index directory marked as unauthorized
-                    index.AddUnauthorizedDirectory(subdir);
-                }
-            }
-
-            // Index files in current directory
-            foreach (var file in directory.GetFiles())
-                index.AddFile(file);
+            _driveIndexers.Clear();
+            // Get all ready drives
+            List<DriveInfo> drivesList = new(DriveInfo.GetDrives());
+            // Remove drives that can't be read
+            drivesList.RemoveAll(drive => !drive.IsReady);
+            // Check to remove network drives
+            if (!Settings.IndexNetworkDrives)
+                drivesList.RemoveAll(drive => drive.DriveType == DriveType.Network);
+            // Add each remaining drive to indexable list
+            drivesList.ForEach(drive => _driveIndexers.Add(new(drive)));
         }
 
         #endregion

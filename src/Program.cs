@@ -1,4 +1,4 @@
-using B.Inputs;
+﻿using B.Inputs;
 using B.Modules;
 using B.Modules.Games.Adventure;
 using B.Modules.Games.Blackjack;
@@ -165,6 +165,9 @@ namespace B
 
             // Initialize Input after Settings has been initialized due to Mouse class
             Input.Initialize();
+
+            // Initialize Indexer
+            ModuleIndexer.Initialize();
 
             // Clear window
             Window.Clear();

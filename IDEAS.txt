@@ -40,6 +40,3 @@ gtav.Start();
 // TODO process watcher, update every second or so with all computer process StartInfo
 
 // TODO pc spec getter
-
-// TODO create PC tree indexer
-// this index each drive recursively subdirectories and files
