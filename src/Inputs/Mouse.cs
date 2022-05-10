@@ -91,7 +91,7 @@ namespace B.Inputs
             {
                 // If valid mouse input, set action to void to process input
                 if (InputType == MouseInputType.Hold && Input.Action is null)
-                    Input.Action = Util.Void;
+                    Window.Update();
                 // If left mouse button clicked, test for keybind to activate
                 if (_lastLeftButtonClick)
                     Keybind.FindKeybind(keybind => keybind.IsHighlighted);

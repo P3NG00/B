@@ -1,3 +1,4 @@
+using B.Inputs;
 using B.Utils.Enums;
 using B.Utils.Themes;
 
@@ -5,8 +6,6 @@ namespace B.Utils
 {
     public static class Window
     {
-        // TODO make 'Window.Update()' method to replace 'Input.Action = Util.Void' calls
-
         #region Universal Properties
 
         // The current size of the window
@@ -61,6 +60,8 @@ namespace B.Utils
             // Restore old color values
             Program.Settings?.UpdateColors();
         }
+
+        public static void Update() => Input.Action = Util.Void;
 
         public static void Clear() => Console.Clear();
 

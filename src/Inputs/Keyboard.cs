@@ -49,7 +49,7 @@ namespace B.Inputs
         private static void Process()
         {
             // Make input void by default
-            Input.Action = Util.Void;
+            Window.Update();
 
             // Check debug key
             if (LastInput.Key == ConsoleKey.F12)

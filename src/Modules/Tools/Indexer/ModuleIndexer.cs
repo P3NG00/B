@@ -201,7 +201,7 @@ namespace B.Modules.Tools.Indexer
                 while (IsIndexing)
                 {
                     if (IsInThisModule())
-                        Input.Action = Util.Void;
+                        Window.Update();
 
                     ProgramThread.Wait(0.5f);
                 }
@@ -211,7 +211,7 @@ namespace B.Modules.Tools.Indexer
                 // If on indexing screen, ensure window gets reprinted
                 if (IsInThisModule())
                 {
-                    Input.Action = Util.Void;
+                    Window.Update();
                     Window.Clear();
                 }
                 // Local functions

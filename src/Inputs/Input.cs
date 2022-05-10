@@ -16,7 +16,7 @@ namespace B.Inputs
 
         #region Universal Variables
 
-        public static volatile Action Action = null!;
+        public static volatile Action? Action = null;
         public static string String = string.Empty;
         public static int ScrollIndex = 0;
 
@@ -47,11 +47,11 @@ namespace B.Inputs
 
         public static ConsoleKeyInfo Get()
         {
-            Action = null!;
+            Action = null;
             ProgramThread.TryUnlock();
             Util.WaitFor(() => Action is not null);
             ProgramThread.TryLock();
-            Action();
+            Action!();
             return Keyboard.LastInput;
         }
 
