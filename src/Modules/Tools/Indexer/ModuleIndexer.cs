@@ -6,6 +6,11 @@ namespace B.Modules.Tools.Indexer
 {
     public sealed class ModuleIndexer : Module<ModuleIndexer.Stages>
     {
+        // TODO on close, stop indexing drives that are still running and serialize them.
+        // TODO add 'bool _finished' to DriveIndexers. Start false, but make true once finished indexing. serialize after making true.
+        // TODO DriveIndexers that dont finish should still serialize with the '_finished' bool set to false.
+        // TODO if unfinished, mark as so in serialized file name
+
         #region Universal Properties
 
         public static string Title => "Indexer";

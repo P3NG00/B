@@ -1,4 +1,6 @@
+using System.IO.Compression;
 using B.Utils;
+using B.Utils.Extensions;
 
 namespace B.Modules.Tools.Indexer
 {
@@ -17,7 +19,7 @@ namespace B.Modules.Tools.Indexer
         public DriveInfo Drive => _drive;
         public string DriveName => _drive.VolumeLabel;
         public string DisplayName => $"{Drive.Name} ({Drive.VolumeLabel})";
-        public string FileSaveName => $"{Drive.Name.Substring(0, 1)}-{Drive.VolumeLabel}";
+        public string FileSaveName => $"{Drive.Name.Substring(0, 1)}_({Drive.VolumeLabel})";
         public bool IsIndexing => _indexThread is not null && _indexThread.IsAlive;
 
         #endregion
@@ -60,9 +62,8 @@ namespace B.Modules.Tools.Indexer
             {
                 IndexInfo indexInfo = new();
                 IndexDirectory(_drive.RootDirectory, in indexInfo);
-                // TODO add timestamp into serialized filename
-                string dateTime = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                string filePath = $"{ModuleIndexer.DirectoryDrivesPath}{FileSaveName}_{dateTime}.txt";
+                string dateTime = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                string filePath = $"{ModuleIndexer.DirectoryDrivesPath}{dateTime}_{FileSaveName}.txt";
                 Data.Serialize(filePath, indexInfo);
             }, ThreadPriority.Highest);
         }
@@ -75,35 +76,39 @@ namespace B.Modules.Tools.Indexer
 
         private void IndexDirectory(DirectoryInfo directory, in IndexInfo index)
         {
-            // TODO index contents of compressed files (zip, rar, 7z, etc)
-            // TODO store in IndexInfo as new List of 'compressed data'
-
             // Index hidden directories
             if (IsHidden(directory))
-                index.AddHiddenItem(directory);
+                index.AddHiddenData(directory);
 
             // Search subdirectories
             foreach (var subdir in directory.GetDirectories())
             {
-                try
-                {
-                    // Index subdirectories
-                    IndexDirectory(subdir, in index);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    // Index directory marked as unauthorized
-                    index.AddUnauthorizedDirectory(subdir);
-                }
+                // Index subdirectories
+                try { IndexDirectory(subdir, in index); }
+                // If exception caught, mark directory as unauthorized
+                catch (UnauthorizedAccessException) { index.AddUnauthorizedData(subdir); }
             }
 
             // Index files in current directory
             foreach (var file in directory.GetFiles())
             {
                 if (IsHidden(file))
-                    index.AddHiddenItem(file);
+                    index.AddHiddenData(file);
                 else
                     index.AddFile(file);
+
+                if (file.Extension.EqualsIgnoreCase(".zip"))
+                {
+                    // TODO open different types of compressed files (rar, 7z, etc)
+
+                    try
+                    {
+                        using (var zip = ZipFile.OpenRead(file.FullName))
+                            foreach (var entry in zip.Entries)
+                                index.AddCompressedData(file, entry);
+                    }
+                    catch (InvalidDataException) { index.AddUnauthorizedData(file); }
+                }
             }
 
             // Local functions

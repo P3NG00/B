@@ -9,5 +9,7 @@ namespace B.Utils.Extensions
                 s += str;
             return s;
         }
+
+        public static bool EqualsIgnoreCase(this string str, string other) => str.Equals(other, StringComparison.OrdinalIgnoreCase);
     }
 }
