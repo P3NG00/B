@@ -215,7 +215,8 @@ namespace B
                         Window.SetSize(22, _moduleGroup.ModuleTypes.Length + 6);
                         Cursor.Set(0, 1);
                         Choice choice = new(_moduleGroup.GroupTitle);
-                        _moduleGroup.ModuleTypes.ForEach((moduleType, i) =>
+                        char c = '1';
+                        _moduleGroup.ModuleTypes.ForEach(moduleType =>
                         {
                             string title = (string)moduleType.GetProperty("Title")?.GetValue(null)!;
 
@@ -226,7 +227,7 @@ namespace B
                             {
                                 _selectedModule = moduleType.Instantiate<IModule>();
                                 SetStage(Stages.Module);
-                            }, title, (char)('1' + i)));
+                            }, title, c++));
                         });
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateModuleExit(this));

@@ -28,13 +28,13 @@ namespace B.Modules.Tools.Indexer
 
         #region Private Properties
 
-        private bool IsIndexing
+        private static bool IsIndexing
         {
             get
             {
                 foreach (var driveIndexer in _driveIndexers)
                 {
-                    if (driveIndexer.Indexing)
+                    if (driveIndexer.IsIndexing)
                         return true;
                 }
 
@@ -62,55 +62,63 @@ namespace B.Modules.Tools.Indexer
             {
                 case Stages.MainMenu:
                     {
-                        Vector2 windowSize = new(29, 7);
+                        int longestStringLength = 0;
+
+                        foreach (var driveIndexer in _driveIndexers)
+                        {
+                            string driveDisplayName = driveIndexer.DisplayName;
+                            int driveDisplayNameLength = driveDisplayName.Length;
+
+                            if (driveDisplayNameLength > longestStringLength)
+                                longestStringLength = driveDisplayNameLength;
+                        }
+
+                        Vector2 windowSize = new(30, 8);
                         Choice choice = new(Title);
 
                         if (!IsIndexing)
                         {
+                            // Accommodate for longest drive name
+                            FixWidth(19);
                             windowSize.y += _driveIndexers.Count + 2;
                             Window.Size = windowSize;
-
-                            foreach (var driveIndexer in _driveIndexers)
-                            {
-                                string label = $"{driveIndexer.Drive.Name} ({driveIndexer.Drive.VolumeLabel})";
-                                choice.AddKeybind(Keybind.CreateTogglable(driveIndexer.Index, label));
-                            }
-
+                            // Add each drive indexer
+                            _driveIndexers.ForEach(driveIndexer => choice.AddKeybind(Keybind.CreateTogglable(driveIndexer.Index, driveIndexer.DisplayName)));
                             choice.AddSpacer();
                             // Keybind to begin indexing drives
-                            choice.AddKeybind(Keybind.CreateConfirmation(() =>
-                            {
-                                // Start threads to scan each drive
-                                _driveIndexers.ForEach(driveIndexer => driveIndexer.BeginIndex());
-                                // Start thread to watch for end of indexing
-                                ProgramThread.StartThread("IndexWatcher", () =>
-                                {
-                                    Util.WaitFor(() => !IsIndexing, 0.5f);
-                                    // If on indexing screen, ensure text gets cleared
-                                    if (Program.IsModuleOfType<ModuleIndexer>())
-                                    {
-                                        Window.Clear();
-                                        Input.Action = Util.Void;
-                                    }
-                                });
-                            }, "Begin indexing selected drives?", "Begin Indexing", '1'));
+                            choice.AddKeybind(Keybind.CreateConfirmation(BeginIndexing, "Begin indexing selected drives?", "Begin Indexing", '1'));
                             // Keybind to toggle indexing of network drives
-                            choice.AddKeybind(Keybind.CreateTogglable(Settings.IndexNetworkDrives, "Network Drives", '9'));
+                            choice.AddKeybind(Keybind.CreateTogglable(Settings.IndexNetworkDrives, "Network Drives", '8'));
+                            choice.AddKeybind(Keybind.CreateTogglable(Settings.IndexOnStartup, "Index On Startup", '9'));
                         }
                         else
                         {
+                            FixWidth(26);
+                            int amountIndexers = _driveIndexers.Count;
+
+                            if (amountIndexers > 0)
+                                windowSize.y += amountIndexers;
+
                             Window.Size = windowSize;
 
-                            // TODO display info about indexing
-                            // TODO display all drives in list with percentage of complete it's done indexing
-
                             choice.AddText(new("Indexing...", PrintType.Highlight));
+                            choice.AddSpacer();
+
+                            foreach (var driveIndexer in _driveIndexers)
+                                choice.AddText(new(driveIndexer.DisplayName, driveIndexer.IsIndexing ? PrintType.Highlight : PrintType.General));
                         }
 
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateModuleExit(this));
                         Cursor.y = 1;
                         choice.Request();
+
+                        // Local functions
+                        void FixWidth(int stringSizeOffset)
+                        {
+                            if (longestStringLength > stringSizeOffset)
+                                windowSize.x += longestStringLength - stringSizeOffset;
+                        }
                     }
                     break;
             }
@@ -147,8 +155,9 @@ namespace B.Modules.Tools.Indexer
             });
             // Update drives
             UpdateDriveIndexers();
-
-            // TODO make indexer run on startup on drives that haven't been checked before. use default settings: non-network drives
+            // Check startup indexing using last settings
+            if (Settings.IndexOnStartup)
+                BeginIndexing();
         }
 
         #endregion
@@ -169,6 +178,40 @@ namespace B.Modules.Tools.Indexer
                 drivesList.RemoveAll(drive => drive.DriveType == DriveType.Network);
             // Add each remaining drive to indexable list
             drivesList.ForEach(drive => _driveIndexers.Add(new(drive)));
+        }
+
+        private static void BeginIndexing()
+        {
+            if (IsIndexing)
+                throw new Exception("Indexing is already in progress!");
+
+            // Remove all indexers that aren't marked to index
+            _driveIndexers.RemoveAll(driveIndexer => !driveIndexer.Index);
+            // Start remaining drive indexers
+            _driveIndexers.ForEach(driveIndexer => driveIndexer.BeginIndex());
+            // Start thread to watch for end of indexing
+            ProgramThread.StartThread("IndexWatcher", () =>
+            {
+                // Wait for indexing to finish
+                while (IsIndexing)
+                {
+                    if (IsInThisModule())
+                        Input.Action = Util.Void;
+
+                    ProgramThread.Wait(0.5f);
+                }
+                Util.WaitFor(() => !IsIndexing, 0.5f);
+                // Update drive indexers
+                UpdateDriveIndexers();
+                // If on indexing screen, ensure window gets reprinted
+                if (IsInThisModule())
+                {
+                    Input.Action = Util.Void;
+                    Window.Clear();
+                }
+                // Local functions
+                bool IsInThisModule() => Program.IsModuleOfType<ModuleIndexer>();
+            });
         }
 
         #endregion

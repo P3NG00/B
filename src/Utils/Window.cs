@@ -5,6 +5,8 @@ namespace B.Utils
 {
     public static class Window
     {
+        // TODO make 'Window.Update()' method to replace 'Input.Action = Util.Void' calls
+
         #region Universal Properties
 
         // The current size of the window

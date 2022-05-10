@@ -16,7 +16,9 @@ namespace B.Modules.Tools.Indexer
 
         public DriveInfo Drive => _drive;
         public string DriveName => _drive.VolumeLabel;
-        public bool Indexing => _indexThread is not null && _indexThread.IsAlive;
+        public string DisplayName => $"{Drive.Name} ({Drive.VolumeLabel})";
+        public string FileSaveName => $"{Drive.Name.Substring(0, 1)}-{Drive.VolumeLabel}";
+        public bool IsIndexing => _indexThread is not null && _indexThread.IsAlive;
 
         #endregion
 
@@ -43,19 +45,25 @@ namespace B.Modules.Tools.Indexer
 
         public void BeginIndex()
         {
+            // Check if supposed to be indexed
             if (!Index)
-                return;
+                throw new Exception($"Drive '{DriveName}' is marked to not be indexed!");
 
-            if (Indexing)
+            // Check if already indexing
+            if (IsIndexing)
                 throw new Exception($"Drive '{DriveName}' has already begun indexing!");
 
             // TODO test that when Mouse or Keyboard locks threads the thread below is not affected
 
+            // Start indexing thread
             _indexThread = ProgramThread.StartThread($"Indexer-{DriveName}", () =>
             {
                 IndexInfo indexInfo = new();
                 IndexDirectory(_drive.RootDirectory, in indexInfo);
-                Data.Serialize(ModuleIndexer.DirectoryDrivesPath + DriveName + ".txt", indexInfo);
+                // TODO add timestamp into serialized filename
+                string dateTime = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+                string filePath = $"{ModuleIndexer.DirectoryDrivesPath}{FileSaveName}_{dateTime}.txt";
+                Data.Serialize(filePath, indexInfo);
             }, ThreadPriority.Highest);
         }
 
@@ -68,6 +76,7 @@ namespace B.Modules.Tools.Indexer
         private void IndexDirectory(DirectoryInfo directory, in IndexInfo index)
         {
             // TODO index contents of compressed files (zip, rar, 7z, etc)
+            // TODO store in IndexInfo as new List of 'compressed data'
 
             // Index hidden directories
             if (IsHidden(directory))

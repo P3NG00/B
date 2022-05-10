@@ -7,6 +7,7 @@ namespace B.Modules.Tools.Indexer
     {
         #region Public Properties
 
+        [JsonProperty] public Togglable IndexOnStartup { get; private set; } = new();
         [JsonProperty] public Togglable IndexNetworkDrives { get; private set; } = new();
 
         #endregion

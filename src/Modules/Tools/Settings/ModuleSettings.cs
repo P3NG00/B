@@ -41,13 +41,13 @@ namespace B.Modules.Tools.Settings
             {
                 case Stages.MainMenu:
                     {
-                        Window.SetSize(27, 14);
+                        Window.SetSize(27, 13);
                         Cursor.y = 1;
                         Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.WindowSize), "Window Size", '2'));
-                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.KeyPress), "Key Press", '3'));
-                        choice.AddKeybind(Keybind.Create(() => ClearSetStage(Stages.Cursor), "Cursor", '4'));
+                        choice.AddKeybind(Keybind.Create(() => ClearAndSetStage(Stages.KeyPress), "Key Press", '3'));
+                        choice.AddKeybind(Keybind.Create(() => ClearAndSetStage(Stages.Cursor), "Cursor", '4'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.Censor, "Censor", key: ConsoleKey.F10));
                         choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.DebugMode, "Debug Mode", key: ConsoleKey.F12));
@@ -55,7 +55,7 @@ namespace B.Modules.Tools.Settings
                         choice.AddKeybind(Keybind.CreateModuleExit(this));
                         choice.Request();
                         // Local function
-                        void ClearSetStage(Stages stage)
+                        void ClearAndSetStage(Stages stage)
                         {
                             Window.Clear();
                             SetStage(stage);
