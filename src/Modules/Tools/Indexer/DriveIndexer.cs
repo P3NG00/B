@@ -1,6 +1,4 @@
-using System.IO.Compression;
 using B.Utils;
-using B.Utils.Extensions;
 
 namespace B.Modules.Tools.Indexer
 {
@@ -18,8 +16,9 @@ namespace B.Modules.Tools.Indexer
 
         public DriveInfo Drive => _drive;
         public string DriveName => _drive.VolumeLabel;
-        public string DisplayName => $"{Drive.Name} ({Drive.VolumeLabel})";
-        public string FileSaveName => $"{Drive.Name.Substring(0, 1)}_({Drive.VolumeLabel})";
+        public string DisplayName => $"{Drive.Name} ({DriveName})";
+        public char DriveLetter => Drive.Name[0];
+        public string FileSaveName => $"{DriveLetter}_({DriveName})";
         public bool IsIndexing => _indexThread is not null && _indexThread.IsAlive;
 
         #endregion
@@ -60,10 +59,13 @@ namespace B.Modules.Tools.Indexer
             // Start indexing thread
             _indexThread = ProgramThread.StartThread($"Indexer-{DriveName}", () =>
             {
-                IndexInfo indexInfo = new();
-                IndexDirectory(_drive.RootDirectory, in indexInfo);
+                IndexInfo indexInfo = new(_drive);
+                try { IndexDirectory(_drive.RootDirectory, in indexInfo); }
+                catch (Exception e) { Program.HandleException(e, new($"Exception caught while indexing drive '{DriveName}'!")); }
+                indexInfo.Finish();
                 string dateTime = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-                string filePath = $"{ModuleIndexer.DirectoryDrivesPath}{dateTime}_{FileSaveName}.txt";
+                string finished = indexInfo.Finished ? string.Empty : "_incomplete";
+                string filePath = $"{ModuleIndexer.DirectoryDrivesPath}{dateTime}_{FileSaveName}{finished}.txt";
                 Data.Serialize(filePath, indexInfo);
             }, ThreadPriority.Highest);
         }
@@ -76,43 +78,28 @@ namespace B.Modules.Tools.Indexer
 
         private void IndexDirectory(DirectoryInfo directory, in IndexInfo index)
         {
-            // Index hidden directories
-            if (IsHidden(directory))
-                index.AddHiddenData(directory);
+            index.Add(directory);
 
             // Search subdirectories
             foreach (var subdir in directory.GetDirectories())
             {
+                if (ModuleIndexer.StopIndexing)
+                    return;
+
                 // Index subdirectories
                 try { IndexDirectory(subdir, in index); }
                 // If exception caught, mark directory as unauthorized
-                catch (UnauthorizedAccessException) { index.AddUnauthorizedData(subdir); }
+                catch (UnauthorizedAccessException) { index.AddInaccessibleData(subdir); }
             }
 
             // Index files in current directory
             foreach (var file in directory.GetFiles())
             {
-                if (IsHidden(file))
-                    index.AddHiddenData(file);
-                else
-                    index.AddFile(file);
+                if (ModuleIndexer.StopIndexing)
+                    return;
 
-                if (file.Extension.EqualsIgnoreCase(".zip"))
-                {
-                    // TODO open different types of compressed files (rar, 7z, etc)
-
-                    try
-                    {
-                        using (var zip = ZipFile.OpenRead(file.FullName))
-                            foreach (var entry in zip.Entries)
-                                index.AddCompressedData(file, entry);
-                    }
-                    catch (InvalidDataException) { index.AddUnauthorizedData(file); }
-                }
+                index.Add(file);
             }
-
-            // Local functions
-            bool IsHidden(FileSystemInfo info) => info.Attributes.HasFlag(FileAttributes.Hidden);
         }
 
         #endregion

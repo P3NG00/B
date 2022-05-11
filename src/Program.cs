@@ -116,6 +116,9 @@ namespace B
                 catch (Exception e) { HandleException(e); }
             }
 
+            // Wait for Indexers to finish
+            Util.WaitFor(() => !ModuleIndexer.IsIndexing, 0.25f);
+
             // Save before exiting
             try { Data.Serialize(ProgramSettings.Path, Settings); }
             catch (Exception e) { HandleException(e); }

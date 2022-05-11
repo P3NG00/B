@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using Newtonsoft.Json;
 
 namespace B.Modules.Tools.Indexer
@@ -7,10 +6,44 @@ namespace B.Modules.Tools.Indexer
     {
         #region Private Variables
 
+        // Drive info
+        [JsonProperty] private readonly string _driveFormat;
+        [JsonProperty] private readonly string _driveType;
+        [JsonProperty] private readonly string _driveName;
+        [JsonProperty] private readonly long _driveFreeSpace;
+        [JsonProperty] private readonly long _driveTotalSize;
+        [JsonProperty] private readonly string _driveLabel;
+
+        // Lists
         [JsonProperty] private readonly List<string> _files = new();
-        [JsonProperty] private readonly List<string> _hiddenData = new();
-        [JsonProperty] private readonly List<string> _compressedData = new();
-        [JsonProperty] private readonly List<string> _unauthorizedData = new();
+        [JsonProperty] private readonly List<string> _inaccessibleData = new();
+
+        // Index info
+        [JsonProperty] private bool _finished = false;
+
+        #endregion
+
+
+
+        #region Public Properties
+
+        [JsonIgnore] public bool Finished => _finished;
+
+        #endregion
+
+
+
+        #region Constructors
+
+        public IndexInfo(DriveInfo drive)
+        {
+            _driveFormat = drive.DriveFormat;
+            _driveType = drive.DriveType.ToString();
+            _driveName = drive.Name;
+            _driveFreeSpace = drive.TotalFreeSpace;
+            _driveTotalSize = drive.TotalSize;
+            _driveLabel = drive.VolumeLabel;
+        }
 
         #endregion
 
@@ -18,13 +51,15 @@ namespace B.Modules.Tools.Indexer
 
         #region Public Methods
 
-        public void AddFile(FileInfo file) => _files.Add(GetName(file));
+        public void Add(FileSystemInfo info) => _files.Add(GetName(info));
 
-        public void AddHiddenData(FileSystemInfo info) => _hiddenData.Add(GetName(info));
+        public void AddInaccessibleData(FileSystemInfo info) => _inaccessibleData.Add(GetName(info));
 
-        public void AddCompressedData(FileInfo zipFile, ZipArchiveEntry entry) => _compressedData.Add(GetName(zipFile, entry));
-
-        public void AddUnauthorizedData(FileSystemInfo info) => _unauthorizedData.Add(GetName(info));
+        public void Finish()
+        {
+            if (!ModuleIndexer.StopIndexing)
+                _finished = true;
+        }
 
         #endregion
 
@@ -34,17 +69,13 @@ namespace B.Modules.Tools.Indexer
 
         private string GetName(FileSystemInfo info)
         {
-            string s = ReplaceSlashes(info.FullName);
+            string s = info.FullName.Replace('\\', '/');
 
             if (info is DirectoryInfo)
                 s += '/';
 
             return s;
         }
-
-        private string GetName(FileInfo zipFile, ZipArchiveEntry entry) => ReplaceSlashes($"{zipFile.FullName}/{entry.FullName}");
-
-        private string ReplaceSlashes(string s) => s.Replace('\\', '/');
 
         #endregion
     }

@@ -8,6 +8,7 @@ namespace B.Utils.Extensions
 
         public static int RandomIndex<T>(this IEnumerable<T> enumerable) => Util.Random.Next(enumerable.Count());
 
+        // TODO refactor my ForEach calls. multi-line ForEach should be replace with regular foreach loops
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action action)
         {
             foreach (T t in enumerable)

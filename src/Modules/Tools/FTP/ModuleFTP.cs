@@ -325,7 +325,6 @@ namespace B.Modules.Tools.FTP
                         Cursor.Set(textStart, 2);
                         Window.Print(scrambled);
                         Cursor.Set(0, 4);
-                        // TODO add descriptions to exit/login keybinds and make height taller to account for that space
                         Input.RequestLine(MAX_LENGTH_PASSWORD,
                             Keybind.Create(() =>
                             {

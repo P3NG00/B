@@ -17,6 +17,18 @@ namespace B.Modules.Tools.Indexer
         public static string DirectoryPath => Program.DataPath + @"indexer\";
         public static string DirectoryDrivesPath => DirectoryPath + @"drives\";
         public static string SettingsPath => DirectoryPath + "settings";
+        public static bool StopIndexing => !Program.Instance.IsRunning;
+        public static bool IsIndexing
+        {
+            get
+            {
+                foreach (var driveIndexer in _driveIndexers)
+                    if (driveIndexer.IsIndexing)
+                        return true;
+
+                return false;
+            }
+        }
 
         #endregion
 
@@ -26,26 +38,6 @@ namespace B.Modules.Tools.Indexer
 
         private static IndexSettings Settings = null!;
         private static List<DriveIndexer> _driveIndexers = new();
-
-        #endregion
-
-
-
-        #region Private Properties
-
-        private static bool IsIndexing
-        {
-            get
-            {
-                foreach (var driveIndexer in _driveIndexers)
-                {
-                    if (driveIndexer.IsIndexing)
-                        return true;
-                }
-
-                return false;
-            }
-        }
 
         #endregion
 
@@ -71,8 +63,7 @@ namespace B.Modules.Tools.Indexer
 
                         foreach (var driveIndexer in _driveIndexers)
                         {
-                            string driveDisplayName = driveIndexer.DisplayName;
-                            int driveDisplayNameLength = driveDisplayName.Length;
+                            int driveDisplayNameLength = driveIndexer.DisplayName.Length;
 
                             if (driveDisplayNameLength > longestStringLength)
                                 longestStringLength = driveDisplayNameLength;
@@ -105,10 +96,9 @@ namespace B.Modules.Tools.Indexer
                                 windowSize.y += amountIndexers;
 
                             Window.Size = windowSize;
-
                             choice.AddText(new("Indexing...", PrintType.Highlight));
                             choice.AddSpacer();
-
+                            // TODO come up with some way to display progress in indexing each drive
                             foreach (var driveIndexer in _driveIndexers)
                                 choice.AddText(new(driveIndexer.DisplayName, driveIndexer.IsIndexing ? PrintType.Highlight : PrintType.General));
                         }
@@ -205,9 +195,11 @@ namespace B.Modules.Tools.Indexer
 
                     ProgramThread.Wait(0.5f);
                 }
-                Util.WaitFor(() => !IsIndexing, 0.5f);
                 // Update drive indexers
                 UpdateDriveIndexers();
+                // TODO test if this is necessary or helps at all
+                // Run garbage collection
+                System.GC.Collect();
                 // If on indexing screen, ensure window gets reprinted
                 if (IsInThisModule())
                 {
