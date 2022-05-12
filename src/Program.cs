@@ -222,7 +222,7 @@ namespace B
                         Cursor.Set(0, 1);
                         Choice choice = new(_moduleGroup.GroupTitle);
                         char c = '1';
-                        _moduleGroup.ModuleTypes.ForEach(moduleType =>
+                        foreach (var moduleType in _moduleGroup.ModuleTypes)
                         {
                             string title = (string)moduleType.GetProperty("Title")?.GetValue(null)!;
 
@@ -234,7 +234,7 @@ namespace B
                                 _selectedModule = moduleType.Instantiate<IModule>();
                                 SetStage(Stages.Module);
                             }, title, c++));
-                        });
+                        }
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateModuleExit(this));
                         choice.Request();

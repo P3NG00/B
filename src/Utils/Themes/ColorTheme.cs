@@ -44,7 +44,7 @@ namespace B.Utils.Themes
             bool hasHighlightPair = false;
 
             // Add each PrintPair to the list.
-            printPairs.ForEach(printPair =>
+            foreach (var printPair in printPairs)
             {
                 // Check existing entries to ensure this PrintPair contains a unique PrintType.
                 PrintPair foundPrintPair = GetPrintPair(printPair.PrintType);
@@ -61,7 +61,7 @@ namespace B.Utils.Themes
                     generalPair = printPair;
                 if (!hasHighlightPair && printPair.PrintType == PrintType.Highlight)
                     hasHighlightPair = true;
-            });
+            }
 
             // Ensure a general pair was added.
             if (generalPair is null)

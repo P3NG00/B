@@ -186,11 +186,8 @@ namespace B.Modules.Toys.Canvas
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, modifiers: ConsoleModifiers.Control));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, modifiers: ConsoleModifiers.Control));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, modifiers: ConsoleModifiers.Control));
-            // Color Select // TODO display keybind with description
-            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() =>
-            {
-                SetStage(Stages.ColorSelect);
-            }, key: ConsoleKey.F1));
+            // Color Select
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => SetStage(Stages.ColorSelect), "Color", key: ConsoleKey.C));
             // Save
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(Save, "Save", key: ConsoleKey.S, modifiers: ConsoleModifiers.Control));
             // Save & Quit
@@ -335,7 +332,7 @@ namespace B.Modules.Toys.Canvas
                 case Stages.Edit:
                     {
                         Vector2 windowSize = _canvas.Size + (CANVAS_BORDER_PAD * 2);
-                        windowSize.y += CANVAS_EDIT_HEIGHT + 3;
+                        windowSize.y += CANVAS_EDIT_HEIGHT + 4;
                         Window.Size = windowSize;
                         // Print top info
                         Cursor.Set(2, 1);
