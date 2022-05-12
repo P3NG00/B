@@ -355,7 +355,6 @@ namespace B.Modules.Tools.FTP
                                 Program.HandleException(e);
                             else
                             {
-                                // TODO after adding descriptions to keybinds, might need to change where error is printed
                                 Cursor.x = 1;
                                 Window.Print(msg);
                                 Input.Get();

@@ -116,7 +116,10 @@ namespace B
                 catch (Exception e) { HandleException(e); }
             }
 
-            // Wait for Indexers to finish
+            // TODO add a 'Goodbye' screen as the program exits
+
+            // Finish indexers
+            ModuleIndexer.ProcessIndexing = false;
             Util.WaitFor(() => !ModuleIndexer.IsIndexing, 0.25f);
 
             // Save before exiting

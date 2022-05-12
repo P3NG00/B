@@ -6,10 +6,13 @@ namespace B.Modules.Tools.Indexer
 {
     public sealed class ModuleIndexer : Module<ModuleIndexer.Stages>
     {
-        // TODO on close, stop indexing drives that are still running and serialize them.
-        // TODO add 'bool _finished' to DriveIndexers. Start false, but make true once finished indexing. serialize after making true.
-        // TODO DriveIndexers that dont finish should still serialize with the '_finished' bool set to false.
-        // TODO if unfinished, mark as so in serialized file name
+        #region Universal Variables
+
+        public static volatile bool ProcessIndexing = true;
+
+        #endregion
+
+
 
         #region Universal Properties
 
@@ -17,7 +20,6 @@ namespace B.Modules.Tools.Indexer
         public static string DirectoryPath => Program.DataPath + @"indexer\";
         public static string DirectoryDrivesPath => DirectoryPath + @"drives\";
         public static string SettingsPath => DirectoryPath + "settings";
-        public static bool StopIndexing => !Program.Instance.IsRunning;
         public static bool IsIndexing
         {
             get
@@ -89,18 +91,28 @@ namespace B.Modules.Tools.Indexer
                         }
                         else
                         {
-                            FixWidth(26);
+                            FixWidth(21);
                             int amountIndexers = _driveIndexers.Count;
 
                             if (amountIndexers > 0)
-                                windowSize.y += amountIndexers;
+                                windowSize.y += amountIndexers + 2;
 
                             Window.Size = windowSize;
                             choice.AddText(new("Indexing...", PrintType.Highlight));
                             choice.AddSpacer();
-                            // TODO come up with some way to display progress in indexing each drive
+                            // Display each drive indexer info
                             foreach (var driveIndexer in _driveIndexers)
-                                choice.AddText(new(driveIndexer.DisplayName, driveIndexer.IsIndexing ? PrintType.Highlight : PrintType.General));
+                            {
+                                bool indexing = driveIndexer.IsIndexing;
+                                string percentage = "%" + $"{(indexing ? driveIndexer.CompletedEstimate : 100),3}";
+                                string driveLabel = $"{percentage} {driveIndexer.DisplayName}";
+                                PrintType printType = indexing ? PrintType.Highlight : PrintType.General;
+                                choice.AddText(new(driveLabel, printType));
+                            }
+                            // Add stop indexing keybind
+                            choice.AddSpacer();
+                            // TODO keybind unclickable when window is reupdating. make keybinds stay registered until this window is left
+                            choice.AddKeybind(Keybind.Create(() => ProcessIndexing = false, "Stop Indexing", key: ConsoleKey.End));
                         }
 
                         choice.AddSpacer();
@@ -180,6 +192,8 @@ namespace B.Modules.Tools.Indexer
             if (IsIndexing)
                 throw new Exception("Indexing is already in progress!");
 
+            // Mark to index
+            ProcessIndexing = true;
             // Remove all indexers that aren't marked to index
             _driveIndexers.RemoveAll(driveIndexer => !driveIndexer.Index);
             // Start remaining drive indexers

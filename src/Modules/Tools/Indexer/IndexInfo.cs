@@ -57,7 +57,7 @@ namespace B.Modules.Tools.Indexer
 
         public void Finish()
         {
-            if (!ModuleIndexer.StopIndexing)
+            if (ModuleIndexer.ProcessIndexing)
                 _finished = true;
         }
 

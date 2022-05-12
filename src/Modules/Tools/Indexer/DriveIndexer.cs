@@ -15,11 +15,12 @@ namespace B.Modules.Tools.Indexer
         #region Public Properties
 
         public DriveInfo Drive => _drive;
-        public string DriveName => _drive.VolumeLabel;
+        public string DriveName => Drive.VolumeLabel;
         public string DisplayName => $"{Drive.Name} ({DriveName})";
         public char DriveLetter => Drive.Name[0];
         public string FileSaveName => $"{DriveLetter}_({DriveName})";
         public bool IsIndexing => _indexThread is not null && _indexThread.IsAlive;
+        public int CompletedEstimate => (int)((_indexedSize * 100) / (Drive.TotalSize - Drive.TotalFreeSpace));
 
         #endregion
 
@@ -29,6 +30,7 @@ namespace B.Modules.Tools.Indexer
 
         private readonly DriveInfo _drive;
         private Thread? _indexThread = null;
+        private long _indexedSize = 0;
 
         #endregion
 
@@ -83,7 +85,7 @@ namespace B.Modules.Tools.Indexer
             // Search subdirectories
             foreach (var subdir in directory.GetDirectories())
             {
-                if (ModuleIndexer.StopIndexing)
+                if (!ModuleIndexer.ProcessIndexing)
                     return;
 
                 // Index subdirectories
@@ -95,10 +97,11 @@ namespace B.Modules.Tools.Indexer
             // Index files in current directory
             foreach (var file in directory.GetFiles())
             {
-                if (ModuleIndexer.StopIndexing)
+                if (!ModuleIndexer.ProcessIndexing)
                     return;
 
                 index.Add(file);
+                _indexedSize += file.Length;
             }
         }
 
