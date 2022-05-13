@@ -19,6 +19,7 @@ namespace B
         public Togglable CursorVisible;
         public Togglable DebugMode;
         public Togglable Censor;
+        // TODO add Togglable GoodbyeScreen to set whether or not to show the goodbye screen.
         public ColorTheme ColorTheme;
         public int CursorSize;
 

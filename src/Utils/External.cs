@@ -49,11 +49,8 @@ namespace B.Utils
 
         #region Private Methods
 
-        private static bool GetKeyStatePressed(VirtualKeyStates key)
-        {
-            // private const int KEY_PRESSED = 0x8000;
-            return Convert.ToBoolean(GetKeyState(key) & 0x8000);
-        }
+        // private const int KEY_PRESSED = 0x8000;
+        private static bool GetKeyStatePressed(VirtualKeyStates key) => Convert.ToBoolean(GetKeyState(key) & 0x8000);
 
         // https://social.msdn.microsoft.com/Forums/vstudio/en-US/1aa43c6c-71b9-42d4-aa00-60058a85f0eb/c-console-window-disable-resize?forum=csharpgeneral
         private static void DisableWindowResizing()
@@ -120,9 +117,7 @@ namespace B.Utils
 
 
 
-        #region External Methods
-
-        // https://www.pinvoke.net/
+        #region External Methods // https://www.pinvoke.net/
 
         [DllImport(USER32)]
         private static extern int DeleteMenu(IntPtr hMenu, int nPosition, int wFlags);

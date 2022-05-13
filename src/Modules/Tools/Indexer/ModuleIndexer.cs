@@ -78,16 +78,17 @@ namespace B.Modules.Tools.Indexer
                         {
                             // Accommodate for longest drive name
                             FixWidth(19);
-                            windowSize.y += _driveIndexers.Count + 2;
+                            windowSize.y += _driveIndexers.Count + 3;
                             Window.Size = windowSize;
                             // Add each drive indexer
                             _driveIndexers.ForEach(driveIndexer => choice.AddKeybind(Keybind.CreateTogglable(driveIndexer.Index, driveIndexer.DisplayName)));
                             choice.AddSpacer();
-                            // Keybind to begin indexing drives
-                            choice.AddKeybind(Keybind.CreateConfirmation(BeginIndexing, "Begin indexing selected drives?", "Begin Indexing", '1'));
-                            // Keybind to toggle indexing of network drives
+                            // Togglable keybinds
                             choice.AddKeybind(Keybind.CreateTogglable(Settings.IndexNetworkDrives, "Network Drives", '8'));
                             choice.AddKeybind(Keybind.CreateTogglable(Settings.IndexOnStartup, "Index On Startup", '9'));
+                            choice.AddSpacer();
+                            // Keybind to begin indexing drives
+                            choice.AddKeybind(Keybind.CreateConfirmation(BeginIndexing, "Begin indexing selected drives?", "Begin Indexing", '1'));
                         }
                         else
                         {
@@ -211,9 +212,6 @@ namespace B.Modules.Tools.Indexer
                 }
                 // Update drive indexers
                 UpdateDriveIndexers();
-                // TODO test if this is necessary or helps at all
-                // Run garbage collection
-                System.GC.Collect();
                 // If on indexing screen, ensure window gets reprinted
                 if (IsInThisModule())
                 {

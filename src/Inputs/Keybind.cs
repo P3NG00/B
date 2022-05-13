@@ -225,11 +225,9 @@ namespace B.Inputs
 
         public static void PrintRegisteredKeybinds()
         {
-            _keybinds.ForEach(keybind =>
-            {
+            foreach (var keybind in _keybinds)
                 if (keybind.Display)
                     keybind.Print();
-            });
         }
 
         public static void FindKeybind(Func<Keybind, bool> condition)

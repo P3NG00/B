@@ -40,3 +40,7 @@ gtav.Start();
 // TODO process watcher, update every second or so with all computer process StartInfo
 
 // TODO pc spec getter
+
+// TODO email
+// TODO NOT AN EMAIL SERVER, JUST A CLIENT TO VIEW/SEND EMAILS WITH
+// https://stackoverflow.com/questions/32260/sending-email-in-net-through-gmail

@@ -108,6 +108,8 @@ namespace B.Inputs
             {
                 string positionStr = Position.ToString();
                 int blankSpace = Vector2.MAX_STRING_LENGTH - positionStr.Length;
+                // Get cursor position
+                Vector2 cursorPos = Cursor.Position;
                 // Top-right of text window
                 Cursor.y = 0;
                 Cursor.x = Window.Width - Vector2.MAX_STRING_LENGTH;
@@ -115,6 +117,8 @@ namespace B.Inputs
                 Window.Print(' '.Loop(blankSpace));
                 // Display mouse position
                 Window.Print(positionStr);
+                // Restore cursor position
+                Cursor.Position = cursorPos;
             }
         }
 

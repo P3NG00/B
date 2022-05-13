@@ -112,19 +112,35 @@ namespace B
             while (IsRunning)
             {
                 try { Loop(); }
-                catch (NotImplementedException) { HandleException(null, new Text("This feature is not yet implemented.", new ColorPair(ConsoleColor.DarkYellow, ConsoleColor.Gray))); }
+                catch (NotImplementedException) { HandleException(text: new Text("This feature is not yet implemented.", new ColorPair(ConsoleColor.DarkYellow, ConsoleColor.Gray))); }
                 catch (Exception e) { HandleException(e); }
             }
 
-            // TODO add a 'Goodbye' screen as the program exits
-
-            // Finish indexers
+            // Mark indexers to finish during 'Goodbye' screen
             ModuleIndexer.ProcessIndexing = false;
-            Util.WaitFor(() => !ModuleIndexer.IsIndexing, 0.25f);
 
-            // Save before exiting
+            // Save settings
             try { Data.Serialize(ProgramSettings.Path, Settings); }
             catch (Exception e) { HandleException(e); }
+
+            // Disable debug mode
+            if (Settings.DebugMode)
+                Settings.DebugMode.Toggle();
+
+            // Display 'Goodbye' screen
+            // TODO create list of messages to display during 'Goodbye' screen. each message will have 2 phases. normal, and flash. normal will be displayed, then flash will overwrite it, then normal will display again. then program will continue
+            Window.Clear();
+
+            Cursor.Set(7, 3);
+            Window.Print("Goodbye!");
+            ProgramThread.Wait(0.6f);
+
+            Cursor.Set(10, 5);
+            Window.Print(":)");
+            ProgramThread.Wait(0.9f);
+
+            // Wait for indexers to finish
+            Util.WaitFor(() => !ModuleIndexer.IsIndexing, 0.25f);
         }
 
         private void Initialize()
@@ -158,7 +174,7 @@ namespace B
 
             // If Settings not initialized, default
             if (Settings is null)
-                Settings = new ProgramSettings();
+                Settings = new();
 
             // Initialize Settings after Settings has been created
             Settings.Initialize();
@@ -189,8 +205,6 @@ namespace B
         {
             // Lock thread
             ProgramThread.TryLock();
-            // Clear Keybinds
-            Keybind.ClearRegisteredKeybinds();
 
             switch (Stage)
             {
@@ -257,11 +271,14 @@ namespace B
                     }
                     break;
             }
+
+            // Clear Keybinds
+            Keybind.ClearRegisteredKeybinds();
         }
 
         public sealed override void Quit()
         {
-            // If quit is pressed in Levels.Group go back to Levels.Program
+            // If quit is pressed in Stages.Group go back to Stages.Program
             if (Stage == Stages.Group)
                 SetStage(Stages.Program);
             else

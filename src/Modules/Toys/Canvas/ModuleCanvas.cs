@@ -8,12 +8,8 @@ namespace B.Modules.Toys.Canvas
 {
     public sealed class ModuleCanvas : Module<ModuleCanvas.Stages>
     {
-        #region TODOs
-
         // TODO add image importing to canvas grid
-
-        #endregion
-
+        // TODO fix toggling debug mode while a canvas is open
 
         #region Constants
 
@@ -169,7 +165,6 @@ namespace B.Modules.Toys.Canvas
                 }, key: ConsoleKey.Escape)};
 
             _choiceCanvasDrawing = new();
-            // TODO add text entries to print things like "use wasd for ..." and "arrow keys for "
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Up), keyChar: 'w', key: ConsoleKey.UpArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Down), keyChar: 's', key: ConsoleKey.DownArrow));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => MoveCursor(Direction.Left), keyChar: 'a', key: ConsoleKey.LeftArrow));
@@ -186,10 +181,8 @@ namespace B.Modules.Toys.Canvas
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Down), key: ConsoleKey.DownArrow, modifiers: ConsoleModifiers.Control));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Left), key: ConsoleKey.LeftArrow, modifiers: ConsoleModifiers.Control));
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => ResizeBrush(Direction.Right), key: ConsoleKey.RightArrow, modifiers: ConsoleModifiers.Control));
-            // Color Select
-            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => SetStage(Stages.ColorSelect), "Color", key: ConsoleKey.C));
-            // Save
-            _choiceCanvasDrawing.AddKeybind(Keybind.Create(Save, "Save", key: ConsoleKey.S, modifiers: ConsoleModifiers.Control));
+            // Keybind Help
+            _choiceCanvasDrawing.AddKeybind(Keybind.Create(() => SetStage(Stages.Edit_Keybinds), "Keybinds", key: ConsoleKey.F1));
             // Save & Quit
             _choiceCanvasDrawing.AddKeybind(Keybind.Create(() =>
             {
@@ -332,7 +325,7 @@ namespace B.Modules.Toys.Canvas
                 case Stages.Edit:
                     {
                         Vector2 windowSize = _canvas.Size + (CANVAS_BORDER_PAD * 2);
-                        windowSize.y += CANVAS_EDIT_HEIGHT + 4;
+                        windowSize.y += CANVAS_EDIT_HEIGHT + 3;
                         Window.Size = windowSize;
                         // Print top info
                         Cursor.Set(2, 1);
@@ -356,7 +349,7 @@ namespace B.Modules.Toys.Canvas
                         }
                         // Request input and reposition cursor
                         Cursor.y = (CANVAS_BORDER_PAD.y * 2) + _canvas.Height + CANVAS_EDIT_HEIGHT;
-                        _choiceCanvasDrawing.Request(() =>
+                        var keyInfo = _choiceCanvasDrawing.Request(() =>
                         {
                             // Make cursor big and visible
                             Cursor.Size = 100;
@@ -366,6 +359,9 @@ namespace B.Modules.Toys.Canvas
                             cursorPos.y += CANVAS_EDIT_HEIGHT;
                             Cursor.Position = cursorPos;
                         });
+                        // If Debug key (F12) was pressed redraw canvas because window will be cleared
+                        if (keyInfo.Key == ConsoleKey.F12)
+                            _drawn = false;
                         // Check for mouse input
                         if (Mouse.LeftButtonDown)
                         {
@@ -389,6 +385,21 @@ namespace B.Modules.Toys.Canvas
                         _cursorPos = _cursorPos.Clamp(Vector2.Zero, _canvas.Size - Vector2.One);
                         // Fix brush size
                         _brushSize = _brushSize.Clamp(Vector2.One, _canvas.Size);
+                    }
+                    break;
+
+                case Stages.Edit_Keybinds:
+                    {
+                        Window.SetSize(44, 10);
+                        Cursor.y = 1;
+                        Choice choice = new("Canvas Keybinds");
+                        choice.AddText(new("[Paint] Space / Left Click"));
+                        choice.AddText(new("[Move Cursor] W, A, S, D / Arrow Keys"));
+                        choice.AddText(new("[Paint & Move] NumPad 2, 4, 6, 8"));
+                        choice.AddText(new("[Adjust Brush Size] Control + Arrow Keys"));
+                        choice.AddSpacer();
+                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Edit), "Back", key: ConsoleKey.Escape));
+                        choice.Request();
                     }
                     break;
 
@@ -517,6 +528,7 @@ namespace B.Modules.Toys.Canvas
             Create_Size_Width,
             Create_Size_Height,
             Edit,
+            Edit_Keybinds,
             ColorSelect,
         }
 

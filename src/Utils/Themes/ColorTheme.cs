@@ -1,5 +1,4 @@
 using B.Utils.Enums;
-using B.Utils.Extensions;
 using Newtonsoft.Json;
 
 namespace B.Utils.Themes
