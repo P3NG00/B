@@ -116,7 +116,10 @@ namespace B
                 catch (Exception e) { HandleException(e); }
             }
 
-            // Mark indexers to finish during 'Goodbye' screen
+            // Attempt to remove existing lock to let other threads finish properly
+            ProgramThread.TryUnlock();
+
+            // Mark indexers to finish during Goodbye screen
             ModuleIndexer.ProcessIndexing = false;
 
             // Save settings
@@ -127,20 +130,24 @@ namespace B
             if (Settings.DebugMode)
                 Settings.DebugMode.Toggle();
 
-            // Display 'Goodbye' screen
-            // TODO create list of messages to display during 'Goodbye' screen. each message will have 2 phases. normal, and flash. normal will be displayed, then flash will overwrite it, then normal will display again. then program will continue
+            // Display Goodbye screen
             Window.Clear();
-
             Cursor.Set(7, 3);
             Window.Print("Goodbye!");
-            ProgramThread.Wait(0.6f);
-
             Cursor.Set(10, 5);
             Window.Print(":)");
-            ProgramThread.Wait(0.9f);
+            ProgramThread.Wait(1);
 
             // Wait for indexers to finish
             Util.WaitFor(() => !ModuleIndexer.IsIndexing, 0.25f);
+
+            // Finish Goodbye screen wink
+            Cursor.Set(10, 5);
+            Window.Print(";");
+            ProgramThread.Wait(0.25f);
+            Cursor.Set(10, 5);
+            Window.Print(":");
+            ProgramThread.Wait(1);
         }
 
         private void Initialize()

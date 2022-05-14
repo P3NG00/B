@@ -9,7 +9,6 @@ namespace B.Modules.Toys.Canvas
     public sealed class ModuleCanvas : Module<ModuleCanvas.Stages>
     {
         // TODO add image importing to canvas grid
-        // TODO fix toggling debug mode while a canvas is open
 
         #region Constants
 
