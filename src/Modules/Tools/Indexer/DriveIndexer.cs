@@ -80,15 +80,17 @@ namespace B.Modules.Tools.Indexer
 
         private void IndexDirectory(DirectoryInfo directory, in IndexInfo index)
         {
+            // Index current directory
             index.Add(directory);
 
-            // Search subdirectories
+            // Index subdirectories in the current directory
             foreach (var subdir in directory.GetDirectories())
             {
+                // Check to stop processing
                 if (!ModuleIndexer.ProcessIndexing)
                     return;
 
-                // Index subdirectories
+                // Index subdirectory
                 try { IndexDirectory(subdir, in index); }
                 // If exception caught, mark directory as unauthorized
                 catch (UnauthorizedAccessException) { index.AddInaccessibleData(subdir); }
@@ -97,10 +99,14 @@ namespace B.Modules.Tools.Indexer
             // Index files in current directory
             foreach (var file in directory.GetFiles())
             {
+                // Check to stop processing
                 if (!ModuleIndexer.ProcessIndexing)
                     return;
 
+                // Index file
                 index.Add(file);
+
+                // Add file size
                 _indexedSize += file.Length;
             }
         }

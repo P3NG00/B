@@ -8,6 +8,7 @@ namespace B.Modules.Tools.Indexer
     {
         #region Universal Variables
 
+        // This is integrated with the indexing function to stop indexing when set to false
         public static volatile bool ProcessIndexing = true;
 
         #endregion
