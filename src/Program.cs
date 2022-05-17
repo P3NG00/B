@@ -6,7 +6,6 @@ using B.Modules.Games.MadLibs;
 using B.Modules.Games.MexicanTrain;
 using B.Modules.Games.NumberGuesser;
 using B.Modules.Games.Checkers;
-using B.Modules.Tools.Backup;
 using B.Modules.Tools.FTP;
 using B.Modules.Tools.Indexer;
 using B.Modules.Tools.MoneyTracker;
@@ -68,7 +67,6 @@ namespace B
             }),
             ("Tools", new Type[] {
                 typeof(ModuleFTP),
-                typeof(ModuleBackup),
                 typeof(ModuleMoneyTracker),
                 typeof(ModuleIndexer),
                 typeof(ModuleSettings),
@@ -122,32 +120,42 @@ namespace B
             // Mark indexers to finish during Goodbye screen
             ModuleIndexer.ProcessIndexing = false;
 
+            // Check to begin Goodbye screen
+            bool displayGoodbye = Settings.DisplayGoodbye;
+
+            if (displayGoodbye)
+            {
+                // Disable debug mode
+                if (Settings.DebugMode)
+                    Settings.DebugMode.Toggle();
+
+                // Display Goodbye screen
+                Window.Clear();
+                Cursor.Set(7, 3);
+                Window.Print("Goodbye!");
+                Cursor.Set(10, 5);
+                Window.Print(":)");
+                ProgramThread.Wait(1);
+            }
+
             // Save settings
             try { Data.Serialize(ProgramSettings.Path, Settings); }
             catch (Exception e) { HandleException(e); }
 
-            // Disable debug mode
-            if (Settings.DebugMode)
-                Settings.DebugMode.Toggle();
-
-            // Display Goodbye screen
-            Window.Clear();
-            Cursor.Set(7, 3);
-            Window.Print("Goodbye!");
-            Cursor.Set(10, 5);
-            Window.Print(":)");
-            ProgramThread.Wait(1);
-
             // Wait for indexers to finish
             Util.WaitFor(() => !ModuleIndexer.IsIndexing, 0.25f);
 
-            // Finish Goodbye screen wink
-            Cursor.Set(10, 5);
-            Window.Print(";");
-            ProgramThread.Wait(0.25f);
-            Cursor.Set(10, 5);
-            Window.Print(":");
-            ProgramThread.Wait(1);
+            // Check Goodbye screen again
+            if (displayGoodbye)
+            {
+                // Finish Goodbye screen wink
+                Cursor.Set(10, 5);
+                Window.Print(";");
+                ProgramThread.Wait(0.5f);
+                Cursor.Set(10, 5);
+                Window.Print(":");
+                ProgramThread.Wait(1);
+            }
         }
 
         private void Initialize()

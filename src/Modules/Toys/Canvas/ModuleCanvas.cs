@@ -8,8 +8,6 @@ namespace B.Modules.Toys.Canvas
 {
     public sealed class ModuleCanvas : Module<ModuleCanvas.Stages>
     {
-        // TODO add image importing to canvas grid
-
         #region Constants
 
         private const int MAX_INPUT_LENGTH = 25;

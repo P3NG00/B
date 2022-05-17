@@ -1,22 +1,24 @@
 using B.Inputs;
 using B.Utils;
-using B.Utils.Extensions;
 using Newtonsoft.Json;
 
 namespace B.Modules.Tools.MoneyTracker
 {
     public sealed class Account
     {
-        #region Public Variables
+        #region Public Properties
 
         [JsonIgnore] public string FilePath => ModuleMoneyTracker.DirectoryPath + Name;
+        [JsonIgnore] public byte Decimals => _decimals;
+
+        #endregion
+
+
+
+        #region Public Variables
+
         public List<Transaction> Transactions = new();
         public string Name = string.Empty;
-        public byte Decimals
-        {
-            get => _decimals;
-            set => _decimals = value.Clamp(0, Input.DECIMAL_LENGTH);
-        }
 
         #endregion
 
@@ -24,7 +26,7 @@ namespace B.Modules.Tools.MoneyTracker
 
         #region Private Variables
 
-        private byte _decimals = 2;
+        [JsonProperty] private byte _decimals = 2;
 
         #endregion
 
@@ -50,6 +52,18 @@ namespace B.Modules.Tools.MoneyTracker
         {
             if (File.Exists(FilePath))
                 File.Delete(FilePath);
+        }
+
+        public void IncrementDecimals()
+        {
+            if (_decimals < Input.DECIMAL_LENGTH)
+                _decimals++;
+        }
+
+        public void DecrementDecimals()
+        {
+            if (_decimals != 0)
+                _decimals--;
         }
 
         #endregion

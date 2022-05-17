@@ -7,14 +7,6 @@ namespace B.Modules.Toys.BrainFuck
 {
     public sealed class ModuleBrainFuck : Module<ModuleBrainFuck.Stages>
     {
-        #region TODOs
-
-        // TODO add 'editor' mode
-
-        #endregion
-
-
-
         #region Constants
 
         private const string FILE_EXTENSION = "*bf";

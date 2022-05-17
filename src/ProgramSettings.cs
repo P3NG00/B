@@ -16,10 +16,10 @@ namespace B
 
         #region Public Variables
 
+        public Togglable DisplayGoodbye;
         public Togglable CursorVisible;
         public Togglable DebugMode;
         public Togglable Censor;
-        // TODO add Togglable GoodbyeScreen to set whether or not to show the goodbye screen.
         public ColorTheme ColorTheme;
         public int CursorSize;
 
@@ -31,9 +31,10 @@ namespace B
 
         public ProgramSettings()
         {
-            CursorVisible = new();
-            DebugMode = new();
-            Censor = new();
+            DisplayGoodbye = new(true);
+            CursorVisible = new(false);
+            DebugMode = new(false);
+            Censor = new(false);
             ColorTheme = Util.ThemeDefault;
             CursorSize = 100;
         }
@@ -50,7 +51,7 @@ namespace B
             // Since they are not serializable, they need to be re-initialized every time the program is run instead of being saved.
             CursorVisible.SetOnChangeAction(UpdateCursor);
             DebugMode.SetOnChangeAction(Window.Clear);
-
+            // Update
             UpdateColors();
             UpdateCursor();
         }

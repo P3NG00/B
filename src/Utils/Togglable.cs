@@ -15,7 +15,7 @@ namespace B.Utils
         #region Private Variables
 
         [JsonProperty] private bool _enabled;
-        private Action<bool>? _onToggle;
+        [JsonIgnore] private Action<bool>? _onToggle;
 
         #endregion
 
@@ -23,7 +23,7 @@ namespace B.Utils
 
         #region Constructors
 
-        public Togglable(bool defaultValue = false) => _enabled = defaultValue;
+        public Togglable(bool defaultValue) => _enabled = defaultValue;
 
         #endregion
 
@@ -47,6 +47,7 @@ namespace B.Utils
 
         #region Operator Overrides
 
+        // This allows you to reference the togglable as a bool.
         public static implicit operator bool(Togglable togglable) => togglable.Enabled;
 
         #endregion

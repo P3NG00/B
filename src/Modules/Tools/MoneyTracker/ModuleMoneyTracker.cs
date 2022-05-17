@@ -233,14 +233,10 @@ namespace B.Modules.Tools.MoneyTracker
                                 Input.ScrollIndex = 0;
                                 SetStage(Stages.Transaction);
                             }, "Back", key: ConsoleKey.Escape),
-                            extraKeybinds: new Keybind[] {
-                                Keybind.Create(() => _selectedAccount.Decimals++, "Increase Decimals", '+'),
-                                Keybind.Create(() =>
-                                {
-                                    // Checking before decrementing to avoid underflowing to max value
-                                    if (_selectedAccount.Decimals != 0)
-                                        _selectedAccount.Decimals--;
-                                }, "Decrease Decimals", '-'),
+                            extraKeybinds: new Keybind[]
+                            {
+                                Keybind.Create(_selectedAccount.IncrementDecimals, "Increase Decimals", '+'),
+                                Keybind.Create(_selectedAccount.DecrementDecimals, "Decrease Decimals", '-'),
                                 Keybind.CreateConfirmation(() => _selectedAccount!.Transactions.RemoveAt(Input.ScrollIndex), "Delete this transaction?", "Delete", key: ConsoleKey.Delete)
                             }
                         );
@@ -308,13 +304,8 @@ namespace B.Modules.Tools.MoneyTracker
                     }
                     break;
 
-                case Stages.Transaction_Edit:
-                    {
-                        // TODO add keybind in Transaction_View to go to transaction edit from selected transaction
-                        throw new NotImplementedException();
-                        // SetStage(Stages.Transaction);
-                    }
-                    // break;
+                // TODO
+                case Stages.Transaction_Edit: throw new NotImplementedException();
             }
         }
 

@@ -28,6 +28,8 @@ Make sure all overridden methods are sealed.
 
 
 
+// TODO add 'editor' mode in brainfuck
+
 // TODO create penguin.bat runner in c#
 
 // TODO steam game id starter

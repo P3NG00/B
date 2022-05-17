@@ -41,7 +41,7 @@ namespace B.Modules.Tools.Settings
             {
                 case Stages.MainMenu:
                     {
-                        Window.SetSize(27, 13);
+                        Window.SetSize(31, 14);
                         Cursor.y = 1;
                         Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Color), "Color", '1'));
@@ -50,6 +50,7 @@ namespace B.Modules.Tools.Settings
                         choice.AddKeybind(Keybind.Create(() => ClearAndSetStage(Stages.Cursor), "Cursor", '4'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.Censor, "Censor", key: ConsoleKey.F10));
+                        choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.DisplayGoodbye, "Display Goodbye", key: ConsoleKey.F11));
                         choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.DebugMode, "Debug Mode", key: ConsoleKey.F12));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.CreateModuleExit(this));
