@@ -11,14 +11,6 @@ namespace B
 
 
 
-        #region Universal Properties
-
-        public static object LockObject => _lock;
-
-        #endregion
-
-
-
         #region Private Properties
 
         private static bool Locked => Monitor.IsEntered(_lock);

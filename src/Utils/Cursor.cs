@@ -47,6 +47,7 @@ namespace B.Utils
         #endregion
 
 
+
         #region Universal Methods
 
         public static void Reset() => Console.SetCursorPosition(0, 0);

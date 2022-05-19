@@ -230,7 +230,8 @@ namespace B.Inputs
                     keybind.Print();
         }
 
-        public static void FindKeybind(Func<Keybind, bool> condition)
+        // The condition is used to find a matching keybind to activate.
+        public static void ActivateKeybind(Func<Keybind, bool> condition)
         {
             foreach (Keybind keybind in _keybinds)
             {

@@ -40,7 +40,7 @@ namespace B.Inputs
 
         private static void KeyboardThreadLoop()
         {
-            // Get key
+            // Get key (thread hangs until key is pressed to continue processing)
             LastInput = Console.ReadKey(true);
             // Lock and process
             ProgramThread.Lock(Process);
@@ -60,7 +60,7 @@ namespace B.Inputs
             }
 
             // Find keybind
-            Keybind.FindKeybind(keybind => keybind == LastInput);
+            Keybind.ActivateKeybind(keybind => keybind == LastInput);
         }
 
         #endregion

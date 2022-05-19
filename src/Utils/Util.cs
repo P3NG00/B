@@ -48,13 +48,7 @@ namespace B.Utils
 
         public static void Void() { }
 
-        public static void WaitFor(Func<bool> condition)
-        {
-            while (!condition())
-                ProgramThread.Wait();
-        }
-
-        public static void WaitFor(Func<bool> condition, float seconds)
+        public static void WaitFor(Func<bool> condition, float seconds = 0.01f)
         {
             while (!condition())
                 ProgramThread.Wait(seconds);

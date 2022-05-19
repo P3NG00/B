@@ -176,7 +176,7 @@ namespace B.Modules.Tools.Settings
                         Cursor.Reset();
                         Cursor.Set(0, 1);
                         Choice choice = new("Cursor");
-                        choice.AddKeybind(Keybind.Create(Program.Settings.CursorVisible.Toggle, $"Visibility - {Cursor.Visible,-5}", '1'));
+                        choice.AddKeybind(Keybind.CreateTogglable(Program.Settings.CursorVisible, "Visibility", '1'));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Cursor_Size), "Size", '2'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));

@@ -94,7 +94,7 @@ namespace B.Inputs
                     Window.Update();
                 // If left mouse button clicked, test for keybind to activate
                 if (_lastLeftButtonClick)
-                    Keybind.FindKeybind(keybind => keybind.IsHighlighted);
+                    Keybind.ActivateKeybind(keybind => keybind.IsHighlighted);
             }
             // Get mouse position
             Vector2 mousePos = Position;

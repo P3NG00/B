@@ -16,15 +16,11 @@ Program needs testing with different types of systems.
 
 
 
-Make OptionTODO.
+// TODO Make sure all overridden methods are sealed.
 
 
 
-Add MCBackup Option to make backing up saves from any instance in specified multimc directory?
-
-
-
-Make sure all overridden methods are sealed.
+// TODO use XML documentation for each method and property to describe what they do and how they are used
 
 
 
