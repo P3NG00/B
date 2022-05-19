@@ -53,9 +53,9 @@ namespace B
             Thread.Sleep(milliseconds);
         }
 
-        public static Thread StartThread(string name, Action action, ThreadPriority priority = ThreadPriority.Normal)
+        public static Thread StartThread(string name, ThreadStart action, ThreadPriority priority = ThreadPriority.Normal)
         {
-            Thread thread = new Thread(new ThreadStart(action));
+            Thread thread = new(action);
             thread.Name = name;
             thread.Priority = priority;
             thread.IsBackground = true;

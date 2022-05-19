@@ -90,7 +90,7 @@ namespace B.Inputs
 
         private interface IEntry
         {
-            public virtual void Print() => Util.Void();
+            public virtual void Print() { }
         }
 
         private sealed class EntryKeybind : IEntry

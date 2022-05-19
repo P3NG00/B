@@ -26,7 +26,7 @@ namespace B.Utils.Themes
         #region Private Variables
 
         // This variable is kept as an easy reference to the PrintPair for PrintType.General.
-        private PrintPair _PrintType_GeneralPair;
+        private readonly PrintPair _generalPrintPair;
 
         #endregion
 
@@ -37,8 +37,6 @@ namespace B.Utils.Themes
         public ColorTheme(string title, params PrintPair[] printPairs)
         {
             Title = title;
-
-            // Setup check
             PrintPair generalPair = null!;
             bool hasHighlightPair = false;
 
@@ -67,7 +65,7 @@ namespace B.Utils.Themes
                 throw new Exception("ColorTheme must contain a PrintPair with PrintType 'General'!");
 
             // Set reference of general pair.
-            _PrintType_GeneralPair = generalPair;
+            _generalPrintPair = generalPair;
 
             // Check if highlight was specified.
             if (!hasHighlightPair)
@@ -88,10 +86,10 @@ namespace B.Utils.Themes
 
         #region Public Methods
 
-        public ColorPair this[PrintType type]
+        public ColorPair this[PrintType printType]
         {
-            get => GetPrintPair(type, _PrintType_GeneralPair).ColorPair;
-            set => GetPrintPair(type, _PrintType_GeneralPair).ColorPair = value;
+            get => GetPrintPair(printType, _generalPrintPair).ColorPair;
+            set => GetPrintPair(printType, _generalPrintPair).ColorPair = value;
         }
 
         #endregion

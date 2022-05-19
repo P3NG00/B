@@ -14,7 +14,6 @@ using B.Modules.Toys.BrainFuck;
 using B.Modules.Toys.Canvas;
 using B.Modules.Toys.TextGenerator;
 using B.Utils;
-using B.Utils.Extensions;
 using B.Utils.Themes;
 
 namespace B
@@ -120,7 +119,8 @@ namespace B
             // Mark indexers to finish during Goodbye screen
             ModuleIndexer.ProcessIndexing = false;
 
-            // Check to begin Goodbye screen
+            // TODO replace wink with randomized faces or something different each time. Use Util.Random
+            // Check to begin Goodbye wink
             bool displayGoodbye = Settings.DisplayGoodbye;
 
             if (displayGoodbye)
@@ -160,6 +160,8 @@ namespace B
 
         private void Initialize()
         {
+            // TODO print breif 'Welcome'
+
             // Print 'Loading' message while program initializes.
             Window.Print("Loading...");
 
@@ -228,7 +230,7 @@ namespace B
                         // Display main menu modules
                         Window.SetSize(22, ModuleGroups.Length + 6);
                         Cursor.Set(0, 1);
-                        Choice choice = new($"{Title}'s");
+                        Choice choice = new(Title);
                         char c = '1';
                         foreach (var group in ModuleGroups)
                         {
@@ -260,7 +262,7 @@ namespace B
 
                             choice.AddKeybind(Keybind.Create(() =>
                             {
-                                _selectedModule = moduleType.Instantiate<IModule>();
+                                _selectedModule = Activator.CreateInstance(moduleType) as IModule;
                                 SetStage(Stages.Module);
                             }, title, c++));
                         }
@@ -334,6 +336,9 @@ namespace B
             choice.Request();
             // Thread will lock while processing
             ProgramThread.TryLock();
+            // Clear newly registered keybinds
+            Keybind.ClearRegisteredKeybinds();
+            // Set to previous stage
             Program pInst = Instance;
             pInst._selectedModule = null;
 
