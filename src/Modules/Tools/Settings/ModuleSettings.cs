@@ -10,6 +10,7 @@ namespace B.Modules.Tools.Settings
     {
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Settings";
 
         #endregion
@@ -18,7 +19,9 @@ namespace B.Modules.Tools.Settings
 
         #region Private Variables
 
-        private Vector2 _size = new(40, 20);
+        // Used for modifying in the WindowSize stage.
+        private Vector2 _windowSize = new(40, 20);
+        // Used for modifying the color of a certain PrintType.
         private PrintType _customEditingPrintType = PrintType.General;
 
         #endregion
@@ -27,6 +30,7 @@ namespace B.Modules.Tools.Settings
 
         #region Constructors
 
+        // Creates a new instance of ModuleSettings.
         public ModuleSettings() : base(Stages.MainMenu) { }
 
         #endregion
@@ -35,6 +39,7 @@ namespace B.Modules.Tools.Settings
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             switch (Stage)
@@ -66,17 +71,17 @@ namespace B.Modules.Tools.Settings
 
                 case Stages.WindowSize:
                     {
-                        _size = _size.Clamp(Window.SizeMin, Window.SizeMax);
-                        Window.Size = _size;
+                        _windowSize = _windowSize.Clamp(Window.SizeMin, Window.SizeMax);
+                        Window.Size = _windowSize;
                         Cursor.Set(0, 0);
                         Window.Print($"Detected Max Size: {Window.SizeMax}");
                         Cursor.Set(0, 1);
-                        Window.Print($"Current Size: {_size}");
+                        Window.Print($"Current Size: {_windowSize}");
                         Choice choice = new();
-                        choice.AddKeybind(Keybind.Create(() => _size.x++, keyChar: '8', key: ConsoleKey.RightArrow));
-                        choice.AddKeybind(Keybind.Create(() => _size.x--, keyChar: '2', key: ConsoleKey.LeftArrow));
-                        choice.AddKeybind(Keybind.Create(() => _size.y++, keyChar: '6', key: ConsoleKey.DownArrow));
-                        choice.AddKeybind(Keybind.Create(() => _size.y--, keyChar: '4', key: ConsoleKey.UpArrow));
+                        choice.AddKeybind(Keybind.Create(() => _windowSize.x++, keyChar: '8', key: ConsoleKey.RightArrow));
+                        choice.AddKeybind(Keybind.Create(() => _windowSize.x--, keyChar: '2', key: ConsoleKey.LeftArrow));
+                        choice.AddKeybind(Keybind.Create(() => _windowSize.y++, keyChar: '6', key: ConsoleKey.DownArrow));
+                        choice.AddKeybind(Keybind.Create(() => _windowSize.y--, keyChar: '4', key: ConsoleKey.UpArrow));
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), key: ConsoleKey.Escape));
                         choice.Request();
                     }
@@ -265,16 +270,26 @@ namespace B.Modules.Tools.Settings
 
         #region Enums
 
+        // Module Stages
         public enum Stages
         {
+            // Able to toggle some settings and go into more specific settings.
             MainMenu,
+            // Able to manually adjust the size of the window for debugging.
             WindowSize,
+            // Change color settings.
             Color,
+            // Select from predefined color themes.
             Color_Theme,
+            // Manually change colors for different PrintTypes.
             Color_Custom,
+            // Change the PrintType to change the color of.
             Color_Custom_PrintType,
+            // Console cursor settings.
             Cursor,
+            // Change the size of the visible console cursor.
             Cursor_Size,
+            // Print info about the last pressed key.
             KeyPress,
         }
 

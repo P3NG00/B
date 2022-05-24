@@ -32,6 +32,7 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Constructors
 
+        // Creates a new instance of MexicanTrainInfo with the given amount of players.
         public MexicanTrainInfo(int amountOfPlayers)
         {
             // Create player array
@@ -53,6 +54,7 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Public Methods
 
+        // Initializes the game.
         public void SetupGame()
         {
             _dominoes.Clear();
@@ -81,6 +83,7 @@ namespace B.Modules.Games.MexicanTrain
                 _players.ForEach(player => player.TakeRandomFrom(_dominoes));
         }
 
+        // Handles the current player's turn.
         public void HandleTurn()
         {
             // TODO

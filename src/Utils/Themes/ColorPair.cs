@@ -4,7 +4,9 @@ namespace B.Utils.Themes
     {
         #region Public Variables
 
+        // ConsoleColor used for Text.
         public ConsoleColor? ColorText;
+        // ConsoleColor used for Background.
         public ConsoleColor? ColorBack;
 
         #endregion
@@ -13,6 +15,7 @@ namespace B.Utils.Themes
 
         #region Constructors
 
+        // Creates a new ColorPair.
         public ColorPair(ConsoleColor? colorText = null, ConsoleColor? colorBack = null)
         {
             ColorText = colorText;
@@ -25,6 +28,7 @@ namespace B.Utils.Themes
 
         #region Public Methods
 
+        // Sets the current console colors to this ColorPair.
         public void SetConsoleColors()
         {
             if (ColorText.HasValue)

@@ -8,7 +8,9 @@ namespace B.Modules.Toys.Canvas
     {
         #region Public Variables
 
+        // Canvas Title.
         [JsonIgnore] public string Title = string.Empty;
+        // 2D Array of ConsoleColors that represent the image of the canvas.
         public ConsoleColor[][] Colors = null!;
 
         #endregion
@@ -17,9 +19,13 @@ namespace B.Modules.Toys.Canvas
 
         #region Public Properties
 
+        // Relative path of where this Canvas is stored.
         [JsonIgnore] public string FilePath => ModuleCanvas.DirectoryPath + Title;
+        // Size of the Canvas.
         [JsonIgnore] public Vector2 Size => new(Width, Height);
+        // Width of the Canvas.
         [JsonIgnore] public int Width => Colors[0].Length;
+        // Height of the Canvas.
         [JsonIgnore] public int Height => Colors.Length;
 
         #endregion
@@ -28,10 +34,11 @@ namespace B.Modules.Toys.Canvas
 
         #region Public Methods
 
-        // Use these as Color Getter and Setter
+        // Color Getter and Setter
         public ref ConsoleColor Color(int x, int y) => ref Colors[y][x];
         public ref ConsoleColor Color(Vector2 pos) => ref Colors[pos.y][pos.x];
 
+        // Draws each ConsoleColor of the Canvas.
         public void Draw()
         {
             Vector2 topLeft = Cursor.Position;
@@ -49,6 +56,9 @@ namespace B.Modules.Toys.Canvas
                 }
             }
         }
+
+        // Serializes the canvas to file
+        public void Save() => Data.Serialize(FilePath, this);
 
         #endregion
     }

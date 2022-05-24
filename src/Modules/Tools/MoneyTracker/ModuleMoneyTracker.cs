@@ -8,6 +8,7 @@ namespace B.Modules.Tools.MoneyTracker
     {
         #region Constants
 
+        // Constant maximum amount of transactions to list in transaction list.
         private const int MAX_TRANSACTIONS_PER_PAGE = 50;
 
         #endregion
@@ -16,7 +17,9 @@ namespace B.Modules.Tools.MoneyTracker
 
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Money Tracker";
+        // Relative path where accounts are stored.
         public static string DirectoryPath => Program.DataPath + @"accounts\";
 
         #endregion
@@ -25,8 +28,11 @@ namespace B.Modules.Tools.MoneyTracker
 
         #region Private Variables
 
+        // List of loaded accounts.
         private List<Account> _accounts = new();
+        // Transaction currently being modified.
         private Transaction? _tempTransaction;
+        // Account currently being modified.
         private Account? _selectedAccount;
 
         #endregion
@@ -35,6 +41,7 @@ namespace B.Modules.Tools.MoneyTracker
 
         #region Constructors
 
+        // Creates a new instance of ModuleMoneyTracker.
         public ModuleMoneyTracker() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(DirectoryPath))
@@ -50,6 +57,7 @@ namespace B.Modules.Tools.MoneyTracker
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             switch (Stage)
@@ -57,9 +65,9 @@ namespace B.Modules.Tools.MoneyTracker
                 case Stages.MainMenu:
                     {
                         int consoleHeight = 7;
-                        bool selected = _selectedAccount != null;
+                        bool accountSelected = _selectedAccount != null;
 
-                        if (selected)
+                        if (accountSelected)
                             consoleHeight++;
 
                         Window.SetSize(20, consoleHeight);
@@ -67,7 +75,7 @@ namespace B.Modules.Tools.MoneyTracker
                         Choice choice = new(Title);
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Account), "Account", '1'));
 
-                        if (selected)
+                        if (accountSelected)
                             choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction), "Transaction", '2'));
 
                         choice.AddSpacer();
@@ -106,6 +114,7 @@ namespace B.Modules.Tools.MoneyTracker
                         Window.SetSize(42, 5);
                         Cursor.Set(2, 1);
                         Window.Print($"New Account Name: {Input.String}");
+                        bool exiting = false;
                         Input.RequestLine(20,
                             Keybind.Create(() =>
                             {
@@ -120,7 +129,7 @@ namespace B.Modules.Tools.MoneyTracker
                                         Cursor.NextLine(2, 2);
                                         Window.Print($"\"{Input.String}\" created!");
                                         Input.ResetString();
-                                        SetStage(Stages.Account);
+                                        exiting = true;
                                     }
                                     else
                                     {
@@ -137,6 +146,8 @@ namespace B.Modules.Tools.MoneyTracker
                                 SetStage(Stages.Account);
                             }, key: ConsoleKey.Escape)
                         );
+                        if (exiting)
+                            SetStage(Stages.Account);
                     }
                     break;
 
@@ -201,7 +212,7 @@ namespace B.Modules.Tools.MoneyTracker
 
                 case Stages.Transaction:
                     {
-                        Window.SetSize(20, 9);
+                        Window.SetSize(20, 8);
                         Cursor.Set(0, 1);
                         Choice choice = new("Transaction");
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_View), "View", '1'));
@@ -211,7 +222,6 @@ namespace B.Modules.Tools.MoneyTracker
                             _tempTransaction = new();
                             SetStage(Stages.Transaction_Add_Amount);
                         }, "Add", '2'));
-                        choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Transaction_Edit), "Edit", '3'));
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.MainMenu), "Back", key: ConsoleKey.Escape));
                         choice.Request();
@@ -226,7 +236,7 @@ namespace B.Modules.Tools.MoneyTracker
                         Cursor.y = 1;
                         Input.RequestScroll(
                             items: _selectedAccount.Transactions,
-                            getText: ViewTransactionFromSelectedAccount,
+                            getText: transaction => string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description),
                             maxEntriesPerPage: MAX_TRANSACTIONS_PER_PAGE,
                             exitKeybind: Keybind.Create(() =>
                             {
@@ -303,21 +313,15 @@ namespace B.Modules.Tools.MoneyTracker
                         }
                     }
                     break;
-
-                // TODO
-                case Stages.Transaction_Edit: throw new NotImplementedException();
             }
         }
 
-        public override void Save()
-        {
-            foreach (Account account in _accounts)
-                account.Save();
-        }
-
+        // Saves account data before exiting Module.
         public override void Quit()
         {
-            Save();
+            // Save account data
+            _accounts.ForEach(account => account.Save());
+            // Quit
             base.Quit();
         }
 
@@ -327,6 +331,7 @@ namespace B.Modules.Tools.MoneyTracker
 
         #region Private Methods
 
+        // Add account to list either as new or with loaded values.
         private Account AddAccount(string name, bool deserialize = false)
         {
             Account account;
@@ -343,32 +348,32 @@ namespace B.Modules.Tools.MoneyTracker
             return account;
         }
 
-        private string ViewTransactionFromSelectedAccount(Transaction transaction)
-        {
-            if (_selectedAccount is null)
-                throw new Exception("Attempted to get transaction from invalid account!");
-
-            return string.Format("{0," + (Input.DECIMAL_LENGTH + _selectedAccount.Decimals + 1) + ":0." + '0'.Loop(_selectedAccount.Decimals) + "} | {1," + Input.DECIMAL_LENGTH + "}", transaction.Amount, transaction.Description);
-        }
-
         #endregion
 
 
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Select account or transaction to manage.
             MainMenu,
+            // Manage accounts.
             Account,
+            // Create new account.
             Account_Create,
+            // Select existing account.
             Account_Select,
+            // Delete existing account.
             Account_Remove,
+            // Manage transactions under account.
             Transaction,
+            // View transactions.
             Transaction_View,
+            // Add new transaction stages.
             Transaction_Add_Amount,
             Transaction_Add_Description,
-            Transaction_Edit,
         }
 
         #endregion

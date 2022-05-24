@@ -7,7 +7,9 @@ namespace B.Modules.Toys.BrainFuck
     {
         #region Public Properties
 
+        // BrainFuckProgram Title.
         public readonly string Title;
+        // Instruction tape for the BrainFuckProgram.
         public readonly char[] Instructions;
 
         #endregion
@@ -16,6 +18,7 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Constructors
 
+        // Creates a new BrainFuckProgram by loading the instructions from the specified file.
         public BrainFuckProgram(string title, string fullFilePath)
         {
             Title = title;
@@ -32,6 +35,7 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Public Methods
 
+        // Handles one step through the BrainFuckProgram with current runtime info.
         public void HandleStep(in byte[] memory, ref uint memoryIndex, ref uint instructionIndex, ref uint bracketDepth, ref string output)
         {
             switch (Instructions[instructionIndex])

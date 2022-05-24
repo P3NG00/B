@@ -7,27 +7,26 @@ namespace B.Modules.Games.Adventure
 {
     public sealed class ModuleAdventure : Module<ModuleAdventure.Stages>
     {
-        #region TODOs
-
-        // TODO implement some color printing (examples: tiles, player, coins, doors, border, text, etc.)
-        // TODO add option in adventure to enable/disable color printing
-
-        #endregion
-
-
-
         #region Constants
 
+        // Empty Tile.
         public const string CHAR_EMPTY = "  ";
+        // Player.
         public const string CHAR_PLAYER = "()";
+        // Door Tile.
         public const string CHAR_DOOR = "[]";
+        // Coin Tile.
         public const string CHAR_COIN = "<>";
+        // Wall Tile.
         public const string CHAR_WALL = "▓▓";
+        // Interactable Tile.
         public const string CHAR_INTERACTABLE = "░░";
+        // Border Tiles.
         public const string CHAR_BORDER_HORIZONTAL = "==";
         public const string CHAR_BORDER_VERTICAL = "||";
-        public const string CHAR_CORNER_A = "//";
-        public const string CHAR_CORNER_B = @"\\";
+        public const string CHAR_BORDER_CORNER_A = "//";
+        public const string CHAR_BORDER_CORNER_B = @"\\";
+        // Empty Message.
         public const string MESSAGE_EMPTY = "...";
 
         #endregion
@@ -36,9 +35,13 @@ namespace B.Modules.Games.Adventure
 
         #region Public Properties
 
+        // Module Title.
         public static string Title => "Adventure!";
+        // Relative path to Adventure's game data directory.
         public static string DirectoryPath => Program.DataPath + @"adventure\";
+        // Relative path to Adventure's save game file.
         public static string FilePath => DirectoryPath + "save";
+        // The grid the player is currently in.
         public static Grid CurrentGrid => _grids[Info.GridID];
 
         #endregion
@@ -47,7 +50,9 @@ namespace B.Modules.Games.Adventure
 
         #region Universal Variables
 
+        // Message to display to player.
         public static string Message = MESSAGE_EMPTY;
+        // Game Data.
         public static AdventureInfo Info = new();
 
         #endregion
@@ -56,7 +61,10 @@ namespace B.Modules.Games.Adventure
 
         #region Private Variables
 
+        // Array of loaded grids.
+        // Indexed by grid ID.
         private static Grid[] _grids = new Grid[0];
+        // Cached choice for game input.
         private Choice _choiceGame;
 
         #endregion
@@ -65,6 +73,7 @@ namespace B.Modules.Games.Adventure
 
         #region Private Properties
 
+        // The player's position on the grid.
         private Vector2 PlayerPosition
         {
             get => Info.Position;
@@ -77,8 +86,10 @@ namespace B.Modules.Games.Adventure
 
         #region Constructors
 
+        // Initializes Grids.
         static ModuleAdventure() => InitializeGrids();
 
+        // Creates a new instance of ModuleAdventure.
         public ModuleAdventure() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(DirectoryPath))
@@ -98,7 +109,9 @@ namespace B.Modules.Games.Adventure
             _choiceGame.AddSpacer();
             _choiceGame.AddKeybind(Keybind.Create(() =>
             {
-                Save();
+                // Save game data
+                Data.Serialize(FilePath, Info);
+                // Go to main menu
                 SetStage(Stages.MainMenu);
             }, "Quit", key: ConsoleKey.Escape));
         }
@@ -109,6 +122,7 @@ namespace B.Modules.Games.Adventure
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             switch (Stage)
@@ -151,8 +165,6 @@ namespace B.Modules.Games.Adventure
 
                 case Stages.Game:
                     {
-                        // TODO use different border styles
-
                         Grid currentGrid = CurrentGrid;
                         int consoleHeight = currentGrid.Height + 15;
                         Cursor.Reset();
@@ -171,7 +183,7 @@ namespace B.Modules.Games.Adventure
                         Window.SetSize(currentGrid.RealWidth + 8, consoleHeight);
                         string borderHorizontal = CHAR_BORDER_HORIZONTAL.Loop(currentGrid.Width);
                         Cursor.NextLine(2);
-                        Window.Print($"{CHAR_CORNER_A}{borderHorizontal}{CHAR_CORNER_B}");
+                        Window.Print($"{CHAR_BORDER_CORNER_A}{borderHorizontal}{CHAR_BORDER_CORNER_B}");
 
                         for (int y = currentGrid.Height - 1; y >= 0; y--)
                         {
@@ -194,7 +206,7 @@ namespace B.Modules.Games.Adventure
                         }
 
                         Cursor.NextLine(2);
-                        Window.Print(CHAR_CORNER_B + borderHorizontal + CHAR_CORNER_A);
+                        Window.Print(CHAR_BORDER_CORNER_B + borderHorizontal + CHAR_BORDER_CORNER_A);
                         Cursor.NextLine(3, 2);
                         Window.Print($"> {Message}");
                         Message = string.Format("{0,-" + (currentGrid.RealWidth - 7) + "}", MESSAGE_EMPTY);
@@ -216,14 +228,13 @@ namespace B.Modules.Games.Adventure
             }
         }
 
-        public override void Save() => Data.Serialize(FilePath, Info);
-
         #endregion
 
 
 
         #region Private Methods
 
+        // Move player in specified direction.
         private void MovePlayer(Direction direction)
         {
             bool stop = false;
@@ -236,7 +247,7 @@ namespace B.Modules.Games.Adventure
                 if (newPos.x >= 0 && newPos.x < currentGrid.Width && newPos.y >= 0 && newPos.y < currentGrid.Height)
                 {
                     Tile tile = currentGrid.GetTile(newPos);
-                    currentGrid.MoveTo(newPos);
+                    currentGrid.CheckNewPlayerPosition(newPos);
                     Tile.TileTypes tileType = tile.TileType;
                     stop = tileType.StopsMovement() || tileType == Tile.TileTypes.Door;
 
@@ -246,6 +257,7 @@ namespace B.Modules.Games.Adventure
             }
         }
 
+        // Interact with tile in specified direction.
         private void Interact(Direction direction) => CurrentGrid.Interact(PlayerPosition + direction);
 
         #endregion
@@ -254,8 +266,13 @@ namespace B.Modules.Games.Adventure
 
         #region Universal Methods
 
+        // Creates Grids.
         public static void InitializeGrids()
         {
+            // Init check
+            if (_grids.Length > 0)
+                throw new Exception("Grids have already been initialized!");
+
             // ' ' | EMPTY
             // 'c' | COIN
             // 'd' | DOOR
@@ -266,18 +283,18 @@ namespace B.Modules.Games.Adventure
             _grids = new Grid[3];
 
             // Grid 0
-            string[] sa = Grid.CreateGrid(new(15));
+            string[] sa = Grid.CreateGrid(15, 15);
             sa[13] = " wwwwwwwwwwwww ";
             sa[12] = "  w         w  ";
             sa[11] = "       i       ";
             sa[7] = "   w       w  d";
             sa[3] = "   w   c   w   ";
             sa[1] = " wwwwwwwwwwwww ";
-            _grids[0] = new(sa);
+            _grids[0] = new(sa); // After 'sa' has been used to construct a Grid, it can be re-used.
             _grids[0].AddInteraction(new(7, 11), () => Message = "You touched it!");
 
             // Grid 1
-            sa = Grid.CreateGrid(new(17, 21));
+            sa = Grid.CreateGrid(17, 21);
             sa[13] = "        d        ";
             sa[12] = " www         www ";
             sa[11] = " w             w ";
@@ -291,7 +308,7 @@ namespace B.Modules.Games.Adventure
             _grids[1] = new(sa);
 
             // Grid 2
-            sa = Grid.CreateGrid(new(13, 9));
+            sa = Grid.CreateGrid(13, 9);
             sa[4] = "           i ";
             _grids[2] = new(sa);
             _grids[2].AddInteraction(new(11, 4), () => Message = "The End...?");
@@ -301,8 +318,7 @@ namespace B.Modules.Games.Adventure
             _grids[1].AddDoor(new(8, 13), new(2, new(1, 4)));
 
             // Seal Grids (meant for checking if all doors and interactions are implemented)
-            foreach (Grid grid in _grids)
-                grid.Seal();
+            _grids.ForEach(grid => grid.Seal());
         }
 
         #endregion
@@ -311,9 +327,12 @@ namespace B.Modules.Games.Adventure
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Main Menu.
             MainMenu,
+            // Adventure.
             Game,
         }
 

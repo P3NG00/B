@@ -5,18 +5,9 @@ namespace B.Modules.Games.Adventure
 {
     public sealed class AdventureInfo
     {
-        #region TODOs
-
-        // TODO each grid will have a certain number of coins in it.
-        // TODO the coins in each grid will be loaded/saved using an int as a bitfield.
-        // TODO each grid will only have as many bits as the number of coins in it.
-
-        #endregion
-
-
-
         #region Public Properties
 
+        // ID of the grid the player is in.
         public int GridID
         {
             get => _gridID;
@@ -30,6 +21,7 @@ namespace B.Modules.Games.Adventure
             }
         }
 
+        // Player tile movement speed.
         public int Speed
         {
             get => _speed;
@@ -42,7 +34,9 @@ namespace B.Modules.Games.Adventure
 
         #region Public Variables
 
+        // Player's current position in the grid.
         public Vector2 Position = new();
+        // Amount of collected coins.
         public int Coins = 0;
 
         #endregion
@@ -51,7 +45,9 @@ namespace B.Modules.Games.Adventure
 
         #region Private Variables
 
+        // Player tile movement speed.
         private int _speed = 1;
+        // ID of the grid the player is in.
         private int _gridID = 0;
 
         #endregion

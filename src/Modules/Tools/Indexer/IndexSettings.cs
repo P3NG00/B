@@ -7,7 +7,9 @@ namespace B.Modules.Tools.Indexer
     {
         #region Public Properties
 
+        // Defines if the Indexer should run upon Program startup.
         [JsonProperty] public Togglable IndexOnStartup { get; private set; } = new(false);
+        // Defines if the Indexer should index network drives.
         [JsonProperty] public Togglable IndexNetworkDrives { get; private set; } = new(false);
 
         #endregion

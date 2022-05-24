@@ -7,7 +7,7 @@ namespace B.Utils.Themes
     {
         #region Public Variables
 
-        // This does not need to be serialized.
+        // The title of this theme.
         [JsonIgnore] public readonly string Title;
 
         #endregion
@@ -16,7 +16,7 @@ namespace B.Utils.Themes
 
         #region Public Properties
 
-        // This variable is kept public for serialization purposes.
+        // List of PrintPair used to find what ColorPair to use for a given PrintType.
         public List<PrintPair> PrintPairs { get; private set; } = new();
 
         #endregion
@@ -25,7 +25,7 @@ namespace B.Utils.Themes
 
         #region Private Variables
 
-        // This variable is kept as an easy reference to the PrintPair for PrintType.General.
+        // Reference of General PrintPair for easier referencing.
         private readonly PrintPair _generalPrintPair;
 
         #endregion
@@ -34,6 +34,9 @@ namespace B.Utils.Themes
 
         #region Constructor
 
+        // Creates a new ColorTheme.
+        // MUST define a PrintPair with PrintType.General or an exception will be thrown.
+        // If PrintType.Highlight is not defined, it will be created automatically by swapping the PrintType.General PrintPair colors.
         public ColorTheme(string title, params PrintPair[] printPairs)
         {
             Title = title;
@@ -86,6 +89,7 @@ namespace B.Utils.Themes
 
         #region Public Methods
 
+        // Retrieve and set ColorPair for the given PrintType.
         public ColorPair this[PrintType printType]
         {
             get => GetPrintPair(printType, _generalPrintPair).ColorPair;
@@ -98,6 +102,7 @@ namespace B.Utils.Themes
 
         #region Private Methods
 
+        // Retrieves the appropriate PrintPair.
         private PrintPair GetPrintPair(PrintType printType, PrintPair defaultPair = null!)
         {
             try { return PrintPairs.First(printPair => printPair.PrintType == printType); }

@@ -4,6 +4,7 @@ namespace B.Modules.Games.Adventure
     {
         #region Private Variables
 
+        // Tile Map Dictionary.
         private static readonly Dictionary<char, Tile> TileMap = new();
 
         #endregion
@@ -12,7 +13,9 @@ namespace B.Modules.Games.Adventure
 
         #region Public Properties
 
+        // Tile Chars.
         public readonly string Chars;
+        // Tile Type.
         public readonly TileTypes TileType;
 
         #endregion
@@ -21,6 +24,7 @@ namespace B.Modules.Games.Adventure
 
         #region Constructors
 
+        // Initializes the Tile Map.
         static Tile()
         {
             TileMap.Add(' ', new(ModuleAdventure.CHAR_EMPTY, TileTypes.Empty));
@@ -30,6 +34,7 @@ namespace B.Modules.Games.Adventure
             TileMap.Add('i', new(ModuleAdventure.CHAR_INTERACTABLE, TileTypes.Interactable));
         }
 
+        // Creates a new instance of Tile.
         public Tile(string chars, TileTypes tileType)
         {
             if (chars.Length != 2)
@@ -45,6 +50,7 @@ namespace B.Modules.Games.Adventure
 
         #region Override Methods
 
+        // Returns information about the Tile as a string.
         public sealed override string ToString() => $"Tile: chars:'{Chars}', stopMovement: {TileType.StopsMovement()}, isInteractable: {TileType.IsInteractable()}";
 
         #endregion
@@ -53,6 +59,7 @@ namespace B.Modules.Games.Adventure
 
         #region Operator Overrides
 
+        // Enables the ability to cast a char to a Tile.
         public static explicit operator Tile(char c)
         {
             try { return TileMap[c]; }
@@ -65,6 +72,7 @@ namespace B.Modules.Games.Adventure
 
         #region Enums
 
+        // Tile Types.
         public enum TileTypes
         {
             Empty,
@@ -79,7 +87,9 @@ namespace B.Modules.Games.Adventure
 
     public static class TileTypeFunc
     {
+        // Returns if the Tile Type stops movement.
         public static bool StopsMovement(this Tile.TileTypes tileType) { return tileType == Tile.TileTypes.Wall || tileType == Tile.TileTypes.Interactable; }
+        // Returns if the Tile Type is interactable.
         public static bool IsInteractable(this Tile.TileTypes tileType) { return tileType == Tile.TileTypes.Interactable || tileType == Tile.TileTypes.Coin; }
     }
 }

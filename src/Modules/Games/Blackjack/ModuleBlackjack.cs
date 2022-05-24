@@ -4,6 +4,7 @@ namespace B.Modules.Games.Blackjack
     {
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Blackjack";
 
         #endregion
@@ -12,6 +13,7 @@ namespace B.Modules.Games.Blackjack
 
         #region Constructors
 
+        // Creates a new instance of ModuleBlackjack.
         public ModuleBlackjack() : base(Stages.MainMenu) { }
 
         #endregion
@@ -20,6 +22,7 @@ namespace B.Modules.Games.Blackjack
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             throw new NotImplementedException();
@@ -32,8 +35,10 @@ namespace B.Modules.Games.Blackjack
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Main Menu.
             MainMenu,
         }
 

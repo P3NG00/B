@@ -8,6 +8,7 @@ namespace B.Inputs
     {
         #region Constants
 
+        // Maximum length to be input for decimals.
         public const int DECIMAL_LENGTH = 27;
 
         #endregion
@@ -16,8 +17,12 @@ namespace B.Inputs
 
         #region Universal Variables
 
+        // The action to perform while processing input.
+        // Usually set by a keybind the player interacts with.
         public static volatile Action? Action = null;
+        // String being typed out when using Input.RequestLine().
         public static string String = string.Empty;
+        // The index of scrolling when using Input.RequestScroll().
         public static int ScrollIndex = 0;
 
         #endregion
@@ -26,8 +31,13 @@ namespace B.Inputs
 
         #region Universal Properties
 
+        // User string input as a decimal.
+        // Null if input is not a decimal.
         public static decimal? Decimal => decimal.TryParse(String, out decimal num) ? num : null;
+        // User string input as an integer.
+        // Null if input is not an integer.
         public static int? Int => int.TryParse(String, out int num) ? num : null;
+        // Max amount of entries to display in a scroll request.
         public static int MaxEntries => Window.SizeMax.y - 21;
 
         #endregion
@@ -36,6 +46,7 @@ namespace B.Inputs
 
         #region Universal Methods
 
+        // Initializes Mouse and Keyboard input.
         public static void Initialize()
         {
             // Mouse needs to be initialized after Program.Settings has been initialized
@@ -43,8 +54,13 @@ namespace B.Inputs
             Keyboard.Initialize();
         }
 
+        // Resets the user's input string.
         public static void ResetString() => String = string.Empty;
 
+        // Waits for action to be set.
+        // Usually by the user interacting with keybinds.
+        // Invokes the action, resets.
+        // Returns last pressed key.
         public static ConsoleKeyInfo Get()
         {
             Action = null;
@@ -55,6 +71,7 @@ namespace B.Inputs
             return Keyboard.LastInput;
         }
 
+        // Hangs the program until the given key is pressed by the user.
         public static void WaitFor(ConsoleKey key, bool silent = false)
         {
             if (!silent)
@@ -66,13 +83,24 @@ namespace B.Inputs
             Util.WaitFor(() => Get().Key == key);
         }
 
+        // Sets current input action to a void function so that
+        // input is skipped and the program continues to process.
+        public static void SkipInput()
+        {
+            Input.Action = Util.Void;
+            Keyboard.ResetInput();
+        }
+
+        // Allows the user to type out a string, one char at a time.
         public static void RequestLine(int maxLength = int.MaxValue, params Keybind[] keybinds)
         {
             Choice choice = new();
             keybinds.ForEach(keybind => choice.AddKeybind(keybind));
             ConsoleKeyInfo keyInfo = choice.Request();
 
-            if (keyInfo.Key == ConsoleKey.Backspace)
+            if (keyInfo == default)
+                return;
+            else if (keyInfo.Key == ConsoleKey.Backspace)
                 String = String.Substring(0, Math.Max(0, String.Length - 1));
             else if (keyInfo.Key == ConsoleKey.Delete)
                 ResetString();
@@ -80,6 +108,7 @@ namespace B.Inputs
                 String += keyInfo.KeyChar;
         }
 
+        // Allows the user to scroll through a list of items.
         // This will reset cursor position for each entry printed.
         // Make sure this is called when the cursor is in the row (Cursor.y) you want it to begin printing.
         public static ConsoleKeyInfo RequestScroll<T>(

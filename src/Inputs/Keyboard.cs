@@ -6,6 +6,7 @@ namespace B.Inputs
     {
         #region Private Variables
 
+        // Keyboard processing thread reference.
         private static Thread _thread = null!;
 
         #endregion
@@ -14,7 +15,8 @@ namespace B.Inputs
 
         #region Universal Variables
 
-        public static ConsoleKeyInfo LastInput { get; private set; } = default(ConsoleKeyInfo);
+        // Most recent key to be pressed on the keyboard.
+        public static ConsoleKeyInfo LastInput { get; private set; } = default;
 
         #endregion
 
@@ -22,6 +24,7 @@ namespace B.Inputs
 
         #region Universal Methods
 
+        // Initializes the Keyboard Thread Loop.
         public static void Initialize()
         {
             // Init check
@@ -32,12 +35,17 @@ namespace B.Inputs
             _thread = ProgramThread.StartLoopedThread(nameof(KeyboardThreadLoop), KeyboardThreadLoop, priority: ThreadPriority.AboveNormal);
         }
 
+        // Resets the last pressed key to the default value.
+        // This is done to prevent double-input of the same key under certain circumstances.
+        public static void ResetInput() => LastInput = default;
+
         #endregion
 
 
 
         #region Private Methods
 
+        // Thread to loop for handling Keyboard Input.
         private static void KeyboardThreadLoop()
         {
             // Get key (thread hangs until key is pressed to continue processing)
@@ -46,10 +54,11 @@ namespace B.Inputs
             ProgramThread.Lock(Process);
         }
 
+        // Handles Keyboard Input this frame.
         private static void Process()
         {
             // Make input void by default
-            Window.Update();
+            Input.Action = Util.Void;
 
             // Check debug key
             if (LastInput.Key == ConsoleKey.F12)

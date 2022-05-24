@@ -6,7 +6,9 @@ namespace B.Modules.Toys.TextGenerator
     {
         #region Public Properties
 
+        // Name of font.
         public string Name { get; private set; }
+        // Font reference.
         public FiggleFont Font { get; private set; }
 
         #endregion
@@ -15,6 +17,7 @@ namespace B.Modules.Toys.TextGenerator
 
         #region Constructors
 
+        /// Creates a new FontType.
         public FontType(string name, FiggleFont font)
         {
             Name = name;

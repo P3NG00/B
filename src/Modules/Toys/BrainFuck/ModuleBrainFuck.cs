@@ -9,7 +9,9 @@ namespace B.Modules.Toys.BrainFuck
     {
         #region Constants
 
+        // BrainFuck file extension.
         private const string FILE_EXTENSION = "*bf";
+        // Max amount of memory cells to display in Memory View mode.
         private const int MAX_MEMORY_VIEW_LENGTH = 20;
 
         #endregion
@@ -18,7 +20,9 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Universal Properties
 
+        // Relative path of where BrainFuck files are stored.
         public static string DirectoryPath => Program.DataPath + @"brainfuck\";
+        // Module Title.
         public static string Title => Program.Settings.Censor ? "BrainF**k" : "BrainFuck";
 
         #endregion
@@ -27,20 +31,22 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Private Variables
 
+        // List of loaded BrainFuckPrograms.
         private List<BrainFuckProgram> _programs = new();
+        // Currently selected BrainFuckProgram.
         private BrainFuckProgram _currentProgram = null!;
 
         // Memory Cells for BrainFuck Program.
         private readonly byte[] _memory = new byte[short.MaxValue];
-        // BrainFuck Program Output
+        // BrainFuck Program Output.
         private string _output = string.Empty;
-        // Current Instruction Index
+        // Current Instruction Index.
         private uint _instructionIndex = 0;
-        // Current Cell Index
+        // Current Cell Index.
         private uint _memoryIndex = 0;
-        // Depth of Bracket Loops
+        // Depth of Bracket Loops.
         private uint _bracketDepth = 0;
-        // Total Step Counter
+        // Total Step Counter.
         private uint _stepCounter = 0;
 
         #endregion
@@ -49,6 +55,7 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Constructors
 
+        // Creates a new instance of ModuleBrainFuck.
         public ModuleBrainFuck() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(DirectoryPath))
@@ -64,6 +71,7 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             switch (Stage)
@@ -223,10 +231,14 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Private Variables
 
+        // Handles stepping through current BrainFuckProgram.
         private void HandleStep()
         {
+            // Handle current step.
             _currentProgram.HandleStep(in _memory, ref _memoryIndex, ref _instructionIndex, ref _bracketDepth, ref _output);
+            // Increment instruction index.
             _instructionIndex++;
+            // Increment step counter.
             _stepCounter++;
         }
 
@@ -236,11 +248,16 @@ namespace B.Modules.Toys.BrainFuck
 
         #region Enums
 
+        // Stages of the BrainFuck interpreter.
         public enum Stages
         {
+            // BrainFuck main menu.
             MainMenu,
+            // BrainFuckProgram list to select one to run.
             List,
+            // Running a BrainFuckProgram.
             Run,
+            // View the memory of the running BrainFuckProgram.
             MemoryView,
         }
 

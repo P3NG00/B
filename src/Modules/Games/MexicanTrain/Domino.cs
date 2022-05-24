@@ -4,8 +4,11 @@ namespace B.Modules.Games.MexicanTrain
     {
         #region Public Properties
 
-        public int Value1 => GetValue(_val1);
-        public int Value2 => GetValue(_val2);
+        // Domino Value 1.
+        public int Value1 => GetPointValue(_val1);
+        // Domino Value 2.
+        public int Value2 => GetPointValue(_val2);
+        // Total Domino Value.
         public int Total => Value1 + Value2;
 
         #endregion
@@ -14,7 +17,9 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Private Variables
 
+        // Domino Value 1.
         private readonly int _val1;
+        // Domino Value 2.
         private readonly int _val2;
 
         #endregion
@@ -23,6 +28,7 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Constructors
 
+        // Creates a new Domino with given values.
         public Domino(int val1, int val2)
         {
             _val1 = val1;
@@ -35,7 +41,9 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Private Methods
 
-        private int GetValue(int val) => val == 0 ? 25 : val;
+        // Gets the point value from the given domino value.
+        // Only changes dominoes of 0 value to 25 points.
+        private int GetPointValue(int val) => val == 0 ? 25 : val;
 
         #endregion
     }

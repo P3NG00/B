@@ -10,8 +10,11 @@ namespace B.Modules.Toys.Canvas
     {
         #region Constants
 
+        // The max length a string may be when entered in canvas creation.
         private const int MAX_INPUT_LENGTH = 25;
+        // The max amount of canvases to display per page when selecting a canvas.
         private const int MAX_CANVASES_PER_PAGE = 10;
+        // Constant height offset when in edit mode.
         private const int CANVAS_EDIT_HEIGHT = 5;
 
         #endregion
@@ -20,7 +23,9 @@ namespace B.Modules.Toys.Canvas
 
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Canvas";
+        // Path where canvases are serialized.
         public static string DirectoryPath => Program.DataPath + @"canvas\";
 
         #endregion
@@ -29,24 +34,28 @@ namespace B.Modules.Toys.Canvas
 
         #region Private Variables
 
+        // Constant thickness of the canvas border.
         private static Vector2 CANVAS_BORDER_PAD => new(2, 1);
+        // Constant minimum canvas creation size.
         private static Vector2 CANVAS_SIZE_MIN => new(20, 10);
 
-        // List of canvases
+        // List of loaded canvases.
         private List<CanvasInfo> _canvases = new();
-        // The current canvas
+        // Canvas currently selected to modify.
         private CanvasInfo _canvas = null!;
-        // The current painting color
+        // Current color to paint in.
         private ConsoleColor _color = ConsoleColor.Black;
-        // The size of the brush
+        // Size of the brush (starting from top-left).
         private Vector2 _brushSize = Vector2.One;
-        // The location of the cursor on the canvas
+        // Location of the cursor on the canvas
         private Vector2 _cursorPos = Vector2.Zero;
         // Keybinds for creation stages
         private Keybind[] _keybindsCreationStage;
         // Choice for drawing on the canvas
         private Choice _choiceCanvasDrawing;
-        // Whether the canvas has been drawn
+        // Whether the canvas has been drawn.
+        // Used to tell when to re-draw the canvas because
+        // large canvases can take significant time to draw.
         private bool _drawn = false;
 
         #endregion
@@ -55,6 +64,7 @@ namespace B.Modules.Toys.Canvas
 
         #region Constructors
 
+        // Creates new instance of ModuleCanvas.
         public ModuleCanvas() : base(Stages.MainMenu)
         {
             // Create directory if it doesn't exist
@@ -82,7 +92,7 @@ namespace B.Modules.Toys.Canvas
                     {
                         case Stages.Create_Name:
                             {
-                                if (!string.IsNullOrWhiteSpace(Input.String) && !_canvases.FromEach(c => c.Title).Contains(Input.String))
+                                if (!string.IsNullOrWhiteSpace(Input.String) && !_canvases.Select(c => c.Title).Contains(Input.String))
                                 {
                                     _canvas.Title = Input.String.Trim();
                                     Input.ResetString();
@@ -121,7 +131,7 @@ namespace B.Modules.Toys.Canvas
                                     }
 
                                     Input.ResetString();
-                                    Save();
+                                    _canvas.Save();
                                     SetStage(Stages.Edit);
                                 }
                             }
@@ -186,7 +196,7 @@ namespace B.Modules.Toys.Canvas
                 if (!_canvases.Contains(_canvas))
                     _canvases.Add(_canvas);
 
-                Save();
+                _canvas.Save();
                 _brushSize = Vector2.One;
                 _cursorPos = Vector2.Zero;
                 // Reset MouseInputType when leaving edit mode.
@@ -201,6 +211,7 @@ namespace B.Modules.Toys.Canvas
 
         #region Override Methods
 
+        // Module Loop.
         public sealed override void Loop()
         {
             switch (Stage)
@@ -400,7 +411,7 @@ namespace B.Modules.Toys.Canvas
                     }
                     break;
 
-                case Stages.ColorSelect:
+                case Stages.Edit_ColorSelect:
                     {
                         Window.SetSize(32, 26);
                         ConsoleColor[] colors = Util.ConsoleColors;
@@ -429,8 +440,9 @@ namespace B.Modules.Toys.Canvas
             }
         }
 
-        public sealed override void Save() => Data.Serialize(_canvas.FilePath, _canvas);
-
+        // Updates the current stage.
+        // Updates MouseInputType if going into edit mode.
+        // Resets drawn status. Setting stage clears window.
         protected sealed override void SetStage(Stages stage)
         {
             // Set MouseInputType if editing a canvas
@@ -447,6 +459,7 @@ namespace B.Modules.Toys.Canvas
 
         #region Private Methods
 
+        // Paints the current color at the current canvas cursor position.
         private void Paint()
         {
             int xStart = _cursorPos.x;
@@ -474,6 +487,8 @@ namespace B.Modules.Toys.Canvas
             Cursor.Position = _cursorPos;
         }
 
+        // Paints the current color at the current canvas cursor position,
+        // then moves in specified direction to paint the next position.
         private void PaintInDirection(Direction direction)
         {
             // Paint on current position
@@ -484,10 +499,15 @@ namespace B.Modules.Toys.Canvas
             Paint();
         }
 
+        // Modifies the size of the brush.
         private void ResizeBrush(Direction direction) => MoveVec(ref _brushSize, direction);
 
+        // Modifies the position of the canvas cursor.
         private void MoveCursor(Direction direction) => MoveVec(ref _cursorPos, direction);
 
+        // Modifies given Vector2 by direction.
+        // Flips Up/Down direction due to the
+        // direction that the canvas is printed.
         private void MoveVec(ref Vector2 vec, Direction direction)
         {
             Vector2 dirVec;
@@ -509,24 +529,25 @@ namespace B.Modules.Toys.Canvas
 
         #region Enums
 
-        private enum CreationStage
-        {
-            Name,
-            Height,
-            Width,
-        }
-
+        // Module Stages.
         public enum Stages
         {
+            // Create a new canvas or do something with an existing one.
             MainMenu,
+            // View, edit, or delete existing canvases.
             List,
+            // View an existing canvas.
             View,
+            // Stages for creating new canvases.
             Create_Name,
             Create_Size_Width,
             Create_Size_Height,
+            // Editing canvases.
             Edit,
+            // View descriptions of keybinds for Edit mode.
             Edit_Keybinds,
-            ColorSelect,
+            // Select a color to use in Edit mode.
+            Edit_ColorSelect,
         }
 
         #endregion

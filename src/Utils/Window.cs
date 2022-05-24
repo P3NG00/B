@@ -1,4 +1,3 @@
-using B.Inputs;
 using B.Utils.Enums;
 using B.Utils.Themes;
 
@@ -8,21 +7,21 @@ namespace B.Utils
     {
         #region Universal Properties
 
-        // The current size of the window
+        // Used to manage and retrieve the size of the window.
         public static Vector2 Size
         {
             get => new(Width, Height);
             set => SetSize(value.x, value.y);
         }
-        // The minimum size of the window
+        // Minimum size the window can be set to.
         public static Vector2 SizeMin => new(16, 2);
-        // The maximum size of the window
+        // Maximum size the window can be set to, relative to the screen size.
         public static Vector2 SizeMax => new(Console.LargestWindowWidth, Console.LargestWindowHeight);
-        // This represents the size of one char in the console
+        // Size of one char in the console.
         public static Vector2 CharSize => new(8, 16);
-        // The height of the window
+        // Current height of the window.
         public static int Height => Console.WindowHeight;
-        // The width of the window
+        // Current width of the window.
         public static int Width => Console.WindowWidth;
 
         #endregion
@@ -31,6 +30,7 @@ namespace B.Utils
 
         #region Universal Methods
 
+        // Sets size of the console window.
         public static void SetSize(int width, int height)
         {
             // This can only be called on Windows
@@ -45,10 +45,13 @@ namespace B.Utils
             }
         }
 
+        // Prints text at current cursor position.
         public static void Print(object message) => Console.Write(message);
 
+        // Prints text at current cursor position in optional PrintType.
         public static void Print(object message, PrintType printType = PrintType.General) => Print(message, Program.Settings.ColorTheme[printType]);
 
+        // Prints text at current cursor position in specified ColorPair.
         public static void Print(object message, ColorPair colors)
         {
             // Override colors if specified
@@ -61,8 +64,7 @@ namespace B.Utils
             Program.Settings?.UpdateColors();
         }
 
-        public static void Update() => Input.Action = Util.Void;
-
+        // Clears console window of all text.
         public static void Clear() => Console.Clear();
 
         #endregion

@@ -1,6 +1,6 @@
 namespace B.Utils.Enums
 {
-    // https://www.pinvoke.net/default.aspx/user32.GetKeyState
+    // Copied from https://www.pinvoke.net/default.aspx/user32.GetKeyState
 
     public enum VirtualKeyStates
     {

@@ -6,6 +6,7 @@ namespace B.Utils
     {
         #region Public Variables
 
+        // Get the state of the Togglable.
         [JsonIgnore] public bool Enabled => _enabled;
 
         #endregion
@@ -14,7 +15,9 @@ namespace B.Utils
 
         #region Private Variables
 
+        // State of the Togglable.
         [JsonProperty] private bool _enabled;
+        // Action to invoke upon toggling.
         [JsonIgnore] private Action<bool>? _onToggle;
 
         #endregion
@@ -23,7 +26,8 @@ namespace B.Utils
 
         #region Constructors
 
-        public Togglable(bool defaultValue) => _enabled = defaultValue;
+        // Creates a Togglable with the specified value.
+        public Togglable(bool firstStatus) => _enabled = firstStatus;
 
         #endregion
 
@@ -31,10 +35,13 @@ namespace B.Utils
 
         #region Public Methods
 
+        // Sets the action to invoke upon toggling.
         public void SetOnChangeAction(Action<bool> onToggle) => _onToggle = onToggle;
 
+        // Sets the action to invoke upon toggling.
         public void SetOnChangeAction(Action onToggle) => SetOnChangeAction(b => onToggle());
 
+        // Toggles the state of the Togglable. Invokes action if set.
         public void Toggle()
         {
             _enabled = !_enabled;
@@ -47,7 +54,7 @@ namespace B.Utils
 
         #region Operator Overrides
 
-        // This allows you to reference the togglable as a bool.
+        // Implicitly uses a Togglable as a bool by its state.
         public static implicit operator bool(Togglable togglable) => togglable.Enabled;
 
         #endregion

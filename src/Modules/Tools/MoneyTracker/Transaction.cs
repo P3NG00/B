@@ -4,7 +4,9 @@ namespace B.Modules.Tools.MoneyTracker
     {
         #region Public Variables
 
+        // Transaction Description.
         public string Description = string.Empty;
+        // Transaction Amount.
         public decimal Amount = 0m;
 
         #endregion

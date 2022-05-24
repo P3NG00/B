@@ -6,6 +6,7 @@ namespace B.Modules.Games.MexicanTrain
     {
         #region Private Variables
 
+        // List of Dominoes in player's hand.
         private List<Domino> _hand = new();
 
         #endregion
@@ -21,6 +22,7 @@ namespace B.Modules.Games.MexicanTrain
             // TODO create input choice for user to choose domino to play
         }
 
+        // Takes a random Domino from the list and gives it to this player.
         public bool TakeRandomFrom(List<Domino> list)
         {
             if (!list.IsEmpty())

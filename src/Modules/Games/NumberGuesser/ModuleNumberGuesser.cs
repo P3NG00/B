@@ -8,6 +8,7 @@ namespace B.Modules.Games.NumberGuesser
     {
         #region Constants
 
+        // Constant maximum length of valid input.
         private const int GUESS_LENGTH = 9;
 
         #endregion
@@ -16,8 +17,11 @@ namespace B.Modules.Games.NumberGuesser
 
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Number Guesser";
+        // Relative directory where save data is stored.
         public static string DirectoryPath => Program.DataPath + @"numberGuesser\";
+        // Relative file path of stored data.
         public static string FilePath => DirectoryPath + "last";
 
         #endregion
@@ -26,6 +30,7 @@ namespace B.Modules.Games.NumberGuesser
 
         #region Private Variables
 
+        // Random messages to display upon winning.
         private static readonly string[] _winMessages = new string[]
         {
             "Right on!",
@@ -34,7 +39,9 @@ namespace B.Modules.Games.NumberGuesser
             "Nice one!",
         };
 
+        // Maximum random number to generate.
         private int _numMax = 100;
+        // Randomly generated number to guess.
         private int _numRandom;
 
         #endregion
@@ -43,6 +50,7 @@ namespace B.Modules.Games.NumberGuesser
 
         #region Constructors
 
+        // Creates a new instance of ModuleNumberGuesser.
         public ModuleNumberGuesser() : base(Stages.MainMenu)
         {
             if (!Directory.Exists(DirectoryPath))
@@ -57,6 +65,7 @@ namespace B.Modules.Games.NumberGuesser
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             switch (Stage)
@@ -169,11 +178,12 @@ namespace B.Modules.Games.NumberGuesser
             }
         }
 
-        public sealed override void Save() => Data.Serialize(FilePath, _numMax);
-
+        // Saves data and Quit.
         public sealed override void Quit()
         {
-            Save();
+            // Save game data
+            Data.Serialize(FilePath, _numMax);
+            // Quit
             base.Quit();
         }
 
@@ -183,10 +193,14 @@ namespace B.Modules.Games.NumberGuesser
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Main Menu.
             MainMenu,
+            // Guessing Game.
             Game,
+            // Settings.
             Settings,
             Settings_MaxNumber,
         }

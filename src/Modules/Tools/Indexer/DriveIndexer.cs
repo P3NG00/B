@@ -6,6 +6,7 @@ namespace B.Modules.Tools.Indexer
     {
         #region Public Variables
 
+        // Defines if this drive should be indexed.
         public readonly Togglable Index = new(true);
 
         #endregion
@@ -14,12 +15,20 @@ namespace B.Modules.Tools.Indexer
 
         #region Public Properties
 
+        // The drive object.
         public DriveInfo Drive => _drive;
+        // The name of the drive.
         public string DriveName => Drive.VolumeLabel;
+        // The name of the drive for displaying.
         public string DisplayName => $"{Drive.Name} ({DriveName})";
+        // The letter of the drive.
         public char DriveLetter => Drive.Name[0];
+        // The name to save the drive as.
         public string FileSaveName => $"{DriveLetter}_({DriveName})";
+        // If this indexer is currently indexing.
         public bool IsIndexing => _indexThread is not null && _indexThread.IsAlive;
+        // Returns an inaccurate count of indexed data.
+        // (Inacessible data cannot be counted)
         public int CompletedEstimate => (int)((_indexedSize * 100) / (Drive.TotalSize - Drive.TotalFreeSpace));
 
         #endregion
@@ -28,8 +37,11 @@ namespace B.Modules.Tools.Indexer
 
         #region Private Variables
 
+        // The drive to index.
         private readonly DriveInfo _drive;
+        // Indexing thread reference.
         private Thread? _indexThread = null;
+        // Approximate size of indexed data.
         private long _indexedSize = 0;
 
         #endregion
@@ -38,6 +50,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Constructors
 
+        // Creates a new DriveIndexer for the given drive.
         public DriveIndexer(DriveInfo drive) => _drive = drive;
 
         #endregion
@@ -46,6 +59,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Public Methods
 
+        // Begins the drive indexing process.
         public void BeginIndex()
         {
             // Check if supposed to be indexed
@@ -55,8 +69,6 @@ namespace B.Modules.Tools.Indexer
             // Check if already indexing
             if (IsIndexing)
                 throw new Exception($"Drive '{DriveName}' has already begun indexing!");
-
-            // TODO test that when Mouse or Keyboard locks threads the thread below is not affected
 
             // Start indexing thread
             _indexThread = ProgramThread.StartThread($"Indexer-{DriveName}", () =>
@@ -78,6 +90,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Private Methods
 
+        // Recursively indexes the given directory.
         private void IndexDirectory(DirectoryInfo directory, in IndexInfo index)
         {
             // Index current directory

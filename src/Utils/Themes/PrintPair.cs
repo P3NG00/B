@@ -6,6 +6,7 @@ namespace B.Utils.Themes
     {
         #region Public Properties
 
+        // PrintType key.
         public PrintType PrintType { get; private set; }
 
         #endregion
@@ -14,6 +15,7 @@ namespace B.Utils.Themes
 
         #region Public Variables
 
+        // ColorPair value.
         public ColorPair ColorPair;
 
         #endregion
@@ -22,6 +24,7 @@ namespace B.Utils.Themes
 
         #region Constructor
 
+        // Creates a new PrintPair with specified PrintType and ColorPair.
         public PrintPair(PrintType printType, ColorPair colorPair)
         {
             PrintType = printType;

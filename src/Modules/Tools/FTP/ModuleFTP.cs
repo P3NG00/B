@@ -12,8 +12,11 @@ namespace B.Modules.Tools.FTP
     {
         #region Constants
 
+        // Constant maximum length entering new server profile data.
         private const int MAX_LENGTH_PROFILE_INPUT = 20;
+        // Constant maximum length entering server password.
         private const int MAX_LENGTH_PASSWORD = 50;
+        // Constant width when navigating an server.
         private const int WIDTH = 140;
 
         #endregion
@@ -22,8 +25,11 @@ namespace B.Modules.Tools.FTP
 
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "FTP";
+        // Relative path of saved data.
         public static string DirectoryPath => Program.DataPath + @"ftp\";
+        // Relative path to download data to.
         public static string DownloadPath => Environment.CurrentDirectory + @"\download\";
 
         #endregion
@@ -32,7 +38,10 @@ namespace B.Modules.Tools.FTP
 
         #region Private Properties
 
-        private static Func<int, string>[] _scramblers => new Func<int, string>[]
+        // Password Scramblers.
+        // These functions take only the length of the password
+        // as an integer and return a short pattern as a string.
+        private static PasswordScrambler[] _scramblers => new PasswordScrambler[]
         {
             // Center Waves
             l => new string[]
@@ -56,10 +65,13 @@ namespace B.Modules.Tools.FTP
             {
                 char[] ca = new char[9];
                 Array.Fill(ca, ' ');
-                ca[l % ca.Length] = new char[] {'!', '?', '@', '#', '$', '%', '&', '*', '+', '=',
-                                                '~', 'X', 'O', 'Q', '§', '®', '¡', '¿', '©', '█',
-                                                '■', '"', '/', '·', '|', ':', ';', '<', '>', '-',
-                                                '\\', '\''}.Random();
+                ca[l % ca.Length] = new char[]
+                {
+                    '!', '?', '@', '#', '$', '%', '&', '*', '+', '=',
+                    '~', 'X', 'O', 'Q', '§', '®', '¡', '¿', '©', '█',
+                    '■', '"', '/', '·', '|', ':', ';', '<', '>', '-',
+                    '\\', '\''
+                }.Random();
                 return new string(ca);
             },
             // Bar Fill
@@ -83,7 +95,9 @@ namespace B.Modules.Tools.FTP
                 }.FromRemainder(l),
         };
 
-        private SftpFile CurrentFile => _files[Input.ScrollIndex];
+        // Currently selected server file.
+        private SftpFile CurrentFile => _entries[Input.ScrollIndex];
+        // Current selected server viewing directory.
         private string CurrentPath
         {
             get => _currentPath;
@@ -100,14 +114,21 @@ namespace B.Modules.Tools.FTP
 
         #region Private Variables
 
+        // Cached keybinds to use when creating profiles.
         private readonly Keybind[] _profileCreationKeybinds;
 
+        // Loaded ServerProfiles.
         private List<ServerProfile> _profiles = new();
+        // Currentlt selected server viewing directory.
         private string _currentPath = string.Empty;
+        // Currently selected ServerProfile.
         private ServerProfile _currentProfile = null!;
-        private Func<int, string> _scrambler;
+        // Currently selected password scrambler.
+        private PasswordScrambler _scrambler;
+        // Currently enabled SFTP client.
         private SftpClient _client = null!;
-        private SftpFile[] _files = null!;
+        // List of files in the current server viewing directory.
+        private SftpFile[] _entries = null!;
 
         #endregion
 
@@ -115,6 +136,7 @@ namespace B.Modules.Tools.FTP
 
         #region Constructors
 
+        // Creates a new instance of ModuleFTP.
         public ModuleFTP() : base(Stages.Profile)
         {
             // Empty the input string
@@ -191,7 +213,11 @@ namespace B.Modules.Tools.FTP
                                 {
                                     _currentProfile.Username = username;
                                     Input.ResetString();
+                                    // Add profile to list
                                     _profiles.Add(_currentProfile);
+                                    // Save profile data
+                                    Data.Serialize(DirectoryPath + _currentProfile.Name, _currentProfile);
+                                    // Update stage
                                     SetStage(Stages.Profile);
                                 }
                             }
@@ -206,6 +232,7 @@ namespace B.Modules.Tools.FTP
                         case Stages.Profile_Create:
                             {
                                 _currentProfile = null!;
+                                Input.ResetString();
                                 SetStage(Stages.Profile);
                             }
                             break;
@@ -241,6 +268,7 @@ namespace B.Modules.Tools.FTP
 
         #region Override Methods
 
+        // Module Loop.
         public sealed override void Loop()
         {
             switch (Stage)
@@ -366,14 +394,14 @@ namespace B.Modules.Tools.FTP
 
                 case Stages.Navigate:
                     {
-                        int entryAmount = _files.Length;
+                        int entryAmount = _entries.Length;
                         int consoleHeight = Math.Min(entryAmount, Input.MaxEntries) + 14;
                         Window.SetSize(WIDTH, consoleHeight);
                         List<Keybind> keybinds = new();
                         if (entryAmount != 0)
                         {
                             keybinds.Add(Keybind.Create(DownloadCurrent, "Download", key: ConsoleKey.PageDown));
-                            keybinds.Add(CreateConfirmKeybindForCurrent());
+                            keybinds.Add(CreateConfirmKeybindToDeleteCurrent());
                             keybinds.Add(Keybind.Create(() =>
                                 {
                                     SftpFile currentFile = CurrentFile;
@@ -389,7 +417,7 @@ namespace B.Modules.Tools.FTP
                         keybinds.Add(Keybind.Create(PreviousDirectory, "Back", key: ConsoleKey.Backspace));
                         Cursor.y = 1;
                         Input.RequestScroll(
-                            items: _files,
+                            items: _entries,
                             getText: file =>
                             {
                                 string s = file.Name;
@@ -421,7 +449,7 @@ namespace B.Modules.Tools.FTP
                         Cursor.Set(2, 1);
                         Choice choice = new(title);
                         choice.AddKeybind(Keybind.Create(DownloadCurrent, "Download", key: ConsoleKey.PageDown));
-                        choice.AddKeybind(CreateConfirmKeybindForCurrent());
+                        choice.AddKeybind(CreateConfirmKeybindToDeleteCurrent());
                         choice.AddSpacer();
                         choice.AddKeybind(Keybind.Create(() => SetStage(Stages.Navigate), "Back", key: ConsoleKey.Escape));
                         choice.Request();
@@ -430,14 +458,13 @@ namespace B.Modules.Tools.FTP
             }
         }
 
-        public sealed override void Save() => _profiles.ForEach(profile => Data.Serialize(DirectoryPath + profile.Name, profile));
-
+        // Disconnect and Quit
         public sealed override void Quit()
         {
+            // Ensure client is disconnected before exiting.
             if (_client != null && _client.IsConnected)
                 _client.Disconnect();
 
-            Save();
             base.Quit();
         }
 
@@ -447,20 +474,25 @@ namespace B.Modules.Tools.FTP
 
         #region Private Methods
 
+        // Update the list of entries in the current server viewing directory.
         private void RefreshFiles()
         {
-            // Get file list from server in current path with folders first.
-            _files = _client.ListDirectory(CurrentPath).OrderBy(x => !x.IsDirectory).ToArray();
+            // Get entry list from server in current path with folders first.
+            _entries = _client.ListDirectory(CurrentPath).OrderBy(x => !x.IsDirectory).ToArray();
             Input.ScrollIndex = 0;
             Window.Clear();
         }
 
+        // Begins downloading the selected item.
         private void DownloadCurrent()
         {
             Download(CurrentFile);
             Window.Clear();
         }
 
+        // Downloads data from the server.
+        // If it is a folder, it will recursively
+        // download the contents of the entire folder.
         private void Download(SftpFile file)
         {
             if (file.IsDirectory)
@@ -496,8 +528,10 @@ namespace B.Modules.Tools.FTP
             }
         }
 
-        private Keybind CreateConfirmKeybindForCurrent() => Keybind.CreateConfirmation(DeleteCurrent, $"Are you sure you want to delete {CurrentFile.Name}?", "Delete", key: ConsoleKey.Delete);
+        // Easily creates a keybind to delete the currently selected data.
+        private Keybind CreateConfirmKeybindToDeleteCurrent() => Keybind.CreateConfirmation(DeleteCurrent, $"Are you sure you want to delete {CurrentFile.Name}?", "Delete", key: ConsoleKey.Delete);
 
+        // Deletes the currently selected data.
         private void DeleteCurrent()
         {
             try { _client.Delete(CurrentFile.FullName); }
@@ -516,6 +550,8 @@ namespace B.Modules.Tools.FTP
             RefreshFiles();
         }
 
+        // Navigates to the parent directory of the current directory.
+        // Does nothing if current directory is root directory.
         private void PreviousDirectory()
         {
             if (CurrentPath != string.Empty)
@@ -526,17 +562,32 @@ namespace B.Modules.Tools.FTP
 
 
 
+        #region Delegate Methods
+
+        // Delegate methods that take the length of the password and return a short string.
+        private delegate string PasswordScrambler(int passwordLength);
+
+        #endregion
+
+
+
         #region Enums
 
+        // Module Stages
         public enum Stages
         {
+            // Server Profile Selection
             Profile,
+            // Server Profile Creation
             Profile_Create,
             Profile_Create_IP,
             Profile_Create_Port,
             Profile_Create_User,
+            // Server Profile Login
             Login,
+            // Server Directory Navigation
             Navigate,
+            // Server File Interaction
             FileInteract,
         }
 

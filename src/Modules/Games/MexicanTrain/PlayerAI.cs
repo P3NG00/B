@@ -4,21 +4,19 @@ namespace B.Modules.Games.MexicanTrain
     {
         #region Override Methods
 
+        // Returns true if the AI's turn is over.
         public override bool HandleTurn()
         {
             throw new NotImplementedException();
 
+            /*
             // TODO
-
-            // TODO find all playable dominos in hand
-
-            // TODO for each playable domino, try creating paths with other dominos in hand
-
-            // TODO rank paths by score. paths with the highest score should be played first
-
-            // TODO play the highest ranked path
-
-            // TODO if cannot play, take a domino from the pool
+            * Find all playable dominos in hand.
+            * For each playable domino, try creating paths with other dominos in hand.
+            * Rank paths by score. paths with the highest score should be played first.
+            * Play the highest ranked path.
+            * If cannot play, take a domino from the pool.
+            */
         }
 
         #endregion

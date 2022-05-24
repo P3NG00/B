@@ -8,7 +8,9 @@ namespace B.Utils
     {
         #region Win32 API
 
+        // String representing 'User32.DLL' reference.
         private const string USER32 = "user32.dll";
+        // String representing 'Kernel32.DLL' reference.
         private const string KERNEL32 = "kernel32.dll";
 
         #endregion
@@ -17,7 +19,7 @@ namespace B.Utils
 
         #region Cache
 
-        // This is cached in Initialize() because it is used in GetRelativeMousePosition()
+        // Handle of the console window.
         private static IntPtr _consoleHandle;
 
         #endregion
@@ -26,12 +28,14 @@ namespace B.Utils
 
         #region Universal Methods
 
+        // Initializes console window properties using Win32 API.
         public static void Initialize()
         {
             DisableWindowResizing();
             DisableTextSelection();
         }
 
+        // Get position of mouse cursor relative to the console window.
         public static Vector2 GetRelativeMousePosition()
         {
             GetCursorPos(out Point point);
@@ -41,6 +45,7 @@ namespace B.Utils
             return new Vector2(x, y);
         }
 
+        // Get pressed state of left mouse button.
         public static bool GetLeftMouseButtonDown() => GetKeyStatePressed(VirtualKeyStates.VK_LBUTTON);
 
         #endregion
@@ -49,12 +54,14 @@ namespace B.Utils
 
         #region Private Methods
 
-        // private const int KEY_PRESSED = 0x8000;
+        // Gets the state of specified key.
         private static bool GetKeyStatePressed(VirtualKeyStates key) => Convert.ToBoolean(GetKeyState(key) & 0x8000);
 
-        // https://social.msdn.microsoft.com/Forums/vstudio/en-US/1aa43c6c-71b9-42d4-aa00-60058a85f0eb/c-console-window-disable-resize?forum=csharpgeneral
+        // Disables the ability to resize the console window using banner buttons or edge dragging.
         private static void DisableWindowResizing()
         {
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/1aa43c6c-71b9-42d4-aa00-60058a85f0eb/c-console-window-disable-resize?forum=csharpgeneral
+
             _consoleHandle = GetConsoleWindow();
 
             if (_consoleHandle != IntPtr.Zero)
@@ -66,9 +73,11 @@ namespace B.Utils
                 throw new Exception("Failed to get console window handle.");
         }
 
-        // https://stackoverflow.com/a/36720802
+        // Disables the ability to select text in the console window.
         private static void DisableTextSelection()
         {
+            // https://stackoverflow.com/a/36720802
+
             // -10 is the standard input device
             IntPtr handle = GetStdHandle(-10);
 
@@ -88,6 +97,7 @@ namespace B.Utils
 
         #region Local Utils
 
+        // System Commands for disabling window resizing.
         private enum SystemCommand
         {
             SC_SIZE = 0xF000,
@@ -96,12 +106,16 @@ namespace B.Utils
             SC_CLOSE = 0xF060,
         }
 
+        // Struct representing a point.
+        // Used to get the position of the mouse cursor.
         private struct Point
         {
             public int x;
             public int y;
         }
 
+        // Struct representing a rectangle.
+        // Used to get the position of the console window.
         private struct Rect
         {
             public int Left;
@@ -117,7 +131,10 @@ namespace B.Utils
 
 
 
-        #region External Methods // https://www.pinvoke.net/
+        #region External Methods
+
+        // External Win 32 API methods.
+        // https://www.pinvoke.net/
 
         [DllImport(USER32)]
         private static extern int DeleteMenu(IntPtr hMenu, int nPosition, int wFlags);

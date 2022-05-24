@@ -7,8 +7,12 @@ namespace B.Modules.Games.Adventure
     {
         #region Public Properties
 
+        // Real console width of the grid.
         public int RealWidth => Width * 2;
+        // Grid tile width.
+        // Each tile is 2 chars wide.
         public readonly int Width;
+        // Grid tile height.
         public readonly int Height;
 
         #endregion
@@ -17,14 +21,20 @@ namespace B.Modules.Games.Adventure
 
         #region Private Variables
 
+        // Dictionary of interactable tiles and their action.
         private readonly Dictionary<Vector2, Action> _interactionDict = new();
-        private readonly Dictionary<Vector2, (int, Vector2)> _doorDict = new();
+        // Dictionary of door tiles and their grid ID new position.
+        private readonly Dictionary<Vector2, (int GridID, Vector2 NewPosition)> _doorDict = new();
+        // List of coins on the grid.
         private readonly List<Vector2> _coinList = new();
+        // 2D Tile Array of all grid tiles.
         private readonly Tile[][] _tileGrid;
 
-        // Private Initialization Cache
+        // Used for checking properly defined interactables.
         private readonly int _initInteractables = 0;
+        // Used for checking properly defined doors.
         private readonly int _initDoors = 0;
+        // Allows edits to be made to the grid.
         private bool _seald = false;
 
         #endregion
@@ -33,6 +43,7 @@ namespace B.Modules.Games.Adventure
 
         #region Constructors
 
+        // Creates a new Grid from string array of equal lengths.
         public Grid(string[] raw)
         {
             if (raw.Length == 0)
@@ -78,22 +89,30 @@ namespace B.Modules.Games.Adventure
 
         #region Public Methods
 
+        // Gets the tile at the given position.
         public Tile GetTile(Vector2 pos) => _tileGrid[pos.y][pos.x];
 
+        // Returns if a coin exists at the given position.
         public bool HasCoinAt(Vector2 pos) => _coinList.Contains(pos);
 
+        // Removes a coin from the given position.
         public void PickupCoinAt(Vector2 pos)
         {
-            _coinList.Remove(pos);
+            if (!_coinList.Remove(pos))
+                throw new ArgumentException($"Coin does not exist at position '{pos}'!");
+
             ModuleAdventure.Info.Coins++;
             ModuleAdventure.Message = "You picked up a coin!";
         }
 
+        // Adds an action to perform when the player interacts at the given position.
         public void AddInteraction(Vector2 pos, Action action) => AddFeature(pos, action, "Interaction", tile => tile.TileType == Tile.TileTypes.Interactable, _interactionDict);
 
-        public void AddDoor(Vector2 pos, (int, Vector2) gridIdAndPos) => AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, _doorDict);
+        // Adds a door to change the player's grid ID and position at the given position.
+        public void AddDoor(Vector2 pos, (int GridID, Vector2 NewPosition) gridIdAndPos) => AddFeature(pos, gridIdAndPos, "Door", tile => tile.TileType == Tile.TileTypes.Door, _doorDict);
 
-        public void MoveTo(Vector2 pos)
+        // Used to check interaction with the grid at a given position.
+        public void CheckNewPlayerPosition(Vector2 pos)
         {
             if (!_seald)
                 throw new InvalidOperationException("Interact Error: Cannot move on unsealed grid");
@@ -105,12 +124,13 @@ namespace B.Modules.Games.Adventure
 
             if (tileType == Tile.TileTypes.Door && _doorDict.ContainsKey(pos))
             {
-                (int, Vector2) gridIdAndPos = _doorDict[pos];
-                ModuleAdventure.Info.GridID = gridIdAndPos.Item1;
-                ModuleAdventure.Info.Position = gridIdAndPos.Item2 ?? Vector2.Zero;
+                var gridIdAndPos = _doorDict[pos];
+                ModuleAdventure.Info.GridID = gridIdAndPos.GridID;
+                ModuleAdventure.Info.Position = gridIdAndPos.NewPosition ?? Vector2.Zero;
             }
         }
 
+        // Used to check interaction with the grid at a given position.
         public void Interact(Vector2 pos)
         {
             if (!_seald)
@@ -124,6 +144,8 @@ namespace B.Modules.Games.Adventure
                 PickupCoinAt(pos);
         }
 
+        // Seals the grid for use in-game.
+        // Changes cannot be made after sealing.
         public void Seal()
         {
             if (_initDoors != _doorDict.Count)
@@ -135,6 +157,13 @@ namespace B.Modules.Games.Adventure
             _seald = true;
         }
 
+        #endregion
+
+
+
+        #region Private Methods
+
+        // Adds details to a passed dictionary containing grid info.
         private void AddFeature<T>(Vector2 pos, T obj, string name, Func<Tile, bool> check, Dictionary<Vector2, T> dict)
         {
             if (_seald)
@@ -155,6 +184,7 @@ namespace B.Modules.Games.Adventure
 
         #region Override Methods
 
+        // Returns the string representation of the grid's size.
         public sealed override string ToString() => $"Grid: {Width}x{Height}";
 
         #endregion
@@ -163,10 +193,11 @@ namespace B.Modules.Games.Adventure
 
         #region Universal Methods
 
-        public static string[] CreateGrid(Vector2 dimensions)
+        // Creates a whitespace string array as a template for grid creation.
+        public static string[] CreateGrid(int width, int height)
         {
-            string[] sa = new string[dimensions.y];
-            string s = ' '.Loop(dimensions.x);
+            string[] sa = new string[height];
+            string s = ' '.Loop(width);
             for (int i = 0; i < sa.Length; i++)
                 sa[i] = s;
             return sa;

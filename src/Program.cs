@@ -22,6 +22,7 @@ namespace B
     {
         #region Constants
 
+        // Program Title.
         public const string Title = "B";
 
         #endregion
@@ -30,6 +31,7 @@ namespace B
 
         #region Code Entry Point
 
+        // Where code begins executing.
         public static void Main() => new Program().Start();
 
         #endregion
@@ -38,8 +40,11 @@ namespace B
 
         #region Universal Properties
 
+        // Relative path to program's data folder.
         public static string DataPath => Environment.CurrentDirectory + @"\data\";
+        // Current program settings.
         public static ProgramSettings Settings { get; private set; } = null!;
+        // Program instance reference.
         public static Program Instance { get; private set; } = null!;
 
         #endregion
@@ -48,32 +53,40 @@ namespace B
 
         #region Private Variables
 
-        // Module Groups
-        private static (string GroupTitle, Type[] ModuleTypes)[] ModuleGroups => new (string, Type[])[]
+        // Currently selected Module Group.
+        private ModuleGroup _selectedModuleGroup = null!;
+        // Currently selected Module.
+        private IModule? _selectedModule = null!;
+
+        #endregion
+
+
+
+        #region Private Properties
+
+        // Organized list of Module Groups.
+        private static ModuleGroup[] ModuleGroups => new ModuleGroup[]
         {
-            ("Games", new Type[] {
+            new("Games",
                 typeof(ModuleAdventure),
                 typeof(ModuleMexicanTrain),
                 typeof(ModuleBlackjack),
                 typeof(ModuleCheckers),
                 typeof(ModuleMadLibs),
-                typeof(ModuleNumberGuesser),
-            }),
-            ("Toys", new Type[] {
+                typeof(ModuleNumberGuesser)
+            ),
+            new("Toys",
                 typeof(ModuleCanvas),
                 typeof(ModuleBrainFuck),
-                typeof(ModuleTextGenerator),
-            }),
-            ("Tools", new Type[] {
+                typeof(ModuleTextGenerator)
+            ),
+            new("Tools",
                 typeof(ModuleFTP),
                 typeof(ModuleMoneyTracker),
                 typeof(ModuleIndexer),
-                typeof(ModuleSettings),
-            }),
+                typeof(ModuleSettings)
+            )
         };
-
-        private (string GroupTitle, Type[] ModuleTypes) _moduleGroup;
-        private IModule? _selectedModule = null;
 
         #endregion
 
@@ -81,11 +94,14 @@ namespace B
 
         #region Constructor
 
+        // Sets the Singleton reference. Only meant to be constructed once.
+        // Attempting to construct another Program will throw an exception.
         public Program() : base(Stages.Program)
         {
+            // Singleton check
             if (Instance is not null)
                 throw new Exception("Program already instantiated.");
-
+            // Set instance
             Instance = this;
         }
 
@@ -95,6 +111,7 @@ namespace B
 
         #region Private Methods
 
+        // Starts the program.
         private void Start()
         {
             // Initialize program
@@ -109,7 +126,7 @@ namespace B
             while (IsRunning)
             {
                 try { Loop(); }
-                catch (NotImplementedException) { HandleException(text: new Text("This feature is not yet implemented.", new ColorPair(ConsoleColor.DarkYellow, ConsoleColor.Gray))); }
+                catch (NotImplementedException) { HandleException(headerText: new Text("This feature is not yet implemented.", new ColorPair(ConsoleColor.DarkYellow, ConsoleColor.Gray))); }
                 catch (Exception e) { HandleException(e); }
             }
 
@@ -119,7 +136,6 @@ namespace B
             // Mark indexers to finish during Goodbye screen
             ModuleIndexer.ProcessIndexing = false;
 
-            // TODO replace wink with randomized faces or something different each time. Use Util.Random
             // Check to begin Goodbye wink
             bool displayGoodbye = Settings.DisplayGoodbye;
 
@@ -158,10 +174,9 @@ namespace B
             }
         }
 
+        // Initializes the program before accepting user input.
         private void Initialize()
         {
-            // TODO print breif 'Welcome'
-
             // Print 'Loading' message while program initializes.
             Window.Print("Loading...");
 
@@ -218,6 +233,7 @@ namespace B
 
         #region Override Methods
 
+        // Program loop.
         public sealed override void Loop()
         {
             // Lock thread
@@ -236,7 +252,7 @@ namespace B
                         {
                             choice.AddKeybind(Keybind.Create(() =>
                             {
-                                _moduleGroup = group;
+                                _selectedModuleGroup = group;
                                 SetStage(Stages.Group);
                             }, group.GroupTitle, c++));
                         }
@@ -249,11 +265,11 @@ namespace B
                 case Stages.Group:
                     {
                         // Display selected group level modules
-                        Window.SetSize(22, _moduleGroup.ModuleTypes.Length + 6);
+                        Window.SetSize(22, _selectedModuleGroup.ModuleTypes.Length + 6);
                         Cursor.Set(0, 1);
-                        Choice choice = new(_moduleGroup.GroupTitle);
+                        Choice choice = new(_selectedModuleGroup.GroupTitle);
                         char c = '1';
-                        foreach (var moduleType in _moduleGroup.ModuleTypes)
+                        foreach (var moduleType in _selectedModuleGroup.ModuleTypes)
                         {
                             string title = (string)moduleType.GetProperty("Title")?.GetValue(null)!;
 
@@ -262,7 +278,7 @@ namespace B
 
                             choice.AddKeybind(Keybind.Create(() =>
                             {
-                                _selectedModule = Activator.CreateInstance(moduleType) as IModule;
+                                _selectedModule = (IModule)Activator.CreateInstance(moduleType)!;
                                 SetStage(Stages.Module);
                             }, title, c++));
                         }
@@ -275,16 +291,19 @@ namespace B
                 case Stages.Module:
                     {
                         // Run module
-                        if (_selectedModule is not null && _selectedModule.IsRunning)
-                            _selectedModule.Loop();
+                        if (IsSelectedModuleValid())
+                            _selectedModule!.Loop();
 
                         // Check module
-                        if (_selectedModule is null || !_selectedModule.IsRunning)
+                        if (!IsSelectedModuleValid())
                         {
                             _selectedModule = null;
                             SetStage(Stages.Group);
                             ProgramThread.TryUnlock();
                         }
+
+                        // Local function
+                        bool IsSelectedModuleValid() => _selectedModule is not null && _selectedModule.IsRunning;
                     }
                     break;
             }
@@ -293,6 +312,7 @@ namespace B
             Keybind.ClearRegisteredKeybinds();
         }
 
+        // Handles backing out from the program or the module group.
         public sealed override void Quit()
         {
             // If quit is pressed in Stages.Group go back to Stages.Program
@@ -308,7 +328,8 @@ namespace B
 
         #region Universal Methods
 
-        public static void HandleException(Exception? exception = null, Text? text = null)
+        // Handles exceptions and allows the program to continue running.
+        public static void HandleException(Exception? exception = null, Text? headerText = null)
         {
             // Ensure thread is locked while processing
             ProgramThread.TryLock();
@@ -318,10 +339,10 @@ namespace B
             // Cursor will always start at (2, 1)
             Cursor.Set(2, 1);
 
-            if (text is null)
+            if (headerText is null)
                 Window.Print("An exception was thrown!", new ColorPair(colorText: ConsoleColor.Red));
             else
-                text.Print();
+                headerText.Print();
 
             if (exception is not null)
             {
@@ -348,6 +369,7 @@ namespace B
                 pInst.SetStage(Stages.Program);
         }
 
+        // Used to check what Module is currently selected.
         public static bool IsModuleOfType<T>() where T : IModule => Instance._selectedModule is T;
 
         #endregion
@@ -356,10 +378,14 @@ namespace B
 
         #region Enum
 
+        // Stages of the program.
         public enum Stages
         {
+            // Base level to select Module Groups.
             Program,
+            // Level to select a Module from a Module Group.
             Group,
+            // Level where Modules are run.
             Module,
         }
 

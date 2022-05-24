@@ -17,10 +17,15 @@ namespace B.Modules.Tools.Indexer
 
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Indexer";
+        // Relative path where module info is stored.
         public static string DirectoryPath => Program.DataPath + @"indexer\";
+        // Relative path where indexed info is stored.
         public static string DirectoryDrivesPath => DirectoryPath + @"drives\";
+        // Relative path where module settings are stored.
         public static string SettingsPath => DirectoryPath + "settings";
+        // Returns if and indexer is still running.
         public static bool IsIndexing
         {
             get
@@ -39,7 +44,9 @@ namespace B.Modules.Tools.Indexer
 
         #region Private Variables
 
+        // Indexer settings.
         private static IndexSettings Settings = null!;
+        // List of drive indexers.
         private static List<DriveIndexer> _driveIndexers = new();
 
         #endregion
@@ -48,6 +55,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Constructors
 
+        // Creates a new instance of ModuleIndexer.
         public ModuleIndexer() : base(Stages.MainMenu) { }
 
         #endregion
@@ -56,6 +64,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Override Methods
 
+        // Module Loop.
         public sealed override void Loop()
         {
             switch (Stage)
@@ -113,7 +122,6 @@ namespace B.Modules.Tools.Indexer
                             }
                             // Add stop indexing keybind
                             choice.AddSpacer();
-                            // TODO keybind unclickable when window is reupdating. make keybinds stay registered until this window is left
                             choice.AddKeybind(Keybind.Create(() => ProcessIndexing = false, "Stop Indexing", key: ConsoleKey.End));
                         }
 
@@ -133,11 +141,12 @@ namespace B.Modules.Tools.Indexer
             }
         }
 
-        public sealed override void Save() => Data.Serialize(SettingsPath, Settings);
-
+        // Save settings data before exiting module.
         public sealed override void Quit()
         {
-            Save();
+            // Save game data
+            Data.Serialize(SettingsPath, Settings);
+            // Quit
             base.Quit();
         }
 
@@ -147,6 +156,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Universal Methods
 
+        // Initializes Indexers for background running.
         public static void Initialize()
         {
             // Directory check
@@ -175,6 +185,7 @@ namespace B.Modules.Tools.Indexer
 
         #region Private Methods
 
+        // Gets valid drives and creates indexers for them.
         private static void UpdateDriveIndexers()
         {
             _driveIndexers.Clear();
@@ -189,6 +200,7 @@ namespace B.Modules.Tools.Indexer
             drivesList.ForEach(drive => _driveIndexers.Add(new(drive)));
         }
 
+        // Begins indexing valid drives.
         private static void BeginIndexing()
         {
             if (IsIndexing)
@@ -206,8 +218,9 @@ namespace B.Modules.Tools.Indexer
                 // Wait for indexing to finish
                 while (IsIndexing)
                 {
+                    // If viewing this module, skip input to update window.
                     if (IsInThisModule())
-                        Window.Update();
+                        Input.SkipInput();
 
                     ProgramThread.Wait(0.5f);
                 }
@@ -216,7 +229,7 @@ namespace B.Modules.Tools.Indexer
                 // If on indexing screen, ensure window gets reprinted
                 if (IsInThisModule())
                 {
-                    Window.Update();
+                    Input.SkipInput();
                     Window.Clear();
                 }
                 // Local functions
@@ -230,8 +243,10 @@ namespace B.Modules.Tools.Indexer
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Main Menu.
             MainMenu,
         }
 

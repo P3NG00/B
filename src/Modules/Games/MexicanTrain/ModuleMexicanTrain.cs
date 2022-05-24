@@ -7,10 +7,14 @@ namespace B.Modules.Games.MexicanTrain
     {
         #region Constants
 
+        // Max amount of dots on a domino.
         public const int DOMINO_MAX = 12;
+        // Minimum amount of players.
         public const int PLAYERS_MIN = 2;
+        // Maximum amount of players.
         public const int PLAYERS_MAX = 8;
-        public const int DOMINO_START = 10; // TODO change to take into account the number of players
+        // Amount of dominoes that each player starts with. (// TODO change to take into account the number of players)
+        public const int DOMINO_START = 10;
 
         #endregion
 
@@ -18,8 +22,10 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Mexican Train";
-        // TODO implement saving/loading
+        // TODO add relative directory instead of saving directly to DataPath
+        // Relative file path where data is saved. (// TODO implement saving/loading)
         public static string FilePath => Program.DataPath + "mexicanTrain";
 
         #endregion
@@ -28,6 +34,7 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Private Variables
 
+        // Mexican Train Game Info.
         private MexicanTrainInfo _info = null!;
 
         #endregion
@@ -36,6 +43,7 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Constructors
 
+        // Creates a new instance of ModuleMexicanTrain.
         public ModuleMexicanTrain() : base(Stages.MainMenu) { }
 
         #endregion
@@ -44,6 +52,7 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             switch (Stage)
@@ -82,8 +91,6 @@ namespace B.Modules.Games.MexicanTrain
 
                         // TODO
                         _info.HandleTurn();
-
-                        // TODO
                     }
                     throw new NotImplementedException();
             }
@@ -95,9 +102,12 @@ namespace B.Modules.Games.MexicanTrain
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Main Menu.
             MainMenu,
+            // Mexican Train Game.
             Game,
         }
 

@@ -4,6 +4,7 @@ namespace B.Modules.Games.MadLibs
     {
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Mad-Libs";
 
         #endregion
@@ -12,6 +13,7 @@ namespace B.Modules.Games.MadLibs
 
         #region Constructors
 
+        // Creates a new instance of ModuleMadLibs.
         public ModuleMadLibs() : base(Stages.MainMenu) { }
 
         #endregion
@@ -20,6 +22,7 @@ namespace B.Modules.Games.MadLibs
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             // TODO
@@ -32,8 +35,11 @@ namespace B.Modules.Games.MadLibs
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+
+            // Main Menu.
             MainMenu,
         }
 

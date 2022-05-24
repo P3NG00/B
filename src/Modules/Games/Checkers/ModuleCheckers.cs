@@ -4,6 +4,7 @@ namespace B.Modules.Games.Checkers
     {
         #region Universal Properties
 
+        // Module Title.
         public static string Title => "Checkers";
 
         #endregion
@@ -12,6 +13,7 @@ namespace B.Modules.Games.Checkers
 
         #region Constructors
 
+        // Creates a new instance of ModuleCheckers.
         public ModuleCheckers() : base(Stages.MainMenu) { }
 
         #endregion
@@ -20,6 +22,7 @@ namespace B.Modules.Games.Checkers
 
         #region Override Methods
 
+        // Module Loop.
         public override void Loop()
         {
             // TODO - intended to be a checkers game. 2 player / 1 vs AI
@@ -46,9 +49,12 @@ namespace B.Modules.Games.Checkers
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Main Menu.
             MainMenu,
+            // Game.
             Game,
         }
 

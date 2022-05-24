@@ -8,6 +8,7 @@ namespace B.Modules.Toys.TextGenerator
     {
         #region Universal Properties
 
+        /// Module Title.
         public static string Title => "Text Generator";
 
         #endregion
@@ -16,9 +17,9 @@ namespace B.Modules.Toys.TextGenerator
 
         #region Private Variables
 
-        // Current Font from Index
+        // Gets current FontType from current font index.
         private FontType FontInfo => Fonts.FontArray[_fontIndex];
-        // Index of current Font
+        // Current font index.
         private int _fontIndex = 0;
 
         #endregion
@@ -27,6 +28,7 @@ namespace B.Modules.Toys.TextGenerator
 
         #region Constructors
 
+        // Creates new instance of ModuleTextGenerator.
         public ModuleTextGenerator() : base(Stages.Text)
         {
             // Reset text
@@ -41,6 +43,7 @@ namespace B.Modules.Toys.TextGenerator
 
         #region Override Methods
 
+        // Module Loop.
         public sealed override void Loop()
         {
             switch (Stage)
@@ -125,6 +128,7 @@ namespace B.Modules.Toys.TextGenerator
 
         #region Private Methods
 
+        // Selects new font at random.
         private void SelectRandomFont() => _fontIndex = Fonts.FontArray.RandomIndex();
 
         #endregion
@@ -133,9 +137,12 @@ namespace B.Modules.Toys.TextGenerator
 
         #region Enums
 
+        // Module Stages.
         public enum Stages
         {
+            // Text input.
             Text,
+            // Font selection.
             FontSelect,
         }
 

@@ -1,12 +1,6 @@
 
 
 
-Adventure Grid:
-
-Allow variable in Grid initialization to allow for different visual grid borders. (probably an enum)
-
-
-
 General:
 
 Program needs testing with different types of systems.
@@ -15,12 +9,44 @@ Program needs testing with different types of systems.
         Different OS types
 
 
+// TODO ModuleIndexer "Stop Indexing" keybind unclickable when window is reupdating. make keybinds stay registered until this window is left?
 
 // TODO Make sure all overridden methods are sealed.
 
 
 
-// TODO use XML documentation for each method and property to describe what they do and how they are used
+// TODO add uploading to ModuleFTP
+// TODO add keybind in password screen to randomly select a new password scrambler
+
+
+
+// TODO print brief 'Welcome' message similar to 'goodbye'
+// TODO replace 'goodbye' wink with randomized faces or something different each time. Use Util.Random
+
+
+
+
+// TODO TextGenerator fix text staying when deleted with backspace or end
+
+// TODO MoneyTracker, fix weirdness when subtracting decimals in transaction list
+// TODO MoneyTracker, remove serialized account name from Account.cs and set it when account is loaded by the name of the file
+
+// TODO OptionAdventure implement some color printing (examples: tiles, player, coins, doors, border, text, etc.)
+// TODO add option in adventure to enable/disable color printing
+// TODO OptionAdventure create way to ensure proper error messages are thrown when creating/sealing grids. Check to make sure each interactable and door is valid. not just the amounts.
+
+// TODO adventure info
+// TODO each grid will have a certain number of coins in it.
+// TODO the coins in each grid will be loaded/saved using an int as a bitfield.
+// TODO each grid will only have as many bits as the number of coins in it.
+
+
+
+// TODO utilize IronOCR to index text on images
+
+
+
+// TODO ColorTheme make PrintPairs private. make sure its still serializable
 
 
 

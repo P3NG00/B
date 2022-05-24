@@ -2,6 +2,7 @@ namespace B.Utils.Extensions
 {
     public static class ListB
     {
+        // Removes a random item from the list.
         public static T RemoveRandom<T>(this List<T> list)
         {
             T item = list.Random();
@@ -9,6 +10,7 @@ namespace B.Utils.Extensions
             return item;
         }
 
+        // Randomly shuffles positions of all elements in the list.
         public static void Shuffle<T>(this List<T> list)
         {
             Random random = Util.Random;

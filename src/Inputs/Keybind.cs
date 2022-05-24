@@ -9,8 +9,9 @@ namespace B.Inputs
     {
         #region Public Properties
 
+        // The position to begin printing the keybind.
         public Vector2 Position { get; private set; } = null!;
-
+        // Returns if the mouse is currently hovering over the keybind.
         public bool IsHighlighted
         {
             get
@@ -29,7 +30,7 @@ namespace B.Inputs
                 return isInX && isOnY;
             }
         }
-
+        // Returns if the keybind should be displayed on screen.
         public bool Display => !string.IsNullOrWhiteSpace(_description);
 
         #endregion
@@ -38,11 +39,17 @@ namespace B.Inputs
 
         #region Private Variables
 
+        // List of currently registered Keybinds.
         private static readonly List<Keybind> _keybinds = new();
 
+        // Required key modifiers.
+        // This is a combination of Control, Shift, and Alt.
         private ConsoleModifiers _modifiers;
+        // Short description to display.
         private string _description = null!;
+        // Action to perform when activated.
         private Action _action = null!;
+        // The 
         private ColorPair? _colorPair;
         private ConsoleKey? _key;
         private char? _keyChar;
@@ -64,8 +71,13 @@ namespace B.Inputs
 
         #region Public Methods
 
+        // Prints the keybind to the screen.
         public void Print()
         {
+            // Display check.
+            if (!Display)
+                throw new Exception("Attempted to print a keybind that is not displayed!");
+
             // Get output
             string keybindStr = ToString();
             // Get current highlight status
@@ -76,17 +88,20 @@ namespace B.Inputs
             if (!highlighted && (overrides || _lastHighlighted!.Value))
             {
                 if (_colorPair is null)
-                    PrintAction(() => Window.Print(keybindStr));
+                    CacheCursorAndPrint(() => Window.Print(keybindStr));
                 else
-                    PrintAction(() => Window.Print(keybindStr, _colorPair));
+                    CacheCursorAndPrint(() => Window.Print(keybindStr, _colorPair));
             }
             else if (highlighted && (overrides || !_lastHighlighted!.Value))
-                PrintAction(() => Window.Print(keybindStr, PrintType.Highlight));
+                CacheCursorAndPrint(() => Window.Print(keybindStr, PrintType.Highlight));
             // Update last highlight status
             _lastHighlighted = highlighted;
 
-            // Local Method
-            void PrintAction(Action printAction)
+            // Local Method.
+            // Since keybinds are printed when the mouse is moving,
+            // this method caches the cursor position and visibility
+            // before printing to avoid the cursor from flickering.
+            void CacheCursorAndPrint(Action printAction)
             {
                 // Cache cursor info
                 Vector2 cursorPos = Cursor.Position;
@@ -108,6 +123,7 @@ namespace B.Inputs
 
         #region Private Methods
 
+        // Returns if the given modifiers are required.
         private bool HasModifier(ConsoleModifiers modifier) => _modifiers.HasFlag(modifier);
 
         #endregion
@@ -116,6 +132,7 @@ namespace B.Inputs
 
         #region Override Methods
 
+        // Compares a keybinds to an object.
         public override bool Equals(object? obj)
         {
             if (obj is Keybind keybind)
@@ -126,8 +143,10 @@ namespace B.Inputs
                 return false;
         }
 
+        // Returns the hashcode.
         public override int GetHashCode() => base.GetHashCode();
 
+        // The string representation of the keybind.
         public override string ToString()
         {
             string preface;
@@ -157,6 +176,7 @@ namespace B.Inputs
 
         #region Universal Methods
 
+        // Creates a new keybind.
         public static Keybind Create(Action? action = null, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
         {
             Keybind keybind = new();
@@ -169,6 +189,7 @@ namespace B.Inputs
             return keybind;
         }
 
+        // Creates a keybind meant to be used to exit the given Module.
         public static Keybind CreateModuleExit(IModule option, bool hide = false)
         {
             string? phrase = null;
@@ -187,8 +208,10 @@ namespace B.Inputs
             return Create(option.Quit, phrase, key: ConsoleKey.Escape);
         }
 
+        // Creates a keybind meant to toggle Togglables.
         public static Keybind CreateTogglable(Togglable togglable, string title, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null) => Create(togglable.Toggle, $"{title}: {togglable.Enabled,-5}", keyChar, key, modifiers, colorPair);
 
+        // Creates a keybind that displays a confirmation before performing the given action.
         public static Keybind CreateConfirmation(Action action, string deletionMessage, string? description = null, char? keyChar = null, ConsoleKey? key = null, ConsoleModifiers? modifiers = null, ColorPair? colorPair = null)
         {
             return Create(() =>
@@ -209,6 +232,7 @@ namespace B.Inputs
             }, description, keyChar, key, modifiers, colorPair);
         }
 
+        // Registers the given keybind.
         public static void RegisterKeybind(Keybind keybind, Vector2 position = null!)
         {
             // Register check
@@ -223,6 +247,7 @@ namespace B.Inputs
             _keybinds.Add(keybind);
         }
 
+        // Prints currently registered keybinds.
         public static void PrintRegisteredKeybinds()
         {
             foreach (var keybind in _keybinds)
@@ -230,7 +255,7 @@ namespace B.Inputs
                     keybind.Print();
         }
 
-        // The condition is used to find a matching keybind to activate.
+        // Uses the condition to find a matching keybind to activate.
         public static void ActivateKeybind(Func<Keybind, bool> condition)
         {
             foreach (Keybind keybind in _keybinds)
@@ -246,6 +271,7 @@ namespace B.Inputs
             }
         }
 
+        // Clears currently registered keybinds.
         public static void ClearRegisteredKeybinds()
         {
             _keybinds.Clear();
@@ -258,6 +284,7 @@ namespace B.Inputs
 
         #region Operator Overrides
 
+        // Returns if the ConsoleKeyInfo fills the requirements of the Keybind.
         public static bool operator ==(Keybind keybind, ConsoleKeyInfo keyInfo)
         {
             bool isKey = keybind._key == keyInfo.Key;
@@ -277,6 +304,7 @@ namespace B.Inputs
             return keybind._modifiers.Equals(keyInfo.Modifiers);
         }
 
+        // Returns if the ConsoleKeyInfo does not fill the requirements of the Keybind.
         public static bool operator !=(Keybind keybind, ConsoleKeyInfo keyInfo) => !(keybind == keyInfo);
 
         #endregion

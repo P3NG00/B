@@ -31,7 +31,10 @@ namespace B.Inputs
             }
         }
 
+        // Returns if necessary for keybinds to be redrawn.
+        // Keybinds will not be drawn unless the mouse is moved.
         public static bool KeybindsNeedRedraw => _lastMousePos == Vector2.Zero;
+        // Returns if the left mouse button is being held.
         public static bool LeftButtonDown => _lastLeftButtonDown;
 
         #endregion
@@ -40,9 +43,13 @@ namespace B.Inputs
 
         #region Private Variables
 
+        // Stores the last state of the left mouse button.
         private static bool _lastLeftButtonDown = false;
+        // Stores if the left mouse button just registered a click.
         private static bool _lastLeftButtonClick = false;
+        // Mouse processing thread reference.
         private static Thread _thread = null!;
+        // Stores the last position of the mouse.
         private static Vector2 _lastMousePos = Vector2.Zero;
 
         #endregion
@@ -51,6 +58,7 @@ namespace B.Inputs
 
         #region Universal Methods
 
+        // Initializes the Mouse Thread Loop.
         public static void Initialize()
         {
             // Init check
@@ -70,6 +78,7 @@ namespace B.Inputs
 
         #region Private Methods
 
+        // Thread to loop for handling Mouse Input.
         private static void MouseThreadLoop()
         {
             // Wait thread
@@ -78,6 +87,7 @@ namespace B.Inputs
             ProgramThread.Lock(Process);
         }
 
+        // Handles Mouse Input this frame.
         private static void Process()
         {
             // Check state of mouse button
@@ -86,13 +96,13 @@ namespace B.Inputs
             _lastLeftButtonClick = currentLeftButton && !_lastLeftButtonDown;
             // Update last mouse state
             _lastLeftButtonDown = currentLeftButton;
-            // If clicked, attempt to activate keybind
+            // If left mouse button is currently held
             if (_lastLeftButtonDown)
             {
-                // If valid mouse input, set action to void to process input
+                // If processing held mouse input, skip input processing to allow for keybind activation
                 if (InputType == MouseInputType.Hold && Input.Action is null)
-                    Window.Update();
-                // If left mouse button clicked, test for keybind to activate
+                    Input.SkipInput();
+                // If left mouse button was clicked, test for keybind to activate
                 if (_lastLeftButtonClick)
                     Keybind.ActivateKeybind(keybind => keybind.IsHighlighted);
             }
@@ -128,9 +138,12 @@ namespace B.Inputs
 
         #region Enums
 
+        // How the thread should process mouse input.
         public enum MouseInputType
         {
+            // Only updates on mouse click.
             Click,
+            // Updates constantly when the mouse is held.
             Hold,
         }
 

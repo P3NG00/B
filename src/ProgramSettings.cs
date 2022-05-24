@@ -4,10 +4,12 @@ using B.Utils.Themes;
 
 namespace B
 {
+    // Stores settings for the program.
     public sealed class ProgramSettings
     {
         #region Universal Properties
 
+        // Relative path to serialized program settings file.
         public static string Path => Program.DataPath + "settings";
 
         #endregion
@@ -16,11 +18,17 @@ namespace B
 
         #region Public Variables
 
+        // Togglable to display goodbye screen when exiting.
         public Togglable DisplayGoodbye;
+        // Togglable to display the cursor on screen.
         public Togglable CursorVisible;
+        // Togglable for Debug mode.
         public Togglable DebugMode;
+        // Togglable to censor bad language.
         public Togglable Censor;
+        // Selected color theme.
         public ColorTheme ColorTheme;
+        // Size of cursor when visible (1-100).
         public int CursorSize;
 
         #endregion
@@ -29,6 +37,7 @@ namespace B
 
         #region Constructor
 
+        // Creates new ProgramSettings object with default values.
         public ProgramSettings()
         {
             DisplayGoodbye = new(true);
@@ -45,6 +54,8 @@ namespace B
 
         #region Public Methods
 
+        // Since actions cannot be saved in a serialized file, this
+        // function appropriately reinitializes togglables with actions.
         public void Initialize()
         {
             // These are set outside of constructor because these are not serializable.
@@ -56,8 +67,10 @@ namespace B
             UpdateCursor();
         }
 
+        // Used to reset the color theme after colors have been changed.
         public void UpdateColors() => ColorTheme[PrintType.General].SetConsoleColors();
 
+        // Used to reset the cursor after properties have been changed.
         public void UpdateCursor()
         {
             Cursor.Visible = CursorVisible;

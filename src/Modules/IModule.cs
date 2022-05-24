@@ -4,6 +4,7 @@ namespace B.Modules
     {
         #region Properties
 
+        // Status of the module.
         bool IsRunning { get; }
 
         #endregion
@@ -12,8 +13,10 @@ namespace B.Modules
 
         #region Methods
 
+        // Main module loop.
         void Loop();
 
+        // Stops the module.
         void Quit();
 
         #endregion

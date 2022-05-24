@@ -7,6 +7,7 @@ namespace B.Utils
     {
         #region Private Variables
 
+        // Array of built-in Color Themes.
         private static ColorTheme[] _colorThemes = null!;
 
         #endregion
@@ -15,11 +16,15 @@ namespace B.Utils
 
         #region Universal Properties
 
+        // Cached Random object reference.
         public static Random Random { get; private set; } = new();
+        // Retrieves the array of built-in Color Themes.
         public static ColorTheme[] ColorThemes => _colorThemes;
+        // Default color theme.
         public static ColorTheme ThemeDefault => new ColorTheme("Default",
             new PrintPair(PrintType.General, new(ConsoleColor.Black, ConsoleColor.White)),
             new PrintPair(PrintType.Title, new(ConsoleColor.Black, ConsoleColor.Gray)));
+        // Array of Console Colors ordered by color.
         public static ConsoleColor[] ConsoleColors => new ConsoleColor[]
         {
             ConsoleColor.White,
@@ -46,14 +51,19 @@ namespace B.Utils
 
         #region Universal Methods
 
+        // Does nothing when invoked.
+        // Use this as reference for Input Action that needs
+        // to be invoked but nothing needs to be done.
         public static void Void() { }
 
+        // Forces the current thread to wait until the condition is met to continue processing.
         public static void WaitFor(Func<bool> condition, float seconds = 0.01f)
         {
             while (!condition())
                 ProgramThread.Wait(seconds);
         }
 
+        // Initializes Color Themes.
         public static void Initialize()
         {
             // Init check
